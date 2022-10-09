@@ -10,4 +10,6 @@ This project is developed using Python 3.10.7 under a virtual environment genera
 
 Package dependencies are in the `requirements.txt` file.
 
+Applicaton must be run via `python3 -m proteus` from the application directory.
+
 
