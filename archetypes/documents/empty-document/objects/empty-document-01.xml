@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="empty-document-01" classes=":Proteus-document" acceptedChildren=":Proteus-any">
+  <properties>
+    <stringProperty name="name"><![CDATA[Empty document]]></stringProperty>
+    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
+	<dateProperty name="date">2022-10-10</dateProperty>
+	<stringProperty name="author"><![CDATA[Amador Durán Toro]]></stringProperty>	
+    <markdownProperty name="description"><![CDATA[Empty document of empty project.]]></markdownProperty>
+  </properties>
+  <children />
+  <traces />
+</object>

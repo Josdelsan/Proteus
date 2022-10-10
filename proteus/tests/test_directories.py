@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: __init__.py
-# Description: module initialization for the PROTEUS application
-# Date: 09/10/2022
+# File: test_directories.py
+# Description: pytest file for the PROTEUS application directories
+# Date: 10/10/2022
 # Version: 0.1
 # Author: Amador Durán Toro
 # ==========================================================================
@@ -10,22 +10,24 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
-# Constant declarations for PROTEUS logger name
+# Project specific imports
 # --------------------------------------------------------------------------
 
-PROTEUS_LOGGER_NAME    : str = 'proteus'
-PROTEUS_LOGGING_FORMAT : str = '%(name)s:%(filename)s [%(levelname)s] -> %(message)s'
+import proteus
+from proteus.app import ProteusApplication
 
 # --------------------------------------------------------------------------
-# Logger configuration
+# Tests
 # --------------------------------------------------------------------------
 
-logging.basicConfig(
-    level=logging.DEBUG, 
-    format=PROTEUS_LOGGING_FORMAT)
-
-logger : logging.Logger = logging.getLogger(PROTEUS_LOGGER_NAME)
-
+def test_application_directories():
+    """
+    It tests that essential PROTEUS directories exist.
+    """
+    app : ProteusApplication = ProteusApplication()
+    assert app.resources_directory.is_dir()
+    assert app.icons_directory.is_dir()
+    assert app.archetypes_directory.is_dir()

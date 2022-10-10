@@ -6,15 +6,18 @@
 # Author: Amador Durán Toro
 # ==========================================================================
 
-# standard library imports
-import logging
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
 from pathlib import Path
 from configparser import ConfigParser
 
-# logging configuration
-# TODO: the logger should be set at application level and be available
-# in all modules via import
-log = logging.getLogger(__name__)
+# --------------------------------------------------------------------------
+# Project specific imports
+# --------------------------------------------------------------------------
+
+import proteus
 
 # --------------------------------------------------------------------------
 # Constant declarations for PROTEUS configuration file keys
@@ -39,6 +42,9 @@ ICONS_DIRECTORY      : str = 'icons_directory'
 
 class ProteusApplication:
     def __init__(self):
+        """
+        It initializes the PROTEUS application.
+        """
 
         # Application configuration
         self.config : ConfigParser = self._create_config_parser()
@@ -54,6 +60,9 @@ class ProteusApplication:
         self.check_application_directories()
 
     def _create_config_parser(self) -> ConfigParser:
+        """
+        Private methdos that creates configuration parser and loads config file.
+        """
         assert Path(CONFIG_FILE).exists(), \
             f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 
@@ -63,38 +72,39 @@ class ProteusApplication:
         return config_parser
 
     def check_application_directories(self) -> None:
-        log.info("Checking PROTEUS directories...")
+        """
+        It checks that essential PROTEUS directories exist.
+        """
+        proteus.logger.info("Checking PROTEUS directories...")
 
         assert self.resources_directory.is_dir(), \
             f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
 
-        log.info("  Resources directory OK")
+        proteus.logger.info("  Resources directory OK")
 
         assert self.icons_directory.is_dir(), \
             f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
 
-        log.info("  Icons directory OK")
+        proteus.logger.info("  Icons directory OK")
 
         # TODO: check archetypes directories in ArchetypesManager
 
         assert self.archetypes_directory.is_dir(), \
             f"PROTEUS archetypes directory '{self.archetypes_directory}' does not exist!"
 
-        log.info("  Archetypes directory OK")
+        proteus.logger.info("  Archetypes directory OK")
 
     def run(self) -> int:
+        """
+        PROTEUS application main method.
+        """
 
-        print(f"Current working directory: {Path.cwd()}")
-        print(f"Home directory: {Path.home()}")
-        print(f"{Path(__file__)=}")
+        proteus.logger.info(f"Current working directory: {Path.cwd()}")
+        proteus.logger.info(f"Home directory: {Path.home()}")
+        proteus.logger.info(f"{Path(__file__) = }")
 
-        print(f"{self.resources_directory=}")
-        print(f"{self.resources_directory.exists()=}")
-
-        print(f"{self.icons_directory=}")
-        print(f"{self.icons_directory.exists()=}")
-
-        print(f"{self.archetypes_directory=}")
-        print(f"{self.archetypes_directory.exists()=}")
+        proteus.logger.info(f"{self.resources_directory = }")
+        proteus.logger.info(f"{self.icons_directory = }")
+        proteus.logger.info(f"{self.archetypes_directory = }")
 
         return 0
