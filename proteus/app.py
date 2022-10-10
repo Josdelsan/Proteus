@@ -66,7 +66,7 @@ class ProteusApplication:
         assert Path(CONFIG_FILE).exists(), \
             f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 
-        config_parser : ConfigParser() = ConfigParser()
+        config_parser : ConfigParser = ConfigParser()
         config_parser.read(CONFIG_FILE)
 
         return config_parser
