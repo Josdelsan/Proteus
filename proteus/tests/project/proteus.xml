@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project id="QSDQUqqQh8NrCdrSL3QYVA">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Proyecto Proteus]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
+    <urlProperty name="google" category="general"><![CDATA[https://google.com]]></urlProperty>
+    <dateProperty name="created" category="general">2022-08-10</dateProperty>
+    <stringProperty name="createdBy" category="general"><![CDATA[Amador Durán]]></stringProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Descripción del proyecto]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[Comentarios del proyecto con un & y < y >.]]></markdownProperty>
+    <integerProperty name="numberOfUsers" category="general">15</integerProperty>
+    <realProperty name="money" category="general">10.5</realProperty>
+    <booleanProperty name="info" category="estilo">false</booleanProperty>
+    <enumProperty name="stability" category="general" choices="media PD baja">baja</enumProperty>
+    <timeProperty name="time" category="priority">20:10:02</timeProperty>
+  </properties>
+  <documents>
+    <document id="3fKhMAkcEe2C"/>
+    <document id="3fKhMAkcEe2D"/>
+  </documents>
+</project>
