@@ -35,6 +35,8 @@ log = logging.getLogger(__name__)
 
 
 ARCHETYPES_FOLDER = config.Config().archetypes_directory
+PROJECT_PROPERTIES_TO_SAVE = ["name", "description", "author", "date"]
+DOCUMENT_PROPERTIES_TO_SAVE = ["name", "description", "author", "date"]
 
 # --------------------------------------------------------------------------
 # Class: ArchetypesType
@@ -258,7 +260,7 @@ class ArchetypeManager:
                     for element in properties_element:
                         property = PropertyFactory.create(element)
                         property_name : str = property.name
-                        if(property_name == "name" or property_name == "description"):
+                        if(property_name in DOCUMENT_PROPERTIES_TO_SAVE):
                             document_dicc[property_name] = property.value
 
                     result.append(document_dicc)
@@ -328,7 +330,7 @@ class ArchetypeManager:
                 for element in properties_element:
                     property = PropertyFactory.create(element)
                     property_name : str = property.name
-                    if(property_name == "name" or property_name == "description"):
+                    if(property_name in PROJECT_PROPERTIES_TO_SAVE):
                         project_dicc[property_name] = property.value
             result.append(project_dicc)
         return result

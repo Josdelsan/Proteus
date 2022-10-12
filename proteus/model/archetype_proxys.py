@@ -5,6 +5,7 @@
 # Version: 0.2
 # Author: Pablo Rivera Jiménez
 # ==========================================================================
+import datetime
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -51,6 +52,8 @@ class ProjectArchetypeProxy:
         self.id : str = data["id"]
         self.name : str = data["name"]
         self.description : str = data["description"]
+        self.author : str = data["author"]
+        self.date : datetime = data["date"]
 
     # ----------------------------------------------------------------------
     # Method     : get_project
@@ -104,7 +107,9 @@ class DocumentArchetypeProxy:
         self.id : str = data["id"]
         self.name : str = data["name"]
         self.description : str = data["description"]
-
+        self.author : str = data["author"]
+        self.date : datetime = data["date"] 
+        
     # ----------------------------------------------------------------------
     # Method     : get_project
     # Description: It returns an instance of a project.

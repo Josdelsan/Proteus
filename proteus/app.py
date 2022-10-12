@@ -113,13 +113,17 @@ class ProteusApplication:
         print("------------------------")
         documents = DocumentArchetypeProxy.load()
         for document in documents:
-            print(document.path, "\n", document.id, "\n", document.name, "\n", document.description)
+            print(document.path, "\n", document.id, "\n", 
+                  document.name, "\n", document.description,
+                  "\n", document.author, "\n", document.date)
 
         print("Archetype Project Test")
         print("------------------------")
         projects = ProjectArchetypeProxy.load()
         for project_arch in projects:
-            print(project_arch.path, "\n", project_arch.id, "\n", project_arch.name, "\n", project_arch.description)
+            print(project_arch.path, "\n", project_arch.id,
+                  "\n", project_arch.name, "\n", project_arch.description,
+                  "\n", project_arch.author, "\n", project_arch.date)
 
         # project.clone_project("../../clone_test/" + ArchetypeManager.load_project_archetypes()[1][1], ArchetypeManager.load_project_archetypes()[1][0])
         # project.state = ProteusState.DEAD

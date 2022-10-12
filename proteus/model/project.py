@@ -323,6 +323,7 @@ class Project(AbstractObject):
         # In case there is no directory, create it
         if "assets" not in os.listdir(os.path.dirname(filename_path_to_save)):
             os.mkdir(join(path, "assets"))
+            shutil.copytree(archetype_dir / "assets", path / "assets")
 
         #TODO remove this if in future. This if is just because otherwise while testing it will fail.
         if "objects" not in os.listdir(archetype_dir):
