@@ -19,6 +19,7 @@ from pathlib import Path
 import proteus
 import lxml.etree as ET
 from proteus.config import Config
+from proteus.model.abstract_object import ProteusState
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
@@ -124,13 +125,12 @@ class ProteusApplication:
             print(project_arch.path, "\n", project_arch.id,
                   "\n", project_arch.name, "\n", project_arch.description,
                   "\n", project_arch.author, "\n", project_arch.date)
-
-        # project.clone_project("../../clone_test/" + ArchetypeManager.load_project_archetypes()[1][1], ArchetypeManager.load_project_archetypes()[1][0])
-        # project.state = ProteusState.DEAD
-        
         
         object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
         object2.clone_object(project)
+        for doc in project.documents.values():
+            doc.state = ProteusState.DEAD
+            
 
 
 
@@ -145,6 +145,6 @@ class ProteusApplication:
         #             print("HERE")
         #             print(child.id)
         #             child.set_property(StringProperty("name", "NewName"))
-
+        
         # project.save_project()
 

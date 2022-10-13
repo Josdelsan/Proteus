@@ -79,20 +79,44 @@ class Config:
         """
         proteus.logger.info("Checking PROTEUS directories...")
 
+        # Check if resources directory exists
         assert self.resources_directory.is_dir(), \
             f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
 
         proteus.logger.info("  Resources directory OK")
 
+
+        # Check if icons directory exists
         assert self.icons_directory.is_dir(), \
             f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
 
         proteus.logger.info("  Icons directory OK")
 
-        # TODO: check archetypes directories in ArchetypesManager
 
+        # Check if archetypes directory exists
         assert self.archetypes_directory.is_dir(), \
             f"PROTEUS archetypes directory '{self.archetypes_directory}' does not exist!"
 
         proteus.logger.info("  Archetypes directory OK")
 
+        
+        # Check if projects archetypes exists
+        assert (self.archetypes_directory / "projects").is_dir(), \
+            f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
+
+        proteus.logger.info("  Archetypes projects directory OK")
+
+
+        # Check if documents archetypes exists
+        assert (self.archetypes_directory / "documents").is_dir(), \
+            f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
+
+        proteus.logger.info("  Archetypes documents directory OK")
+
+
+        # Check if objects archetypes exists
+        assert (self.archetypes_directory / "objects").is_dir(), \
+            f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
+
+        proteus.logger.info("  Archetypes objects directory OK")
+        

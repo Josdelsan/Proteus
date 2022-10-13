@@ -158,13 +158,12 @@ class DateProperty(Property):
         super().__init__(name, value, category)
 
         # Convert string to date and check it is correct
-        # TODO: strptime raises a ValueError exception if the string does not
-        #       match the format. Catch (except) the exception, set a default
-        #       value and send an error message to the log.
-        self.value : datetime.date = datetime.datetime.strptime(value, '%Y-%m-%d').date()
-
-        assert self.value is not None, \
-            f"Date property '{name}' has an incorrect format. Plase use YYYY-MM-DD."
+        try:
+            self.value : datetime.date = datetime.datetime.strptime(value, '%Y-%m-%d').date()
+        except ValueError:
+            self.value : datetime.date = datetime.datetime.today().strftime('%Y-%m-%d')
+            log.warn(f"Date property '{name}' has an incorrect format. Plase use YYYY-MM-DD.")
+            
 
     def generate_xml_value(self, _:ET.Element) -> str | ET.CDATA:
         """
@@ -195,13 +194,11 @@ class TimeProperty(Property):
         super().__init__(name, value, category)
 
         # Convert string to time and check it is correct
-        # TODO: strptime raises a ValueError exception if the string does not
-        #       match the format. Catch (except) the exception, set a default
-        #       value and send an error message to the log.
-        self.value : datetime.time = datetime.datetime.strptime(value, '%H:%M:%S').time()
-
-        assert self.value is not None, \
-            f"Time property '{name}' has an incorrect format. Please use HH:MM:SS."
+        try:
+            self.value : datetime.time = datetime.datetime.strptime(value, '%H:%M:%S').time()
+        except ValueError:
+            self.value : datetime.date = datetime.datetime.now().strftime('%H:%M:%S')
+            log.warn(f"Time property '{name}' has an incorrect format. Please use HH:MM:SS.")
 
     def generate_xml_value(self, _:ET.Element) -> str | ET.CDATA:
         """
@@ -262,13 +259,12 @@ class IntegerProperty(Property):
         super().__init__(name, value, category)
 
         # Convert string to int and check it is correct
-        # TODO: int() raises a ValueError exception if the string does not
-        #       match an integer number. Catch (except) the exception, set
-        #       a default value and send an error message to the log.
-        self.value : int = int(value)
-
-        assert self.value is not None, \
-            f"Integer property '{name}' has an incorrect format."
+        try:
+            self.value : int = int(value)
+        except ValueError:
+            self.value : int = 0
+            log.warn(f"Integer property '{name}' has an incorrect format.")
+                
 
     def generate_xml_value(self, _:ET.Element) -> str | ET.CDATA:
         """
@@ -299,13 +295,12 @@ class RealProperty(Property):
         super().__init__(name, value, category)
 
         # Convert string to float and check it is correct
-        # TODO: float() raises a ValueError exception if the string does not
-        #       match a float number. Catch (except) the exception, set
-        #       a default value and send an error message to the log.
-        self.value = float(value)
-
-        assert self.value is not None, \
-            f"Real number property '{name}' has an incorrect format."
+        try:
+            self.value = float(value)
+        except ValueError:
+            self.value : float = float(0)
+            log.warn(f"Real number property '{name}' has an incorrect format.")
+            
 
     def generate_xml_value(self, _:ET.Element) -> str | ET.CDATA:
         """
@@ -369,6 +364,9 @@ class UrlProperty(Property):
         super().__init__(name, value, category)
 
         # TODO: check it is a valid URL
+        #import validators
+        #validators.url(value)
+        #pip install validators
         self.value : str = str(value)
 
     def generate_xml_value(self, _:ET.Element) -> str | ET.CDATA:

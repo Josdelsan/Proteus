@@ -19,6 +19,7 @@ from __future__ import annotations # it has to be the first import
 # standard library imports
 import os
 from os.path import join
+import pathlib
 import shutil
 import logging
 import lxml.etree as ET
@@ -190,8 +191,9 @@ class Project(AbstractObject):
 
         # Create <document> subelements
         for document in self.documents.values():
-            document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-            document_element.set('id', document.id)
+            if(document.state != ProteusState.DEAD):
+                document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
+                document_element.set('id', document.id)
 
         return project_element
 
@@ -216,10 +218,12 @@ class Project(AbstractObject):
         if(self.state == ProteusState.DEAD):
             # If the project was already saved in OS and not in memory:
             if(os.path.isfile(self.path)):
-                pass
+                relative_path = pathlib.Path(self.path)
+                absolute_path = relative_path.resolve()
+                shutil.rmtree(absolute_path.parent)
             for document in self.documents.values():
                 document.state = ProteusState.DEAD
-        
+            return None
         # If the Project is Dirty
         elif(self.state == ProteusState.DIRTY):
             root = self.generate_xml()
@@ -237,27 +241,9 @@ class Project(AbstractObject):
 
             # If the document is DEAD (Deleted)
             if(document.state == ProteusState.DEAD):
-                
-                # If the document has children, we get the children and set them to DEAD
-                if(document.children):
-                    def delete_children(children : dict[ProteusID,Object]):
-                        child: Object
-                        for child in children.values():
-                            child_path = f"{objects_repository}/{child.id}.xml"
-
-                            child.state = ProteusState.DEAD
-
-                            # If the document exists (not in memory), we deleted from os
-                            if(os.path.isfile(child_path)):
-                                #TODO remove from OS
-                                pass
-                            delete_children(child.children)
-                    delete_children(document.children)
-                
                 # If the document exists (not in memory), we deleted from os
                 if(os.path.isfile(document_path)):
-                    #TODO remove from OS
-                    pass
+                    os.remove(document_path)
             
             # If the state of the document is DIRTY or FRESH, we save it
             elif(document.state == ProteusState.DIRTY or document.state == ProteusState.FRESH):
@@ -287,9 +273,8 @@ class Project(AbstractObject):
                             tree.write(child_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
                             child.state == ProteusState.CLEAN
                         if(child.state == ProteusState.DEAD or parent.state == ProteusState.DEAD):
-                            #Remove from OS
+                            os.remove(child.path)
                             child.state = ProteusState.DEAD
-                            pass
                 save_children(document)
 
     # ----------------------------------------------------------------------
