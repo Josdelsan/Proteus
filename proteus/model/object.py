@@ -16,6 +16,8 @@
 # (this will change in Python 3.11)
 from __future__ import annotations # it has to be the first import
 
+import pathlib
+from distutils.dir_util import copy_tree
 # standard library imports
 import shortuuid
 import os
@@ -257,12 +259,28 @@ class Object(AbstractObject):
         # Check if object has children
         if(new_object.children):
             rename_ids(new_object)
-    
+
+        object_assets_path = pathlib.Path(self.path).parent.parent / "assets"
+
+
         if (parent.__class__.__name__ == "Project"):
             parent.documents[new_object.id] = new_object
+            if(object_assets_path.exists()):
+                parent_relative_path = pathlib.Path(parent.path)
+                parent_absolute_path = parent_relative_path.resolve()
+                parent_assets_path = parent_absolute_path.parent / "assets"    
+                copy_tree(str(object_assets_path), str(parent_assets_path))
+
         elif (type(parent) is Object):
             parent.children[new_object.id] = new_object
+            if(object_assets_path.exists()):
+                parent_relative_path = pathlib.Path(parent.project.path)
+                parent_absolute_path = parent_relative_path.resolve()
+                parent_assets_path = parent_absolute_path.parent / "assets"    
+                copy_tree(str(object_assets_path), str(parent_assets_path))
         
+
+
         parent.state = ProteusState.DIRTY
         new_object.state = ProteusState.FRESH
 

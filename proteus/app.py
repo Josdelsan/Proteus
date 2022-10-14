@@ -126,10 +126,14 @@ class ProteusApplication:
                   "\n", project_arch.name, "\n", project_arch.description,
                   "\n", project_arch.author, "\n", project_arch.date)
             print(project_arch.get_project())
-        object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
-        object2.clone_object(project)
-        for doc in project.documents.values():
-            doc.state = ProteusState.DEAD
+
+
+        # # object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
+
+        # object2 = Object(project, self.config.archetypes_directory / "documents" / "empty-document" / "objects" / "empty-document-01.xml")
+        # object2.clone_object(project)
+        # for doc in project.documents.values():
+        #     doc.state = ProteusState.DEAD
             
 
 
