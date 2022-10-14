@@ -7,7 +7,7 @@
 # ==========================================================================
 
 # standard library imports
-from typing import NewType
+from typing import NewType, Type
 
 # local imports
 #from model.abstract_object import AbstractObject
@@ -16,8 +16,7 @@ from typing import NewType
 #from model.object import Object
 
 # Type for Class tags in Proteus
-#ProteusClassTag = NewType('ProteusClassTag', str)
-ProteusClassTag = str
+ProteusClassTag = NewType('ProteusClassTag', str)
 
 # constants
 PROJECT_FILE_NAME  : str = 'proteus.xml'
@@ -26,6 +25,7 @@ ASSETS_REPOSITORY  : str = 'assets'
 PROJECT_TAG        : str = 'project'
 OBJECT_TAG         : str = 'object'
 NAME_TAG           : str = 'name'
+DEFAULT_NAME       : str = 'unnamed'
 CATEGORY_TAG       : str = 'category'
 PROPERTIES_TAG     : str = 'properties'
 DOCUMENT_TAG       : str = 'document'
@@ -36,9 +36,9 @@ DEFAULT_CATEGORY   : str = 'general'
 
 
 # Some predefined class tags
-PROTEUS_DOCUMENT : ProteusClassTag = ':Proteus-document'
-PROTEUS_ANY      : ProteusClassTag = ':Proteus-any'
-PROTEUS_ALL      : ProteusClassTag = ':Proteus-all'
+PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
+PROTEUS_ANY      = ProteusClassTag(':Proteus-any')
+PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
 
 # Type for UUIDs in Proteus
 ProteusID = NewType('ProteusID', str)

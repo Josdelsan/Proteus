@@ -20,7 +20,7 @@
 # - Code review.
 # - Argument "value" is always a string in __init()__, its conversion to
 #   the right type is checked in each subclass.
-# - TODO: type conversions raise ValueError exceptions that must be caught
+# - DONE: type conversions raise ValueError exceptions that must be caught
 #         in future versions, set a default value, and send an error message
 #         to the log.
 # ==========================================================================
@@ -39,9 +39,9 @@
 
 import random
 import datetime
-from pathlib import Path
 from functools import reduce
 from abc import ABC, abstractmethod
+from typing import Optional
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -55,7 +55,8 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.model import DEFAULT_CATEGORY, CATEGORY_TAG, NAME_TAG
+from proteus.model import \
+    CATEGORY_TAG, DEFAULT_CATEGORY, NAME_TAG, DEFAULT_NAME
 
 # --------------------------------------------------------------------------
 # Constants
@@ -105,7 +106,7 @@ class Property(ABC):
         self.name     : str = name
         self.category : str = category
 
-    def generate_xml(self) -> ET.Element:
+    def generate_xml(self) -> ET._Element:
         """
         This template method generates the XML element for the property.
         """
@@ -125,7 +126,6 @@ class Property(ABC):
         Depending on the type of property, it can be a string or
         a CDATA section.
         """
-        pass
 
 # --------------------------------------------------------------------------
 # Class: StringProperty
@@ -435,7 +435,7 @@ class EnumProperty(Property):
             if not len(self.choices):
                 raise ValueError
         except ValueError:
-            proteus.logger.error(f"Enum property '{self.name}': Empty set of choices -> assigning value choice")
+            proteus.logger.error(f"Enum property '{self.name}': Empty set of choices -> using value as the only choice")
             self.choices = {value}
 
         # Get value and check it is in choices
@@ -449,13 +449,16 @@ class EnumProperty(Property):
             self.value = random.choice(list(self.choices))
 
     def get_choices_as_str(self) -> str:
+        """
+        It generates a space-separated string with the enumerated choices
+        using reduce (from functools) and a lambda expression.
+        """
         return reduce(lambda c1, c2 : c1 + ' ' + c2, self.choices)
 
     def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """
-        It generates the value of the property for its XML element.
-        It also generates the list of choices as the 'choices' attribute
-        using reduce (from functools) and a lambda expression.
+        It generates the value of the property for its XML element and
+        the list of choices as the 'choices' attribute of the XML element.
         """
         property_element.set(CHOICES_TAG, self.get_choices_as_str())
         return str(self.value)
@@ -529,35 +532,38 @@ class PropertyFactory:
         ClassListProperty.element_tagname : ClassListProperty,
         # TODO remove it in the future when we'll be sure
         # we don't need it (use UrlProperty instead)
-        'fileProperty'                   : None
+        'fileProperty'                    : UrlProperty
     }
 
     @classmethod
-    def create( cls, element : ET._Element ) -> Property:
+    def create( cls, element : ET._Element ) -> Property | None:
         """
         Factory class method for PROTEUS properties.
         """
         # Check it is one of the valid property types
-        assert element.tag in cls.propertyFactory.keys(), \
-            f"<{element.tag}> is not a valid PROTEUS property type"
+        if element.tag not in cls.propertyFactory.keys():
+            proteus.logger.error(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
+            return None
 
-        # Check it has a name attribute
-        assert element.attrib.get(NAME_TAG, None) is not None, \
-             f"PROTEUS properties must have a 'name' attribute"
+        # Extract name from XML element and check it
+        name : Optional[str] = element.attrib.get(NAME_TAG)
+        if name is None:
+            proteus.logger.error(f"PROTEUS properties must have a 'name' attribute -> assigning 'unnamed' as name")
+            name = DEFAULT_NAME
 
         # Look up the class property in the factory dictionary
         property_class : type[Property] = cls.propertyFactory[element.tag]
 
-        # Extract name and value from XML element
-        name  : str = element.attrib[NAME_TAG]
+        # Extract value from XML element
         value : str
         if( property_class is ClassListProperty ):
             # We need to collect the list of class tag names,
             # put them toghether in a space-separated string
             # and use it as its value. In order to do so, we use
             # reduce (from functools) and a lambda expression.
-            value = reduce(lambda e1, e2 : e1.text + ' ' + e2.text, element.findall(CLASS_TAG))
+            value = reduce(lambda e1, e2 : str(e1.text + ' ' + e2.text), element.findall(CLASS_TAG))
         else:
+            # Value could be empty
             value = element.text
 
         # Use get on attrib dictionary to provide default value
@@ -567,7 +573,7 @@ class PropertyFactory:
         # Special case: EnumProperty
         if( property_class is EnumProperty ):
             # We need to collect its choices
-            choices : str = element.attrib.get(CHOICES_TAG, None)
+            choices : str = element.attrib.get(CHOICES_TAG, str())
             return EnumProperty(name, value, choices, category)
 
         # Ordinary case: rest of property classes
