@@ -25,6 +25,7 @@ import proteus.config as config
 
 # PROTEUS imports
 from proteus.model import DEFAULT_CATEGORY, CATEGORY_TAG, NAME_TAG, PROPERTIES_TAG
+from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.property import Property, PropertyFactory
 
 # logging configuration
@@ -196,7 +197,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @classmethod
-    def load_document_archetypes( cls ) -> tuple:
+    def load_document_archetypes( cls ) -> list:
         """
         Method that loads the document archetypes.
         """
@@ -263,7 +264,7 @@ class ArchetypeManager:
                         if(property_name in DOCUMENT_PROPERTIES_TO_SAVE):
                             document_dicc[property_name] = property.value
 
-                    result.append(document_dicc)
+                    result.append(DocumentArchetypeProxy(document_dicc))
 
         return result
 
@@ -332,5 +333,5 @@ class ArchetypeManager:
                     property_name : str = property.name
                     if(property_name in PROJECT_PROPERTIES_TO_SAVE):
                         project_dicc[property_name] = property.value
-            result.append(project_dicc)
+            result.append(ProjectArchetypeProxy(project_dicc))
         return result

@@ -23,7 +23,6 @@ from proteus.model.abstract_object import ProteusState
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.property import EnumProperty, Property, StringProperty
 
 # --------------------------------------------------------------------------
@@ -112,20 +111,21 @@ class ProteusApplication:
 
         print("Archetype Document Test")
         print("------------------------")
-        documents = DocumentArchetypeProxy.load()
+        documents = ArchetypeManager.load_document_archetypes()
         for document in documents:
             print(document.path, "\n", document.id, "\n", 
                   document.name, "\n", document.description,
                   "\n", document.author, "\n", document.date)
+            print(document.get_document(project))
 
         print("Archetype Project Test")
         print("------------------------")
-        projects = ProjectArchetypeProxy.load()
+        projects = ArchetypeManager.load_project_archetypes()
         for project_arch in projects:
             print(project_arch.path, "\n", project_arch.id,
                   "\n", project_arch.name, "\n", project_arch.description,
                   "\n", project_arch.author, "\n", project_arch.date)
-        
+            print(project_arch.get_project())
         object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
         object2.clone_object(project)
         for doc in project.documents.values():
