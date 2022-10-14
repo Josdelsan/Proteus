@@ -9,7 +9,7 @@
     <markdownProperty name="description" category="detail"><![CDATA[Descripción del proyecto]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[Comentarios del proyecto con un & y < y >.]]></markdownProperty>
     <integerProperty name="numberOfUsers" category="general">15</integerProperty>
-    <realProperty name="money" category="general">10.5</realProperty>
+    <floatProperty name="money" category="general">10.5</floatProperty>
     <booleanProperty name="info" category="estilo">false</booleanProperty>
     <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
     <timeProperty name="time" category="priority">20:10:02</timeProperty>

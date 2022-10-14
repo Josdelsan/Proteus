@@ -16,7 +16,8 @@ from typing import NewType
 #from model.object import Object
 
 # Type for Class tags in Proteus
-ProteusClassTag = NewType('ProteusClassTag', str)
+#ProteusClassTag = NewType('ProteusClassTag', str)
+ProteusClassTag = str
 
 # constants
 PROJECT_FILE_NAME  : str = 'proteus.xml'
