@@ -10,7 +10,7 @@ This project is developed using Python 3.10.7 under a virtual environment genera
 
 Package dependencies are in the `requirements.txt` file at the top-level application directory.
 
-After virtual environment activation (operating system dependant), dependencies must be installed via `pip -r install requirements.txt`.
+After virtual environment activation (operating system dependant), dependencies must be installed via `pip install -r requirements.txt`.
 
 Applicaton must be run via `python3 -m proteus` from the top-level application directory.
 
