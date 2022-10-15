@@ -92,6 +92,12 @@ TIME_FORMAT             = str('%H:%M:%S')
 # Version: 0.2
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
+# About using __post_init__: 
+# https://stackoverflow.com/questions/60179799/python-dataclass-whats-a-pythonic-way-to-validate-initialization-arguments
+# Dataclasses have a replace(object, value=new_value) function which returns 
+# a copy of an object with a new value (similar to attr.evolve()).
+# https://stackoverflow.com/questions/56402694/how-to-evolve-a-dataclass-in-python
+# --------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Property(ABC):

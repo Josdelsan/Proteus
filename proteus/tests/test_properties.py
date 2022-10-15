@@ -21,10 +21,6 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-# --------------------------------------------------------------------------
-# Project specific imports
-# --------------------------------------------------------------------------
-
 from proteus.model import NAME_TAG, CATEGORY_TAG
 
 from proteus.model.property import \
@@ -32,7 +28,7 @@ from proteus.model.property import \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
     PropertyFactory
-    
+ 
 # --------------------------------------------------------------------------
 # General property tests
 # --------------------------------------------------------------------------
