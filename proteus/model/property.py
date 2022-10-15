@@ -24,13 +24,14 @@
 #         in future versions, set a default value, and send an error message
 #         to the log.
 # ==========================================================================
-# Update: 12/10/2022 (Amador)
+# Update: 15/10/2022 (Amador)
 # Description:
 # - Code review.
 # - Exception handling in type conversions.
 # - RealProperty -> FloatProperty.
-# - lxml is not very MyPy-friendly. Installed lxlm-stub.
-# - TODO: finish review of PropertyFactory create method.
+# - MarkdownProperty is now a subclass of StringProperty.
+# - lxml is not very MyPy-friendly. Installed lxlm-stub in venv.
+# - Added pytest parametrized tests in proteus/tests/test_properties.py
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -120,7 +121,7 @@ class Property(ABC):
         return property_element
 
     @abstractmethod
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         Depending on the type of property, it can be a string or
@@ -151,11 +152,27 @@ class StringProperty(Property):
 
         self.value : str = str(value) # implicit type check and conversion
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
         return ET.CDATA(self.value)
+
+# --------------------------------------------------------------------------
+# Class: MarkdownProperty
+# Description: Class for PROTEUS markdown properties
+# Date: 15/10/2022
+# Version: 0.2
+# Author: Amador Durán Toro
+# --------------------------------------------------------------------------
+
+class MarkdownProperty(StringProperty):
+    """
+    Class for PROTEUS markdown properties. They are exactly the same as
+    string properties except for the XML tag.
+    """
+    # XML element tag name for this class of property (class attribute)
+    element_tagname : str = MARKDOWN_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Class: DateProperty
@@ -187,7 +204,7 @@ class DateProperty(Property):
             proteus.logger.error(f"Date property '{self.name}': Wrong format ({value}). Please use YYYY-MM-DD -> assigning today's date")
             self.value = datetime.date.today()
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -223,41 +240,11 @@ class TimeProperty(Property):
             proteus.logger.error(f"Time property '{self.name}': Wrong format ({value}). Please use HH:MM:SS -> assigning now's time")
             self.value = datetime.datetime.now().time()
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
         return self.value.strftime('%H:%M:%S')
-
-# --------------------------------------------------------------------------
-# Class: MarkdownProperty
-# Description: Class for PROTEUS markdown properties
-# Date: 22/08/2022
-# Version: 0.1
-# Author: Amador Durán Toro
-# --------------------------------------------------------------------------
-
-class MarkdownProperty(Property):
-    """
-    Class for PROTEUS markdown properties.
-    """
-
-    # XML element tag name for this class of property (class attribute)
-    element_tagname : str = MARKDOWN_PROPERTY_TAG
-
-    def __init__(self, name: str, value: str, category: str = DEFAULT_CATEGORY) -> None:
-        """
-        It initializes the markdown property.
-        """
-        super().__init__(name, category)
-
-        self.value : str = str(value) # implicit type check and conversion
-
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
-        """
-        It generates the value of the property for its XML element.
-        """
-        return ET.CDATA(self.value)
 
 # --------------------------------------------------------------------------
 # Class: IntegerProperty
@@ -289,7 +276,7 @@ class IntegerProperty(Property):
             proteus.logger.error(f"Integer property '{self.name}': Wrong format ({value}) -> assigning 0 value")
             self.value = int(0)
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -325,7 +312,7 @@ class FloatProperty(Property):
             proteus.logger.error(f"Float property '{self.name}': Wrong format ({value}) -> assigning 0.0 value")
             self.value = float(0.0)
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -363,7 +350,7 @@ class BooleanProperty(Property):
             proteus.logger.error(f"Boolean property '{self.name}': Wrong format ({value}). Please use 'true' or 'false' -> assigning False value")
             self.value = bool(False)
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -399,7 +386,7 @@ class UrlProperty(Property):
         except ValueError:
             proteus.logger.error(f"URL property '{self.name}': Wrong format ({value}). Please check.")
 
-    def generate_xml_value(self, _:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -455,7 +442,7 @@ class EnumProperty(Property):
         """
         return reduce(lambda c1, c2 : c1 + ' ' + c2, self.choices)
 
-    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element and
         the list of choices as the 'choices' attribute of the XML element.
@@ -491,7 +478,7 @@ class ClassListProperty(Property):
 
         # TODO: can we check class tags are valid at this moment?
 
-    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         In this case, it adds one <class> child for each class tag.
@@ -501,7 +488,7 @@ class ClassListProperty(Property):
             class_element : ET._Element = ET.SubElement(property_element, CLASS_TAG)
             class_element.text = class_tag
 
-        return str("")
+        return str()
 
 # --------------------------------------------------------------------------
 # Class: PropertyFactory
