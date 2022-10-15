@@ -15,25 +15,23 @@ from typing import NewType, Type
 #from model.project import Project
 #from model.object import Object
 
-# Type for Class tags in Proteus
-ProteusClassTag = NewType('ProteusClassTag', str)
-
 # constants
 PROJECT_FILE_NAME  : str = 'proteus.xml'
 OBJECTS_REPOSITORY : str = 'objects'
 ASSETS_REPOSITORY  : str = 'assets'
+
 PROJECT_TAG        : str = 'project'
 OBJECT_TAG         : str = 'object'
 NAME_TAG           : str = 'name'
-DEFAULT_NAME       : str = 'unnamed'
 CATEGORY_TAG       : str = 'category'
 PROPERTIES_TAG     : str = 'properties'
 DOCUMENT_TAG       : str = 'document'
 DOCUMENTS_TAG      : str = 'documents'
 CHILD_TAG          : str = 'child'
 CHILDREN_TAG       : str = 'children'
-DEFAULT_CATEGORY   : str = 'general'
 
+# Type for Class tags in Proteus
+ProteusClassTag = NewType('ProteusClassTag', str)
 
 # Some predefined class tags
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
