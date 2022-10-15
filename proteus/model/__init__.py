@@ -22,6 +22,7 @@ ProteusClassTag = NewType('ProteusClassTag', str)
 PROJECT_FILE_NAME  : str = 'proteus.xml'
 OBJECTS_REPOSITORY : str = 'objects'
 ASSETS_REPOSITORY  : str = 'assets'
+
 PROJECT_TAG        : str = 'project'
 OBJECT_TAG         : str = 'object'
 NAME_TAG           : str = 'name'
@@ -32,8 +33,6 @@ DOCUMENT_TAG       : str = 'document'
 DOCUMENTS_TAG      : str = 'documents'
 CHILD_TAG          : str = 'child'
 CHILDREN_TAG       : str = 'children'
-DEFAULT_CATEGORY   : str = 'general'
-
 
 # Some predefined class tags
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')

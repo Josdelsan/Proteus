@@ -57,25 +57,29 @@ import lxml.etree as ET
 
 import proteus
 from proteus.model import \
-    CATEGORY_TAG, DEFAULT_CATEGORY, NAME_TAG, DEFAULT_NAME
+    CATEGORY_TAG, NAME_TAG, DEFAULT_NAME
 
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
 
-BOOLEAN_PROPERTY_TAG    = 'booleanProperty'
-STRING_PROPERTY_TAG     = 'stringProperty'
-DATE_PROPERTY_TAG       = 'dateProperty'
-TIME_PROPERTY_TAG       = 'timeProperty'
-MARKDOWN_PROPERTY_TAG   = 'markdownProperty'
-INTEGER_PROPERTY_TAG    = 'integerProperty'
-FLOAT_PROPERTY_TAG      = 'floatProperty'
-ENUM_PROPERTY_TAG       = 'enumProperty'
-URL_PROPERTY_TAG        = 'urlProperty'
-FILE_PROPERTY_TAG       = 'fileProperty'
-CLASSLIST_PROPERTY_TAG  = 'classListProperty'
-CHOICES_TAG             = 'choices'
-CLASS_TAG               = 'class'
+BOOLEAN_PROPERTY_TAG    = str('booleanProperty')
+STRING_PROPERTY_TAG     = str('stringProperty')
+DATE_PROPERTY_TAG       = str('dateProperty')
+TIME_PROPERTY_TAG       = str('timeProperty')
+MARKDOWN_PROPERTY_TAG   = str('markdownProperty')
+INTEGER_PROPERTY_TAG    = str('integerProperty')
+FLOAT_PROPERTY_TAG      = str('floatProperty')
+ENUM_PROPERTY_TAG       = str('enumProperty')
+URL_PROPERTY_TAG        = str('urlProperty')
+FILE_PROPERTY_TAG       = str('fileProperty')
+CLASSLIST_PROPERTY_TAG  = str('classListProperty')
+CHOICES_TAG             = str('choices')
+CLASS_TAG               = str('class')
+
+DEFAULT_CATEGORY   = str('general')
+DATE_FORMAT        = str('%Y-%m-%d')
+TIME_FORMAT        = str('%H:%M:%S')
 
 # --------------------------------------------------------------------------
 # Class: Property (abstract)
@@ -86,6 +90,12 @@ CLASS_TAG               = 'class'
 # --------------------------------------------------------------------------
 # TODO: this class should be inmutable in the future, maybe using
 #       @dataclass(frozen=True) or other approach.
+# TODO: transform properties in dataclasses and check argument values in
+#       __post_init__(self).
+#       https://stackoverflow.com/questions/60179799/python-dataclass-whats-a-pythonic-way-to-validate-initialization-arguments
+# TODO: dataclasses have a replace(value=new_value) which returns a copy of 
+#       an object with a new value (similar to attr.evolve()).
+#       https://stackoverflow.com/questions/56402694/how-to-evolve-a-dataclass-in-python
 # --------------------------------------------------------------------------
 
 class Property(ABC):
@@ -151,7 +161,7 @@ class StringProperty(Property):
         super().__init__(name, category)
 
         self.value : str = str(value) # implicit type check and conversion
-
+        
     def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
@@ -199,7 +209,7 @@ class DateProperty(Property):
         # Convert string to date and check it is correct
         self.value : datetime.date
         try:
-            self.value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
+            self.value = datetime.datetime.strptime(value, DATE_FORMAT).date()
         except ValueError:
             proteus.logger.error(f"Date property '{self.name}': Wrong format ({value}). Please use YYYY-MM-DD -> assigning today's date")
             self.value = datetime.date.today()
@@ -208,7 +218,7 @@ class DateProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return self.value.strftime('%Y-%m-%d')
+        return self.value.strftime(DATE_FORMAT)
 
 # --------------------------------------------------------------------------
 # Class: TimeProperty
@@ -235,7 +245,7 @@ class TimeProperty(Property):
         # Convert string to time and check it is correct
         self.value : datetime.time
         try:
-            self.value = datetime.datetime.strptime(value, '%H:%M:%S').time()
+            self.value = datetime.datetime.strptime(value, TIME_FORMAT).time()
         except ValueError:
             proteus.logger.error(f"Time property '{self.name}': Wrong format ({value}). Please use HH:MM:SS -> assigning now's time")
             self.value = datetime.datetime.now().time()
@@ -244,7 +254,7 @@ class TimeProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return self.value.strftime('%H:%M:%S')
+        return self.value.strftime(TIME_FORMAT)
 
 # --------------------------------------------------------------------------
 # Class: IntegerProperty

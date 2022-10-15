@@ -26,11 +26,18 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.model import \
-    CATEGORY_TAG, DEFAULT_NAME, NAME_TAG, DEFAULT_CATEGORY
+    CATEGORY_TAG, DEFAULT_NAME, NAME_TAG
 
 from proteus.model.property import \
-    DATE_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG, PropertyFactory, STRING_PROPERTY_TAG
-    
+    DEFAULT_CATEGORY,       \
+    PropertyFactory,        \
+    DATE_FORMAT,            \
+    TIME_FORMAT,            \
+    STRING_PROPERTY_TAG,    \
+    MARKDOWN_PROPERTY_TAG,  \
+    DATE_PROPERTY_TAG,      \
+    DEFAULT_CATEGORY
+
 # --------------------------------------------------------------------------
 # General property tests
 # --------------------------------------------------------------------------
@@ -87,13 +94,13 @@ def test_string_and_markdown_properties(property_tag, name, value, category, new
         property_element.set(NAME_TAG, name)
     else:
         name = DEFAULT_NAME
-    
-    property_element.text = str(value)
-    
+        
     if category:
         property_element.set(CATEGORY_TAG, category)
     else:
         category = DEFAULT_CATEGORY
+
+    property_element.text = str(value)
 
     property = PropertyFactory.create(property_element)
 
@@ -120,19 +127,34 @@ def test_string_and_markdown_properties(property_tag, name, value, category, new
 # Date property tests
 # --------------------------------------------------------------------------
 
-# TODO: hacer combinaciones (value, expected_value), (new_value, expected_new_value)
+today : str = datetime.date.today().strftime(DATE_FORMAT)
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value',        [str(), '2022-01-01', '2022-99-99', 'not a date' ])
-@pytest.mark.parametrize('new_value',    [str(), 'new test value', 'new test <>& value'])
+@pytest.mark.parametrize('value, expected_value', 
+    [
+        (str(), today), 
+        ('2022-01-01','2022-01-01'),
+        ('2022-99-99', today),
+        ('not a date', today)
+    ]
+)
+@pytest.mark.parametrize('new_value, expected_new_value',
+    [
+        (str(), today), 
+        ('2022-01-01','2022-01-01'),
+        ('2022-99-99', today),
+        ('not a date', today)
+    ]
+)
 
-def test_date_properties(name, value, category, new_value):
+def test_date_properties(name, value, expected_value, category, new_value, expected_new_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
     of date properties.
     """
-    property_element = ET.Element(DATE_PROPERTY_TAG)
+    property_tag = DATE_PROPERTY_TAG
+    property_element = ET.Element(property_tag)
 
     if name:
         property_element.set(NAME_TAG, name)
@@ -148,13 +170,28 @@ def test_date_properties(name, value, category, new_value):
 
     property = PropertyFactory.create(property_element)
 
-    # assert(property.name == name)
-    # assert(property.value == value)
-    # assert(property.category == category)
-    # assert(
-    #     ET.tostring(property.generate_xml()).decode() ==
-    #     f'<stringProperty name="{name}" category="{category}"><![CDATA[{value}]]></stringProperty>'
-    # )
+    assert(property.name == name)
+    assert(property.generate_xml_value() == expected_value)
+    assert(property.category == category)
+    assert(
+         ET.tostring(property.generate_xml()).decode() ==
+         f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
+    )
 
     evolved_property = copy.copy(property)
-    evolved_property.value = str(new_value)
+    #evolved_property.value = str(new_value)
+
+    # TODO: these lines should not be here
+    try:
+        evolved_property.value = datetime.datetime.strptime(new_value, DATE_FORMAT).date()
+    except ValueError:
+        evolved_property.value = datetime.date.today()
+
+    assert(evolved_property.name == name)
+    assert(evolved_property.generate_xml_value() == expected_new_value)
+    assert(evolved_property.category == category)
+    assert(
+        ET.tostring(evolved_property.generate_xml()).decode() ==
+        f'<{property_tag} name="{name}" category="{category}">{expected_new_value}</{property_tag}>'
+    )
+
