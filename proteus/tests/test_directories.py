@@ -25,6 +25,7 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.object import Object
 from proteus.model.project import Project
+from proteus.model.property import EnumProperty, StringProperty
 
 # --------------------------------------------------------------------------
 # Tests
@@ -102,3 +103,24 @@ def test_document_archetype_manager():
 
         # Check if the document archetype has a document.xml file
         assert len([x for x in document_files if (x == "document.xml")]) == 1
+
+def test_properties():
+
+    # Get the property and check it's value is not "media" because we will chage it into "media".
+    old_enum_property : EnumProperty = test_project.get_property("stability")
+    assert old_enum_property.value is not "media"
+    
+    # Set the property to "media" and check the property value has changed.
+    test_project.set_property(EnumProperty(old_enum_property.name, "media", old_enum_property.get_choices_as_str()))
+    new_enum_property : EnumProperty = test_project.get_property("stability")
+    assert new_enum_property.value == "media"
+
+    # For each document in the project
+    for document in test_project.documents.values():
+        # Get the property and check it's value is not "NewName" because we will chage it into "NewName".
+        old_string_property: StringProperty = document.get_property("name")
+        assert old_string_property.value is not "NewName"
+
+        document.set_property(StringProperty(old_string_property.name, "NewName"))
+        new_string_property: StringProperty = document.get_property("name")
+        assert new_string_property.value == "NewName"
