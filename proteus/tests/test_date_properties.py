@@ -60,6 +60,7 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
     It tests creation, update, and evolution (cloning with a new value) 
     of date properties.
     """
+    # Prepare XML element
     property_tag = DATE_PROPERTY_TAG
     property_element = ET.Element(property_tag)
 
@@ -75,8 +76,10 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
     else:
         category = DEFAULT_CATEGORY
 
+    # Create property from XML element
     property = PropertyFactory.create(property_element)
 
+    # Check property
     assert(property.name == name)
     assert(property.value == datetime.datetime.strptime(expected_value, DATE_FORMAT).date())
     assert(property.category == category)
@@ -85,14 +88,18 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
         f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
     )
 
+    # Clone the property without changes
     cloned_property = property.clone()
 
+    # Check cloned property
     assert(cloned_property.name == property.name)
     assert(cloned_property.value == property.value)
     assert(cloned_property.category == property.category)
 
+    # Clone the property changing value
     evolved_property = property.clone(str(new_value))
 
+    # Check cloned property
     assert(evolved_property.name == name)
     assert(evolved_property.value == datetime.datetime.strptime(expected_new_value, DATE_FORMAT).date())
     assert(evolved_property.category == category)

@@ -45,6 +45,7 @@ def test_string_and_markdown_properties(property_tag, name, category, value, new
     It tests creation, update, and evolution (cloning with a new value) 
     of string and markdown properties.
     """
+    # Prepare XML element
     property_element = ET.Element(property_tag)
 
     if name:
@@ -59,8 +60,10 @@ def test_string_and_markdown_properties(property_tag, name, category, value, new
     else:
         category = DEFAULT_CATEGORY
 
+    # Create property from XML element
     property = PropertyFactory.create(property_element)
 
+    # Check property
     assert(property.name == name)
     assert(property.value == str(value))
     assert(property.category == category)
@@ -69,14 +72,18 @@ def test_string_and_markdown_properties(property_tag, name, category, value, new
         f'<{property_tag} name="{name}" category="{category}"><![CDATA[{value}]]></{property_tag}>'
     )
 
+    # Clone the property without changes
     cloned_property = property.clone()
 
+    # Check cloned property
     assert(cloned_property.name == property.name)
     assert(cloned_property.value == property.value)
     assert(cloned_property.category == property.category)
 
+    # Clone the property changing value
     evolved_property = property.clone(new_value)
 
+    # Check cloned property
     assert(evolved_property.name == name)
     assert(evolved_property.value == str(new_value))
     assert(evolved_property.category == category)
