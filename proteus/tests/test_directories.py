@@ -10,6 +10,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import datetime
+import enum
 import os
 from pathlib import Path
 
@@ -25,7 +27,7 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.object import Object
 from proteus.model.project import Project
-from proteus.model.property import EnumProperty, StringProperty
+from proteus.model.property import BooleanProperty, DateProperty, EnumProperty, FloatProperty, IntegerProperty, StringProperty, TimeProperty
 
 # --------------------------------------------------------------------------
 # Tests
@@ -121,6 +123,44 @@ def test_properties():
         old_string_property: StringProperty = document.get_property("name")
         assert old_string_property.value is not "NewName"
 
+        # Set the property to "media" and check the property value has changed.
         document.set_property(StringProperty(old_string_property.name, "NewName"))
         new_string_property: StringProperty = document.get_property("name")
         assert new_string_property.value == "NewName"
+
+def test_properties_value_error():
+    # Check if we set a wrong value that is not in the choices, the property selects a random choice.
+    enum_prop: EnumProperty = test_project.get_property("stability")
+    test_project.set_property(EnumProperty(enum_prop.name, "thisIsATest", enum_prop.get_choices_as_str()))
+    new_enum_property: EnumProperty = test_project.get_property(enum_prop.name)
+    assert ("thisIsATest" not in new_enum_property.get_choices_as_str()) and (new_enum_property.value in enum_prop.get_choices_as_str())
+
+    # Check if we set a non valid date value if the property is set to date (actually today's date)
+    date_prop: DateProperty = test_project.get_property("created")
+    test_project.set_property(DateProperty(date_prop.name, "thisIsATest"))
+    new_date_property: DateProperty = test_project.get_property(date_prop.name)
+    assert (new_date_property.value == datetime.date.today())
+
+    # Check if we set a non valid integer value if the property is set to int (actually 0)
+    int_prop: IntegerProperty = test_project.get_property("numberOfUsers")
+    test_project.set_property(IntegerProperty(int_prop.name, "thisIsATest"))
+    new_int_property: IntegerProperty = test_project.get_property(int_prop.name)
+    assert (new_int_property.value == 0)
+
+    # Check if we set a non valid float value if the property is set to float (actually 0.0)
+    float_prop: FloatProperty = test_project.get_property("money")
+    test_project.set_property(FloatProperty(float_prop.name, "thisIsATest"))
+    new_float_property: FloatProperty = test_project.get_property(float_prop.name)
+    assert (new_float_property.value == 0.0)
+
+    # Check if we set a non valid bool value if the property is set to bool (actually False)
+    bool_prop: BooleanProperty = test_project.get_property("info")
+    test_project.set_property(BooleanProperty(bool_prop.name, "thisIsATest"))
+    new_bool_property: BooleanProperty = test_project.get_property(bool_prop.name)
+    assert (new_bool_property.value == False)
+
+    # Check if we set a non valid time value if the property is set to datetime (actually right now)
+    time_prop: TimeProperty = test_project.get_property("time")
+    test_project.set_property(TimeProperty(time_prop.name, "thisIsATest"))
+    new_time_property: TimeProperty = test_project.get_property(time_prop.name)
+    assert (new_time_property.value == datetime.datetime.now().time())
