@@ -24,7 +24,7 @@ from strenum import StrEnum
 import proteus.config as config
 
 # PROTEUS imports
-from proteus.model import DEFAULT_CATEGORY, CATEGORY_TAG, NAME_TAG, PROPERTIES_TAG
+from proteus.model import PROPERTIES_TAG
 from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.property import Property, PropertyFactory
 

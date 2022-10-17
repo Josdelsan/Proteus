@@ -65,6 +65,7 @@ class Config:
         """
         Private methdos that creates configuration parser and loads config file.
         """
+
         assert Path(CONFIG_FILE).exists(), \
             f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 

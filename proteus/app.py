@@ -101,7 +101,7 @@ class ProteusApplication:
 
         print(f"{enum_property.value=}")
 
-        project.set_property(EnumProperty(enum_property.name, "baja", enum_property.get_choices_as_str()))
+        project.set_property(EnumProperty(enum_property.name, "baja", enum_property.get_choices_as_set()))
 
         print(project.get_property("stability").value)
 
