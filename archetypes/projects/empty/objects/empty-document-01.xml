@@ -3,8 +3,8 @@
   <properties>
     <stringProperty name="name"><![CDATA[Empty document]]></stringProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-	<dateProperty name="date">2022-10-10</dateProperty>
-	<stringProperty name="author"><![CDATA[Amador Durán Toro]]></stringProperty>	
+	  <dateProperty name="date">2022-10-10</dateProperty>
+	  <stringProperty name="author"><![CDATA[Amador Durán Toro]]></stringProperty>	
     <markdownProperty name="description" category="detail"><![CDATA[Empty document of empty project.]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>		
   </properties>

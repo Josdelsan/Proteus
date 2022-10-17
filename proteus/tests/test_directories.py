@@ -24,7 +24,7 @@ def test_application_directories():
     """
     It tests that essential PROTEUS directories exist.
     """
-    app : ProteusApplication = ProteusApplication()
+    app = ProteusApplication()
     assert app.resources_directory.is_dir()
     assert app.icons_directory.is_dir()
     assert app.archetypes_directory.is_dir()

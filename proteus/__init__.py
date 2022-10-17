@@ -16,8 +16,8 @@ import logging
 # Constant declarations for PROTEUS logger name
 # --------------------------------------------------------------------------
 
-PROTEUS_LOGGER_NAME    : str = 'proteus'
-PROTEUS_LOGGING_FORMAT : str = '%(name)s:%(filename)s [%(levelname)s] -> %(message)s'
+PROTEUS_LOGGER_NAME    = str('proteus')
+PROTEUS_LOGGING_FORMAT = str('%(name)s:%(filename)s [%(levelname)s] -> %(message)s')
 
 # --------------------------------------------------------------------------
 # Logger configuration
@@ -27,5 +27,5 @@ logging.basicConfig(
     level=logging.DEBUG, 
     format=PROTEUS_LOGGING_FORMAT)
 
-logger : logging.Logger = logging.getLogger(PROTEUS_LOGGER_NAME)
+logger = logging.getLogger(PROTEUS_LOGGER_NAME)
 

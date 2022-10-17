@@ -1,8 +1,8 @@
 # ==========================================================================
 # File: property.py
-# Description: an abstract PROTEUS property
-# Date: 07/08/2022
-# Version: 0.1
+# Description: PROTEUS properties
+# Date: 17/10/2022
+# Version: 0.2
 # Author: Amador Durán Toro
 # ==========================================================================
 # Update: 30/08/2022 (Amador)
@@ -33,6 +33,10 @@
 # - Use dataclasses.replace(obj,value=new_value) to clone a property with a
 #   new value. The new_value must be in string format, as in the constructor.
 # ==========================================================================
+# Update: 17/10/2022 (Amador)
+# Description:
+# - clone(new_value=None) added.
+# ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -43,7 +47,7 @@ import datetime
 from pathlib import Path
 from functools import reduce
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, ClassVar, Optional
 
 # --------------------------------------------------------------------------
@@ -88,8 +92,8 @@ TIME_FORMAT             = str('%H:%M:%S')
 # --------------------------------------------------------------------------
 # Class: Property (abstract)
 # Description: Abstract dataclass for PROTEUS properties
-# Date: 15/10/2022
-# Version: 0.2
+# Date: 17/10/2022
+# Version: 0.3
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 # About using __post_init__: 
@@ -112,11 +116,11 @@ class Property(ABC):
     def __post_init__(self) -> None:
         """
         It validates name and category of an abstract PROTEUS property. 
-        Value is validated in subclasses.
+        Value is converted into a string (just in case) and validated in subclasses.
         """      
         # Name validation
         if not self.name:
-            proteus.logger.error(f"PROTEUS properties must have a '{NAME_TAG}' attribute -> assigning '{DEFAULT_NAME}' as name")
+            proteus.logger.warning(f"PROTEUS properties must have a '{NAME_TAG}' attribute -> assigning '{DEFAULT_NAME}' as name")
             # self.name = DEFAULT_NAME cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'name', DEFAULT_NAME)
@@ -124,7 +128,20 @@ class Property(ABC):
         # Category validation
         if not self.category:
             # self.category = DEFAULT_CATEGORY cannot be used when frozen=True
-            object.__setattr__(self, 'category', DEFAULT_CATEGORY)            
+            object.__setattr__(self, 'category', DEFAULT_CATEGORY)
+
+        # Value -> string
+        object.__setattr__(self, 'value', str(self.value))
+
+    def clone(self, new_value=None) -> 'Property':
+        """
+        It clones the property with a new value if it is not None.
+        The new value must be provided as a string.
+        """
+        if new_value is None:
+            return replace(self)
+        
+        return replace(self, value=str(new_value))
 
     def generate_xml(self) -> ET._Element:
         """
@@ -165,15 +182,10 @@ class StringProperty(Property):
 
     def __post_init__(self) -> None:
         """
-        It validates the string value simply by converting it into a string.
+        Superclass turns value into a string, there is nothing to validate.
         """
         # Superclass validation        
         super().__post_init__()
-
-        # Value validation
-        # self.value = str(self.value) cannot be used when frozen=True
-        # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
-        object.__setattr__(self, 'value', str(self.value))
 
     def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
@@ -227,7 +239,7 @@ class DateProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', datetime.datetime.strptime(self.value, DATE_FORMAT).date())
         except ValueError:
-            proteus.logger.error(f"Date property '{self.name}': Wrong format ({self.value}). Please use YYYY-MM-DD -> assigning today's date")
+            proteus.logger.warning(f"Date property '{self.name}': Wrong format ({self.value}). Please use YYYY-MM-DD -> assigning today's date")
             # self.value = datetime.date.today() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.date.today())
 
@@ -267,7 +279,7 @@ class TimeProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', datetime.datetime.strptime(self.value, TIME_FORMAT).time())
         except ValueError:
-            proteus.logger.error(f"Time property '{self.name}': Wrong format ({self.value}). Please use HH:MM:SS -> assigning now's time")
+            proteus.logger.warning(f"Time property '{self.name}': Wrong format ({self.value}). Please use HH:MM:SS -> assigning now's time")
             # self.value = datetime.datetime.now().time() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.datetime.now().time())
 
@@ -306,7 +318,7 @@ class IntegerProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', int(self.value))
         except ValueError:
-            proteus.logger.error(f"Integer property '{self.name}': Wrong format ({self.value}) -> assigning 0 value")
+            proteus.logger.warning(f"Integer property '{self.name}': Wrong format ({self.value}) -> assigning 0 value")
             # self.value = int(0) cannot be used when frozen=True
             object.__setattr__(self, 'value', int(0))
 
@@ -346,7 +358,7 @@ class FloatProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', float(self.value))
         except ValueError:
-            proteus.logger.error(f"Float property '{self.name}': Wrong format ({self.value}) -> assigning 0.0 value")
+            proteus.logger.warning(f"Float property '{self.name}': Wrong format ({self.value}) -> assigning 0.0 value")
             #self.value = float(0.0) cannot be used when frozen=True
             object.__setattr__(self, 'value', float(0.0))
 
@@ -382,15 +394,15 @@ class BooleanProperty(Property):
 
         # Value validation
         try:
-            if not str(self.value):
+            if not self.value:
                 raise ValueError
-            if str(self.value).lower() not in ['true','false']:
+            if self.value.lower() not in ['true','false']:
                 raise ValueError
             # self.value = bool(self.value.lower() == "true") cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', bool(self.value.lower() == "true"))
         except ValueError:
-            proteus.logger.error(f"Boolean property '{self.name}': Wrong format ({self.value}). Please use 'true' or 'false' -> assigning False value")
+            proteus.logger.warning(f"Boolean property '{self.name}': Wrong format ({self.value}). Please use 'true' or 'false' -> assigning False value")
             # self.value = bool(False) cannot be used when frozen=True
             object.__setattr__(self, 'value', bool(False))
 
@@ -428,7 +440,7 @@ class FileProperty(Property):
             if not (Path(self.value).exists()):
                 raise ValueError
         except ValueError:
-            proteus.logger.error(f"File property '{self.name}': file '{self.value}' does not exist. Please check.")
+            proteus.logger.warning(f"File property '{self.name}': file '{self.value}' does not exist. Please check.")
 
         # TODO: how to access project path and make relative file path from it?
 
@@ -467,7 +479,7 @@ class UrlProperty(Property):
             if not validators.url(self.value):
                 raise ValueError
         except ValueError:
-            proteus.logger.error(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
+            proteus.logger.warning(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
 
     def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
@@ -510,17 +522,18 @@ class EnumProperty(Property):
             if self.value not in _choices:
                 raise ValueError
         except ValueError:
-            proteus.logger.error(f"Enum property '{self.name}': invalid value -> assigning random choice")
+            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning random choice")
             # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', random.choice(list(_choices)) if bool(_choices) else str())
+
         # Validate choices
         try:
             if not bool(_choices):
                 raise ValueError
         except ValueError:
-            proteus.logger.error(f"Enum property '{self.name}': Empty set of choices -> using value as the only choice")
-            # self.choices = set([self.value]) if str(self.value) else set() cannot be used when frozen=True
+            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value as the only choice")
+            # self.choices = self.value cannot be used when frozen=True
             object.__setattr__(self, 'choices', self.value)
 
     def get_choices_as_set(self) -> set[str]:
@@ -536,7 +549,7 @@ class EnumProperty(Property):
         the list of choices as the 'choices' attribute of the XML element.
         """
         property_element.set(CHOICES_TAG, self.choices)
-        return str(self.value)
+        return self.value
 
 # --------------------------------------------------------------------------
 # Class: ClassListProperty
@@ -569,7 +582,7 @@ class ClassListProperty(Property):
         It generates a list of strings from the space-separated 
         string with the class names.
         """
-        return str(self.value).split(' ')
+        return self.value.split(' ')
 
     def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """
@@ -577,7 +590,7 @@ class ClassListProperty(Property):
         In this case, it adds one <class> child for each class tag.
         """
         for class_name in self.get_class_list():
-            class_element : ET._Element = ET.SubElement(property_element, CLASS_TAG)
+            class_element = ET.SubElement(property_element, CLASS_TAG)
             class_element.text = class_name
 
         return str()
@@ -617,15 +630,17 @@ class PropertyFactory:
         Factory class method for PROTEUS properties.
         """
         # Check it is one of the valid property types
-        if element.tag not in cls.propertyFactory.keys():
-            proteus.logger.error(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
+        try:
+            property_class = cls.propertyFactory[element.tag]
+        except KeyError:
+            proteus.logger.warning(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
             return None
 
         # Get name (checked in property constructors)
         name = element.attrib.get(NAME_TAG)
 
-        # Look up the class property in the factory dictionary
-        property_class = cls.propertyFactory[element.tag]
+        # Get category (checked in property constructors)
+        category = element.attrib.get(CATEGORY_TAG, DEFAULT_CATEGORY)
 
         # Get value (checked in property constructors)
         if( property_class is ClassListProperty ):
@@ -637,9 +652,6 @@ class PropertyFactory:
         else:
             # Value could be empty
             value = str(element.text)
-
-        # Get category
-        category = element.attrib.get(CATEGORY_TAG, DEFAULT_CATEGORY)
 
         # Create and return the property object
 

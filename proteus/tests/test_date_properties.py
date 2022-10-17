@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 import datetime
-from dataclasses import replace
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -86,7 +85,13 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
         f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
     )
 
-    evolved_property = replace(property, value=str(new_value))
+    cloned_property = property.clone()
+
+    assert(cloned_property.name == property.name)
+    assert(cloned_property.value == property.value)
+    assert(cloned_property.category == property.category)
+
+    evolved_property = property.clone(str(new_value))
 
     assert(evolved_property.name == name)
     assert(evolved_property.value == datetime.datetime.strptime(expected_new_value, DATE_FORMAT).date())

@@ -10,8 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from dataclasses import replace
-
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -39,8 +37,8 @@ from proteus.model.property import \
 @pytest.mark.parametrize('property_tag', [STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG])
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value',        [str(), 'test value', 'test <>& value' ])
-@pytest.mark.parametrize('new_value',    [str(), 'new test value', 'new test <>& value'])
+@pytest.mark.parametrize('value',        [str(), 'test value', 'test <>& value', 7.5 ])
+@pytest.mark.parametrize('new_value',    [str(), 'new test value', 'new test <>& value', -7.5])
 
 def test_string_and_markdown_properties(property_tag, name, category, value, new_value):
     """
@@ -71,7 +69,13 @@ def test_string_and_markdown_properties(property_tag, name, category, value, new
         f'<{property_tag} name="{name}" category="{category}"><![CDATA[{value}]]></{property_tag}>'
     )
 
-    evolved_property = replace(property, value=str(new_value))
+    cloned_property = property.clone()
+
+    assert(cloned_property.name == property.name)
+    assert(cloned_property.value == property.value)
+    assert(cloned_property.category == property.category)
+
+    evolved_property = property.clone(new_value)
 
     assert(evolved_property.name == name)
     assert(evolved_property.value == str(new_value))

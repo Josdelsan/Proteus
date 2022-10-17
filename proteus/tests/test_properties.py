@@ -33,6 +33,21 @@ from proteus.model.property import \
 # General property tests
 # --------------------------------------------------------------------------
 
+def test_wrong_property_tag():
+    """
+    It tests that PropertyFactory returns None when the XML
+    element is not a property element.
+    """
+    property_element = ET.Element('WrongProperty')
+    property_element.set(NAME_TAG, 'name')
+    property_element.set(CATEGORY_TAG, 'category')
+    property_element.text = 'test text'
+
+    property = PropertyFactory.create(property_element)
+
+    assert(property is None)
+
+
 @pytest.mark.parametrize('name, name_expected', 
     [(str(), DEFAULT_NAME), ('test_name', 'test_name')])
 

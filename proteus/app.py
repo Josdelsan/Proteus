@@ -23,12 +23,12 @@ import proteus
 # Constant declarations for PROTEUS configuration file keys
 # --------------------------------------------------------------------------
 
-CONFIG_FILE          : str = 'proteus.ini'
-DIRECTORIES          : str = 'directories'
-BASE_DIRECTORY       : str = 'base_directory'
-ARCHETYPES_DIRECTORY : str = 'archetypes_directory'
-RESOURCES_DIRECTORY  : str = 'resources_directory'
-ICONS_DIRECTORY      : str = 'icons_directory'
+CONFIG_FILE          = str('proteus.ini')
+DIRECTORIES          = str('directories')
+BASE_DIRECTORY       = str('base_directory')
+ARCHETYPES_DIRECTORY = str('archetypes_directory')
+RESOURCES_DIRECTORY  = str('resources_directory')
+ICONS_DIRECTORY      = str('icons_directory')
 
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
@@ -47,14 +47,16 @@ class ProteusApplication:
         """
 
         # Application configuration
-        self.config : ConfigParser = self._create_config_parser()
-        self.directories = self.config[DIRECTORIES]
+        self.config = self._create_config_parser()
+
+        # Auxiliary variable
+        directories = self.config[DIRECTORIES]
 
         # Application directories
-        self.base_directory       : Path = Path.cwd() / self.directories[BASE_DIRECTORY]
-        self.resources_directory  : Path = Path.cwd() / self.directories[RESOURCES_DIRECTORY]
-        self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
-        self.archetypes_directory : Path = Path.cwd() / self.directories[ARCHETYPES_DIRECTORY]
+        self.base_directory       : Path = Path.cwd() / directories[BASE_DIRECTORY]
+        self.resources_directory  : Path = Path.cwd() / directories[RESOURCES_DIRECTORY]
+        self.icons_directory      : Path = self.resources_directory / directories[ICONS_DIRECTORY]
+        self.archetypes_directory : Path = Path.cwd() / directories[ARCHETYPES_DIRECTORY]
 
         # Check application directories
         self.check_application_directories()
@@ -66,7 +68,7 @@ class ProteusApplication:
         assert Path(CONFIG_FILE).exists(), \
             f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 
-        config_parser : ConfigParser = ConfigParser()
+        config_parser = ConfigParser()
         config_parser.read(CONFIG_FILE)
 
         return config_parser
@@ -74,6 +76,7 @@ class ProteusApplication:
     def check_application_directories(self) -> None:
         """
         It checks that essential PROTEUS directories exist.
+        If any of them does not exit, an assert exception is raised.
         """
         proteus.logger.info("Checking PROTEUS directories...")
 

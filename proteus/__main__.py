@@ -21,7 +21,7 @@ def main() -> int:
     print("PROTEUS application 0.1")
     print("="*40)
 
-    app: ProteusApplication = ProteusApplication()
+    app = ProteusApplication()
     return app.run()
 
 if __name__ == '__main__':
