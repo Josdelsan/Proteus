@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_integer_properties.py
-# Description: pytest file for PROTEUS Integer properties
-# Date: 17/10/2022
+# File: test_float_properties.py
+# Description: pytest file for PROTEUS float properties
+# Date: 18/10/2022
 # Version: 0.1
 # Author: Pablo Rivera Jiménez
 # ==========================================================================
@@ -24,41 +24,41 @@ import lxml.etree as ET
 from proteus.model import NAME_TAG, CATEGORY_TAG
 
 from proteus.model.property import \
-    INTEGER_PROPERTY_TAG,           \
+    FLOAT_PROPERTY_TAG,           \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
     PropertyFactory
  
 # --------------------------------------------------------------------------
-# Integer property tests
+# Float property tests
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
 @pytest.mark.parametrize('value, expected_value',
     [
-        (1, 1),
-        (str(), 0),
-        ('test value', 0),
-        (7.5, 0)
+        (1, 1.0),
+        (str(), 0.0),
+        ('test value', 0.0),
+        (7.5, 7.5)
     ]
 )
 @pytest.mark.parametrize('new_value, expected_new_value',
     [
-        (2, 2),
-        ("test value", 0),
-        (9.5, 0),
-        ('new test value', 0)
+        (2, 2.0),
+        ("test value", 0.0),
+        (9.5, 9.5),
+        ('new test value', 0.0)
     ]
 )
 
-def test_integer_properties(name, category, value, expected_value, new_value, expected_new_value):
+def test_float_properties(name, category, value, expected_value, new_value, expected_new_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of Integer properties.
+    of float properties.
     """
     # Prepare XML element
-    property_tag = INTEGER_PROPERTY_TAG
+    property_tag = FLOAT_PROPERTY_TAG
     property_element = ET.Element(property_tag)
 
     if name:

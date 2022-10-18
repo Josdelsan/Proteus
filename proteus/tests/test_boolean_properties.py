@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_integer_properties.py
-# Description: pytest file for PROTEUS Integer properties
-# Date: 17/10/2022
+# File: test_boolean_properties.py
+# Description: pytest file for PROTEUS boolean properties
+# Date: 18/10/2022
 # Version: 0.1
 # Author: Pablo Rivera Jiménez
 # ==========================================================================
@@ -24,41 +24,50 @@ import lxml.etree as ET
 from proteus.model import NAME_TAG, CATEGORY_TAG
 
 from proteus.model.property import \
-    INTEGER_PROPERTY_TAG,           \
+    BOOLEAN_PROPERTY_TAG,           \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
     PropertyFactory
  
 # --------------------------------------------------------------------------
-# Integer property tests
+# Boolean property tests
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value, expected_value',
+@pytest.mark.parametrize('value, expected_value, expected_xml_value',
     [
-        (1, 1),
-        (str(), 0),
-        ('test value', 0),
-        (7.5, 0)
+        ("false", False, "false"),
+        ("true", True, "true"),
+        ('True', True, "true"),
+        ('False', False, "false"),
+        (str(), False, "false"),
+        (7.5, False, "false"),
+        (7, False, "false"),
+        ("test value", False, "false"),
     ]
 )
-@pytest.mark.parametrize('new_value, expected_new_value',
-    [
-        (2, 2),
-        ("test value", 0),
-        (9.5, 0),
-        ('new test value', 0)
+@pytest.mark.parametrize('new_value, expected_new_value, expected_new_xml_value',
+    [   
+        
+        ("false", False, "false"),
+        ("true", True, "true"),
+        ('True', True, "true"),
+        ('False', False, "false"),
+        (str(), False, "false"),
+        (7.5, False, "false"),
+        (7, False, "false"),
+        ("test value", False, "false"),
     ]
 )
 
-def test_integer_properties(name, category, value, expected_value, new_value, expected_new_value):
+def test_float_properties(name, category, value, expected_value, expected_xml_value, new_value, expected_new_value, expected_new_xml_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of Integer properties.
+    of float properties.
     """
     # Prepare XML element
-    property_tag = INTEGER_PROPERTY_TAG
+    property_tag = BOOLEAN_PROPERTY_TAG
     property_element = ET.Element(property_tag)
 
     if name:
@@ -82,7 +91,7 @@ def test_integer_properties(name, category, value, expected_value, new_value, ex
     assert(property.category == category)
     assert(
         ET.tostring(property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_xml_value}</{property_tag}>'
     )
 
     # Clone the property without changes
@@ -102,5 +111,5 @@ def test_integer_properties(name, category, value, expected_value, new_value, ex
     assert(evolved_property.category == category)
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}">{expected_new_value}</{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_new_xml_value}</{property_tag}>'
     )

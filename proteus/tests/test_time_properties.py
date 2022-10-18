@@ -62,10 +62,10 @@ minutes_firewall = 1
     ]
 )
 
-def test_date_properties(name, category, value, expected_value, new_value, expected_new_value):
+def test_time_properties(name, category, value, expected_value, new_value, expected_new_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of date properties.
+    of time properties.
     """
     # Prepare XML element
     property_tag = TIME_PROPERTY_TAG

@@ -545,6 +545,22 @@ class EnumProperty(Property):
         """
         return set( str(self.choices).split(' ') )
 
+    def clone(self, new_value=None, new_choices = None) -> 'Property':
+        """
+        It clones the property with a new value if it is not None.
+        The new value must be provided as a string.
+        """
+        if new_value is None and new_choices is None:
+            return replace(self)
+        if(new_value is not None and new_choices is not None):
+            return replace(self, value=str(new_value), choices = str(new_choices))
+        if(new_value is not None):
+            return replace(self, value=str(new_value))
+        if(new_choices is not None):
+            return replace(self, value=str(new_choices))
+        
+
+
     def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element and
