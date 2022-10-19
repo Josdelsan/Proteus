@@ -61,10 +61,10 @@ from proteus.model.property import \
     ]
 )
 
-def test_float_properties(name, category, value, expected_value, expected_xml_value, new_value, expected_new_value, expected_new_xml_value):
+def test_boolean_properties(name, category, value, expected_value, expected_xml_value, new_value, expected_new_value, expected_new_xml_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of float properties.
+    of boolean properties.
     """
     # Prepare XML element
     property_tag = BOOLEAN_PROPERTY_TAG
