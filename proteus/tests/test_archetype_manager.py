@@ -80,7 +80,7 @@ def test_document_archetype_manager():
     for document_arch in documents:
         assert all(x for x in [type(document_arch) is DocumentArchetypeProxy, 
                                document_arch.path, document_arch.id, document_arch.name, document_arch.description,
-                               document_arch.author, document_arch.date])
+                               document_arch.author, document_arch.date, document_arch.classes, document_arch.acceptedChildren])
         
         # Check we can get an instance of the document.
         document = document_arch.get_document(test_project)

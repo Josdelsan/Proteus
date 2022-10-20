@@ -107,7 +107,11 @@ class ProteusApplication:
 
         print("Archetype Object Test")
         print("------------------------")
-        print(ArchetypeManager.load_object_archetypes())
+        objects = ArchetypeManager.load_object_archetypes()
+        for object in objects:
+            print(object.path, "\n", object.id, "\n", object.name, "\n",
+                  object.classes, "\n", object.acceptedChildren)
+        
 
         print("Archetype Document Test")
         print("------------------------")
@@ -115,7 +119,8 @@ class ProteusApplication:
         for document in documents:
             print(document.path, "\n", document.id, "\n", 
                   document.name, "\n", document.description,
-                  "\n", document.author, "\n", document.date)
+                  "\n", document.author, "\n", document.date, "\n",
+                  document.classes, "\n", document.acceptedChildren)
             print(document.get_document(project))
 
         print("Archetype Project Test")

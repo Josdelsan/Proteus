@@ -25,7 +25,7 @@ import proteus.config as config
 
 # PROTEUS imports
 from proteus.model import PROPERTIES_TAG
-from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
+from proteus.model.archetype_proxys import DocumentArchetypeProxy, ObjectArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.property import Property, PropertyFactory
 
 # logging configuration
@@ -170,10 +170,13 @@ class ArchetypeManager:
         
         # Result as a list of pairs (path,name) <-- is that enough?
         # TODO: check the possibility of using proxy classes
-        result : list[tuple(str,str)]= []
+        result : list[ObjectArchetypeProxy] = list ()
 
         # For each subdirectory
         for subdir in subdirs:
+            # Variable were it's going to be saved the data of each object
+            object_dicc : dict = dict()
+
             # Build the full path to the subdirectory
             subdir_path : str = join(archetypes_dir, subdir)
 
@@ -183,8 +186,21 @@ class ArchetypeManager:
             # For each archetype file, we add it to the result
             for archetype_file in archetype_files:
                 archetype_file_path = join(subdir_path, archetype_file)
-                result.append((archetype_file_path, archetype_file))
-        
+
+                # We parse the root element
+                object : ET.Element = ET.parse(archetype_file_path)
+                
+                # We get the root
+                root_object = object.getroot()
+
+                #We get id, class, path, acceptedChildren and name
+                object_dicc["id"] = root_object.attrib["id"]
+                object_dicc["classes"] = root_object.attrib["classes"]
+                object_dicc["acceptedChildren"] = root_object.attrib["acceptedChildren"]
+                object_dicc["path"] = archetype_file_path
+                object_dicc["name"] = archetype_file
+
+            result.append(ObjectArchetypeProxy(object_dicc))
         return result
 
 
@@ -254,6 +270,8 @@ class ArchetypeManager:
                     properties_element : ET.Element = root_document.find(PROPERTIES_TAG)
                     document_dicc["id"] = id
                     document_dicc["path"] = document_root_path
+                    document_dicc["classes"] = root_document.attrib["classes"]
+                    document_dicc["acceptedChildren"] = root_document.attrib["acceptedChildren"]
 
                     # For each element in the properties, we create an instance of the property
                     # Using the PropertyFactory and if the name of the property is "name"

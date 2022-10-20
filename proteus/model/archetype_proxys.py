@@ -75,6 +75,8 @@ class DocumentArchetypeProxy:
         self.description : str = data["description"]
         self.author : str = data["author"]
         self.date : datetime = data["date"] 
+        self.classes : str = data["classes"]
+        self.acceptedChildren : str = data["acceptedChildren"]
         
     # ----------------------------------------------------------------------
     # Method     : get_project
@@ -85,3 +87,29 @@ class DocumentArchetypeProxy:
     # # ----------------------------------------------------------------------
     def get_document(self, project: project.Project) -> object.Object:
         return object.Object(project, self.path)
+
+
+# --------------------------------------------------------------------------
+# Class: ObjectArchetypeProxy
+# Description: Proxy class for managing PROTEUS archetypes
+# Date: 20/10/2022
+# Version: 0.1
+# Author: Pablo Rivera Jiménez
+# --------------------------------------------------------------------------
+
+class ObjectArchetypeProxy:
+
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: It initializes a ObjectrchetypeProxy object.
+    # Date       : 20/10/2022
+    # Version    : 0.1
+    # Author     : Pablo Rivera Jiménez
+    # ----------------------------------------------------------------------
+    def __init__(self, data : dict):
+        self.path : str = data["path"]
+        self.id : str = data["id"]
+        self.name : str = data["name"]
+        self.classes : str = data["classes"]
+        self.acceptedChildren : str = data["acceptedChildren"]
