@@ -154,7 +154,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @classmethod
-    def load_object_archetypes( cls ) -> tuple:
+    def load_object_archetypes( cls ) -> list:
         """
         Method that loads the object archetypes.
         """
@@ -229,7 +229,7 @@ class ArchetypeManager:
         
         # Result as a list of pairs (path,name) <-- is that enough?
         # TODO: check the possibility of using proxy classes
-        result : list = list ()
+        result : list[DocumentArchetypeProxy] = list ()
 
         # For each subdirectory
         for subdir in subdirs:
@@ -312,7 +312,7 @@ class ArchetypeManager:
         
         # Result as a list of pairs (path,name) <-- is that enough?
         # TODO: check the possibility of using proxy classes
-        result : list = []
+        result : list [ProjectArchetypeProxy] = []
 
         # For each subdirectory
         for subdir in subdirs:
