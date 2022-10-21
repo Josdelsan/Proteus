@@ -1,16 +1,18 @@
 # ==========================================================================
-# File: test_date_properties.py
-# Description: pytest file for PROTEUS date properties
-# Date: 15/10/2022
+# File: test_boolean_properties.py
+# Description: pytest file for PROTEUS boolean properties
+# Date: 18/10/2022
 # Version: 0.1
-# Author: Amador Durán Toro
+# Author: Pablo Rivera Jiménez
+# ==========================================================================
+# Update: 21/10/2022 (Amador)
+# Description:
+# - Code review.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
-
-import datetime
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -26,42 +28,49 @@ import lxml.etree as ET
 from proteus.model import NAME_TAG, CATEGORY_TAG
 
 from proteus.model.property import \
-    DATE_PROPERTY_TAG,             \
+    BOOLEAN_PROPERTY_TAG,          \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
-    DATE_FORMAT,                   \
     PropertyFactory
-
+ 
 # --------------------------------------------------------------------------
-# Date property tests
+# Boolean property tests
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value, expected_value', 
+@pytest.mark.parametrize('value, expected_value, expected_xml_value',
     [
-        ('2022-01-01', '2022-01-01'),
-        (str(),        datetime.date.today().strftime(DATE_FORMAT)),
-        ('2022-99-99', datetime.date.today().strftime(DATE_FORMAT)),
-        ('not a date', datetime.date.today().strftime(DATE_FORMAT))
+        ('false', False, 'false'),
+        ('true', True, 'true'),
+        ('True', True, 'true'),
+        ('False', False, 'false'),
+        (str(), False, 'false'),
+        (7.5, False, 'false'),
+        (7, False, 'false'),
+        ('test value', False, 'false')
     ]
 )
-@pytest.mark.parametrize('new_value, expected_new_value',
-    [
-        ('2022-12-31', '2022-12-31'),
-        (str(),        datetime.date.today().strftime(DATE_FORMAT)),
-        ('2022-99-99', datetime.date.today().strftime(DATE_FORMAT)),
-        ('not a date', datetime.date.today().strftime(DATE_FORMAT))
+@pytest.mark.parametrize('new_value, expected_new_value, expected_new_xml_value',
+    [   
+        ('false', False, 'false'),
+        ('true', True, 'true'),
+        ('True', True, 'true'),
+        ('False', False, 'false'),
+        (str(), False, 'false'),
+        (7.5, False, 'false'),
+        (7, False, 'false'),
+        ('test value', False, 'false')
     ]
 )
 
-def test_date_properties(name, category, value, expected_value, new_value, expected_new_value):
+def test_boolean_properties(name, category, value, expected_value, expected_xml_value, new_value, expected_new_value, expected_new_xml_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of date properties.
+    of boolean properties.
     """
     # Prepare XML element
-    property_tag = DATE_PROPERTY_TAG
+    property_tag = BOOLEAN_PROPERTY_TAG
     property_element = ET.Element(property_tag)
 
     if name:
@@ -82,10 +91,10 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
     # Check property
     assert(property.name == name)
     assert(property.category == category)    
-    assert(property.value == datetime.datetime.strptime(expected_value, DATE_FORMAT).date())
+    assert(property.value == expected_value)
     assert(
         ET.tostring(property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_xml_value}</{property_tag}>'
     )
 
     # Clone the property without changes
@@ -95,15 +104,15 @@ def test_date_properties(name, category, value, expected_value, new_value, expec
     assert(cloned_property.name == property.name)
     assert(cloned_property.category == property.category)
     assert(cloned_property.value == property.value)
-    
+
     # Clone the property changing value
-    evolved_property = property.clone(str(new_value))
+    evolved_property = property.clone(new_value)
 
     # Check cloned property
     assert(evolved_property.name == name)
-    assert(evolved_property.category == category)    
-    assert(evolved_property.value == datetime.datetime.strptime(expected_new_value, DATE_FORMAT).date())
+    assert(evolved_property.category == category)
+    assert(evolved_property.value == expected_new_value)    
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}">{expected_new_value}</{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_new_xml_value}</{property_tag}>'
     )
