@@ -15,8 +15,10 @@
 import logging
 from enum import Enum, auto
 from os import listdir
+import os
 from os.path import join, dirname, abspath, isfile, isdir, exists
 from os import pardir
+import shutil
 
 # other libraries imports
 import lxml.etree as ET
@@ -353,3 +355,36 @@ class ArchetypeManager:
                         project_dicc[property_name] = property.value
             result.append(ProjectArchetypeProxy(project_dicc))
         return result
+
+
+    # TODO -> MOVE TO ARCHETYPES?
+    @staticmethod
+    def clone_project(filename_path: str, filename_path_to_save: str):
+        """
+        Method that creates a new project from an archetype.
+
+        :param filename: Path where we want to save the project.
+        :param archetype: Archetype type.
+        """
+        # Directory where we save the project
+        path = os.path.dirname(os.path.realpath(filename_path_to_save))
+
+        # Directory where is the archetype
+        archetype_dir = os.path.dirname(filename_path)
+
+        # Copy the archetype to the project directory
+        original = filename_path
+        target = filename_path_to_save
+        shutil.copyfile(original, target)
+
+        # In case there is no directory, create it
+        if "assets" not in os.listdir(os.path.dirname(filename_path_to_save)):
+            os.mkdir(join(path, "assets"))
+            shutil.copytree(archetype_dir / "assets", path / "assets")
+
+        #TODO remove this if in future. This if is just because otherwise while testing it will fail.
+        if "objects" not in os.listdir(archetype_dir):
+            # Copy the objects file from the archetypes directory into the project directory
+            source_dir = join(archetype_dir, "objects")
+            destination_dir = join(path, "objects")
+            shutil.copytree(source_dir, destination_dir)
