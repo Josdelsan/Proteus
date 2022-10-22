@@ -35,6 +35,7 @@ from proteus.model.property import \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
     CHOICES_TAG,                   \
+    CLASS_TAG,                     \
     PropertyFactory
 
 # --------------------------------------------------------------------------
@@ -66,9 +67,14 @@ def create_property(property_tag, name, category, value, choices = None) -> tupl
     # Set value as a string
     property_element.text = str(value)
 
-    # Set choices if needed (EnumProperty only)
+    # Set choices attribute if needed (EnumProperty only)
     if choices is not None:
         property_element.set(CHOICES_TAG, choices)
+
+    # Add <class> children if needed (ClasslistProperty only)
+    for class_name in str(value).split():
+        class_element = ET.SubElement(property_element, CLASS_TAG)
+        class_element.text = class_name
   
     # Create property from XML element
     property = PropertyFactory.create(property_element)

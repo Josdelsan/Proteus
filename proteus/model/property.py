@@ -47,13 +47,18 @@
 #   which is not an empty list.
 # - EnumProperty assings first choice instead of random choice if value is
 #   not specified.
+# - EnumProperty replaces spaces by underscores in values.
+# - PropertyFactory: fixed error in reduce expression for ClasslistProperty.
 # ==========================================================================
+
+# TODO: turn this module into a package (dir) and split one class per module (file)?
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
 import datetime
+import operator
 from pathlib import Path
 from functools import reduce
 from abc import ABC, abstractmethod
@@ -538,11 +543,20 @@ class EnumProperty(Property):
 
         # Validate value and choices
         try:
-            if (not bool(self.value)) and (not bool(_choices))
+            if (not bool(self.value)) and (not bool(_choices)):
                 raise ValueError
         except ValueError:
             proteus.logger.warning(f"Enum property '{self.name}': empty set of choices and no value, please check.")
             return
+
+        # Validate value (spaces into underscores)
+        try:
+            if (' ' in self.value):
+                raise ValueError
+        except ValueError:
+            proteus.logger.warning(f"Enum property '{self.name}': values cannot contain spaces -> replaced by underscores")
+            # self.value = self.value.replace(' ', '_') cannot be used when frozen=True
+            object.__setattr__(self, 'value', self.value.replace(' ', '_'))
 
         # Validate choices (value is not empty)
         try:
@@ -584,7 +598,7 @@ class EnumProperty(Property):
 # --------------------------------------------------------------------------
 # Class: ClassListProperty
 # Description: Class for PROTEUS ClassList properties
-# Date: 22/08/2022
+# Date: 22/10/2022
 # Version: 0.2
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
@@ -612,7 +626,8 @@ class ClassListProperty(Property):
         It generates a list of strings from the space-separated 
         string with the class names.
         """
-        return self.value.split(' ')
+        # use split() without arguments to get an empty list if string is empty
+        return self.value.split()
 
     def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """
@@ -678,7 +693,11 @@ class PropertyFactory:
             # put them toghether in a space-separated string
             # and use it as property value. In order to do so, we use
             # reduce (from functools) and a lambda expression.
-            value = reduce(lambda e1, e2 : str(e1.text + ' ' + e2.text), element.findall(CLASS_TAG))
+            if element.findall(CLASS_TAG):
+                class_names = map(lambda e: e.text, element.findall(CLASS_TAG))
+                value = reduce(lambda c1, c2: c1+' '+c2, class_names) if class_names else str()
+            else:
+                value = str()
         else:
             # Value could be empty
             value = str(element.text)

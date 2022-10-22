@@ -88,6 +88,8 @@ def test_enum_properties(name, category, value, choices, expected_value, expecte
 
     # Compute new expected values (too complex to use @pytest.mark.parametrize)
     # no value, no choices in original property
+    new_value = str(new_value).replace(' ', '_') if new_value else str(new_value)
+
     if not new_value and not property.choices:
         expected_value = str()
         expected_choices = str()
