@@ -42,7 +42,7 @@ from proteus.model.property import \
 # Fixtures
 # --------------------------------------------------------------------------
 
-def create_property(property_tag, name, category, value, choices = None) -> tuple([Property,str,str]):
+def create_property(property_tag, name, category, value, choices = None) -> tuple[Property,str,str]:
     """
     It creates a PROTEUS property using the tag, name, category and value
     passed as arguments. It returns a tuple containing the new property, 

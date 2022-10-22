@@ -58,7 +58,6 @@
 # --------------------------------------------------------------------------
 
 import datetime
-import operator
 from pathlib import Path
 from functools import reduce
 from abc import ABC, abstractmethod
@@ -172,7 +171,7 @@ class Property(ABC):
         return property_element
 
     @abstractmethod
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         Depending on the type of property, it can be a string or
@@ -202,7 +201,7 @@ class StringProperty(Property):
         # Superclass validation        
         super().__post_init__()
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -258,7 +257,7 @@ class DateProperty(Property):
             # self.value = datetime.date.today() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.date.today())
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -298,7 +297,7 @@ class TimeProperty(Property):
             # self.value = datetime.datetime.now().time() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.datetime.now().time())
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -337,7 +336,7 @@ class IntegerProperty(Property):
             # self.value = int(0) cannot be used when frozen=True
             object.__setattr__(self, 'value', int(0))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -377,7 +376,7 @@ class FloatProperty(Property):
             #self.value = float(0.0) cannot be used when frozen=True
             object.__setattr__(self, 'value', float(0.0))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -421,7 +420,7 @@ class BooleanProperty(Property):
             # self.value = bool(False) cannot be used when frozen=True
             object.__setattr__(self, 'value', bool(False))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -463,7 +462,7 @@ class FileProperty(Property):
     def is_file(self) -> bool:
         return Path(self.value).is_file()
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -504,7 +503,7 @@ class UrlProperty(Property):
     def is_valid(self) -> bool:
         return True if validators.url(self.value) else False
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -587,7 +586,7 @@ class EnumProperty(Property):
         # use split() without arguments to get an empty list if string is empty
         return set( str(self.choices).split() )
 
-    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element and
         the list of choices as the 'choices' attribute of the XML element.
@@ -629,7 +628,7 @@ class ClassListProperty(Property):
         # use split() without arguments to get an empty list if string is empty
         return self.value.split()
 
-    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         In this case, it adds one <class> child for each class tag.
