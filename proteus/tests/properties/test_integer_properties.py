@@ -1,9 +1,18 @@
 # ==========================================================================
-# File: test_string_properties.py
-# Description: pytest file for PROTEUS string and markdown properties
-# Date: 15/10/2022
-# Version: 0.1
-# Author: Amador Durán Toro
+# File: test_integer_properties.py
+# Description: pytest file for PROTEUS Integer properties
+# Date: 22/10/2022
+# Version: 0.2
+# Author: Pablo Rivera Jiménez
+#         Amador Durán Toro
+# ==========================================================================
+# Update: 21/10/2022 (Amador)
+# Description:
+# - Code review.
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - Common code extracted as fixtures.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -21,55 +30,53 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model.property import INTEGER_PROPERTY_TAG
 
-from proteus.model.property import \
-    STRING_PROPERTY_TAG,           \
-    MARKDOWN_PROPERTY_TAG,         \
-    DEFAULT_NAME,                  \
-    DEFAULT_CATEGORY,              \
-    PropertyFactory
- 
 # --------------------------------------------------------------------------
-# String & markdown property tests
+# Test specific imports
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize('property_tag', [STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG])
+import proteus.tests.properties.fixtures as fixtures
+
+# --------------------------------------------------------------------------
+# Integer property tests
+# --------------------------------------------------------------------------
+
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value',        [str(), 'test value', 'test <>& value', 7.5 ])
-@pytest.mark.parametrize('new_value',    [str(), 'new test value', 'new test <>& value', -7.5])
+@pytest.mark.parametrize('value, expected_value',
+    [
+        (1, 1),
+        (str(), 0),
+        ('test value', 0),
+        (7.5, 0)
+    ]
+)
+@pytest.mark.parametrize('new_value, expected_new_value',
+    [
+        (2, 2),
+        ('test value', 0),
+        (9.5, 0),
+        ('new test value', 0)
+    ]
+)
 
-def test_string_and_markdown_properties(property_tag, name, category, value, new_value):
+def test_integer_properties(name, category, value, expected_value, new_value, expected_new_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of string and markdown properties.
+    of Integer properties.
     """
-    # Prepare XML element
-    property_element = ET.Element(property_tag)
-
-    if name:
-        property_element.set(NAME_TAG, name)
-    else:
-        name = DEFAULT_NAME
-    
-    property_element.text = str(value)
-    
-    if category:
-        property_element.set(CATEGORY_TAG, category)
-    else:
-        category = DEFAULT_CATEGORY
-
     # Create property from XML element
-    property = PropertyFactory.create(property_element)
+    property_tag = INTEGER_PROPERTY_TAG
+    (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     # Check property
     assert(property.name == name)
-    assert(property.value == str(value))
     assert(property.category == category)
+    assert(property.value == expected_value)    
     assert(
         ET.tostring(property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}"><![CDATA[{value}]]></{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
     )
 
     # Clone the property without changes
@@ -77,17 +84,17 @@ def test_string_and_markdown_properties(property_tag, name, category, value, new
 
     # Check cloned property
     assert(cloned_property.name == property.name)
-    assert(cloned_property.value == property.value)
     assert(cloned_property.category == property.category)
+    assert(cloned_property.value == property.value)    
 
     # Clone the property changing value
     evolved_property = property.clone(new_value)
 
     # Check cloned property
     assert(evolved_property.name == name)
-    assert(evolved_property.value == str(new_value))
     assert(evolved_property.category == category)
+    assert(evolved_property.value == expected_new_value)    
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==
-        f'<{property_tag} name="{name}" category="{category}"><![CDATA[{new_value}]]></{property_tag}>'
+        f'<{property_tag} name="{name}" category="{category}">{expected_new_value}</{property_tag}>'
     )

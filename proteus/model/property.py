@@ -1,8 +1,8 @@
 # ==========================================================================
 # File: property.py
 # Description: PROTEUS properties
-# Date: 17/10/2022
-# Version: 0.2
+# Date: 22/10/2022
+# Version: 0.3
 # Author: Amador Durán Toro
 # ==========================================================================
 # Update: 30/08/2022 (Amador)
@@ -37,12 +37,22 @@
 # Description:
 # - clone(new_value=None) added.
 # ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - UrlProperty::is_valid computed property added.
+# - URLs without protocol (i.e. https://) are not valid.
+# - FileProperty::is_file computed property added.
+# - EnumProperty: split() without arguments uses space and returns an
+#   empty list if the splitted string is empty. split(' ') returns [''],
+#   which is not an empty list.
+# - EnumProperty assings first choice instead of random choice if value is
+#   not specified.
+# ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import random
 import datetime
 from pathlib import Path
 from functools import reduce
@@ -415,8 +425,8 @@ class BooleanProperty(Property):
 # --------------------------------------------------------------------------
 # Class: FileProperty
 # Description: Dataclass for PROTEUS file properties
-# Date: 15/10/2022
-# Version: 0.1
+# Date: 22/10/2022
+# Version: 0.2
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
@@ -444,6 +454,10 @@ class FileProperty(Property):
 
         # TODO: how to access project path and make relative file path from it?
 
+    @property
+    def is_file(self) -> bool:
+        return Path(self.value).is_file()
+
     def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
@@ -453,8 +467,8 @@ class FileProperty(Property):
 # --------------------------------------------------------------------------
 # Class: UrlProperty
 # Description: Dataclass for PROTEUS url properties
-# Date: 15/10/2022
-# Version: 0.2
+# Date: 22/10/2022
+# Version: 0.3
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
 # --------------------------------------------------------------------------
@@ -481,6 +495,10 @@ class UrlProperty(Property):
         except ValueError:
             proteus.logger.warning(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
 
+    @property
+    def is_valid(self) -> bool:
+        return True if validators.url(self.value) else False
+
     def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
@@ -490,7 +508,7 @@ class UrlProperty(Property):
 # --------------------------------------------------------------------------
 # Class: EnumProperty
 # Description: Dataclass for PROTEUS enumerated properties
-# Date: 15/10/2022
+# Date: 22/10/2022
 # Version: 0.3
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
@@ -515,33 +533,45 @@ class EnumProperty(Property):
         super().__post_init__()
 
         # Parse choices set
-        _choices = set( str(self.choices).split(' ') )
+        # use split() without arguments to get an empty list if string is empty
+        _choices = str(self.choices).split()
 
-        # Validate value
+        # Validate value and choices
         try:
-            if self.value not in _choices:
+            if (not bool(self.value)) and (not bool(_choices))
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning random choice")
-            # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
-            # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
-            object.__setattr__(self, 'value', random.choice(list(_choices)) if bool(_choices) else str())
+            proteus.logger.warning(f"Enum property '{self.name}': empty set of choices and no value, please check.")
+            return
 
-        # Validate choices
+        # Validate choices (value is not empty)
         try:
             if not bool(_choices):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value as the only choice")
+            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value '{self.value}' as the only choice")
             # self.choices = self.value cannot be used when frozen=True
             object.__setattr__(self, 'choices', self.value)
+            return
+
+        # Validate value (choices are not empty)
+        try:
+            if self.value not in self.get_choices_as_set():
+                raise ValueError
+        except ValueError:
+            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning first choice '{_choices[0]}'")
+            # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
+            # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
+            object.__setattr__(self, 'value', _choices[0])
+            return
 
     def get_choices_as_set(self) -> set[str]:
         """
         It generates a set of strings from the space-separated 
         string with the enumerated choices.
         """
-        return set( str(self.choices).split(' ') )
+        # use split() without arguments to get an empty list if string is empty
+        return set( str(self.choices).split() )
 
     def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
         """

@@ -1,8 +1,8 @@
 # ==========================================================================
 # File: test_time_properties.py
 # Description: pytest file for PROTEUS time properties
-# Date: 21/10/2022
-# Version: 0.2
+# Date: 22/10/2022
+# Version: 0.3
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
 # ==========================================================================
@@ -10,6 +10,12 @@
 # Description:
 # - Code review.
 # - Use of datetime substraction to count difference in seconds.
+# - epsilon set to 10 seconds.
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - Common code extracted as fixtures.
+# - epsilon set to 5 seconds.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -29,14 +35,13 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model.property import TIME_PROPERTY_TAG, TIME_FORMAT
 
-from proteus.model.property import \
-    TIME_PROPERTY_TAG,             \
-    DEFAULT_NAME,                  \
-    DEFAULT_CATEGORY,              \
-    TIME_FORMAT,                   \
-    PropertyFactory
+# --------------------------------------------------------------------------
+# Test specific imports
+# --------------------------------------------------------------------------
+
+import proteus.tests.properties.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Time property tests
@@ -70,31 +75,16 @@ def test_time_properties(name, category, value, expected_value, new_value, expec
     It tests creation, update, and evolution (cloning with a new value) 
     of time properties.
     """
-    # Prepare XML element
-    property_tag = TIME_PROPERTY_TAG
-    property_element = ET.Element(property_tag)
-
-    if name:
-        property_element.set(NAME_TAG, name)
-    else:
-        name = DEFAULT_NAME
-    
-    property_element.text = str(value)
-    
-    if category:
-        property_element.set(CATEGORY_TAG, category)
-    else:
-        category = DEFAULT_CATEGORY
-
     # Create property from XML element
-    property = PropertyFactory.create(property_element)
+    property_tag = TIME_PROPERTY_TAG
+    (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     # Create a time from the expected_value string
     # This could be avoided passing times as expected value
     expected_value_as_time = datetime.datetime.strptime(expected_value, TIME_FORMAT).time()
 
     # Maximum number of seconds between test function call and creation of property
-    epsilon_seconds = 10
+    epsilon_seconds = 5
 
     # To calculate the difference between two times, they have to be converted into datetime
     # https://stackoverflow.com/questions/43305577/python-calculate-the-difference-between-two-datetime-time-objects
