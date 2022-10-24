@@ -25,6 +25,7 @@ from proteus.config import Config
 
 from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.abstract_object import ProteusState
+from proteus.model.object import Object
 from proteus.model.project import Project
 
 from proteus.model.property import Property, StringProperty
@@ -35,7 +36,7 @@ from proteus.model.property import Property, StringProperty
 
 @pytest.mark.parametrize('path', [pathlib.Path.cwd()])
 
-def test_projects(path):
+def test_objects(path):
     """
     It tests creation, update, and evolution (cloning with a new value) 
     of string and markdown properties.
@@ -43,40 +44,26 @@ def test_projects(path):
 
     # Load project
     test_project : Project = Project.load(path)
-
-    # Iterate over properties
-    property : Property
-    name : str
-    for name, property in test_project.properties.items():
-        assert (test_project.get_property(name) == property)
-        assert (name == property.name)
-
-    # Iterate over documents
-    for id, document in test_project.documents.items():
-        assert(document.id == id)
-
-    # Compare xml
+    test_object : Object = Object.load(test_project, "3fKhMAkcEe2C")
     
     # Parser to avoid conflicts with CDATA
     parser = ET.XMLParser(strip_cdata=False)
-    proteusET = ET.parse(path / "proteus.xml", parser = parser)
+    element = ET.parse( test_object.path, parser = parser)
+    root = element.getroot()
 
-    generated_xml = (ET.tostring(test_project.generate_xml(),
-                    xml_declaration=True,
-                    encoding='utf-8',
-                    pretty_print=True).decode())
+    # Compare ET elements with Object elements
+    assert(root.attrib["id"] == test_object.id)
+    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren)
+    assert(root.attrib["classes"] == test_object.classes)
 
-    xml = (ET.tostring(proteusET,
-                    xml_declaration=True,
-                    encoding='utf-8',
-                    pretty_print=True).decode())
-    
-    assert(generated_xml == xml)
+    children = root.find("children")
+    children_list : list = []
+    for child in children:
+        children_list.append(child.attrib["id"] )
 
-    # Compare Path
-    assert pathlib.Path(test_project.path).resolve() == (path / "proteus.xml")
-    
-    # Test ProteusState
+    # Check that Object contains all the children of the xml    
+    assert(all(child in test_object.children.keys()  for child in children_list))
+
     assert (test_project.state == ProteusState.CLEAN)
     test_project.state = ProteusState.DEAD
     assert (test_project.state == ProteusState.DEAD)
@@ -85,8 +72,16 @@ def test_projects(path):
     test_project.state = ProteusState.FRESH
     assert (test_project.state == ProteusState.FRESH)
     test_project.state = ProteusState.CLEAN
+    
+    xml = (ET.tostring(element,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
 
-    # Test set_property
-    new_prop = test_project.get_property("name").clone("new name")
-    test_project.set_property(new_prop)
-    assert (test_project.get_property("name").value == "new name")
+    gemerated_xml = (ET.tostring(test_object.generate_xml(),
+                     xml_declaration=True,
+                     encoding='utf-8',
+                     pretty_print=True).decode())
+
+
+    assert(xml == gemerated_xml)
