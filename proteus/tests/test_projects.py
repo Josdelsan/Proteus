@@ -14,7 +14,9 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+import os
 import pathlib
+import shutil
 import pytest
 import lxml.etree as ET
 from proteus.config import Config
@@ -25,6 +27,7 @@ from proteus.config import Config
 
 from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.abstract_object import ProteusState
+from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
 
 from proteus.model.property import Property, StringProperty
@@ -41,8 +44,25 @@ def test_projects(path):
     of string and markdown properties.
     """
 
-    # Load project
-    test_project : Project = Project.load(path)
+    # New path where we want to clone the archetype
+    new_cloned_project_path = pathlib.Path.cwd().parent / "new_cloned_project"
+
+    
+    print(new_cloned_project_path)
+    print(path)
+    # If dir already exists, then we remove it
+    if(new_cloned_project_path.resolve().exists()):
+        shutil.rmtree(new_cloned_project_path)
+
+    # Create a dir
+    os.mkdir(new_cloned_project_path)
+
+    # Clone project
+    print("HERE")
+    ArchetypeManager.clone_project(os.path.join(path, "proteus.xml"),new_cloned_project_path.resolve())
+
+    # Load the project
+    test_project = Project.load(new_cloned_project_path)
 
     # Iterate over properties
     property : Property
@@ -59,7 +79,8 @@ def test_projects(path):
     
     # Parser to avoid conflicts with CDATA
     parser = ET.XMLParser(strip_cdata=False)
-    proteusET = ET.parse(path / "proteus.xml", parser = parser)
+    proteusET = ET.parse(new_cloned_project_path / "proteus.xml", parser = parser)
+    print(proteusET.getroot().attrib["id"] == test_project.id)
 
     generated_xml = (ET.tostring(test_project.generate_xml(),
                     xml_declaration=True,
@@ -74,7 +95,7 @@ def test_projects(path):
     assert(generated_xml == xml)
 
     # Compare Path
-    assert pathlib.Path(test_project.path).resolve() == (path / "proteus.xml")
+    assert pathlib.Path(test_project.path).resolve() == (new_cloned_project_path / "proteus.xml")
     
     # Test ProteusState
     assert (test_project.state == ProteusState.CLEAN)
@@ -90,3 +111,15 @@ def test_projects(path):
     new_prop = test_project.get_property("name").clone("new name")
     test_project.set_property(new_prop)
     assert (test_project.get_property("name").value == "new name")
+
+    for doc in test_project.documents.values():
+        doc.state = ProteusState.DEAD
+    
+    test_project.save_project()
+    print(test_project.state)
+
+    assert(len(os.listdir(new_cloned_project_path / "objects")) == 1)
+
+    assert(test_project.state == ProteusState.CLEAN)
+
+    assert(len(test_project.documents) == 0)

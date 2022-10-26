@@ -233,9 +233,10 @@ class Project(AbstractObject):
             # Get the elementTree, save it in the project path and set state to clean
             tree = ET.ElementTree(root)
             tree.write(self.path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-            self.state == ProteusState.CLEAN
+            self.state = ProteusState.CLEAN
         
         # For each document in the project
+        documents_to_be_removed : list = []
         for document in self.documents.values():
             document_path = f"{objects_repository}/{document.id}.xml"
 
@@ -244,6 +245,10 @@ class Project(AbstractObject):
                 # If the document exists (not in memory), we deleted from os
                 if(os.path.isfile(document_path)):
                     os.remove(document_path)
+                
+                #We have to use a list and not pop from the dict here cause will be a RuntimeError
+                # (dictionary changed size during iteration)
+                documents_to_be_removed.append(document.id)
             
             # If the state of the document is DIRTY or FRESH, we save it
             elif(document.state == ProteusState.DIRTY or document.state == ProteusState.FRESH):
@@ -252,8 +257,8 @@ class Project(AbstractObject):
                 # ET.indent(root, "    ")
                 tree = ET.ElementTree(root)
                 tree.write(document_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                document.state == ProteusState.CLEAN
-
+                document.state = ProteusState.CLEAN
+            
             if(document.children):
                 # If the document has children we save them and if the child has children
                 # we save them as well
@@ -271,26 +276,15 @@ class Project(AbstractObject):
                             
                             tree = ET.ElementTree(child_root)
                             tree.write(child_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                            child.state == ProteusState.CLEAN
+                            child.state = ProteusState.CLEAN
                         if(child.state == ProteusState.DEAD or parent.state == ProteusState.DEAD):
                             os.remove(child.path)
                             child.state = ProteusState.DEAD
                 save_children(document)
+        
+        # PermissionError: [WinError 32] El proceso no tiene acceso al archivo porque está siendo utilizado por otro proceso:
+        for i in documents_to_be_removed:
+            self.documents.pop(i) 
+        
 
-    # ----------------------------------------------------------------------
-    # Method     : clone_project
-    # Description: It clones a project archetype into the sys path wanted.
-    # Date       : 27/09/2022
-    # Version    : 0.1
-    # Author     : Pablo Rivera Jiménez
-    # ----------------------------------------------------------------------
-
-    # TODO -> MOVE TO ARCHETYPES?
-    def clone_project(self, filename_path_to_save: str):
-        """
-        Method that creates a new project from an archetype.
-
-        :param filename: Path where we want to save the project.
-        :param archetype: Archetype type.
-        """
-        archetypes.ArchetypeManager.clone_project(self.path, filename_path_to_save)
+    

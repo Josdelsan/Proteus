@@ -14,6 +14,8 @@ import datetime
 import enum
 import os
 from pathlib import Path
+import pathlib
+import shutil
 
 
 # --------------------------------------------------------------------------
@@ -95,3 +97,35 @@ def test_document_archetype_manager():
 
         # Check if the document archetype has a document.xml file
         assert len([x for x in document_files if (x == "document.xml")]) == 1
+
+def test_clone_project():
+
+    # Get the archetypes projects and select the first one
+    projects = ArchetypeManager.load_project_archetypes()
+    project_to_be_cloned : ProjectArchetypeProxy = projects[0]
+
+    # New path where we want to clone the archetype
+    new_cloned_project_path = pathlib.Path.cwd().parent / "new_cloned_project"
+
+    # If dir already exists, then we remove it
+    if(new_cloned_project_path.resolve().exists()):
+        shutil.rmtree(new_cloned_project_path)
+
+    # Create a dir
+    os.mkdir(new_cloned_project_path)
+
+    # Archetype path
+    project_to_be_cloned_path = pathlib.Path(project_to_be_cloned.path)
+
+    # Clone project
+    ArchetypeManager.clone_project(project_to_be_cloned_path,new_cloned_project_path.resolve())
+    
+    # Check everything was copied (.xml main file, assets folder and objects folder)
+    assert(os.listdir(project_to_be_cloned_path.parent) == os.listdir( new_cloned_project_path))
+    assert(os.listdir(project_to_be_cloned_path.parent / "objects") == os.listdir( new_cloned_project_path/ "objects"))
+    assert(os.listdir(project_to_be_cloned_path.parent / "assets") == os.listdir( new_cloned_project_path/ "assets"))
+
+    # We remove the dir
+    shutil.rmtree(new_cloned_project_path)
+
+
