@@ -1,9 +1,13 @@
 # ==========================================================================
 # File: test_properties.py
 # Description: pytest file for PROTEUS properties (general)
-# Date: 14/10/2022
-# Version: 0.1
+# Date: 22/10/2022
+# Version: 0.2
 # Author: Amador Durán Toro
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - Common code extracted as fixtures.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -28,22 +32,29 @@ from proteus.model.property import \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
     PropertyFactory
- 
+
+# --------------------------------------------------------------------------
+# Test specific imports
+# --------------------------------------------------------------------------
+
+import proteus.tests.properties.fixtures as fixtures
+
 # --------------------------------------------------------------------------
 # General property tests
 # --------------------------------------------------------------------------
 
-def test_wrong_property_tag():
+@pytest.mark.parametrize('property_tag', ['WrongProperty', 'wrong_property'])
+@pytest.mark.parametrize('name',         [str(), 'test name'     ])
+@pytest.mark.parametrize('category',     [str(), 'test category' ])
+@pytest.mark.parametrize('value',        [str(), 'test value', 'test <>& value', 7.5])
+
+def test_wrong_property_tag(property_tag, name, category, value):
     """
     It tests that PropertyFactory returns None when the XML
     element is not a property element.
     """
-    property_element = ET.Element('WrongProperty')
-    property_element.set(NAME_TAG, 'name')
-    property_element.set(CATEGORY_TAG, 'category')
-    property_element.text = 'test text'
-
-    property = PropertyFactory.create(property_element)
+    # Create property from XML element
+    (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     assert(property is None)
 

@@ -1,9 +1,13 @@
 # ==========================================================================
-# File: test_url_properties.py
-# Description: pytest file for PROTEUS url properties
-# Date: 19/10/2022
-# Version: 0.1
-# Author: Pablo Rivera Jiménez
+# File: test_string_properties.py
+# Description: pytest file for PROTEUS string and markdown properties
+# Date: 22/10/2022
+# Version: 0.2
+# Author: Amador Durán Toro
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - Common code extracted as fixtures.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -21,58 +25,31 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model.property import STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG         
 
-from proteus.model.property import \
-    URL_PROPERTY_TAG,           \
-    DEFAULT_NAME,                  \
-    DEFAULT_CATEGORY,              \
-    PropertyFactory
- 
 # --------------------------------------------------------------------------
-# Url property tests
+# Test specific imports
 # --------------------------------------------------------------------------
 
+import proteus.tests.properties.fixtures as fixtures
+
+# --------------------------------------------------------------------------
+# String & markdown property tests
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize('property_tag', [STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG])
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value',        
-    [
-        "www.google.com",
-        7.5,
-        str()
-    ]
-)
-@pytest.mark.parametrize('new_value',    
-    [
-        "www.google.es",
-        str(),
-        3
-    ]
-)
+@pytest.mark.parametrize('value',        [str(), 'test value', 'test <>& value', 7.5 ])
+@pytest.mark.parametrize('new_value',    [str(), 'new test value', 'new test <>& value', -7.5])
 
-def test_url_properties(name, category, value, new_value):
+def test_string_and_markdown_properties(property_tag, name, category, value, new_value):
     """
     It tests creation, update, and evolution (cloning with a new value) 
-    of url properties.
+    of string and markdown properties.
     """
-    # Prepare XML element
-    property_tag = URL_PROPERTY_TAG
-    property_element = ET.Element(property_tag)
-
-    if name:
-        property_element.set(NAME_TAG, name)
-    else:
-        name = DEFAULT_NAME
-    
-    property_element.text = str(value)
-    
-    if category:
-        property_element.set(CATEGORY_TAG, category)
-    else:
-        category = DEFAULT_CATEGORY
-
     # Create property from XML element
-    property = PropertyFactory.create(property_element)
+    (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     # Check property
     assert(property.name == name)

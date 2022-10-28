@@ -1,8 +1,8 @@
 # ==========================================================================
 # File: property.py
 # Description: PROTEUS properties
-# Date: 17/10/2022
-# Version: 0.2
+# Date: 22/10/2022
+# Version: 0.3
 # Author: Amador Durán Toro
 # ==========================================================================
 # Update: 30/08/2022 (Amador)
@@ -37,12 +37,26 @@
 # Description:
 # - clone(new_value=None) added.
 # ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - UrlProperty::is_valid computed property added.
+# - URLs without protocol (i.e. https://) are not valid.
+# - FileProperty::is_file computed property added.
+# - EnumProperty: split() without arguments uses space and returns an
+#   empty list if the splitted string is empty. split(' ') returns [''],
+#   which is not an empty list.
+# - EnumProperty assings first choice instead of random choice if value is
+#   not specified.
+# - EnumProperty replaces spaces by underscores in values.
+# - PropertyFactory: fixed error in reduce expression for ClasslistProperty.
+# ==========================================================================
+
+# TODO: turn this module into a package (dir) and split one class per module (file)?
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import random
 import datetime
 from pathlib import Path
 from functools import reduce
@@ -157,7 +171,7 @@ class Property(ABC):
         return property_element
 
     @abstractmethod
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         Depending on the type of property, it can be a string or
@@ -187,7 +201,7 @@ class StringProperty(Property):
         # Superclass validation        
         super().__post_init__()
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -243,7 +257,7 @@ class DateProperty(Property):
             # self.value = datetime.date.today() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.date.today())
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -283,7 +297,7 @@ class TimeProperty(Property):
             # self.value = datetime.datetime.now().time() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.datetime.now().time())
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -324,7 +338,7 @@ class IntegerProperty(Property):
             # self.value = int(0) cannot be used when frozen=True
             object.__setattr__(self, 'value', int(0))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -364,7 +378,7 @@ class FloatProperty(Property):
             #self.value = float(0.0) cannot be used when frozen=True
             object.__setattr__(self, 'value', float(0.0))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -408,7 +422,7 @@ class BooleanProperty(Property):
             # self.value = bool(False) cannot be used when frozen=True
             object.__setattr__(self, 'value', bool(False))
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -417,8 +431,8 @@ class BooleanProperty(Property):
 # --------------------------------------------------------------------------
 # Class: FileProperty
 # Description: Dataclass for PROTEUS file properties
-# Date: 15/10/2022
-# Version: 0.1
+# Date: 22/10/2022
+# Version: 0.2
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
@@ -446,7 +460,11 @@ class FileProperty(Property):
 
         # TODO: how to access project path and make relative file path from it?
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    @property
+    def is_file(self) -> bool:
+        return Path(self.value).is_file()
+
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -455,8 +473,8 @@ class FileProperty(Property):
 # --------------------------------------------------------------------------
 # Class: UrlProperty
 # Description: Dataclass for PROTEUS url properties
-# Date: 15/10/2022
-# Version: 0.2
+# Date: 22/10/2022
+# Version: 0.3
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
 # --------------------------------------------------------------------------
@@ -483,7 +501,11 @@ class UrlProperty(Property):
         except ValueError:
             proteus.logger.warning(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
 
-    def generate_xml_value(self, _:Optional[ET._Element] = None) -> str | ET.CDATA:
+    @property
+    def is_valid(self) -> bool:
+        return True if validators.url(self.value) else False
+
+    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
@@ -492,7 +514,7 @@ class UrlProperty(Property):
 # --------------------------------------------------------------------------
 # Class: EnumProperty
 # Description: Dataclass for PROTEUS enumerated properties
-# Date: 15/10/2022
+# Date: 22/10/2022
 # Version: 0.3
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
@@ -517,51 +539,56 @@ class EnumProperty(Property):
         super().__post_init__()
 
         # Parse choices set
-        _choices = set( str(self.choices).split(' ') )
+        # use split() without arguments to get an empty list if string is empty
+        _choices = str(self.choices).split()
 
-        # Validate value
+        # Validate value and choices
         try:
-            if self.value not in _choices:
+            if (not bool(self.value)) and (not bool(_choices)):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning random choice")
-            # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
-            # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
-            object.__setattr__(self, 'value', random.choice(list(_choices)) if bool(_choices) else str())
+            proteus.logger.warning(f"Enum property '{self.name}': empty set of choices and no value, please check.")
+            return
 
-        # Validate choices
+        # Validate value (spaces into underscores)
+        try:
+            if (' ' in self.value):
+                raise ValueError
+        except ValueError:
+            proteus.logger.warning(f"Enum property '{self.name}': values cannot contain spaces -> replaced by underscores")
+            # self.value = self.value.replace(' ', '_') cannot be used when frozen=True
+            object.__setattr__(self, 'value', self.value.replace(' ', '_'))
+
+        # Validate choices (value is not empty)
         try:
             if not bool(_choices):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value as the only choice")
+            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value '{self.value}' as the only choice")
             # self.choices = self.value cannot be used when frozen=True
             object.__setattr__(self, 'choices', self.value)
+            return
+
+        # Validate value (choices are not empty)
+        try:
+            if self.value not in self.get_choices_as_set():
+                raise ValueError
+        except ValueError:
+            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning first choice '{_choices[0]}'")
+            # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
+            # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
+            object.__setattr__(self, 'value', _choices[0])
+            return
 
     def get_choices_as_set(self) -> set[str]:
         """
         It generates a set of strings from the space-separated 
         string with the enumerated choices.
         """
-        return set( str(self.choices).split(' ') )
+        # use split() without arguments to get an empty list if string is empty
+        return set( str(self.choices).split() )
 
-    def clone(self, new_value=None, new_choices = None) -> 'Property':
-        """
-        It clones the property with a new value if it is not None.
-        The new value must be provided as a string.
-        """
-        if new_value is None and new_choices is None:
-            return replace(self)
-        if(new_value is not None and new_choices is not None):
-            return replace(self, value=str(new_value), choices = str(new_choices))
-        if(new_value is not None):
-            return replace(self, value=str(new_value))
-        if(new_choices is not None):
-            return replace(self, value=str(new_choices))
-        
-
-
-    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element and
         the list of choices as the 'choices' attribute of the XML element.
@@ -572,7 +599,7 @@ class EnumProperty(Property):
 # --------------------------------------------------------------------------
 # Class: ClassListProperty
 # Description: Class for PROTEUS ClassList properties
-# Date: 22/08/2022
+# Date: 22/10/2022
 # Version: 0.2
 # Author: Pablo Rivera Jiménez
 #         Amador Durán Toro
@@ -600,9 +627,10 @@ class ClassListProperty(Property):
         It generates a list of strings from the space-separated 
         string with the class names.
         """
-        return self.value.split(' ')
+        # use split() without arguments to get an empty list if string is empty
+        return self.value.split()
 
-    def generate_xml_value(self, property_element:Optional[ET._Element]) -> str | ET.CDATA:
+    def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         In this case, it adds one <class> child for each class tag.
@@ -666,7 +694,11 @@ class PropertyFactory:
             # put them toghether in a space-separated string
             # and use it as property value. In order to do so, we use
             # reduce (from functools) and a lambda expression.
-            value = reduce(lambda e1, e2 : str(e1.text + ' ' + e2.text), element.findall(CLASS_TAG))
+            if element.findall(CLASS_TAG):
+                class_names = map(lambda e: e.text, element.findall(CLASS_TAG))
+                value = reduce(lambda c1, c2: c1+' '+c2, class_names) if class_names else str()
+            else:
+                value = str()
         else:
             # Value could be empty
             value = str(element.text)

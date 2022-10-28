@@ -1,9 +1,15 @@
 # ==========================================================================
 # File: test_file_properties.py
 # Description: pytest file for PROTEUS file properties
-# Date: 19/10/2022
-# Version: 0.1
+# Date: 22/10/2022
+# Version: 0.2
 # Author: Pablo Rivera Jiménez
+#         Amador Durán Toro
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - Tests updated after adding is_file property.
+# - Common code extracted as fixtures.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -22,14 +28,13 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model.property import FILE_PROPERTY_TAG
 
-from proteus.model.property import \
-    URL_PROPERTY_TAG,           \
-    DEFAULT_NAME,                  \
-    DEFAULT_CATEGORY,              \
-    PropertyFactory
-    
+# --------------------------------------------------------------------------
+# Test specific imports
+# --------------------------------------------------------------------------
+
+import proteus.tests.properties.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # File property tests
@@ -37,50 +42,37 @@ from proteus.model.property import \
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value',        
+@pytest.mark.parametrize('value, is_file_expected',        
     [
-        pathlib.Path.cwd(),
-        7.5,
-        str()
+        (__file__, True),
+        (pathlib.Path.cwd(), False),
+        (7.5, False),
+        (str(), False)
     ]
 )
-@pytest.mark.parametrize('new_value',    
+@pytest.mark.parametrize('new_value, is_file_new_expected',    
     [
-        pathlib.Path.cwd().resolve().parent,
-        str(),
-        3
+        (__file__, True),
+        (pathlib.Path.cwd().resolve().parent, False),
+        (str(), False),
+        (3, False)
     ]
 )
 
-def test_file_properties(name, category, value, new_value):
+def test_file_properties(name, category, value, is_file_expected, new_value, is_file_new_expected):
     """
     It tests creation, update, and evolution (cloning with a new value) 
     of file properties.
-    """
-    print(pathlib.Path.cwd())
-    # Prepare XML element
-    property_tag = URL_PROPERTY_TAG
-    property_element = ET.Element(property_tag)
-
-    if name:
-        property_element.set(NAME_TAG, name)
-    else:
-        name = DEFAULT_NAME
-    
-    property_element.text = str(value)
-    
-    if category:
-        property_element.set(CATEGORY_TAG, category)
-    else:
-        category = DEFAULT_CATEGORY
-
+    """  
     # Create property from XML element
-    property = PropertyFactory.create(property_element)
+    property_tag = FILE_PROPERTY_TAG
+    (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     # Check property
-    assert(property.name == name)
-    assert(property.value == str(value))
-    assert(property.category == category)
+    assert(property.name     == name            )
+    assert(property.category == category        )
+    assert(property.value    == str(value)      )
+    assert(property.is_file  == is_file_expected)
     assert(
         ET.tostring(property.generate_xml()).decode() ==
         f'<{property_tag} name="{name}" category="{category}"><![CDATA[{value}]]></{property_tag}>'
@@ -90,17 +82,19 @@ def test_file_properties(name, category, value, new_value):
     cloned_property = property.clone()
 
     # Check cloned property
-    assert(cloned_property.name == property.name)
-    assert(cloned_property.value == property.value)
+    assert(cloned_property.name     == property.name    )
     assert(cloned_property.category == property.category)
+    assert(cloned_property.value    == property.value   )
+    assert(cloned_property.is_file  == is_file_expected )
 
     # Clone the property changing value
     evolved_property = property.clone(new_value)
 
     # Check cloned property
-    assert(evolved_property.name == name)
-    assert(evolved_property.value == str(new_value))
-    assert(evolved_property.category == category)
+    assert(evolved_property.name     == name                )
+    assert(evolved_property.category == category            )
+    assert(evolved_property.value    == str(new_value)      )
+    assert(evolved_property.is_file  == is_file_new_expected)
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==
         f'<{property_tag} name="{name}" category="{category}"><![CDATA[{new_value}]]></{property_tag}>'
