@@ -48,8 +48,6 @@ def test_projects(path):
     new_cloned_project_path = pathlib.Path.cwd().parent / "new_cloned_project"
 
     
-    print(new_cloned_project_path)
-    print(path)
     # If dir already exists, then we remove it
     if(new_cloned_project_path.resolve().exists()):
         shutil.rmtree(new_cloned_project_path)
@@ -58,7 +56,6 @@ def test_projects(path):
     os.mkdir(new_cloned_project_path)
 
     # Clone project
-    print("HERE")
     ArchetypeManager.clone_project(os.path.join(path, "proteus.xml"),new_cloned_project_path.resolve())
 
     # Load the project
@@ -112,14 +109,36 @@ def test_projects(path):
     test_project.set_property(new_prop)
     assert (test_project.get_property("name").value == "new name")
 
-    for doc in test_project.documents.values():
-        doc.state = ProteusState.DEAD
+    # Get the number of children before setting to DEAD
+    number_of_children = len(os.listdir(new_cloned_project_path / "objects"))
     
+    # Set all children to DEAD 
+    for doc in test_project.documents.values():
+        number_of_children -= 1
+
+        # If the document has children we also substract 1 per each and ask if it has children.
+        # This is because we are setting to Dead all the documents, then their children are going
+        # to be removed as well
+        def children_from_docs(doc, number_of_children):
+            for child in doc.children.values():
+                number_of_children -= 1
+                if (child.children):
+                    children_from_docs(child, number_of_children)
+            return (number_of_children)
+        doc.state = ProteusState.DEAD
+        if(doc.children):
+            number_of_children = children_from_docs(doc, number_of_children)
+    
+    # We save the project and check that the property we set before is saved.
     test_project.save_project()
-    print(test_project.state)
+    test_project2 = Project.load(new_cloned_project_path)
+    assert (test_project2.get_property("name").value == "new name")
 
-    assert(len(os.listdir(new_cloned_project_path / "objects")) == 1)
+    # Check that the number of children is the one that we calculate
+    assert(len(os.listdir(new_cloned_project_path / "objects")) == number_of_children)
 
+    # Check that the state before saving is Clean
     assert(test_project.state == ProteusState.CLEAN)
 
+    # Check that the project hasn't any document
     assert(len(test_project.documents) == 0)
