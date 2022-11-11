@@ -21,7 +21,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import CLASSLIST_PROPERTY_TAG
+from proteus.model.property import CLASS_TAG, CLASSLIST_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Test specific imports
@@ -57,6 +57,8 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     """
     # Create property from XML element
     property_tag = CLASSLIST_PROPERTY_TAG
+    # <class>
+    child_property_tag = CLASS_TAG
     (property, name, category) = fixtures.create_property(property_tag, name, category, value)
 
     # Check property
@@ -64,12 +66,16 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     assert(property.category == category                      )
     assert(property.value    == expected_value                )
     assert(property.get_class_list() == expected_value_as_list)
-
-    # TODO: check generated XML
-    # assert(
-    #     ET.tostring(property.generate_xml()).decode() ==
-    #     f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
-    # )
+    
+    #We get the values parsed as <class>value</class><class>value</class>...
+    expected_values_parsed = ""
+    for class_value in expected_value_as_list:
+        expected_values_parsed += "<" + child_property_tag + ">" + class_value + "</" + child_property_tag + ">"
+    
+    assert(
+        ET.tostring(property.generate_xml()).decode() ==
+        f'<{property_tag} name="{name}" category="{category}">{expected_values_parsed}</{property_tag}>'
+    )
 
     # Clone the property without changes
     cloned_property = property.clone()
@@ -89,8 +95,12 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     assert(evolved_property.value    == new_expected_value  )    
     assert(evolved_property.get_class_list() == new_expected_value_as_list)
 
-    # TODO: check generated XML
-    # assert(
-    #     ET.tostring(evolved_property.generate_xml()).decode() ==
-    #     f'<{property_tag} name="{name}" category="{category}">{expected_value}</{property_tag}>'
-    # )
+    #We get the values parsed as <class>value</class><class>value</class>...
+    new_expected_values_parsed = ""
+    for class_value in new_expected_value_as_list:
+        new_expected_values_parsed += "<" + child_property_tag + ">" + class_value + "</" + child_property_tag + ">"
+
+    assert(
+        ET.tostring(evolved_property.generate_xml()).decode() ==
+        f'<{property_tag} name="{name}" category="{category}">{new_expected_values_parsed}</{property_tag}>'
+    )

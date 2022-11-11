@@ -47,6 +47,10 @@ class ProjectArchetypeProxy:
     # Author     : Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
     def get_project(self) -> project.Project:
+        """
+        It returns an instance of a project.
+        :return: Project
+        """
         return project.Project(self.path)
 
 
@@ -86,6 +90,11 @@ class DocumentArchetypeProxy:
     # Author     : Pablo Rivera Jiménez
     # # ----------------------------------------------------------------------
     def get_document(self, project: project.Project) -> object.Object:
+        """
+        It returns an instance of a object.
+        :param project: Project where the object is located.
+        :return: Instance of a object.
+        """
         return object.Object(project, self.path)
 
 

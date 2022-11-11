@@ -1,19 +1,16 @@
 # ==========================================================================
-# File: test_directories.py
-# Description: pytest file for the PROTEUS application directories
-# Date: 10/10/2022
+# File: test_archetype_manager.py
+# Description: pytest file for the PROTEUS ArchetypeManager
+# Date: 20/10/2022
 # Version: 0.1
-# Author: Amador Durán Toro
+# Author: Pablo Rivera Jiménez
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import datetime
-import enum
 import os
-from pathlib import Path
 import pathlib
 import shutil
 
@@ -22,13 +19,11 @@ import shutil
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.app import ProteusApplication
 from proteus.config import Config
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.archetype_proxys import DocumentArchetypeProxy, ProjectArchetypeProxy
 from proteus.model.object import Object
 from proteus.model.project import Project
-from proteus.model.property import BooleanProperty, DateProperty, EnumProperty, FloatProperty, IntegerProperty, StringProperty, TimeProperty
 
 # --------------------------------------------------------------------------
 # Tests

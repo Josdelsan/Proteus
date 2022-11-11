@@ -74,6 +74,8 @@ class AbstractObject(ABC):
     def __init__(self, path) -> None:
         """
         It initializes an abstract PROTEUS object.
+
+        :param path: the path to the XML file containing the object's data.
         """
 
         # # Check file exists at path 
@@ -105,6 +107,9 @@ class AbstractObject(ABC):
     def load_properties(self, root : ET.Element) -> None:
         """
         It loads a PROTEUS abstract object's properties from an XML root element.
+
+        :param root: the XML root element.
+        :type root: ET.Element
         """
 
         # Check root is not None
@@ -143,6 +148,9 @@ class AbstractObject(ABC):
         It returns an object's property given its name.
         It aborts if there is no property with that name.
         TODO: return None in that case?
+
+        :param key: the name of the property to be returned.
+        :return: the property with the given name.
         """
         assert key in self.properties.keys(), \
             f"Property {key} not found in {self.id} properties."
@@ -161,7 +169,10 @@ class AbstractObject(ABC):
 
     def set_property(self, new_property:Property) -> None:
         """
-        It sets an object's property.
+        It sets an abstract object's (Object and Project) property.
+        
+        :param new_property: the new property to be set.
+        :type new_property: Property
         """
 
         # Get new property name
@@ -204,6 +215,8 @@ class AbstractObject(ABC):
         """
         It generates an XML element from an abstract object. It must be
         overriden in subclasses.
+
+        :return: ET.Element. The XML element
         """
         
         # Check if instance is a Project or an Object
@@ -250,6 +263,13 @@ class AbstractObject(ABC):
     # ----------------------------------------------------------------------
 
     def generate_xml_properties(self, parent_element:ET.Element) -> ET.Element:
+        """
+        Generate xml property function. It generates an ET.Element from the properties of an abstract object
+        (Object and Project).
+
+        :param parent_element: ET.Element. The parent element of the properties.
+        :return: ET.Element. The properties element.
+        """
 
         # Check parent element is not None
         assert parent_element is not None, \

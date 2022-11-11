@@ -151,6 +151,8 @@ class Property(ABC):
         """
         It clones the property with a new value if it is not None.
         The new value must be provided as a string.
+        :param new_value: new value for the property.
+        :return: a copy of the property with the new value.
         """
         if new_value is None:
             return replace(self)
@@ -584,6 +586,7 @@ class EnumProperty(Property):
         """
         It generates a set of strings from the space-separated 
         string with the enumerated choices.
+        :return: set of strings with the enumerated choices.
         """
         # use split() without arguments to get an empty list if string is empty
         return set( str(self.choices).split() )
@@ -626,6 +629,7 @@ class ClassListProperty(Property):
         """
         It generates a list of strings from the space-separated 
         string with the class names.
+        :return: list of strings with the class names.
         """
         # use split() without arguments to get an empty list if string is empty
         return self.value.split()
@@ -674,6 +678,8 @@ class PropertyFactory:
     def create( cls, element : ET._Element ) -> Property | None:
         """
         Factory class method for PROTEUS properties.
+        :param element: XML element with the property.
+        :return: Property object or None if the property type is not valid.
         """
         # Check it is one of the valid property types
         try:

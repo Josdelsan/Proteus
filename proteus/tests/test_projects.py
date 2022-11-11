@@ -19,7 +19,6 @@ import pathlib
 import shutil
 import pytest
 import lxml.etree as ET
-from proteus.config import Config
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -29,8 +28,7 @@ from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
-
-from proteus.model.property import Property, StringProperty
+from proteus.model.property import Property
 
 # --------------------------------------------------------------------------
 # Project tests

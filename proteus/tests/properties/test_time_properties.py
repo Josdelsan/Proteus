@@ -84,7 +84,7 @@ def test_time_properties(name, category, value, expected_value, new_value, expec
     expected_value_as_time = datetime.datetime.strptime(expected_value, TIME_FORMAT).time()
 
     # Maximum number of seconds between test function call and creation of property
-    epsilon_seconds = 5
+    epsilon_seconds = 10
 
     # To calculate the difference between two times, they have to be converted into datetime
     # https://stackoverflow.com/questions/43305577/python-calculate-the-difference-between-two-datetime-time-objects

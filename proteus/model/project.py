@@ -68,6 +68,9 @@ class Project(AbstractObject):
     def load(path: str) -> Project:
         """
         Static factory method for loading a PROTEUS project from a given path.
+        
+        :param path: path to the project file.
+        :return: a PROTEUS project.
         """
         log.info(f"Loading a PROTEUS project from {path}.")
 
@@ -100,6 +103,8 @@ class Project(AbstractObject):
     def __init__(self, project_file_path: str) -> None:
         """
         It initializes and builds a PROTEUS project from an XML file.
+        
+        :param project_file_path: path to the project file.
         """
 
         # Initialize property dictionary in superclass
@@ -141,6 +146,7 @@ class Project(AbstractObject):
     def load_documents(self, root : ET.Element) -> None:
         """
         It loads a PROTEUS project's documents from an XML root element.
+        :param root: XML root element.
         """
 
         # Check root is not None
@@ -178,6 +184,7 @@ class Project(AbstractObject):
     def generate_xml(self) -> ET.Element:
         """
         It generates an XML element for the project.
+        :return: an XML element for the project.
         """
         # Create <project> element and set ID
         project_element = ET.Element(PROJECT_TAG)
@@ -205,7 +212,10 @@ class Project(AbstractObject):
     # Author     : Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
 
-    def save_project(self):
+    def save_project(self) -> None:
+        """
+        It saves a project in the system.
+        """
         print("Saving project...")
 
         # Extract project directory from project path

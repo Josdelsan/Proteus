@@ -232,11 +232,18 @@ class Object(AbstractObject):
     # ----------------------------------------------------------------------
 
     def clone_object(self, parent: Union[Object,Project]):
+        """
+        Function that clones an object in a new parent. This function doesn't save the object in the system
+        but add it to the parent children so it will be saved when we save the project.
+        :param parent: Parent of the new object.
+        :type parent: Union[Object,Project].
+        """
         
         # Deepcopy so we don't change the original object.
         # Differences between copy and deepcopy -> https://www.programiz.com/python-programming/shallow-deep-copy
         new_object = copy.deepcopy(self)
 
+        #Function to genereate a new id for the object
         def generate_uuid():
             uuid = shortuuid.random(length=12)
             if uuid in self.project.documents.keys():
@@ -248,6 +255,7 @@ class Object(AbstractObject):
 
         # Clone children
         def rename_ids(object: Object):
+            # For every child we generate a new uuid and set the state to FRESH
             for child in object.children.values():
                 child.id = generate_uuid()
                 child.state = ProteusState.FRESH
@@ -259,28 +267,36 @@ class Object(AbstractObject):
         # Check if object has children
         if(new_object.children):
             rename_ids(new_object)
-
+            
         object_assets_path = pathlib.Path(self.path).parent.parent / "assets"
 
-
+        #If the parent is a Project
         if (parent.__class__.__name__ == "Project"):
+
+            # We add the object to the documents list
             parent.documents[new_object.id] = new_object
+
+            # And if the document has assets, then we copy them
             if(object_assets_path.exists()):
                 parent_relative_path = pathlib.Path(parent.path)
                 parent_absolute_path = parent_relative_path.resolve()
-                parent_assets_path = parent_absolute_path.parent / "assets"    
+                parent_assets_path = parent_absolute_path.parent / "assets"
                 copy_tree(str(object_assets_path), str(parent_assets_path))
-
+        
+        # If the type is Object
         elif (type(parent) is Object):
+            # We add to the parent's children the new object
             parent.children[new_object.id] = new_object
+
+            # If the object has assets then we copy this assets
             if(object_assets_path.exists()):
                 parent_relative_path = pathlib.Path(parent.project.path)
                 parent_absolute_path = parent_relative_path.resolve()
                 parent_assets_path = parent_absolute_path.parent / "assets"    
                 copy_tree(str(object_assets_path), str(parent_assets_path))
         
-
-
+        # We set the state of the partent of the new object to DIRTY and the new object
+        # state to FRESH
         parent.state = ProteusState.DIRTY
         new_object.state = ProteusState.FRESH
 

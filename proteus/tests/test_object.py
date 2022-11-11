@@ -14,24 +14,22 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+import copy
+import os
 import pathlib
 import pytest
 import lxml.etree as ET
-from proteus.config import Config
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.abstract_object import ProteusState
 from proteus.model.object import Object
 from proteus.model.project import Project
 
-from proteus.model.property import Property, StringProperty
-
 # --------------------------------------------------------------------------
-# Project tests
+# Object tests
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize('path', [pathlib.Path.cwd()])
@@ -64,15 +62,17 @@ def test_objects(path):
     # Check that Object contains all the children of the xml    
     assert(all(child in test_object.children.keys()  for child in children_list))
 
-    assert (test_project.state == ProteusState.CLEAN)
-    test_project.state = ProteusState.DEAD
-    assert (test_project.state == ProteusState.DEAD)
-    test_project.state = ProteusState.DIRTY
-    assert (test_project.state == ProteusState.DIRTY)
-    test_project.state = ProteusState.FRESH
-    assert (test_project.state == ProteusState.FRESH)
-    test_project.state = ProteusState.CLEAN
+    # Check if states changes properly
+    assert (test_object.state == ProteusState.CLEAN)
+    test_object.state = ProteusState.DEAD
+    assert (test_object.state == ProteusState.DEAD)
+    test_object.state = ProteusState.DIRTY
+    assert (test_object.state == ProteusState.DIRTY)
+    test_object.state = ProteusState.FRESH
+    assert (test_object.state == ProteusState.FRESH)
+    test_object.state = ProteusState.CLEAN
     
+    # Check if generate xml, generates properly the xml
     xml = (ET.tostring(element,
             xml_declaration=True,
             encoding='utf-8',
@@ -83,5 +83,26 @@ def test_objects(path):
                      encoding='utf-8',
                      pretty_print=True).decode())
 
-
     assert(xml == gemerated_xml)
+
+    # We have to copy the value otherwise it changes automatically when clone
+    children_before_clone = copy.deepcopy(test_project.documents)
+
+    test_object.clone_object(test_project)
+    
+    children_after_clone = test_project.documents
+
+    # Check if clone_object clones properly
+    assert(len(test_project.documents) > len(children_before_clone))
+
+    new_object_id = list(set(children_after_clone) - set(children_before_clone))
+
+    new_object = test_project.documents[new_object_id[0]]
+
+    # Check if the new object is a clone of the original one (We can't compare the XML because they are different
+    # because of the id, as well as the children id's are different)
+    assert(new_object.properties == test_object.properties)
+    assert (new_object.acceptedChildren == test_object.acceptedChildren)
+    assert (new_object.classes == test_object.classes)
+    assert (len(new_object.children) == len(test_object.children))
+

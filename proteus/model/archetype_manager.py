@@ -75,77 +75,6 @@ class ArchetypeManager:
     to get the project, document, and object archetypes on demand.
     TODO: in the future, it will also be responsible for adding new archetypes.
     """
-    
-    # TODO: does this class need some state?
-    # Since this is a singleton, add state as class attributes if needed.
-
-    # ----------------------------------------------------------------------
-    # Method: _load (class)
-    # Description: Utility (private) method for loading the type of 
-    #              archetypes specified as argument.
-    # Date: 01/10/2022
-    # Version: 0.2
-    # Author: Pablo Rivera Jiménez
-    #         Amador Durán Toro
-    # ----------------------------------------------------------------------
-
-    # @classmethod
-    # def _load( cls, type: ArchetypesType ) -> list[tuple[str,str]]:
-    #     """
-    #     Private method that loads the archetypes of the given type.
-
-    #     :param type: objects, documents or projects
-    #     :return: list of tuples with the path and the name of the archetype
-    #     """
-    #     log.info(f"ArchetypeManager._load({type})")
-
-    #     # Build archetypes directory name from archetype type
-    #     archetypes_dir : str = join(ARCHETYPES_FOLDER, type)
-
-    #     # Scan all the subdirectories in the archetypes directory (one depth level only)
-    #     # TODO: this means that ALL archetypes must be in one subdirectory, i.e., that
-    #     #       no archetypes are supposed to be in the root directory, AND that only one
-    #     #       level of subdirectories is allowed.
-    #     subdirs : list[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
-        
-    #     # Result as a list of pairs (path,name) <-- is that enough?
-    #     # TODO: check the possibility of using proxy classes
-    #     result : list[tuple(str,str)]= []
-
-    #     # For each subdirectory
-    #     for subdir in subdirs:
-    #         # Build the full path to the subdirectory
-    #         subdir_path : str = join(archetypes_dir, subdir)
-
-    #         # We get all the XML files in the subdirectory
-    #         archetype_files : list[str] = [f for f in listdir(subdir_path) if (isfile(join(subdir_path, f)) and f.endswith('.xml'))]
-
-    #         # For each archetype file, we check if it is a document or not
-    #         for archetype_file in archetype_files:
-    #             archetype_file_path = join(subdir_path, archetype_file)
-
-    #             # If it's a document, we get the file "document.xml", we find inside it the id that
-    #             # referes to the main document (the one with class ':Proteus-document'), and we
-    #             # add it to the result list
-    #             if( type == ArchetypesType.DOCUMENTS and archetype_file == 'document.xml' ):
-    #                 # Parse the XML file
-    #                 subdir : ET.Element = ET.parse(archetype_file_path)
-
-    #                 # Get the id of the root document from document.xml
-    #                 id : str = subdir.getroot().attrib["id"]
-
-    #                 # Build the path to the root document
-    #                 objects_path = join(subdir_path, "objects")
-    #                 document_root_path = join(objects_path, id + ".xml")
-
-    #                 # Add the path to the result list
-    #                 result.append((document_root_path, id))
-                
-    #             # If it's not a document, we add it to the result list
-    #             elif( type != ArchetypesType.DOCUMENTS ):
-    #                 result.append((archetype_file_path, archetype_file))
-        
-    #     return result
 
     # ----------------------------------------------------------------------
     # Method: load_object_archetypes (static)
@@ -159,6 +88,7 @@ class ArchetypeManager:
     def load_object_archetypes( cls ) -> list:
         """
         Method that loads the object archetypes.
+        :return: A list of ObjectArchetypeProxy objects.
         """
         log.info('ArchetypeManager - load object archetypes')
         # Build archetypes directory name from archetype type
@@ -218,6 +148,7 @@ class ArchetypeManager:
     def load_document_archetypes( cls ) -> list:
         """
         Method that loads the document archetypes.
+        :return: A list of DocumentArchetypeProxy objects.
         """
         log.info('ArchetypeManager - load document archetypes')
         # Build archetypes directory name from archetype type
@@ -301,6 +232,7 @@ class ArchetypeManager:
     def load_project_archetypes( cls ) -> list:
         """
         Method that loads the project archetypes.
+        :return: A list of ProjectArchetypeProxy objects.
         """
         log.info('ArchetypeManager - load project archetypes')
         # Build archetypes directory name from archetype type (project)
@@ -369,7 +301,6 @@ class ArchetypeManager:
     def clone_project(filename_path: str, filename_path_to_save: str):
         """
         Method that creates a new project from an archetype.
-
         :param filename: Path where we want to save the project.
         :param archetype: Archetype type.
         """
@@ -392,5 +323,5 @@ class ArchetypeManager:
         # Copy the objects file from the archetypes directory into the project directory
         source_dir = join(archetype_dir, "objects")
         destination_dir = join(path, "objects")
-        print("HERE2")
+        
         shutil.copytree(source_dir, destination_dir)
