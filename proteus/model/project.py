@@ -170,9 +170,10 @@ class Project(AbstractObject):
             assert document_id is not None, \
                 f"PROTEUS project file {self.path} includes a document without ID."
 
-            # Add the document to the documents dictionary
-            self.documents[document_id] = Object.load(self, document_id)
-
+            # Add the document to the documents dictionary and set the parent
+            object = Object.load(self, document_id)
+            object.parent = self
+            self.documents[document_id] = object
     # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.

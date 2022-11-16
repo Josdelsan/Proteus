@@ -62,6 +62,14 @@ def test_objects(path):
     # Check that Object contains all the children of the xml    
     assert(all(child in test_object.children.keys()  for child in children_list))
 
+    # Check that all their children the proper parent
+    def check_parent(object: Object):
+        for child in object.children.values():
+            assert(child.parent == object)
+            check_parent(child)
+    
+    check_parent(test_object)
+
     # Check if states changes properly
     assert (test_object.state == ProteusState.CLEAN)
     test_object.state = ProteusState.DEAD

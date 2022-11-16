@@ -142,6 +142,9 @@ class Object(AbstractObject):
         # Get object ID from XML
         self.id : ProteusID = ProteusID(root.attrib['id'])
 
+        # Object or Project
+        self.parent : Union[Object,Project] = None
+
         # Get object classes and accepted children classes
         self.classes          : List[ProteusClassTag] = root.attrib['classes']
         self.acceptedChildren : List[ProteusClassTag] = root.attrib['acceptedChildren']
@@ -189,8 +192,13 @@ class Object(AbstractObject):
             assert child_id is not None, \
                 f"PROTEUS object file {self.id} includes a child without ID."
 
-            # Add the child to the children dictionary
-            self.children[child_id] = Object.load(self.project, child_id)
+            # Add the child to the children dictionary and set the parent
+            object = Object.load(self.project, child_id)
+            
+            object.parent = self
+
+            self.children[child_id] = object
+
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml

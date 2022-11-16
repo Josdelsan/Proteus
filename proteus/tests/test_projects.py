@@ -112,6 +112,7 @@ def test_projects(path):
     # Set all children to DEAD 
     for doc in test_project.documents.values():
         number_of_children -= 1
+        assert(doc.parent == test_project)
 
         # If the document has children we also substract 1 per each and ask if it has children.
         # This is because we are setting to Dead all the documents, then their children are going
@@ -119,6 +120,7 @@ def test_projects(path):
         def children_from_docs(doc, number_of_children):
             for child in doc.children.values():
                 number_of_children -= 1
+                assert(child.parent == doc)
                 if (child.children):
                     children_from_docs(child, number_of_children)
             return (number_of_children)
