@@ -75,8 +75,7 @@ def test_projects(path):
     # Parser to avoid conflicts with CDATA
     parser = ET.XMLParser(strip_cdata=False)
     proteusET = ET.parse(new_cloned_project_path / "proteus.xml", parser = parser)
-    print(proteusET.getroot().attrib["id"] == test_project.id)
-
+    
     generated_xml = (ET.tostring(test_project.generate_xml(),
                     xml_declaration=True,
                     encoding='utf-8',
