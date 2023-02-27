@@ -30,7 +30,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import INTEGER_PROPERTY_TAG
+from proteus.model.properties import INTEGER_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Test specific imports

@@ -21,7 +21,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import CLASS_TAG, CLASSLIST_PROPERTY_TAG
+from proteus.model.properties import CLASS_TAG, CLASSLIST_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Test specific imports

@@ -28,7 +28,7 @@ import proteus.config as config
 # PROTEUS imports
 from proteus.model import PROPERTIES_TAG
 from proteus.model.archetype_proxys import DocumentArchetypeProxy, ObjectArchetypeProxy, ProjectArchetypeProxy
-from proteus.model.property import Property, PropertyFactory
+from proteus.model.properties import Property, PropertyFactory
 
 # logging configuration
 log = logging.getLogger(__name__)

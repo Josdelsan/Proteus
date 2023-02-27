@@ -27,7 +27,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import ENUM_PROPERTY_TAG
+from proteus.model.properties import ENUM_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Test specific imports

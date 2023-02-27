@@ -35,7 +35,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import TIME_PROPERTY_TAG, TIME_FORMAT
+from proteus.model.properties import TIME_PROPERTY_TAG, TIME_FORMAT
 
 # --------------------------------------------------------------------------
 # Test specific imports

@@ -28,7 +28,7 @@ from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
-from proteus.model.property import Property
+from proteus.model.properties import Property
 
 # --------------------------------------------------------------------------
 # Project tests

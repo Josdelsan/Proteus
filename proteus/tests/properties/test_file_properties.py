@@ -28,7 +28,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import FILE_PROPERTY_TAG
+from proteus.model.properties import FILE_PROPERTY_TAG
 
 # --------------------------------------------------------------------------
 # Test specific imports

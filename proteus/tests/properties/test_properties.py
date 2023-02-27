@@ -27,7 +27,7 @@ import lxml.etree as ET
 
 from proteus.model import NAME_TAG, CATEGORY_TAG
 
-from proteus.model.property import \
+from proteus.model.properties import \
     STRING_PROPERTY_TAG,           \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \

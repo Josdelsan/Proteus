@@ -25,7 +25,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG         
+from proteus.model.properties import STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG         
 
 # --------------------------------------------------------------------------
 # Test specific imports

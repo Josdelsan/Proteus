@@ -22,7 +22,7 @@ from abc import ABC
 
 # local imports (starting from root)
 from proteus.model import *
-from proteus.model.property import Property, PropertyFactory
+from proteus.model.properties import Property, PropertyFactory
 
 # --------------------------------------------------------------------------
 # Class: ProteusStates

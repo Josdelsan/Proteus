@@ -27,7 +27,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.property import DATE_PROPERTY_TAG, DATE_FORMAT
+from proteus.model.properties import DATE_PROPERTY_TAG, DATE_FORMAT
 
 # --------------------------------------------------------------------------
 # Test specific imports

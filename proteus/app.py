@@ -23,7 +23,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.model.property import EnumProperty, Property, StringProperty
+from proteus.model.properties import EnumProperty, Property, StringProperty
 
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
