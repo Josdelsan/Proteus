@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Constant declarations for PROTEUS logger name
@@ -40,3 +41,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(PROTEUS_LOGGER_NAME)
 
+# --------------------------------------------------------------------------
+# Application absolute path
+# --------------------------------------------------------------------------
+
+PROTEUS_APP_PATH = Path().parent.absolute()

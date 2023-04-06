@@ -53,24 +53,26 @@ class Config:
         self.directories = self.config[DIRECTORIES]
 
         # Application directories
-        self.base_directory       : Path = Path.cwd() / self.directories[BASE_DIRECTORY]
-        self.resources_directory  : Path = Path.cwd() / self.directories[RESOURCES_DIRECTORY]
+        self.base_directory       : Path = proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
+        self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
         self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
-        self.archetypes_directory : Path = Path.cwd() / self.directories[ARCHETYPES_DIRECTORY]
+        self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
 
         # Check application directories
         self.check_application_directories()
 
     def _create_config_parser(self) -> ConfigParser:
         """
-        Private methdos that creates configuration parser and loads config file.
+        Private method that creates configuration parser and loads config file.
         """
 
-        assert Path(CONFIG_FILE).exists(), \
+        CONFIG_FILE_PATH : Path = proteus.PROTEUS_APP_PATH / CONFIG_FILE
+        
+        assert CONFIG_FILE_PATH.exists(), \
             f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 
         config_parser : ConfigParser = ConfigParser()
-        config_parser.read(CONFIG_FILE)
+        config_parser.read(CONFIG_FILE_PATH)
 
         return config_parser
 
