@@ -4,6 +4,56 @@
 # Date: 27/08/2022
 # Version: 0.1
 # Author: José María Delgado Sánchez
+#         Amador Durán Toro
+# ==========================================================================
+# Update: 30/08/2022 (Amador)
+# Description:
+# - Added support for property categories.
+# - Added PropertyFactory class to avoid Property class definition to be
+#   splitted into two parts.
+# ==========================================================================
+# Update: 17/09/2022 (Amador)
+# Description:
+# - Added default category value in constructors.
+# ==========================================================================
+# Update: 29/09/2022 (Amador)
+# Description:
+# - Code review.
+# - Argument "value" is always a string in __init()__, its conversion to
+#   the right type is checked in each subclass.
+# ==========================================================================
+# Update: 15/10/2022 (Amador)
+# Description:
+# - Use of dataclass and __post_init()__.
+# - ValueError exception handling in type conversions.
+# - RealProperty -> FloatProperty.
+# - Added FileProperty.
+# - MarkdownProperty is now a subclass of StringProperty.
+# - lxml is not very MyPy-friendly. Installed lxlm-stub in venv.
+# - Added pytest parametrized tests in proteus/tests/test_properties.py.
+# - Use dataclasses.replace(obj,value=new_value) to clone a property with a
+#   new value. The new_value must be in string format, as in the constructor.
+# ==========================================================================
+# Update: 17/10/2022 (Amador)
+# Description:
+# - clone(new_value=None) added.
+# ==========================================================================
+# Update: 22/10/2022 (Amador)
+# Description:
+# - UrlProperty::is_valid computed property added.
+# - URLs without protocol (i.e. https://) are not valid.
+# - FileProperty::is_file computed property added.
+# - EnumProperty: split() without arguments uses space and returns an
+#   empty list if the splitted string is empty. split(' ') returns [''],
+#   which is not an empty list.
+# - EnumProperty assings first choice instead of random choice if value is
+#   not specified.
+# - EnumProperty replaces spaces by underscores in values.
+# - PropertyFactory: fixed error in reduce expression for ClasslistProperty.
+# ==========================================================================
+# Update: 06/04/2023 (José María)
+# Description:
+# - Refactor module 'property' into package 'properties'.
 # ==========================================================================
 
 
@@ -31,12 +81,15 @@ DATE_FORMAT             = str('%Y-%m-%d')
 TIME_FORMAT             = str('%H:%M:%S')
 
 
-# Making objects available at the package level
+# Making classes available at the package level
 # Note: This must be below the constants definition
 #       to avoid circular imports
 
 from proteus.model.properties.property import Property
 from proteus.model.properties.property_factory import PropertyFactory
+
+# TODO: The following classes' access might not be necessary
+#       at package level in future versions. ¿Remove them?
 
 from proteus.model.properties.boolean_property import BooleanProperty
 from proteus.model.properties.string_property import StringProperty
