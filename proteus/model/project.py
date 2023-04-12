@@ -129,10 +129,35 @@ class Project(AbstractObject):
         super().load_properties(root)
 
         # Documents dictionary
-        self.documents : dict[ProteusID,Object] = dict[ProteusID,Object]()
+        self._documents : dict[ProteusID,Object] = None
 
-        # Load project's documents
-        self.load_documents(root)
+    # ----------------------------------------------------------------------
+    # Property   : documents
+    # Description: Property documents getter. Loads children from XML file
+    #              on demand.
+    # Date       : 12/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @property
+    def documents(self) -> dict[ProteusID,Object]:
+        """
+        Property documents getter. Loads documents from XML file on demand.
+        :return: documents dictionary.
+        """
+        # Check if documents dictionary is not initialized
+        if self._documents is None:
+            # Initialize documents dictionary
+            self._documents : dict[ProteusID,Object] = dict[ProteusID,Object]()
+
+            # Parse and load XML into memory
+            root : ET.Element = ET.parse( self.path ).getroot()
+
+            # Load documents from XML file
+            self.load_documents(root)
+
+        # Return documents dictionary
+        return self._documents
 
     # ----------------------------------------------------------------------
     # Method     : load_documents

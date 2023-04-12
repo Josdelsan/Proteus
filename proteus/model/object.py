@@ -152,11 +152,37 @@ class Object(AbstractObject):
         # Load object's properties using superclass method
         super().load_properties(root)
 
-        # Children dictionary
-        self.children : dict[ProteusID,Object] = dict[ProteusID,Object]()
+        # Children dictionary (will be loaded on demand)
+        self._children : dict[ProteusID,Object] = None
 
-        # Load object's children
-        self.load_children(root)
+
+    # ----------------------------------------------------------------------
+    # Property   : children
+    # Description: Property children getter. Loads children from XML file
+    #              on demand.
+    # Date       : 12/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @property
+    def children(self) -> dict[ProteusID,Object]:
+        """
+        Property children getter. Loads children from XML file on demand.
+        :return: Dictionary of children objects
+        """
+        # Check if children dictionary is not initialized
+        if self._children is None:
+            # Initialize children dictionary
+            self._children : dict[ProteusID,Object] = dict[ProteusID,Object]()
+
+            # Parse and load XML into memory
+            root : ET.Element = ET.parse( self.path ).getroot()
+
+            # Load children from XML file
+            self.load_children(root)
+
+        # Return children dictionary
+        return self._children
 
     # ----------------------------------------------------------------------
     # Method     : load_children
