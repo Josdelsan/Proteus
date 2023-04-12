@@ -1,9 +1,14 @@
 # ==========================================================================
-# File: test_projects.py
-# Description: pytest file for PROTEUS projects
+# File: test_object.py
+# Description: pytest file for PROTEUS object class
 # Date: 15/10/2022
-# Version: 0.1
-# Author: Pablo Rivera Jiménez
+# Version: 0.2
+# Author: José María Delgado Sánchez
+#         Pablo Rivera Jiménez
+# ==========================================================================
+# Update: 12/04/2023 (José María)
+# Description:
+# - Created tests for different Object methods and lazy load of children.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -15,8 +20,6 @@
 # --------------------------------------------------------------------------
 
 import copy
-import os
-import pathlib
 import pytest
 import lxml.etree as ET
 
@@ -27,12 +30,56 @@ import lxml.etree as ET
 from proteus.model.abstract_object import ProteusState
 from proteus.model.object import Object
 from proteus.model.project import Project
+from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+
+# --------------------------------------------------------------------------
+# Constants
+# --------------------------------------------------------------------------
+
+# NOTE: This is a sample project that is used for testing purposes. The
+#       sample object id was selected from this project.
+SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_OBJECT_ID = "3fKhMAkcEe2C"
+
+# --------------------------------------------------------------------------
+# Fixtures and helpers
+# --------------------------------------------------------------------------
+
+@pytest.fixture
+def sample_project() -> Project:
+    """
+    Fixture that returns a PROTEUS sample project.
+    """
+    return Project.load(SAMPLE_PROJECT_PATH)
+
+@pytest.fixture
+def sample_object(sample_project) -> Object:
+    """
+    Fixture that returns a PROTEUS sample object.
+    """
+    return Object.load(sample_project, SAMPLE_OBJECT_ID)
+
+def get_root(path) -> ET.Element:
+    """
+    Helper function that returns the root element of an xml file.
+    :param path: Path to the xml file.
+    :return: Root element of the xml file.
+    """
+    # Parser to avoid conflicts with CDATA
+    parser = ET.XMLParser(strip_cdata=False)
+    element = ET.parse(path, parser = parser)
+    return element.getroot()
+
 
 # --------------------------------------------------------------------------
 # Object tests
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize('path', [pathlib.Path.cwd()])
+@pytest.mark.parametrize('path',
+    [
+        SAMPLE_PROJECT_PATH
+    ]
+)
 
 def test_objects(path):
     """
@@ -114,3 +161,83 @@ def test_objects(path):
     assert (new_object.classes == test_object.classes)
     assert (len(new_object.children) == len(test_object.children))
 
+# --------------------------------------------------------------------------
+# Object unit tests
+# --------------------------------------------------------------------------
+
+def test_object_load(sample_project):
+    """
+    Test Object initialization method
+    """
+
+    # Setup test object
+    test_object : Object = Object.load(sample_project, SAMPLE_OBJECT_ID)
+
+    # Get root element of the xml file
+    root : ET.Element = get_root(test_object.path)
+
+    # Compare ET elements with Object elements
+    assert(root.attrib["id"] == test_object.id)
+    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren)
+    assert(root.attrib["classes"] == test_object.classes)
+
+def test_object_lazy_load(sample_object):
+    """
+    Test Object children property lazy loading
+    """
+    # Check that children are not loaded yet checking private
+    # variable _children
+    assert(sample_object._children == None)
+
+    # Check that children are loaded when accessing children
+    # property for the first time
+    assert(type(sample_object.children) == dict)
+    assert(type(sample_object._children) == dict)
+
+def test_object_load_children(sample_object):
+    """
+    Test Object load_children method
+    """
+    # Get root element of the xml file
+    root : ET.Element = get_root(sample_object.path)
+
+    # Get children of the xml file and store them in a list
+    children = root.find("children")
+    children_list : list = []
+    for child in children:
+        children_list.append(child.attrib["id"] )
+
+    # Call method to load children
+    # NOTE: This method could be called when accessing children
+    # for the first time and no children are loaded yet. However,
+    # we are calling it explicitly to test it in case lazy loading
+    # fails.
+    sample_object.load_children(root)
+
+    # Check that Object contains all the children of the xml    
+    assert(all(child in sample_object.children.keys() for child in children_list))
+    
+def test_object_generate_xml(sample_object):
+    """
+    Test Object generate_xml method
+    """
+    # Get root element of the xml file
+    root : ET.Element = get_root(sample_object.path)
+
+    # Get xml string from xml file
+    expected_xml= (ET.tostring(root,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+
+    # Generate xml
+    xml : ET.Element = sample_object.generate_xml()
+
+    # Get xml string from Object
+    actual_xml= (ET.tostring(xml,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+
+    # Compare xml strings
+    assert(expected_xml == actual_xml)
