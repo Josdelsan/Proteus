@@ -27,7 +27,6 @@ import lxml.etree as ET
 # local imports (starting from root)
 from proteus.model import DOCUMENT_TAG, DOCUMENTS_TAG, OBJECTS_REPOSITORY, PROJECT_TAG, ProteusID, PROJECT_FILE_NAME
 from proteus.model.abstract_object import AbstractObject, ProteusState
-import proteus.model.archetype_manager as archetypes
 #if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
 from proteus.model.object import Object
@@ -196,7 +195,7 @@ class Project(AbstractObject):
                 f"PROTEUS project file {self.path} includes a document without ID."
 
             # Add the document to the documents dictionary and set the parent
-            object = Object.load(self, document_id)
+            object = Object.load(document_id, self)
             object.parent = self
             self.documents[document_id] = object
     # ----------------------------------------------------------------------

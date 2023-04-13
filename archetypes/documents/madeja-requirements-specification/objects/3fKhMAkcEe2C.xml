@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="3fKhMAkcEe2C" classes="section" acceptedChildren=":Proteus-any">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Documento de Requisitos del sistema]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
+    <dateProperty name="created" category="general">2013-03-01</dateProperty>
+    <stringProperty name="createdBy" category="general"><![CDATA[José María Delgado]]></stringProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[En el presente documento...]]></markdownProperty>
+  </properties>
+  <children>
+    <child id="64xM8FLyxtaE"/>
+  </children>
+</object>

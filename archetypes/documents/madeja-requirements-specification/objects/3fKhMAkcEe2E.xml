@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object
+    id="3fKhMAkcEe2E"
+    classes="requisito-producto caso-de-uso paso-caso-de-uso"
+    acceptedChildren=":Proteus-none"
+>
+    <properties>
+        <markdownProperty name="description">El usuario solicita al sistema...</markdownProperty>
+    </properties>
+
+    <children>
+    </children>
+
+    <traces>
+    </traces>
+
+</object>

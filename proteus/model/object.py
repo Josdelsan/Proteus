@@ -71,17 +71,13 @@ class Object(AbstractObject):
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load(project:Project, id:ProteusID) -> Object:
+    def load(id:ProteusID, project:Project = None) -> Object:
         """
         Static factory method for loading a PROTEUS object given a project
         and a short UUID.
         """
         # TODO new param (parent:Project/Object) to set parent object
         # needed for some actions (move, delete, etc.)
-
-        # Check project is not None
-        assert project is not None, \
-            f"Invalid project object when loading object from {id}.xml"
 
         # Extract project directory from project path
         project_directory : str = os.path.dirname(project.path)
@@ -103,7 +99,7 @@ class Object(AbstractObject):
             f"PROTEUS object file {object_file_path} not found in {objects_repository}."
 
         # Create and return the project object
-        return Object(project, object_file_path)
+        return Object(object_file_path, project=project)
 
     # ----------------------------------------------------------------------
     # Method     : __init__
@@ -114,17 +110,13 @@ class Object(AbstractObject):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def __init__(self, project:Project, object_file_path: str) -> None:
+    def __init__(self, object_file_path: str, project:Project = None) -> None:
         """
         It initializes and builds a PROTEUS object from an XML file.
         """
         # Initialize property dictionary in superclass
         # TODO: pass some arguments?
         super().__init__(object_file_path)
-
-        # Check project object
-        assert project is not None, \
-            f"Invalide project object for {object_file_path}"
         
         if(not os.path.isfile(object_file_path)):
             self.state = ProteusState.FRESH
@@ -188,9 +180,10 @@ class Object(AbstractObject):
     # Method     : load_children
     # Description: It loads the children of a PROTEUS object using an
     #              XML root element <object>.
-    # Date       : 16/09/2022
+    # Date       : 13/04/2023
     # Version    : 0.2
     # Author     : Amador Durán Toro
+    #              José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
     def load_children(self, root : ET.Element) -> None:
@@ -219,7 +212,15 @@ class Object(AbstractObject):
                 f"PROTEUS object file {self.id} includes a child without ID."
 
             # Add the child to the children dictionary and set the parent
-            object = Object.load(self.project, child_id)
+            if self.project is not None:
+                # If the project is not None, load the child using the project
+                object = Object.load(child_id, self.project)
+            else:
+                # If the project is None, this object is an archetype,
+                # so load the child using the object's path
+                objects_dir_path : str = os.path.dirname(self.path)
+                object_path : str = f"{objects_dir_path}/{child_id}.xml"
+                object = Object(object_path)
             
             object.parent = self
 

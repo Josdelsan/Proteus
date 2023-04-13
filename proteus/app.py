@@ -108,29 +108,27 @@ class ProteusApplication:
         print("Archetype Object Test")
         print("------------------------")
         objects = ArchetypeManager.load_object_archetypes()
-        for object in objects:
-            print(object.path, "\n", object.id, "\n", object.name, "\n",
-                  object.classes, "\n", object.acceptedChildren)
+        for key, value in objects.items():
+            print(f"{key}:")
+            for obj in value:
+                print(f"\t{obj.id}")
+                print(f"\t\t{obj.children.keys()}")
+
         
 
         print("Archetype Document Test")
         print("------------------------")
         documents = ArchetypeManager.load_document_archetypes()
         for document in documents:
-            print(document.path, "\n", document.id, "\n", 
-                  document.name, "\n", document.description,
-                  "\n", document.author, "\n", document.date, "\n",
-                  document.classes, "\n", document.acceptedChildren)
-            print(document.get_document(project))
+            print(document.path, "\n", document.id)
+            print(document.children.keys())
 
         print("Archetype Project Test")
         print("------------------------")
         projects = ArchetypeManager.load_project_archetypes()
         for project_arch in projects:
-            print(project_arch.path, "\n", project_arch.id,
-                  "\n", project_arch.name, "\n", project_arch.description,
-                  "\n", project_arch.author, "\n", project_arch.date)
-            print(project_arch.get_project())
+            print(project_arch.path, "\n", project_arch.id)
+            print(project_arch.documents.keys())
 
 
         # # object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")

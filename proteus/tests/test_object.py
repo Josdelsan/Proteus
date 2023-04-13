@@ -57,7 +57,7 @@ def sample_object(sample_project) -> Object:
     """
     Fixture that returns a PROTEUS sample object.
     """
-    return Object.load(sample_project, SAMPLE_OBJECT_ID)
+    return Object.load(SAMPLE_OBJECT_ID, sample_project)
 
 def get_root(path) -> ET.Element:
     """
@@ -89,7 +89,7 @@ def test_objects(path):
 
     # Load project
     test_project : Project = Project.load(path)
-    test_object : Object = Object.load(test_project, "3fKhMAkcEe2C")
+    test_object : Object = Object.load("3fKhMAkcEe2C", test_project)
     
     # Parser to avoid conflicts with CDATA
     parser = ET.XMLParser(strip_cdata=False)
@@ -171,7 +171,7 @@ def test_object_load(sample_project):
     """
 
     # Setup test object
-    test_object : Object = Object.load(sample_project, SAMPLE_OBJECT_ID)
+    test_object : Object = Object.load(SAMPLE_OBJECT_ID, sample_project)
 
     # Get root element of the xml file
     root : ET.Element = get_root(test_object.path)
