@@ -9,25 +9,38 @@
 # Description:
 # - Object now inherits from AbstractObject
 # ==========================================================================
-
-# imports
+# Update: 15/04/2023 (José María)
+# Description:
+# - Object now lazy loads its children.
+# ==========================================================================
 
 # for using classes as return type hints in methods
 # (this will change in Python 3.11)
 from __future__ import annotations # it has to be the first import
 
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
 import pathlib
 from distutils.dir_util import copy_tree
-# standard library imports
-import shortuuid
 import os
 import logging
 from typing import List, NewType, Union
-import lxml.etree as ET
 import copy
 
-# local imports (starting from root)
-from proteus.model import *
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
+
+import lxml.etree as ET
+import shortuuid
+
+# --------------------------------------------------------------------------
+# Project specific imports (starting from root)
+# --------------------------------------------------------------------------
+
+from proteus.model import ProteusID, CHILDREN_TAG, OBJECT_TAG, OBJECTS_REPOSITORY, CHILD_TAG
 from proteus.model.abstract_object import AbstractObject, ProteusState
 # from proteus.model.project import Project
 # Project class dummy declaration to break circular import

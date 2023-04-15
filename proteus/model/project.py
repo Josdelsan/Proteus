@@ -9,22 +9,33 @@
 # Description:
 # - Project now inherits from AbstractObject
 # ==========================================================================
-
-# imports
+# Update: 15/04/2023 (José María)
+# Description:
+# - Project now lazy loads its documents.
+#   Project now has a method to clone itself into a new directory.
+# ==========================================================================
 
 # for using classes as return type hints in methods
 # (this will change in Python 3.11)
 from __future__ import annotations # it has to be the first import
 
-# standard library imports
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
 import os
-from os.path import join
 import pathlib
 import shutil
 import logging
+
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
+
 import lxml.etree as ET
 
-# local imports (starting from root)
+# --------------------------------------------------------------------------
+# Project specific imports (starting from root)
+# --------------------------------------------------------------------------
 from proteus.model import DOCUMENT_TAG, DOCUMENTS_TAG, OBJECTS_REPOSITORY, PROJECT_TAG, ProteusID, PROJECT_FILE_NAME
 from proteus.model.abstract_object import AbstractObject, ProteusState
 #if 'proteus.model.object' in sys.modules:

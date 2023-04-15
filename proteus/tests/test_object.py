@@ -241,3 +241,5 @@ def test_object_generate_xml(sample_object):
 
     # Compare xml strings
     assert(expected_xml == actual_xml)
+
+# TODO: Test clone_object method

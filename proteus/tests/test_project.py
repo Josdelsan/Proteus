@@ -15,13 +15,14 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import os
+import pathlib
+import shutil
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-import os
-import pathlib
-import shutil
 import pytest
 import lxml.etree as ET
 

@@ -23,12 +23,8 @@
 # --------------------------------------------------------------------------
 
 import logging
-from enum import Enum, auto
 from os import listdir
-import os
-from os.path import join, dirname, abspath, isfile, isdir, exists
-from os import pardir
-import shutil
+from os.path import join, isdir
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -36,18 +32,14 @@ import shutil
 
 import lxml.etree as ET
 from strenum import StrEnum
-import proteus.config as config
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+import proteus.config as config
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model import PROPERTIES_TAG
-from proteus.model.archetype_proxys import DocumentArchetypeProxy, ObjectArchetypeProxy, ProjectArchetypeProxy
-from proteus.model.properties import Property, PropertyFactory
-
 
 # logging configuration
 log = logging.getLogger(__name__)
