@@ -343,7 +343,10 @@ class Project(AbstractObject):
     def clone_project(self, filename_path_to_save: str, new_project_dir_name: str) -> Project:
         """
         Method that creates a new project from an existing project.
+        
         :param filename: Path where we want to save the project.
+        :param new_project_dir_name: Name of the new project directory.
+        :return: The new project.
         """
         assert os.path.isdir(filename_path_to_save), \
             f"The given path is not a directory: {filename_path_to_save}"
@@ -353,6 +356,12 @@ class Project(AbstractObject):
         
         # Directory where the project is located
         project_dir = pathlib.Path(self.path).parent.resolve()
+
+        # Check the objects directory and the project file exists
+        assert os.path.isdir(project_dir / OBJECTS_REPOSITORY), \
+            f"The objects directory does not exist: {project_dir / OBJECTS_REPOSITORY}"
+        assert os.path.isfile(project_dir / PROJECT_FILE_NAME), \
+            f"The project file does not exist: {project_dir / PROJECT_FILE_NAME}"
         
         shutil.copytree(project_dir, target_dir)
 
@@ -362,5 +371,6 @@ class Project(AbstractObject):
             project_file = target_dir / PROJECT_FILE_NAME
             os.rename(project_arquetype_file, project_file)
 
+        # Load the new project and return it
         return Project.load(target_dir)
     

@@ -24,7 +24,7 @@
 
 import logging
 from os import listdir
-from os.path import join, isdir
+from os.path import join, isdir, isfile
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -37,6 +37,7 @@ from strenum import StrEnum
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import OBJECTS_REPOSITORY, ASSETS_REPOSITORY
 import proteus.config as config
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -49,12 +50,14 @@ log = logging.getLogger(__name__)
 
 
 ARCHETYPES_FOLDER = config.Config().archetypes_directory
-PROJECT_PROPERTIES_TO_SAVE = ["name", "description", "author", "date"]
-DOCUMENT_PROPERTIES_TO_SAVE = ["name", "description", "author", "date"]
 
 DOCUMENT_FILE = "document.xml"
 OBJECTS_FILE = "objects.xml"
 PROJECT_FILE = "project.xml"
+
+PROJECT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, PROJECT_FILE]
+DOCUMENT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, DOCUMENT_FILE]
+OBJECT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, OBJECTS_FILE]
 
 
 # --------------------------------------------------------------------------
@@ -115,6 +118,10 @@ class ArchetypeManager:
         #       no archetypes are supposed to be in the root directory, AND that only one
         #       level of subdirectories is allowed.
         subdirs : list[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
+
+        # Check there is no files in the root directory
+        assert all([not isfile(join(archetypes_dir, f)) for f in listdir(archetypes_dir)]), \
+             f"Unexpected files in {archetypes_dir}. Check the object archetypes directory structure."
         
         # We create a dictionary to store the result
         object_arquetype_dict : dict[str, list[Object]] = dict[str, list[Object]]()
@@ -130,6 +137,16 @@ class ArchetypeManager:
             # Get object pointer file. Inside we find inside it the ids that
             # referes to the objects and omit the rest of children objects
             objects_pointer_file : str = join(object_archetype_class_path, OBJECTS_FILE)
+
+            # Check project file and objects directory exists
+            assert isfile(objects_pointer_file), \
+                f"Object archetype file {objects_pointer_file} not found."
+            assert isdir(join(archetypes_dir, subdir, OBJECTS_REPOSITORY)), \
+                f"Objects directory not found in {join(archetypes_dir, subdir)}."
+            
+            # Check the arquetype structure is correct
+            assert all([ (d in OBJECT_REPOSITORY_STRUCTURE) for d in listdir(join(archetypes_dir, subdir)) ]), \
+                f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
             objects_pointer_xml : ET.Element = ET.parse(objects_pointer_file)
@@ -176,6 +193,10 @@ class ArchetypeManager:
         #       no archetypes are supposed to be in the root directory, AND that only one
         #       level of subdirectories is allowed.
         subdirs : list[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
+
+        # Check there is no files in the root directory
+        assert all([not isfile(join(archetypes_dir, f)) for f in listdir(archetypes_dir)]), \
+             f"Unexpected files in {archetypes_dir}. Check the document archetypes directory structure."
         
         document_archetype_list : list[Object] = list ()
 
@@ -184,11 +205,19 @@ class ArchetypeManager:
             # Build the full path to the subdirectory
             archetype_dir_path : str = join(archetypes_dir, subdir)
 
-            # TODO: Check the archetype structure is correct and all files are present
-
             # Get document pointer file. Inside we find inside it the id that
             # referes to the main document (the one with class ':Proteus-document')
             document_pointer_file : str = join(archetype_dir_path, DOCUMENT_FILE)
+
+            # Check project file and objects directory exists
+            assert isfile(document_pointer_file), \
+                f"Document archetype file {document_pointer_file} not found."
+            assert isdir(join(archetypes_dir, subdir, OBJECTS_REPOSITORY)), \
+                f"Objects directory not found in {join(archetypes_dir, subdir)}."
+            
+            # Check the arquetype structure is correct
+            assert all([ (d in DOCUMENT_REPOSITORY_STRUCTURE) for d in listdir(join(archetypes_dir, subdir)) ]), \
+                f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
             document_pointer_xml : ET.Element = ET.parse(document_pointer_file)
@@ -234,6 +263,10 @@ class ArchetypeManager:
         #       level of subdirectories is allowed.
         subdirs : list[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
 
+        # Check there is no files in the root directory
+        assert all([not isfile(join(archetypes_dir, f)) for f in listdir(archetypes_dir)]), \
+             f"Unexpected files in {archetypes_dir}. Check the project archetypes directory structure."
+
         # Result as a list of Projects
         project_archetype_list : list [Project] = []
 
@@ -241,6 +274,16 @@ class ArchetypeManager:
         for subdir in subdirs:
             # Build the full path to the project archetype file
             project_archetype_file_path : str = join(archetypes_dir, subdir, PROJECT_FILE)
+
+            # Check project file and objects directory exists
+            assert isfile(project_archetype_file_path), \
+                f"Project archetype file {project_archetype_file_path} not found."
+            assert isdir(join(archetypes_dir, subdir, OBJECTS_REPOSITORY)), \
+                f"Objects directory not found in {join(archetypes_dir, subdir)}."
+            
+            # Check the arquetype structure is correct
+            assert all([ (d in PROJECT_REPOSITORY_STRUCTURE) for d in listdir(join(archetypes_dir, subdir)) ]), \
+                f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
 
             # We create a project from the archetype
             project_archetype : Project = Project(project_archetype_file_path)
