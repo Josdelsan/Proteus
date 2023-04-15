@@ -162,7 +162,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @classmethod
-    def load_document_archetypes( cls ) -> list:
+    def load_document_archetypes( cls ) -> list[Object]:
         """
         Method that loads the document archetypes.
         :return: A list of documents (Objects) objects.
