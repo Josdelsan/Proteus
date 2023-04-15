@@ -158,6 +158,10 @@ class ArchetypeManager:
                 objects_path = join(object_archetype_class_path, "objects")
                 object_path : str = join(objects_path,f'{object_id}.xml')
 
+                # Check the object archetype file exists
+                assert isfile(object_path), \
+                    f"Object archetype file {object_path} not found. Check {OBJECTS_FILE} file."
+
                 # We create the object
                 object : Object = Object(object_path)
 
@@ -228,6 +232,10 @@ class ArchetypeManager:
             # Build the path to the root document
             objects_path = join(archetype_dir_path, "objects")
             document_archetype_file_path = join(objects_path, document_id + ".xml")
+
+            # Check the document archetype file exists
+            assert isfile(document_archetype_file_path), \
+                f"Document archetype file {document_archetype_file_path} not found. Check {DOCUMENT_FILE} file."
 
             # We create an object from the archetype
             document_archetype : Object = Object(document_archetype_file_path)
