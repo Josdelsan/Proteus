@@ -257,39 +257,3 @@ class ArchetypeManager:
             project_archetype_list.append(project_archetype)
         
         return project_archetype_list
-    
-    # ----------------------------------------------------------------------
-    # Method     : clone_project
-    # Description: It clones a project archetype into the sys path wanted.
-    # Date       : 27/09/2022
-    # Version    : 0.1
-    # Author     : Pablo Rivera Jiménez
-    # ----------------------------------------------------------------------
-    @staticmethod
-    def clone_project(filename_path: str, filename_path_to_save: str):
-        """
-        Method that creates a new project from an archetype.
-        :param filename: Path where we want to save the project.
-        :param archetype: Archetype type.
-        """
-        
-        # Directory where we save the project
-        path = os.path.realpath(filename_path_to_save)
-        
-        # Directory where is the archetype
-        archetype_dir = os.path.dirname(filename_path)
-
-        # Copy the archetype to the project directory
-        original = filename_path
-        target = path
-        shutil.copy(original, target)
-        
-        # In case there is no directory, create it
-        if "assets" not in os.listdir(path):
-            shutil.copytree(join(archetype_dir, "assets"), join(path, "assets"))
-
-        # Copy the objects file from the archetypes directory into the project directory
-        source_dir = join(archetype_dir, "objects")
-        destination_dir = join(path, "objects")
-        
-        shutil.copytree(source_dir, destination_dir)

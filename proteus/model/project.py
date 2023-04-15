@@ -149,11 +149,8 @@ class Project(AbstractObject):
             # Initialize documents dictionary
             self._documents : dict[ProteusID,Object] = dict[ProteusID,Object]()
 
-            # Parse and load XML into memory
-            root : ET.Element = ET.parse( self.path ).getroot()
-
             # Load documents from XML file
-            self.load_documents(root)
+            self.load_documents()
 
         # Return documents dictionary
         return self._documents
@@ -167,11 +164,13 @@ class Project(AbstractObject):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def load_documents(self, root : ET.Element) -> None:
+    def load_documents(self) -> None:
         """
         It loads a PROTEUS project's documents from an XML root element.
         :param root: XML root element.
         """
+        # Parse and load XML into memory
+        root : ET.Element = ET.parse( self.path ).getroot()
 
         # Check root is not None
         assert root is not None, \
@@ -198,6 +197,7 @@ class Project(AbstractObject):
             object = Object.load(document_id, self)
             object.parent = self
             self.documents[document_id] = object
+
     # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.
@@ -321,5 +321,35 @@ class Project(AbstractObject):
         for i in documents_to_be_removed:
             self.documents.pop(i) 
         
+    # ----------------------------------------------------------------------
+    # Method     : clone_project
+    # Description: It clones a project into the selected system path.
+    # Date       : 13/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez  
+    # ----------------------------------------------------------------------
+    
+    def clone_project(self, filename_path_to_save: str, new_project_dir_name: str) -> Project:
+        """
+        Method that creates a new project from an existing project.
+        :param filename: Path where we want to save the project.
+        """
+        assert os.path.isdir(filename_path_to_save), \
+            f"The given path is not a directory: {filename_path_to_save}"
+        
+        # Directory where we save the project
+        target_dir = pathlib.Path(filename_path_to_save).resolve() / new_project_dir_name
+        
+        # Directory where the project is located
+        project_dir = pathlib.Path(self.path).parent.resolve()
+        
+        shutil.copytree(project_dir, target_dir)
 
+        # Check if the project is an archetype then change the project file
+        project_arquetype_file = target_dir / "project.xml"
+        if os.path.isfile(project_arquetype_file):
+            project_file = target_dir / PROJECT_FILE_NAME
+            os.rename(project_arquetype_file, project_file)
+
+        return Project.load(target_dir)
     

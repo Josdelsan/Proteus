@@ -71,13 +71,17 @@ class Object(AbstractObject):
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load(id:ProteusID, project:Project = None) -> Object:
+    def load(id:ProteusID, project:Project) -> Object:
         """
         Static factory method for loading a PROTEUS object given a project
         and a short UUID.
         """
         # TODO new param (parent:Project/Object) to set parent object
         # needed for some actions (move, delete, etc.)
+
+        # Check project is not None
+        assert project is not None, \
+            f"Invalid project object when loading object from {id}.xml"
 
         # Extract project directory from project path
         project_directory : str = os.path.dirname(project.path)
@@ -167,11 +171,8 @@ class Object(AbstractObject):
             # Initialize children dictionary
             self._children : dict[ProteusID,Object] = dict[ProteusID,Object]()
 
-            # Parse and load XML into memory
-            root : ET.Element = ET.parse( self.path ).getroot()
-
             # Load children from XML file
-            self.load_children(root)
+            self.load_children()
 
         # Return children dictionary
         return self._children
@@ -186,14 +187,17 @@ class Object(AbstractObject):
     #              José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    def load_children(self, root : ET.Element) -> None:
+    def load_children(self) -> None:
         """
         It loads a PROTEUS object's children from an XML root element.
         """
 
+        # Parse and load XML into memory
+        root : ET.Element = ET.parse( self.path ).getroot()
+
         # Check root is not None
         assert root is not None, \
-            f"Root element is not valid for {self.id}."
+            f"Root element is not valid in {self.path}."
 
         # Load children
         children : ET.Element = root.find(CHILDREN_TAG)

@@ -53,6 +53,14 @@ def sample_project() -> Project:
     Fixture that returns a PROTEUS sample project.
     """
     return Project.load(SAMPLE_PROJECT_PATH)
+   
+@pytest.fixture
+def sample_archetype_project() -> Project:
+    """
+    Fixture that returns a PROTEUS sample archetype project.
+    """
+    project_arquetypes : list(Project) = ArchetypeManager.load_project_archetypes()
+    return project_arquetypes[0]
 
 def get_root(path) -> ET.Element:
     """
@@ -199,7 +207,7 @@ def test_project_load():
     # Compare ET element id with the project id
     assert(root.attrib["id"] == test_project.id)
 
-def test_project_lazy_load(sample_project):
+def test_project_lazy_load(sample_project: Project):
     """
     Test Project documents property lazy loading
     """
@@ -212,7 +220,7 @@ def test_project_lazy_load(sample_project):
     assert(type(sample_project.documents) == dict)
     assert(type(sample_project._documents) == dict)
 
-def test_project_load_documents(sample_project):
+def test_project_load_documents(sample_project: Project):
     """
     Test Project load_documents method
     """
@@ -230,12 +238,12 @@ def test_project_load_documents(sample_project):
     # for the first time and no documents are loaded yet. However,
     # we are calling it explicitly to test it in case lazy loading
     # fails.
-    sample_project.load_documents(root)
+    sample_project.load_documents()
 
     # Check that Object contains all the documents of the xml    
     assert(all(document in sample_project.documents.keys() for document in documents_list))
 
-def test_project_generate_xml(sample_project):
+def test_project_generate_xml(sample_project: Project):
     """
     Test Project generate_xml method
     """
@@ -259,3 +267,68 @@ def test_project_generate_xml(sample_project):
 
     # Compare xml strings
     assert(expected_xml == actual_xml)
+
+# TODO: Refactor both clone tests to use parametrize fixture
+# or other workaround to avoid code duplication
+
+def test_project_clone(sample_project: Project):
+    """
+    Test Project clone method
+    """
+    # Path to the cloned project
+    new_project_dir_name = "cloned_project"
+    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    cloned_project_path = clone_path / new_project_dir_name
+
+    # Remove cloned project if it exists
+    if os.path.exists(cloned_project_path):
+        shutil.rmtree(cloned_project_path)
+
+    # Clone project
+    new_project = sample_project.clone_project(clone_path, new_project_dir_name)
+
+    # Check that the project has been cloned
+    assert(isinstance(new_project, Project))
+
+    # Compare project id
+    assert(sample_project.id == new_project.id)
+
+    # Compare project path
+    assert(cloned_project_path == pathlib.Path(new_project.path).parent.resolve())
+
+    # Clean up cloned project directory
+    if os.path.exists(cloned_project_path):
+        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        shutil.rmtree(cloned_project_path)
+
+def test_project_clone_arquetype(sample_archetype_project: Project):
+    """
+    Test Project clone method on an archetype project
+    """
+    # Path to the cloned project
+    new_project_dir_name = "cloned_arquetype_project"
+    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    cloned_project_path = clone_path / new_project_dir_name
+
+    # Remove cloned project if it exists
+    if os.path.exists(cloned_project_path):
+        shutil.rmtree(cloned_project_path)
+
+    # Clone project
+    new_project = sample_archetype_project.clone_project(clone_path, new_project_dir_name)
+
+    # Check that the project has been cloned
+    assert(isinstance(new_project, Project))
+
+    # Compare project id
+    assert(sample_archetype_project.id == new_project.id)
+
+    # Compare project path
+    assert(cloned_project_path == pathlib.Path(new_project.path).parent.resolve())
+
+    # Clean up cloned project directory
+    if os.path.exists(cloned_project_path):
+        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        shutil.rmtree(cloned_project_path)
+
+# TODO: Test Project save_project method

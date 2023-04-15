@@ -212,7 +212,7 @@ def test_object_load_children(sample_object):
     # for the first time and no children are loaded yet. However,
     # we are calling it explicitly to test it in case lazy loading
     # fails.
-    sample_object.load_children(root)
+    sample_object.load_children()
 
     # Check that Object contains all the children of the xml    
     assert(all(child in sample_object.children.keys() for child in children_list))
