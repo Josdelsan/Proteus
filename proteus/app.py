@@ -58,7 +58,7 @@ class ProteusApplication:
         return 0
 
     def _old_main_tests(self):
-        project : Project = Project.load(self.config.base_directory / "tests" / "project")
+        project : Project = Project.load(self.config.base_directory / "tests" / "sample_data" / "example_project")
 
         property : Property
         for property in project.properties.values():

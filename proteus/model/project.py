@@ -357,11 +357,12 @@ class Project(AbstractObject):
         # Directory where the project is located
         project_dir = pathlib.Path(self.path).parent.resolve()
 
-        # Check the objects directory and the project file exists
+        # Check the objects directory and the project file exists (or project archetype file)
         assert os.path.isdir(project_dir / OBJECTS_REPOSITORY), \
             f"The objects directory does not exist: {project_dir / OBJECTS_REPOSITORY}"
-        assert os.path.isfile(project_dir / PROJECT_FILE_NAME), \
-            f"The project file does not exist: {project_dir / PROJECT_FILE_NAME}"
+        assert os.path.isfile(project_dir / PROJECT_FILE_NAME) \
+            or os.path.isfile(project_dir / "project.xml"),    \
+            f"The project file does not exist in {project_dir}"
         
         shutil.copytree(project_dir, target_dir)
 
