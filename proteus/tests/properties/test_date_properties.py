@@ -33,7 +33,7 @@ from proteus.model.properties import DATE_PROPERTY_TAG, DATE_FORMAT
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Date property tests

@@ -34,7 +34,7 @@ from proteus.model.properties import URL_PROPERTY_TAG
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Url property tests

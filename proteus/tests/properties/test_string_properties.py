@@ -31,7 +31,7 @@ from proteus.model.properties import STRING_PROPERTY_TAG, MARKDOWN_PROPERTY_TAG
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # String & markdown property tests

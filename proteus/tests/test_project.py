@@ -30,12 +30,14 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus import PROTEUS_APP_PATH
+from proteus.model import PROJECT_FILE_NAME
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
-from proteus.model.properties import Property
+from proteus.model.properties import Property, STRING_PROPERTY_TAG
 from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
 # Constants
@@ -43,6 +45,7 @@ from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
 
 # NOTE: This is a sample project that is used for testing purposes.
 SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "archetypes"
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -63,16 +66,6 @@ def sample_archetype_project() -> Project:
     project_arquetypes : list(Project) = ArchetypeManager.load_project_archetypes()
     return project_arquetypes[0]
 
-def get_root(path) -> ET.Element:
-    """
-    Helper function that returns the root element of an xml file.
-    :param path: Path to the xml file.
-    :return: Root element of the xml file.
-    """
-    # Parser to avoid conflicts with CDATA
-    parser = ET.XMLParser(strip_cdata=False)
-    element = ET.parse(path, parser = parser)
-    return element.getroot()
 
 # --------------------------------------------------------------------------
 # Project tests
@@ -192,9 +185,35 @@ def test_projects(path):
 
 # --------------------------------------------------------------------------
 # Project unit tests
+# NOTE: Some methods are not testes with Archetype Projects because they
+# are not meant to be used with them.
 # --------------------------------------------------------------------------
 
-def test_project_load():
+@pytest.mark.parametrize('path',
+    [
+        SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME,
+        ARCHETYPE_REPOSITORY_PATH / "projects" / "madeja" / "project.xml"
+    ],
+)
+def test_init(path):
+    """
+    It tests the init method of the Project class.
+    """
+    # Create a project using the constructor
+    test_project = Project(SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME)
+
+    # Check type of the project
+    assert(isinstance(test_project, Project)), \
+        f"Project is not an instance of Project class. It is {type(test_project)}"
+
+    # Get root element of the xml file
+    root : ET.Element = fixtures.get_root(SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME)
+
+    # Compare ET element id with the project id
+    assert(root.attrib["id"] == test_project.id), \
+        f"Project id {test_project.id} is not equal to the id of the root element {root.attrib['id']}"
+
+def test_load():
     """
     It tests the load method of the Project class.
     """
@@ -202,31 +221,59 @@ def test_project_load():
     # Load the project
     test_project = Project.load(SAMPLE_PROJECT_PATH)
 
+    # Check type of the project
+    assert(isinstance(test_project, Project)), \
+        f"Project is not an instance of Project class. It is {type(test_project)}"
+
     # Get root element of the xml file
-    root : ET.Element = get_root(SAMPLE_PROJECT_PATH / "proteus.xml")
+    root : ET.Element = fixtures.get_root(SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME)
 
     # Compare ET element id with the project id
-    assert(root.attrib["id"] == test_project.id)
+    assert(root.attrib["id"] == test_project.id), \
+        f"Project id {test_project.id} is not equal to the id of the root element {root.attrib['id']}"
 
-def test_project_lazy_load(sample_project: Project):
+@pytest.mark.parametrize(
+        "sample_project_fixture",
+        ["sample_project", "sample_archetype_project"],
+)
+def test_documents_lazy_load(sample_project_fixture: str, request):
     """
     Test Project documents property lazy loading
     """
+    # Get sample project
+    # NOTE: using parameterized fixtures to get the sample project
+    # https://engineeringfordatascience.com/posts/pytest_fixtures_with_parameterize/
+    sample_project = request.getfixturevalue(sample_project_fixture)
+
     # Check that documents are not loaded yet checking private
     # variable _documents
-    assert(sample_project._documents == None)
+    assert(sample_project._documents == None), \
+        "Documents should not be loaded if the 'documents' property is not accessed"
 
     # Check that documents are loaded when accessing documents
     # property for the first time
-    assert(type(sample_project.documents) == dict)
-    assert(type(sample_project._documents) == dict)
+    assert(type(sample_project.documents) == dict),                     \
+        f"Documents should have been loaded when accessing 'documents'  \
+        property but they are of type {type(sample_project.documents)}"
+    assert(type(sample_project._documents) == dict),                    \
+        f"Documents private var should have been loaded when accessing  \
+        'documents' property but they are of type {type(sample_project._documents)}"
 
-def test_project_load_documents(sample_project: Project):
+@pytest.mark.parametrize(
+        "sample_project_fixture",
+        ["sample_project", "sample_archetype_project"],
+)
+def test_load_documents(sample_project_fixture: str, request):
     """
     Test Project load_documents method
     """
+    # Get sample project
+    # NOTE: using parameterized fixtures to get the sample project
+    # https://engineeringfordatascience.com/posts/pytest_fixtures_with_parameterize/
+    sample_project = request.getfixturevalue(sample_project_fixture)
+
     # Get root element of the xml file
-    root : ET.Element = get_root(sample_project.path)
+    root : ET.Element = fixtures.get_root(sample_project.path)
 
     # Get documents of the xml file and store them in a list
     documents = root.find("documents")
@@ -242,14 +289,17 @@ def test_project_load_documents(sample_project: Project):
     sample_project.load_documents()
 
     # Check that Object contains all the documents of the xml    
-    assert(all(document in sample_project.documents.keys() for document in documents_list))
+    assert(all(document in sample_project.documents.keys() for document in documents_list)), \
+        f"Project does not contain all the documents of the xml file.                        \
+        Documents in xml file: {documents_list}                                              \
+        Documents in Project: {sample_project.documents.keys()}"
 
-def test_project_generate_xml(sample_project: Project):
+def test_generate_xml(sample_project: Project):
     """
     Test Project generate_xml method
     """
     # Get root element of the xml file
-    root : ET.Element = get_root(sample_project.path)
+    root : ET.Element = fixtures.get_root(sample_project.path)
 
     # Get xml string from xml file
     expected_xml= (ET.tostring(root,
@@ -267,12 +317,14 @@ def test_project_generate_xml(sample_project: Project):
             pretty_print=True).decode())
 
     # Compare xml strings
-    assert(expected_xml == actual_xml)
+    assert(expected_xml == actual_xml), \
+        f"XML strings are not equal. Expected: {expected_xml} Actual: {actual_xml}"
 
-# TODO: Refactor both clone tests to use parametrize fixture
-# or other workaround to avoid code duplication
-
-def test_project_clone(sample_project: Project):
+@pytest.mark.parametrize(
+        "sample_project_fixture",
+        ["sample_project", "sample_archetype_project"],
+)
+def test_clone(sample_project_fixture: str, request):
     """
     Test Project clone method
     """
@@ -285,47 +337,27 @@ def test_project_clone(sample_project: Project):
     if os.path.exists(cloned_project_path):
         shutil.rmtree(cloned_project_path)
 
+    # Get sample project
+    # NOTE: using parameterized fixtures to get the sample project
+    # https://engineeringfordatascience.com/posts/pytest_fixtures_with_parameterize/
+    sample_project = request.getfixturevalue(sample_project_fixture)
+
     # Clone project
     new_project = sample_project.clone_project(clone_path, new_project_dir_name)
 
     # Check that the project has been cloned
-    assert(isinstance(new_project, Project))
+    assert(isinstance(new_project, Project)), \
+        f"Project type is not Project. Type: {type(new_project)}"
 
     # Compare project id
-    assert(sample_project.id == new_project.id)
+    assert(sample_project.id == new_project.id), \
+        f"Project id is not equal.               \
+        Expected: {sample_project.id} Actual: {new_project.id}"
 
     # Compare project path
-    assert(cloned_project_path == pathlib.Path(new_project.path).parent.resolve())
-
-    # Clean up cloned project directory
-    if os.path.exists(cloned_project_path):
-        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
-        shutil.rmtree(cloned_project_path)
-
-def test_project_clone_arquetype(sample_archetype_project: Project):
-    """
-    Test Project clone method on an archetype project
-    """
-    # Path to the cloned project
-    new_project_dir_name = "cloned_arquetype_project"
-    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
-    cloned_project_path = clone_path / new_project_dir_name
-
-    # Remove cloned project if it exists
-    if os.path.exists(cloned_project_path):
-        shutil.rmtree(cloned_project_path)
-
-    # Clone project
-    new_project = sample_archetype_project.clone_project(clone_path, new_project_dir_name)
-
-    # Check that the project has been cloned
-    assert(isinstance(new_project, Project))
-
-    # Compare project id
-    assert(sample_archetype_project.id == new_project.id)
-
-    # Compare project path
-    assert(cloned_project_path == pathlib.Path(new_project.path).parent.resolve())
+    assert(cloned_project_path == pathlib.Path(new_project.path).parent.resolve()), \
+        f"Project path is not equal.                                                \
+        Expected: {cloned_project_path} Actual: {new_project.path}"
 
     # Clean up cloned project directory
     if os.path.exists(cloned_project_path):
@@ -333,3 +365,18 @@ def test_project_clone_arquetype(sample_archetype_project: Project):
         shutil.rmtree(cloned_project_path)
 
 # TODO: Test Project save_project method
+
+def test_set_property(sample_project: Project):
+    """
+    Test Abstract Object set_property method
+    """
+    # Create property
+    (new_property, name, _) = fixtures.create_property(STRING_PROPERTY_TAG, "name", "general", "Test value")
+
+    # Set property
+    sample_project.set_property(new_property)
+
+    # Check that property was set
+    assert(sample_project.get_property(name) == new_property),  \
+        f"Property was not set. Expected value: {new_property} \
+        Actual value: {sample_project.get_property(name)}"

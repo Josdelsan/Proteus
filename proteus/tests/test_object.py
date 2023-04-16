@@ -27,10 +27,13 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
 from proteus.model.object import Object
 from proteus.model.project import Project
+from proteus.model.archetype_manager import ArchetypeManager
 from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
 # Constants
@@ -59,17 +62,17 @@ def sample_object(sample_project) -> Object:
     """
     return Object.load(SAMPLE_OBJECT_ID, sample_project)
 
-def get_root(path) -> ET.Element:
+# TODO: For rich tests we need sample archetype objects. This is a temporary
+#       based on the current archetype repository content (16/04/2023)
+#       solution. Sample archetype objects should have children to test
+#       lazy loading and loading of children completely.
+@pytest.fixture
+def sample_archetype_object() -> Object:
     """
-    Helper function that returns the root element of an xml file.
-    :param path: Path to the xml file.
-    :return: Root element of the xml file.
+    Fixture that returns a PROTEUS sample archetype object.
     """
-    # Parser to avoid conflicts with CDATA
-    parser = ET.XMLParser(strip_cdata=False)
-    element = ET.parse(path, parser = parser)
-    return element.getroot()
-
+    archetype_list : list[Object] = ArchetypeManager.load_document_archetypes()
+    return archetype_list[1]
 
 # --------------------------------------------------------------------------
 # Object tests
@@ -163,43 +166,97 @@ def test_objects(path):
 
 # --------------------------------------------------------------------------
 # Object unit tests
+# NOTE: Some methods are not testes with Archetype Objects because they
+# are not meant to be used with them.
 # --------------------------------------------------------------------------
 
-def test_object_load(sample_project):
+def test_init():
     """
     Test Object initialization method
     """
+    # Setup test object
+    object_file_path = SAMPLE_PROJECT_PATH / "objects" / f"{SAMPLE_OBJECT_ID}.xml"
+    test_object : Object = Object(object_file_path)
 
+    # Check type of the object
+    assert(isinstance(test_object, Object)), \
+        f"Object is not an instance of Object. It is {type(test_object)}"
+
+    # Get root element of the xml file
+    root : ET.Element = fixtures.get_root(test_object.path)
+
+    # Compare ET elements with Object elements
+    assert(root.attrib["id"] == test_object.id), \
+        f"Object id is not the same as the root element id."
+    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren), \
+        f"Object acceptedChildren is not the same as the root element acceptedChildren."
+    assert(root.attrib["classes"] == test_object.classes), \
+        f"Object classes is not the same as the root element classes."
+
+def test_load(sample_project: Project):
+    """
+    Test Object load method
+    """
     # Setup test object
     test_object : Object = Object.load(SAMPLE_OBJECT_ID, sample_project)
 
+    # Check type of the object
+    assert(isinstance(test_object, Object)), \
+        f"Object is not an instance of Object. It is {type(test_object)}"
+
     # Get root element of the xml file
-    root : ET.Element = get_root(test_object.path)
+    root : ET.Element = fixtures.get_root(test_object.path)
 
     # Compare ET elements with Object elements
-    assert(root.attrib["id"] == test_object.id)
-    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren)
-    assert(root.attrib["classes"] == test_object.classes)
+    assert(root.attrib["id"] == test_object.id), \
+        f"Object id is not the same as the root element id."
+    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren), \
+        f"Object acceptedChildren is not the same as the root element acceptedChildren."
+    assert(root.attrib["classes"] == test_object.classes), \
+        f"Object classes is not the same as the root element classes."
 
-def test_object_lazy_load(sample_object):
+@pytest.mark.parametrize(
+        "sample_object_fixture",
+        ["sample_object", "sample_archetype_object"],
+)
+def test_children_lazy_load(sample_object_fixture: str, request):
     """
     Test Object children property lazy loading
     """
+    # Get sample object from fixture
+    # NOTE: using parameterized fixtures to get the sample project
+    # https://engineeringfordatascience.com/posts/pytest_fixtures_with_parameterize/
+    sample_object = request.getfixturevalue(sample_object_fixture)
+
     # Check that children are not loaded yet checking private
     # variable _children
-    assert(sample_object._children == None)
+    assert(sample_object._children == None), \
+        "Children should not be loaded if the 'children' property is not accessed"
 
     # Check that children are loaded when accessing children
     # property for the first time
-    assert(type(sample_object.children) == dict)
-    assert(type(sample_object._children) == dict)
+    assert(type(sample_object.children) == dict),                     \
+        f"Children should have been loaded when accessing 'children'  \
+        property but they are of type {type(sample_object.children)}"
+    assert(type(sample_object._children) == dict),                    \
+        f"Children private var should have been loaded when accessing \
+        'Children' property but they are of type {type(sample_project._documents)}"
 
-def test_object_load_children(sample_object):
+@pytest.mark.parametrize(
+        "sample_object_fixture",
+        ["sample_object", "sample_archetype_object"],
+)
+def test_load_children(sample_object_fixture: str, request):
     """
     Test Object load_children method
     """
+    # Get sample object from fixture
+    # NOTE: using parameterized fixtures to get the sample project
+    # https://engineeringfordatascience.com/posts/pytest_fixtures_with_parameterize/
+    sample_object = request.getfixturevalue(sample_object_fixture)
+
     # Get root element of the xml file
-    root : ET.Element = get_root(sample_object.path)
+    root : ET.Element = fixtures.get_root(sample_object.path)
 
     # Get children of the xml file and store them in a list
     children = root.find("children")
@@ -215,14 +272,17 @@ def test_object_load_children(sample_object):
     sample_object.load_children()
 
     # Check that Object contains all the children of the xml    
-    assert(all(child in sample_object.children.keys() for child in children_list))
+    assert(all(child in sample_object.children.keys() for child in children_list)), \
+        f"Object does not contain all the children of the xml file.                 \
+        Children in xml file: {children_list}                                       \
+        Children in object: {sample_object.children.keys()}"
     
-def test_object_generate_xml(sample_object):
+def test_generate_xml(sample_object: Object):
     """
     Test Object generate_xml method
     """
     # Get root element of the xml file
-    root : ET.Element = get_root(sample_object.path)
+    root : ET.Element = fixtures.get_root(sample_object.path)
 
     # Get xml string from xml file
     expected_xml= (ET.tostring(root,
@@ -243,3 +303,19 @@ def test_object_generate_xml(sample_object):
     assert(expected_xml == actual_xml)
 
 # TODO: Test clone_object method
+
+def test_set_property(sample_object: Object):
+    """
+    Test Abstract Object set_property method
+    """
+    # Create property
+    (new_property, name, _) = fixtures.create_property(STRING_PROPERTY_TAG, "name", "general", "Test value")
+
+    # Set property
+    sample_object.set_property(new_property)
+
+    # Check that property was set
+    assert(sample_object.get_property(name) == new_property),  \
+        f"Property was not set. Expected value: {new_property} \
+        Actual value: {sample_object.get_property(name)}"
+    

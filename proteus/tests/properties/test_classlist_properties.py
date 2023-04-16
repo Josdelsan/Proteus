@@ -27,7 +27,7 @@ from proteus.model.properties import CLASS_TAG, CLASSLIST_PROPERTY_TAG
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Class list property tests

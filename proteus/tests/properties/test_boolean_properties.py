@@ -36,7 +36,7 @@ from proteus.model.properties import BOOLEAN_PROPERTY_TAG
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Boolean property tests

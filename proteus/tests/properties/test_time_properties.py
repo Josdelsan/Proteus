@@ -41,7 +41,7 @@ from proteus.model.properties import TIME_PROPERTY_TAG, TIME_FORMAT
 # Test specific imports
 # --------------------------------------------------------------------------
 
-import proteus.tests.properties.fixtures as fixtures
+import proteus.tests.fixtures as fixtures
 
 # --------------------------------------------------------------------------
 # Time property tests

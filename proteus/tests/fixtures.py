@@ -21,7 +21,6 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-import pytest
 import lxml.etree as ET
 
 # --------------------------------------------------------------------------
@@ -81,3 +80,14 @@ def create_property(property_tag, name, category, value, choices = None) -> tupl
 
     # return tuple(property,name,category)
     return (property, name, category)
+
+def get_root(path) -> ET.Element:
+    """
+    Helper function that returns the root element of an xml file.
+    :param path: Path to the xml file.
+    :return: Root element of the xml file.
+    """
+    # Parser to avoid conflicts with CDATA
+    parser = ET.XMLParser(strip_cdata=False)
+    element = ET.parse(path, parser = parser)
+    return element.getroot()
