@@ -19,7 +19,6 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-import copy
 import pytest
 import lxml.etree as ET
 
@@ -42,7 +41,8 @@ from proteus.tests import fixtures
 # NOTE: This is a sample project that is used for testing purposes. The
 #       sample object id was selected from this project.
 SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
-SAMPLE_OBJECT_ID = "3fKhMAkcEe2C"
+SAMPLE_OBJECT_ID = "64xM8FLyxtaE"
+SAMPLE_DOCUMENT_ID = "3fKhMAkcEe2C"
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -62,111 +62,28 @@ def sample_object(sample_project) -> Object:
     """
     return Object.load(SAMPLE_OBJECT_ID, sample_project)
 
+@pytest.fixture
+def sample_document(sample_project) -> Object:
+    """
+    Fixture that returns a PROTEUS sample document.
+    """
+    return Object.load(SAMPLE_DOCUMENT_ID, sample_project)
+
 # TODO: For rich tests we need sample archetype objects. This is a temporary
 #       based on the current archetype repository content (16/04/2023)
 #       solution. Sample archetype objects should have children to test
 #       lazy loading and loading of children completely.
 @pytest.fixture
-def sample_archetype_object() -> Object:
+def sample_archetype_document() -> Object:
     """
-    Fixture that returns a PROTEUS sample archetype object.
+    Fixture that returns a PROTEUS sample archetype document object.
     """
     archetype_list : list[Object] = ArchetypeManager.load_document_archetypes()
     return archetype_list[1]
 
 # --------------------------------------------------------------------------
-# Object tests
-# --------------------------------------------------------------------------
-
-@pytest.mark.parametrize('path',
-    [
-        SAMPLE_PROJECT_PATH
-    ]
-)
-
-def test_objects(path):
-    """
-    It tests creation, update, and evolution (cloning with a new value) 
-    of string and markdown properties.
-    """
-
-    # Load project
-    test_project : Project = Project.load(path)
-    test_object : Object = Object.load("3fKhMAkcEe2C", test_project)
-    
-    # Parser to avoid conflicts with CDATA
-    parser = ET.XMLParser(strip_cdata=False)
-    element = ET.parse( test_object.path, parser = parser)
-    root = element.getroot()
-
-    # Compare ET elements with Object elements
-    assert(root.attrib["id"] == test_object.id)
-    assert(root.attrib["acceptedChildren"] == test_object.acceptedChildren)
-    assert(root.attrib["classes"] == test_object.classes)
-
-    children = root.find("children")
-    children_list : list = []
-    for child in children:
-        children_list.append(child.attrib["id"] )
-
-    # Check that Object contains all the children of the xml    
-    assert(all(child in test_object.children.keys()  for child in children_list))
-
-    # Check that all their children the proper parent
-    def check_parent(object: Object):
-        for child in object.children.values():
-            assert(child.parent == object)
-            check_parent(child)
-    
-    check_parent(test_object)
-
-    # Check if states changes properly
-    assert (test_object.state == ProteusState.CLEAN)
-    test_object.state = ProteusState.DEAD
-    assert (test_object.state == ProteusState.DEAD)
-    test_object.state = ProteusState.DIRTY
-    assert (test_object.state == ProteusState.DIRTY)
-    test_object.state = ProteusState.FRESH
-    assert (test_object.state == ProteusState.FRESH)
-    test_object.state = ProteusState.CLEAN
-    
-    # Check if generate xml, generates properly the xml
-    xml = (ET.tostring(element,
-            xml_declaration=True,
-            encoding='utf-8',
-            pretty_print=True).decode())
-
-    gemerated_xml = (ET.tostring(test_object.generate_xml(),
-                     xml_declaration=True,
-                     encoding='utf-8',
-                     pretty_print=True).decode())
-
-    assert(xml == gemerated_xml)
-
-    # We have to copy the value otherwise it changes automatically when clone
-    children_before_clone = copy.deepcopy(test_project.documents)
-
-    test_object.clone_object(test_project)
-    
-    children_after_clone = test_project.documents
-
-    # Check if clone_object clones properly
-    assert(len(test_project.documents) > len(children_before_clone))
-
-    new_object_id = list(set(children_after_clone) - set(children_before_clone))
-
-    new_object = test_project.documents[new_object_id[0]]
-
-    # Check if the new object is a clone of the original one (We can't compare the XML because they are different
-    # because of the id, as well as the children id's are different)
-    assert(new_object.properties == test_object.properties)
-    assert (new_object.acceptedChildren == test_object.acceptedChildren)
-    assert (new_object.classes == test_object.classes)
-    assert (len(new_object.children) == len(test_object.children))
-
-# --------------------------------------------------------------------------
 # Object unit tests
-# NOTE: Some methods are not testes with Archetype Objects because they
+# NOTE: Some methods are not tested with Archetype Objects because they
 # are not meant to be used with them.
 # --------------------------------------------------------------------------
 
@@ -217,7 +134,7 @@ def test_load(sample_project: Project):
 
 @pytest.mark.parametrize(
         "sample_object_fixture",
-        ["sample_object", "sample_archetype_object"],
+        ["sample_object", "sample_archetype_document"],
 )
 def test_children_lazy_load(sample_object_fixture: str, request):
     """
@@ -244,7 +161,7 @@ def test_children_lazy_load(sample_object_fixture: str, request):
 
 @pytest.mark.parametrize(
         "sample_object_fixture",
-        ["sample_object", "sample_archetype_object"],
+        ["sample_object", "sample_archetype_document"],
 )
 def test_load_children(sample_object_fixture: str, request):
     """
@@ -302,7 +219,51 @@ def test_generate_xml(sample_object: Object):
     # Compare xml strings
     assert(expected_xml == actual_xml)
 
-# TODO: Test clone_object method
+# TODO: Test clone object -> object
+#                  arch_object -> object
+@pytest.mark.parametrize(
+        "sample_object_to_clone_fixture, sample_parent_fixture",
+        [
+            ("sample_object", "sample_document"),
+            ("sample_document", "sample_project"),
+            ("sample_archetype_document", "sample_project")
+        ],
+)
+def test_clone_object(sample_object_to_clone_fixture: str, sample_parent_fixture: str, sample_project: Project, request):
+    """
+    Test Object clone_object method
+    """
+    sample_object_to_clone = request.getfixturevalue(sample_object_to_clone_fixture)
+    sample_parent = request.getfixturevalue(sample_parent_fixture)
+
+    # Clone object
+    new_object = sample_object_to_clone.clone_object(sample_parent, sample_project)
+
+    # Check that object was cloned
+    assert isinstance(new_object, Object), \
+        f"Object was not cloned. It is of type {type(new_object)}"
+    
+    # Check that object is in fresh state
+    assert new_object.state == ProteusState.FRESH, \
+        f"Object state is not {ProteusState.FRESH} but {new_object.state}"
+    
+    # Check the object is in the parent children
+    # TODO: Should this be in a separate test?
+    match sample_parent.__class__.__name__:
+            case "Object":
+                assert new_object.id in sample_parent.children.keys(), \
+                    f"Object {new_object.id} was not found in {sample_parent.children.keys()}"
+            case "Project":
+                assert new_object.id in sample_parent.documents.keys(), \
+                    f"Object {new_object.id} was not found in {sample_parent.documents.keys()}"
+
+    
+    # Check the children are in the new object
+    # NOTE: This will not work if we clone an object into itself
+    # however, this is not a valid use case at the moment
+    assert sample_object_to_clone.children.__len__() == new_object.children.__len__(), \
+        f"Object {new_object.id} does not have the same number of children as \
+        the original object {sample_object_to_clone.id}"
 
 def test_set_property(sample_object: Object):
     """

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="4wrwfDWFawd" classes="requisito-producto caso-de-uso paso-caso-de-uso" acceptedChildren=":Proteus-none">
+  <properties>
+    <stringProperty name="name">El sistema..</stringProperty>
+  </properties>
+  <children>
+  </children>
+  <traces>
+  </traces>
+</object>
