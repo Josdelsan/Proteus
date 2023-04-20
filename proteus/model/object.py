@@ -23,7 +23,6 @@ from __future__ import annotations # it has to be the first import
 # --------------------------------------------------------------------------
 
 import pathlib
-from distutils.dir_util import copy_tree
 import os
 import logging
 from typing import List, NewType, Union
@@ -283,72 +282,90 @@ class Object(AbstractObject):
     # Author     : Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
 
-    def clone_object(self, parent: Union[Object,Project]):
+    def clone_object(self, parent: Union[Object,Project], project: Project):
         """
-        Function that clones an object in a new parent. This function doesn't save the object in the system
-        but add it to the parent children so it will be saved when we save the project.
+        Function that clones an object in a new parent. This function doesn't
+        save the object in the system but add it to the parent children so
+        it will be saved when we save the project.
+
         :param parent: Parent of the new object.
+        :param project: Project where the object will be saved.
         :type parent: Union[Object,Project].
         """
+
+        # Helper function to assign a new id to the object
+        # TODO: Project should have information about the IDs in use
+        def assign_id(object: Object, project: Project):
+            """
+            Helper function that assign a new id to the object
+            that is not in use.
+            """
+            # Generate a new id for the object
+            new_object.id = shortuuid.random(length=12)
+
+            # Create file path
+            project_objects_path = pathlib.Path(project.path).parent / "objects"
+            new_object.path = project_objects_path / f"{new_object.id}.xml"
+
+            # Check if the new id is already in use
+            if os.path.isfile(new_object.path):
+                assign_id(object, project)
+
+
+        # Check if project is not None
+        # NOTE: Project instance type cannot be checked with isinstance
+        # due to Project dummy class at the beginning of the file.
+        assert project.__class__.__name__ ==  "Project", \
+            f"Parent project must be instance of Project."
         
+        # Check if parent is not None
+        assert parent.__class__.__name__ == "Project" \
+            or isinstance(parent, Object), \
+            f"Parent must be instance of Object or Project"
+        
+        # TODO: Check accepted children of the parent to
+        # see if the object can be added
+
         # Deepcopy so we don't change the original object.
         # Differences between copy and deepcopy -> https://www.programiz.com/python-programming/shallow-deep-copy
         new_object = copy.deepcopy(self)
 
-        #Function to genereate a new id for the object
-        def generate_uuid():
-            uuid = shortuuid.random(length=12)
-            if uuid in self.project.documents.keys():
-                uuid = generate_uuid()
-            return uuid
+        # Force children load
+        new_object.children
 
-        # REASSIGN ID
-        new_object.id = generate_uuid()
-
-        # Clone children
-        def rename_ids(object: Object):
-            # For every child we generate a new uuid and set the state to FRESH
-            for child in object.children.values():
-                child.id = generate_uuid()
-                child.state = ProteusState.FRESH
-
-                # Check if object has children
-                if(child.children):
-                    rename_ids(child)
-
-        # Check if object has children
-        if(new_object.children):
-            rename_ids(new_object)
-            
-        object_assets_path = pathlib.Path(self.path).parent.parent / "assets"
-
-        #If the parent is a Project
-        if (parent.__class__.__name__ == "Project"):
-
-            # We add the object to the documents list
-            parent.documents[new_object.id] = new_object
-
-            # And if the document has assets, then we copy them
-            if(object_assets_path.exists()):
-                parent_relative_path = pathlib.Path(parent.path)
-                parent_absolute_path = parent_relative_path.resolve()
-                parent_assets_path = parent_absolute_path.parent / "assets"
-                copy_tree(str(object_assets_path), str(parent_assets_path))
-        
-        # If the type is Object
-        elif (type(parent) is Object):
-            # We add to the parent's children the new object
-            parent.children[new_object.id] = new_object
-
-            # If the object has assets then we copy this assets
-            if(object_assets_path.exists()):
-                parent_relative_path = pathlib.Path(parent.project.path)
-                parent_absolute_path = parent_relative_path.resolve()
-                parent_assets_path = parent_absolute_path.parent / "assets"    
-                copy_tree(str(object_assets_path), str(parent_assets_path))
-        
-        # We set the state of the partent of the new object to DIRTY and the new object
-        # state to FRESH
-        parent.state = ProteusState.DIRTY
+        # Set new project, parent and FRESH state
+        new_object.project = project
+        new_object.parent = parent
         new_object.state = ProteusState.FRESH
 
+        # Assign a new id that is not in use
+        assign_id(new_object, project)
+
+        # Add the new object to the parent children
+        match parent.__class__.__name__:
+            case "Object":
+                parent.children[new_object.id] = new_object
+            case "Project":
+                parent.documents[new_object.id] = new_object
+
+        # If the object has children we clone them
+        if len(new_object.children.keys()) > 0:
+
+            # Get the children ids
+            children_ids = set(new_object.children.keys())
+            for child_id in children_ids:
+
+                # Clone the child
+                child = new_object.children[child_id]
+                new_child = child.clone_object(new_object, project)
+
+                # Remove old child if it changed
+                if new_child.id != child_id:
+                    new_object.children.pop(child_id)
+
+        # Check the new object is valid
+        assert isinstance(new_object, Object), \
+            f"Failed to clone {self.id} with parent {parent.id} in project {project.id}."
+
+        return new_object
+            
