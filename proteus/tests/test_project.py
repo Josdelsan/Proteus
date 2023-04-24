@@ -380,3 +380,18 @@ def test_set_property(sample_project: Project):
     assert(sample_project.get_property(name) == new_property),  \
         f"Property was not set. Expected value: {new_property} \
         Actual value: {sample_project.get_property(name)}"
+    
+
+def test_get_ids_from_project(sample_project: Project):
+    """
+    Test Project get_ids_from_project method
+    """
+    # Expected ids in sample_project
+    expected_len = 5
+
+    # Get ids from project
+    ids = sample_project.get_ids_from_project()
+
+    # Check that ids are equal
+    assert(len(ids) == expected_len), \
+        f"Ids are not equal. Expected: {expected_len}, Actual: {ids}"
