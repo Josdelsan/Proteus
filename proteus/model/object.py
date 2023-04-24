@@ -277,9 +277,10 @@ class Object(AbstractObject):
     # ----------------------------------------------------------------------
     # Method     : clone_object
     # Description: It clones an element.
-    # Date       : 27/09/2022
-    # Version    : 0.2
-    # Author     : Pablo Rivera Jiménez
+    # Date       : 24/04/2023
+    # Version    : 0.3
+    # Author     : José María Delgado Sánchez
+    #              Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
 
     def clone_object(self, parent: Union[Object,Project], project: Project):
@@ -294,22 +295,18 @@ class Object(AbstractObject):
         """
 
         # Helper function to assign a new id to the object
-        # TODO: Project should have information about the IDs in use
-        def assign_id(object: Object, project: Project):
+        def generate_new_id(project: Project):
             """
-            Helper function that assign a new id to the object
-            that is not in use.
+            Helper function that generates a new id for the object.
             """
             # Generate a new id for the object
-            new_object.id = shortuuid.random(length=12)
-
-            # Create file path
-            project_objects_path = pathlib.Path(project.path).parent / "objects"
-            new_object.path = project_objects_path / f"{new_object.id}.xml"
+            new_id = ProteusID(shortuuid.random(length=12))
 
             # Check if the new id is already in use
-            if os.path.isfile(new_object.path):
-                assign_id(object, project)
+            if new_id in project.get_ids_from_project():
+                generate_new_id(project)
+            
+            return new_id
 
 
         # Check if project is not None
@@ -339,7 +336,11 @@ class Object(AbstractObject):
         new_object.state = ProteusState.FRESH
 
         # Assign a new id that is not in use
-        assign_id(new_object, project)
+        new_object.id = generate_new_id(project)
+
+        # Create file path
+        project_objects_path = pathlib.Path(project.path).parent / "objects"
+        new_object.path = project_objects_path / f"{new_object.id}.xml"
 
         # Add the new object to the parent children
         match parent.__class__.__name__:

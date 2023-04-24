@@ -375,3 +375,48 @@ class Project(AbstractObject):
         # Load the new project and return it
         return Project.load(target_dir)
     
+
+    # ----------------------------------------------------------------------
+    # Method     : get_ids_from_project
+    # Description: It returns a list with all the ids of the project.
+    # Date       : 24/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def get_ids_from_project(self) -> list[ProteusID]:
+        """
+        Method that returns a list with all the ids of the project.
+        
+        :return: A list with all the ids of the project.
+        """
+
+        # TODO: This method might be moved to the Object class
+        def get_ids_from_object(object: Object) -> list[ProteusID]:
+            """
+            Helper function that returns a list with all the ids of the object.
+            
+            :param object: Object from which we want to get the ids.
+            :return: A list with all the ids of the object.
+            """
+
+            # Initialize an empty list of ids
+            ids : list[ProteusID] = []
+
+            # If the object has children, we get the ids of the children
+            for child in object.children.values():
+                ids.extend(get_ids_from_object(child))
+
+            # Add the id of the current object to the list
+            ids.append(object.id)
+            return ids
+
+        # Initialize an empty list of ids
+        ids : list[ProteusID] = []
+
+        # For each document in the project, we get the ids of the document
+        # and their children recursively
+        for document in self.documents.values():
+            ids.extend(get_ids_from_object(document))
+            
+        return ids
