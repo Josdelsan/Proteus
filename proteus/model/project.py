@@ -36,7 +36,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
-from proteus.model import DOCUMENT_TAG, DOCUMENTS_TAG, OBJECTS_REPOSITORY, PROJECT_TAG, ProteusID, PROJECT_FILE_NAME
+from proteus.model import DOCUMENT_TAG, DOCUMENTS_TAG, OBJECTS_REPOSITORY, PROJECT_TAG, ProteusID, PROJECT_FILE_NAME, PROTEUS_DOCUMENT
 from proteus.model.abstract_object import AbstractObject, ProteusState
 #if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
@@ -210,6 +210,37 @@ class Project(AbstractObject):
             self.documents[document_id] = object
 
     # ----------------------------------------------------------------------
+    # Method     : add_document
+    # Description: Adds a document to the project.
+    # Date       : 26/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def add_document(self, document: Object) -> None:
+        """
+        Method that adds a document to the project.
+        
+        :param document: Document to be added to the project.
+        """
+
+        # Check if the document is a valid object
+        assert isinstance(document, Object), \
+            f"Document {document} is not a valid PROTEUS object."
+
+        # Check if the document is already in the project
+        assert PROTEUS_DOCUMENT in  document.classes, \
+            f"The object is not a Proteus document. Object is class: {document.classes}"
+        
+        # Check if the document is already in the project
+        assert document.id not in self.documents, \
+            f"Document {document.id} is already in the project {self.id}."
+
+        # Add the document to the project
+        self.documents[document.id] = document
+        document.parent = self
+
+    # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.
     # Date       : 26/08/2022
@@ -375,7 +406,6 @@ class Project(AbstractObject):
         # Load the new project and return it
         return Project.load(target_dir)
     
-
     # ----------------------------------------------------------------------
     # Method     : get_ids_from_project
     # Description: It returns a list with all the ids of the project.
@@ -420,3 +450,4 @@ class Project(AbstractObject):
             ids.extend(get_ids_from_object(document))
             
         return ids
+    

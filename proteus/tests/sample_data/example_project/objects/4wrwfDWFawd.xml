@@ -3,8 +3,5 @@
   <properties>
     <stringProperty name="name">El sistema..</stringProperty>
   </properties>
-  <children>
-  </children>
-  <traces>
-  </traces>
+  <children/>
 </object>

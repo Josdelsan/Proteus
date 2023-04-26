@@ -39,7 +39,7 @@ import shortuuid
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, CHILDREN_TAG, OBJECT_TAG, OBJECTS_REPOSITORY, CHILD_TAG
+from proteus.model import ProteusID, CHILDREN_TAG, OBJECT_TAG, OBJECTS_REPOSITORY, CHILD_TAG, PROTEUS_ANY
 from proteus.model.abstract_object import AbstractObject, ProteusState
 # from proteus.model.project import Project
 # Project class dummy declaration to break circular import
@@ -242,6 +242,39 @@ class Object(AbstractObject):
 
             self.children[child_id] = object
 
+    # ----------------------------------------------------------------------
+    # Method     : add_child
+    # Description: It adds a child to a PROTEUS object.
+    # Date       : 26/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def add_child(self, child: Object) -> None:
+        """
+        It adds a child to a PROTEUS object if class is accepted.
+
+        :param child: Child Object to be added.
+        """
+        # Check if the child is a valid object
+        assert isinstance(child, Object), \
+            f"Child {child} is not a valid PROTEUS object."
+
+        # Check if the child is accepted
+        assert child.classes[-1] in self.acceptedChildren  \
+            or PROTEUS_ANY in self.acceptedChildren,       \
+            f"Child is not accepted by {self.id}.          \
+            Accepted children are {self.acceptedChildren}. \
+            Child is class {child.classes}."
+
+        # Check if the child is already a child of this object
+        assert child.id not in self.children, \
+            f"Object {child.id} is already a child of {self.id}."
+
+        # Add the child to the children dictionary and set the parent
+        self.children[child.id] = child
+        child.parent = self
+
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml
@@ -330,29 +363,30 @@ class Object(AbstractObject):
         # Force children load
         new_object.children
 
-        # Set new project, parent and FRESH state
+        # Set new project and FRESH state
         new_object.project = project
-        new_object.parent = parent
         new_object.state = ProteusState.FRESH
 
         # Assign a new id that is not in use
         new_object.id = generate_new_id(project)
 
         # Create file path
-        project_objects_path = pathlib.Path(project.path).parent / "objects"
+        project_objects_path = pathlib.Path(project.path).parent / OBJECTS_REPOSITORY
         new_object.path = project_objects_path / f"{new_object.id}.xml"
 
-        # Add the new object to the parent children
+        # Add the new object to the parent children and set the parent
         match parent.__class__.__name__:
             case "Object":
-                parent.children[new_object.id] = new_object
+                parent.add_child(new_object)
             case "Project":
-                parent.documents[new_object.id] = new_object
+                parent.add_document(new_object)
 
         # If the object has children we clone them
         if len(new_object.children.keys()) > 0:
 
             # Get the children ids
+            # NOTE: We use a set to avoid problems with the dictionary
+            # changing size during iteration.
             children_ids = set(new_object.children.keys())
             for child_id in children_ids:
 

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<object id="3fKhMAkcEe2E" classes="section" acceptedChildren=":Proteus-any">
+<object id="3fKhMAkcEe2E" classes=":Proteus-document" acceptedChildren=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[TFG]]></stringProperty>
     <stringProperty name="name2" category="general"><![CDATA[TFG2]]></stringProperty>

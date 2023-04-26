@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="3fKhMAkcEe2C" classes="section" acceptedChildren=":Proteus-any">
+<object id="3fKhMAkcEe2C" classes=":Proteus-document" acceptedChildren=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Documento de Requisitos del sistema]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
