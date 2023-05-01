@@ -66,122 +66,30 @@ def sample_archetype_project() -> Project:
     project_arquetypes : list(Project) = ArchetypeManager.load_project_archetypes()
     return project_arquetypes[0]
 
-
-# --------------------------------------------------------------------------
-# Project tests
-# --------------------------------------------------------------------------
-
-@pytest.mark.parametrize('path',
-    [
-        SAMPLE_PROJECT_PATH
-    ]
-)
-
-def test_projects(path):
+@pytest.fixture
+def cloned_project(sample_project: Project) -> Project:
     """
-    It tests creation, update, and evolution (cloning with a new value) 
-    of string and markdown properties.
+    Fixture that clone a PROTEUS sample project. Then deletes the project.
     """
+    # Path to the cloned project
+    new_project_dir_name = "cloned_project"
+    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    cloned_project_path = clone_path / new_project_dir_name
 
-    # New path where we want to clone the archetype
-    new_cloned_project_path = pathlib.Path.cwd().parent / "new_cloned_project"
-
-    
-    # If dir already exists, then we remove it
-    if(new_cloned_project_path.resolve().exists()):
-        shutil.rmtree(new_cloned_project_path)
-
-    # Create a dir
-    os.mkdir(new_cloned_project_path)
+    # Remove cloned project if it exists
+    if os.path.exists(cloned_project_path):
+        shutil.rmtree(cloned_project_path)
 
     # Clone project
-    ArchetypeManager.clone_project(os.path.join(path, "proteus.xml"),new_cloned_project_path.resolve())
+    new_project = sample_project.clone_project(clone_path, new_project_dir_name)
 
-    # Load the project
-    test_project = Project.load(new_cloned_project_path)
+    yield new_project
 
-    # Iterate over properties
-    property : Property
-    name : str
-    for name, property in test_project.properties.items():
-        assert (test_project.get_property(name) == property)
-        assert (name == property.name)
-
-    # Iterate over documents
-    for id, document in test_project.documents.items():
-        assert(document.id == id)
-
-    # Compare xml
-    
-    # Parser to avoid conflicts with CDATA
-    parser = ET.XMLParser(strip_cdata=False)
-    proteusET = ET.parse(new_cloned_project_path / "proteus.xml", parser = parser)
-    
-    generated_xml = (ET.tostring(test_project.generate_xml(),
-                    xml_declaration=True,
-                    encoding='utf-8',
-                    pretty_print=True).decode())
-
-    xml = (ET.tostring(proteusET,
-                    xml_declaration=True,
-                    encoding='utf-8',
-                    pretty_print=True).decode())
-    
-    assert(generated_xml == xml)
-
-    # Compare Path
-    assert pathlib.Path(test_project.path).resolve() == (new_cloned_project_path / "proteus.xml")
-    
-    # Test ProteusState
-    assert (test_project.state == ProteusState.CLEAN)
-    test_project.state = ProteusState.DEAD
-    assert (test_project.state == ProteusState.DEAD)
-    test_project.state = ProteusState.DIRTY
-    assert (test_project.state == ProteusState.DIRTY)
-    test_project.state = ProteusState.FRESH
-    assert (test_project.state == ProteusState.FRESH)
-    test_project.state = ProteusState.CLEAN
-
-    # Test set_property
-    new_prop = test_project.get_property("name").clone("new name")
-    test_project.set_property(new_prop)
-    assert (test_project.get_property("name").value == "new name")
-
-    # Get the number of children before setting to DEAD
-    number_of_children = len(os.listdir(new_cloned_project_path / "objects"))
-    
-    # Set all children to DEAD 
-    for doc in test_project.documents.values():
-        number_of_children -= 1
-        assert(doc.parent == test_project)
-
-        # If the document has children we also substract 1 per each and ask if it has children.
-        # This is because we are setting to Dead all the documents, then their children are going
-        # to be removed as well
-        def children_from_docs(doc, number_of_children):
-            for child in doc.children.values():
-                number_of_children -= 1
-                assert(child.parent == doc)
-                if (child.children):
-                    children_from_docs(child, number_of_children)
-            return (number_of_children)
-        doc.state = ProteusState.DEAD
-        if(doc.children):
-            number_of_children = children_from_docs(doc, number_of_children)
-    
-    # We save the project and check that the property we set before is saved.
-    test_project.save_project()
-    test_project2 = Project.load(new_cloned_project_path)
-    assert (test_project2.get_property("name").value == "new name")
-
-    # Check that the number of children is the one that we calculate
-    assert(len(os.listdir(new_cloned_project_path / "objects")) == number_of_children)
-
-    # Check that the state before saving is Clean
-    assert(test_project.state == ProteusState.CLEAN)
-
-    # Check that the project hasn't any document
-    assert(len(test_project.documents) == 0)
+    # Remove cloned project
+    if os.path.exists(cloned_project_path):
+        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        shutil.rmtree(cloned_project_path)
+        
 
 # --------------------------------------------------------------------------
 # Project unit tests
@@ -364,8 +272,6 @@ def test_clone(sample_project_fixture: str, request):
         os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
         shutil.rmtree(cloned_project_path)
 
-# TODO: Test Project save_project method
-
 def test_set_property(sample_project: Project):
     """
     Test Abstract Object set_property method
@@ -381,7 +287,6 @@ def test_set_property(sample_project: Project):
         f"Property was not set. Expected value: {new_property} \
         Actual value: {sample_project.get_property(name)}"
     
-
 def test_get_ids_from_project(sample_project: Project):
     """
     Test Project get_ids_from_project method
@@ -395,3 +300,108 @@ def test_get_ids_from_project(sample_project: Project):
     # Check that ids are equal
     assert(len(ids) == expected_len), \
         f"Ids are not equal. Expected: {expected_len}, Actual: {ids}"
+    
+def test_save_project(cloned_project: Project):
+    """
+    Test Project save_project method checking that the project xml file
+    is updated after saving the project.
+    """
+    # Set a new name property value
+    (new_property, _, _) = fixtures.create_property(STRING_PROPERTY_TAG, "name", "general", "Test value")
+    cloned_project.set_property(new_property)
+
+    # NOTE: There are unit tests for set_property, generate_xml, clone_project
+    # method so we are not checking that the property was set correctly or that
+    # the xml was generated correctly.
+
+    # Save project    
+    cloned_project.save_project()
+
+    # Get xml string from generate xml method
+    generated_xml_root = cloned_project.generate_xml()
+    generated_xml = (ET.tostring(generated_xml_root,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+    
+
+    # Get xml string from xml file
+    root : ET.Element = fixtures.get_root(cloned_project.path)
+    xml_after_save = (ET.tostring(root,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+    
+    # Check that xml strings are equal and project was saved
+    assert(xml_after_save == generated_xml), \
+        f"XML strings are not equal."
+    
+def test_save_project_document_edit(cloned_project: Project):
+    """
+    Test Project save_project method checking that the document was edited
+    reading its xml file.
+    """
+    # Get document by id
+    document_id = "3fKhMAkcEe2C"
+    document = cloned_project.documents[document_id]
+
+    # Set a new name property value
+    (new_property, _, _) = fixtures.create_property(STRING_PROPERTY_TAG, "name", "general", "Test value")
+    document.set_property(new_property)
+
+    # NOTE: There are unit tests for set_property, generate_xml, clone_project
+    # method so we are not checking that the property was set correctly or that
+    # the xml was generated correctly.
+
+    # Save project    
+    cloned_project.save_project()
+
+    # Get xml string from generate xml method
+    generated_xml_root = document.generate_xml()
+    generated_xml = (ET.tostring(generated_xml_root,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+    
+
+    # Get xml string from xml file
+    root : ET.Element = fixtures.get_root(document.path)
+    xml_after_save = (ET.tostring(root,
+            xml_declaration=True,
+            encoding='utf-8',
+            pretty_print=True).decode())
+    
+    # Check that xml strings are equal and project was saved
+    assert(xml_after_save == generated_xml), \
+        f"XML strings are not equal."
+    
+def test_save_project_document_delete(cloned_project: Project):
+    """
+    Test Project save_project method checking that the object file
+    is deleted and document is removed from project children dictionary.
+    """
+    # Get document by id
+    document_id = "3fKhMAkcEe2C"
+    document = cloned_project.documents[document_id]
+
+    # Get number of documents before delete
+    num_documents_before_delete = len(cloned_project.documents)
+
+    # Delete document and its children
+    document.delete()
+
+    # Save project
+    cloned_project.save_project()
+    
+    # Get number of documents after delete
+    num_documents_after_delete = len(cloned_project.documents)
+
+    # Check that xml strings are equal and project was saved
+    assert(not os.path.exists(document.path)), \
+        f"Document {document.id} was not deleted."
+    
+    # Check that number of documents decreased by 1
+    assert(num_documents_after_delete == num_documents_before_delete - 1), \
+        f"Number of documents did not decrease by 1. \
+        Expected: {num_documents_before_delete - 1} \
+        Actual: {num_documents_after_delete}"
