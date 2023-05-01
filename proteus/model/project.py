@@ -274,94 +274,30 @@ class Project(AbstractObject):
     # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: It saves a project in the system.
-    # Date       : 27/09/2022
-    # Version    : 0.1
+    # Date       : 01/05/2023
+    # Version    : 0.2
     # Author     : Pablo Rivera Jiménez
+    #              José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
     def save_project(self) -> None:
         """
         It saves a project in the system.
         """
-        print("Saving project...")
+        # Save all the documents
+        documents = set(self.documents.values())
+        for document in documents:
+            document.save()
 
-        # Extract project directory from project path
-        project_directory : str = os.path.dirname(self.path)
-        
-        # Create path to objects repository
-        objects_repository : str = f"{project_directory}/{OBJECTS_REPOSITORY}"
-        
-        # If the Project is dead (Deleted/removed)
-        if(self.state == ProteusState.DEAD):
-            # If the project was already saved in OS and not in memory:
-            if(os.path.isfile(self.path)):
-                relative_path = pathlib.Path(self.path)
-                absolute_path = relative_path.resolve()
-                shutil.rmtree(absolute_path.parent)
-            for document in self.documents.values():
-                document.state = ProteusState.DEAD
-            return None
-        # If the Project is Dirty
-        elif(self.state == ProteusState.DIRTY):
+        # Persist the project only if it is DIRTY or FRESH
+        if(self.state == ProteusState.DIRTY or self.state == ProteusState.FRESH):
             root = self.generate_xml()
-            # In case we can set any indent
-            # ET.indent(root, "    ")
 
             # Get the elementTree, save it in the project path and set state to clean
             tree = ET.ElementTree(root)
             tree.write(self.path, pretty_print=True, xml_declaration=True, encoding="utf-8")
             self.state = ProteusState.CLEAN
-        
-        # For each document in the project
-        documents_to_be_removed : list = []
-        for document in self.documents.values():
-            document_path = f"{objects_repository}/{document.id}.xml"
 
-            # If the document is DEAD (Deleted)
-            if(document.state == ProteusState.DEAD):
-                # If the document exists (not in memory), we deleted from os
-                if(os.path.isfile(document_path)):
-                    os.remove(document_path)
-                
-                #We have to use a list and not pop from the dict here cause will be a RuntimeError
-                # (dictionary changed size during iteration)
-                documents_to_be_removed.append(document.id)
-            
-            # If the state of the document is DIRTY or FRESH, we save it
-            elif(document.state == ProteusState.DIRTY or document.state == ProteusState.FRESH):
-                root = document.generate_xml()
-                # In case we can set any indent
-                # ET.indent(root, "    ")
-                tree = ET.ElementTree(root)
-                tree.write(document_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                document.state = ProteusState.CLEAN
-            
-            if(document.children):
-                # If the document has children we save them and if the child has children
-                # we save them as well
-                def save_children(parent: Object):
-                    child: Object
-                    for child in document.children.values():
-
-                        child_path = f"{objects_repository}/{child.id}.xml"
-                        child_root = child.generate_xml()
-                        
-                        if((child.state == ProteusState.DIRTY or child.state == ProteusState.FRESH)
-                            and parent.state != ProteusState.DEAD):
-                            # In case we can set any indent
-                            # ET.indent(root, "    ")
-                            
-                            tree = ET.ElementTree(child_root)
-                            tree.write(child_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                            child.state = ProteusState.CLEAN
-                        if(child.state == ProteusState.DEAD or parent.state == ProteusState.DEAD):
-                            os.remove(child.path)
-                            child.state = ProteusState.DEAD
-                save_children(document)
-        
-        # PermissionError: [WinError 32] El proceso no tiene acceso al archivo porque está siendo utilizado por otro proceso:
-        for i in documents_to_be_removed:
-            self.documents.pop(i) 
         
     # ----------------------------------------------------------------------
     # Method     : clone_project

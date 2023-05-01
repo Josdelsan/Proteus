@@ -404,3 +404,66 @@ class Object(AbstractObject):
 
         return new_object
             
+
+    # ----------------------------------------------------------------------
+    # Method     : save
+    # Description: It persist an Object in the system. If the object was
+    #              already persisted, it will be updated. If the object was
+    #              marked as dead, it will be deleted.
+    # Date       : 01/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def save(self) -> None:
+        """
+        It saves an Object in the system.
+        """
+        # Save every child
+        children = set(self.children.values())
+        for child in children:
+            child.save()
+
+        # Persist the object if it is DIRTY or FRESH
+        if(self.state == ProteusState.DIRTY or self.state == ProteusState.FRESH):
+            root = self.generate_xml()
+
+            # Get the elementTree, save it in the project path and set state to clean
+            tree = ET.ElementTree(root)
+            tree.write(self.path, pretty_print=True, xml_declaration=True, encoding="utf-8")
+            self.state = ProteusState.CLEAN
+        
+        # Delete the object if it is DEAD
+        elif(self.state == ProteusState.DEAD):
+            # Delete itself from the parent children
+            match self.parent.__class__.__name__:
+                case "Object":
+                    self.parent.children.pop(self.id)
+                case "Project":
+                    self.parent.documents.pop(self.id)
+
+            # Check if the file exists
+            # NOTE: file might not exist if the object was created but not saved
+            if os.path.exists(self.path):
+                # Delete the file
+                os.remove(self.path)
+
+
+    # ----------------------------------------------------------------------
+    # Method     : delete
+    # Description: It marks an Object as dead. It will be deleted when the
+    #              project is saved.
+    # Date       : 01/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def delete(self) -> None:
+        """
+        It marks an Object as dead. It will be deleted when the project is saved.
+        """
+        self.state = ProteusState.DEAD
+
+        # Delete every child
+        for child in self.children.values():
+            child.delete()
