@@ -39,10 +39,11 @@ class ArchetypeService():
     Acts as an interface for the Archetypes repository.
     """
 
+    # dataclass instance attributes
     _project_archetypes  : List[Project]                           = None
     _document_archetypes : List[Object]                            = None
     _object_archetypes   : Dict[str, List[Object]]                 = None
-    archetype_index      : Dict[ProteusID, Union[Project, Object]] = field(default_factory=dict)
+    archetype_index      : Dict[ProteusID,Union[Project, Object]] = field(default_factory=dict)
 
     # ----------------------------------------------------------------------
     # Property   : project_archetypes
@@ -203,8 +204,70 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_archetype_by_id(self, archetype_id : ProteusID) -> Union[Project, Object]:
+    def _get_archetype_by_id(self, archetype_id : ProteusID) -> Union[Project, Object]:
         """
         Returns the archetype with the given id.
         """
+        # Check that the archetype id is valid
+        assert archetype_id in self.archetype_index, \
+            f"Archetype with id {archetype_id} was not found"
+
         return self.archetype_index[archetype_id]
+    
+    # ----------------------------------------------------------------------
+    # Method     : create_project
+    # Description: Creates a new project from an archetype given a path,
+    #              a name and an archetype id.
+    # Date       : 06/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_project(self,
+                       archetype_id : ProteusID,
+                       project_name : str,
+                       save_path : str
+                       ) -> None:
+        """
+        Creates a new project from an archetype given a path,
+        a name and an archetype id.
+        """
+        # Check that the project name is not empty
+        assert project_name != "" and project_name is not None, \
+            "Project must have a valid name"
+
+        # Get the project archetype
+        project_archetype = self._get_archetype_by_id(archetype_id)
+
+        # Check that the archetype is a project archetype
+        assert isinstance(project_archetype, Project), \
+            f"Archetype with id {archetype_id} is not a project archetype"
+
+        # Create the project from the archetype
+        project_archetype.clone_project(save_path, project_name)
+
+    # ----------------------------------------------------------------------
+    # Method     : create_object
+    # Description: Creates a new object/document from an archetype given the
+    # new parent, project and an archetype id.
+    # Date       : 06/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_object(self,
+                      archetype_id : ProteusID,
+                      parent : Object,
+                      project : Project
+                      ) -> None:
+        """
+        Creates a new object/document from an archetype given the new parent,
+        project and an archetype id.
+        """
+        # Get the object archetype
+        object_archetype = self._get_archetype_by_id(archetype_id)
+
+        # Check that the archetype is an object archetype
+        assert isinstance(object_archetype, Object), \
+            f"Archetype with id {archetype_id} is not an object archetype"
+
+        # Create the object from the archetype
+        object_archetype.clone_object(parent, project)

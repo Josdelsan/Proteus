@@ -182,7 +182,7 @@ def test_get_archetype_by_id(id: str, archetype_service: ArchetypeService):
     archetype_service.object_archetypes
 
     # Load the archetype by id
-    archetype : Union[Project, Object] = archetype_service.get_archetype_by_id(ARCHETYPE_ID)
+    archetype : Union[Project, Object] = archetype_service._get_archetype_by_id(ARCHETYPE_ID)
 
     # Check that the archetype is loaded
     assert isinstance(archetype, (Project, Object)), \
