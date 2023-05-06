@@ -84,7 +84,7 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_project_properties (self, element_id : ProteusID) -> Dict[str, Property]:
+    def get_properties (self, element_id : ProteusID) -> Dict[str, Property]:
         """
         Returns the project or object properties.
 
