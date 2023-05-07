@@ -83,7 +83,8 @@ class ProjectService():
         :param element_id: Id of the project or object.
         """
         # Populate index to check for new objects
-        self._populate_index()
+        if element_id not in self.project_index:
+            self._populate_index()
 
         # Check if the element is in the index
         assert element_id in self.project_index, \
