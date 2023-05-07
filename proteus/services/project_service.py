@@ -59,23 +59,76 @@ class ProjectService():
 
         :param project_path: Path to the project directory.
         """
-        # Helper function to populate the project index
-        def populate_index (object: Object) -> None:
-            self.project_index[object.id] = object
-
-            for child in object.children:
-                populate_index(child)
-
         # Load project
         self.project = Project.load(project_path)
 
+        # Initialize project index
+        self.project_index = {}
+
+        # Populate project index
+        self._populate_index()
+
+    # ----------------------------------------------------------------------
+    # Method     : _get_element
+    # Description: Helper method that returns the project or object with
+    #              the given id.
+    # Date       : 06/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _get_element_by_id (self, element_id: ProteusID) -> Union[Project, Object]:
+        """
+        Returns the project or object with the given id.
+
+        :param element_id: Id of the project or object.
+        """
+        # Populate index to check for new objects
+        self._populate_index()
+
+        # Check if the element is in the index
+        assert element_id in self.project_index, \
+            f"Element with id {element_id} not found."
+
+        # Return the element
+        return self.project_index[element_id]
+    
+    # ----------------------------------------------------------------------
+    # Method     : _populate_index
+    # Description: Helper method that populates the project index with
+    #              the all the objects in the project. If an object was
+    #              already in the index, it will be ignored.
+    # Date       : 07/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _populate_index (self) -> None:
+        """
+        Populates the project index with the all the objects in the project.
+        If an object was already in the index, it will be ignored.
+        """
+        def _populate_index_private (object: Object) -> None:
+            """
+            Private helper method that populates the project index with
+            the all the objects in the project recursively.
+
+            :param object: Object to add to the index.
+            """
+            # If the object is not in the index, add it
+            if object.id not in self.project_index:
+                self.project_index[object.id] = object
+
+            # Add children to the index
+            for child in object.children.values():
+                _populate_index_private(child)
+
         # Load project index, this forces load for
         # every object in the project
-        for document in self.project.documents:
-            populate_index(document)
+        for document in self.project.documents.values():
+            _populate_index_private(document)
 
-        # Include project in the index
-        self.project_index[self.project.id] = self.project
+        # Include project in the index if it is not there
+        if self.project.id not in self.project_index:
+            self.project_index[self.project.id] = self.project
 
     # ----------------------------------------------------------------------
     # Method     : get_properties
@@ -146,22 +199,3 @@ class ProjectService():
         object = self._get_element_by_id(object_id)
 
         object.delete()
-
-    # ----------------------------------------------------------------------
-    # Method     : _get_element
-    # Description: Helper method that returns the project or object with
-    #              the given id.
-    # Date       : 06/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def _get_element_by_id (self, element_id: ProteusID) -> Union[Project, Object]:
-        """
-        Returns the project or object with the given id.
-
-        :param element_id: Id of the project or object.
-        """
-        assert element_id in self.project_index, \
-            f"Element with id {element_id} not found."
-
-        return self.project_index[element_id]
