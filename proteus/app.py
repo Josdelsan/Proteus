@@ -11,6 +11,13 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
+import sys
+
+# --------------------------------------------------------------------------
+# Third party imports
+# --------------------------------------------------------------------------
+
+from PyQt6.QtWidgets import QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -24,6 +31,7 @@ from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.properties import EnumProperty, Property, StringProperty
+from proteus.views.qt import MainWindow
 
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
@@ -55,7 +63,19 @@ class ProteusApplication:
         proteus.logger.info(f"{self.config.icons_directory = }")
         proteus.logger.info(f"{self.config.archetypes_directory = }")
         self._old_main_tests()
+        self.window_setup()
         return 0
+    
+    def window_setup(self):
+        # Create the application instance
+        app = QApplication(sys.argv)
+
+        # Create the main window
+        window = MainWindow()
+        window.show()
+
+        # Execute the application
+        sys.exit(app.exec())
 
     def _old_main_tests(self):
         project : Project = Project.load(self.config.base_directory / "tests" / "sample_data" / "example_project")

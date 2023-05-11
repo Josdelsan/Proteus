@@ -12,6 +12,7 @@
 
 import logging
 from pathlib import Path
+import sys
 
 # --------------------------------------------------------------------------
 # Constant declarations for PROTEUS logger name
@@ -45,4 +46,7 @@ logger = logging.getLogger(PROTEUS_LOGGER_NAME)
 # Application absolute path
 # --------------------------------------------------------------------------
 
-PROTEUS_APP_PATH = Path().parent.absolute()
+# NOTE: this is a workaround for the PyInstaller application. It is needed
+#       for the application to work properly when it is packaged as one file.
+
+PROTEUS_APP_PATH = Path(getattr(sys, '_MEIPASS', Path().parent.absolute()))
