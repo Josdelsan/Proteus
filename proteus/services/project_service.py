@@ -81,6 +81,7 @@ class ProjectService():
         Returns the project or object with the given id.
 
         :param element_id: Id of the project or object.
+        :return: Project or object with the given id.
         """
         # Populate index to check for new objects
         if element_id not in self.project_index:
@@ -143,6 +144,7 @@ class ProjectService():
         Returns the project or object properties.
 
         :param element_id: Id of the project or object.
+        :return: Dictionary of properties.
         """
         element = self._get_element_by_id(element_id)
 
@@ -208,16 +210,28 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_structure (self, object_id: ProteusID) -> Dict[ProteusID, Dict]:
+    def get_object_structure (self, object_id: ProteusID) -> Dict[ProteusID, List]:
         """
         Returns the element structure as a tree. Each element is represented
-        by a dictionary with the following structure: {id: {id: id, ...}, ...}
+        by a dictionary with the following structure: {id: [{id: [{...}, {...}, ...]}, {...}, ...]}.
+        Each object is represented by a list of dictionaries, where each dictionary
+        represents a child object. The list is empty if the object has no children.
 
         :param element_id: Id of the element.
+        :return: Dictionary with the element structure.
         """
         # TODO: Return the object structure using a more verbose format like
         #       a name property or similar.
+        obj_struc : Dict[ProteusID, List] = {}
+        obj_struc_list : List = self._get_object_structure(object_id)
+        obj_struc[object_id] = obj_struc_list
 
+        return obj_struc
+        
+    def _get_object_structure (self, object_id: ProteusID) -> List[Dict[ProteusID, List]]:
+        """
+        Private method for get_object_structure.
+        """
         # Get object using helper method
         object : Object = self._get_element_by_id(object_id)
 
@@ -225,15 +239,23 @@ class ProjectService():
         assert isinstance(object, Object), \
             f"Element with id {object_id} is not an object."
         
-        # Initialize an empty dictionary to store the current object structure
-        obj_struc : Dict[ProteusID, Dict] = {}
+        # Initialize an empty list to store the objects
+        children_struc : List = list()
 
         # Add children to the structure
         for child in object.children.values():
-            child_struc : Dict[ProteusID, Dict] = self.get_object_structure(child.id)
+
+            # Initialize an empty dictionary to store the current object structure
+            obj_struc : Dict[ProteusID, List] = {}
+
+            # Create child structure
+            child_struc : Dict[ProteusID, List] = self._get_object_structure(child.id)
             obj_struc[child.id] = child_struc
 
-        return obj_struc
+            # Add child to the list
+            children_struc.append(obj_struc)
+
+        return children_struc
     
     # ----------------------------------------------------------------------
     # Method     : get_project_structure
@@ -246,6 +268,8 @@ class ProjectService():
         """
         Returns the project structure one depth level. Each element is
         represented by a dictionary with the following structure: {id: id, ...}
+
+        :return: Dictionary with the project documents.
         """
         # TODO: Return the project structure using a more verbose format like
         #       a name property or similar.
