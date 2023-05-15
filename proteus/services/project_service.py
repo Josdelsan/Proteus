@@ -200,3 +200,61 @@ class ProjectService():
         object = self._get_element_by_id(object_id)
 
         object.delete()
+
+    # ----------------------------------------------------------------------
+    # Method     : get_object_structure
+    # Description: Returns the object structure as a tree.
+    # Date       : 08/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_object_structure (self, object_id: ProteusID) -> Dict[ProteusID, Dict]:
+        """
+        Returns the element structure as a tree. Each element is represented
+        by a dictionary with the following structure: {id: {id: id, ...}, ...}
+
+        :param element_id: Id of the element.
+        """
+        # TODO: Return the object structure using a more verbose format like
+        #       a name property or similar.
+
+        # Get object using helper method
+        object : Object = self._get_element_by_id(object_id)
+
+        # Check that the element is an object
+        assert isinstance(object, Object), \
+            f"Element with id {object_id} is not an object."
+        
+        # Initialize an empty dictionary to store the current object structure
+        obj_struc : Dict[ProteusID, Dict] = {}
+
+        # Add children to the structure
+        for child in object.children.values():
+            child_struc : Dict[ProteusID, Dict] = self.get_object_structure(child.id)
+            obj_struc[child.id] = child_struc
+
+        return obj_struc
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_project_structure
+    # Description: Returns the project structure one depth level.
+    # Date       : 08/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_project_structure (self) -> List[ProteusID]:
+        """
+        Returns the project structure one depth level. Each element is
+        represented by a dictionary with the following structure: {id: id, ...}
+        """
+        # TODO: Return the project structure using a more verbose format like
+        #       a name property or similar.
+
+        # Initialize an empty dictionary to store the current project structure
+        proj_struc : Dict = {}
+
+        # Add documents to the structure
+        for document in self.project.documents.values():
+            proj_struc[document.id] = document.id
+
+        return proj_struc
