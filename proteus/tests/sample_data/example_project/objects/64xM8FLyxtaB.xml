@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="64xM8FLyxtaB" classes="requisito-producto caso-de-uso" acceptedChildren="paso-caso-de-uso">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Actualizar pedido]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
+    <dateProperty name="created" category="general">2015-05-16</dateProperty>
+    <stringProperty name="createdBy" category="general"><![CDATA[Amador Durán]]></stringProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[El sistema...]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
+  </properties>
+  <children>
+  </children>
+</object>
