@@ -43,15 +43,7 @@ class ProjectService():
     project       : Project                 = None
     project_index : Dict[ProteusID, Object] = field(default_factory=dict)
 
-    # ----------------------------------------------------------------------
-    # Method     : __init__
-    # Description: Initializes the project service with the given project
-    #              path.
-    # Date       : 06/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __init__ (self, project_path: str) -> None:
+    def load_project (self, project_path: str):
         """
         Initializes the project service with the given project path. Force
         the load of every object in the project to store it in a dictionary
@@ -67,6 +59,7 @@ class ProjectService():
 
         # Populate project index
         self._populate_index()
+
 
     # ----------------------------------------------------------------------
     # Method     : _get_element

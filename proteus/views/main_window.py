@@ -43,11 +43,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Proteus application")
 
         # Create the menu bar
-        menubar = MenuBar(self, self.service_manager)
+        menubar = MenuBar(self)
         self.setMenuBar(menubar)
 
         # Create structure menu
-        structure_menu = StructureMenu(self, self.service_manager)
+        structure_menu = StructureMenu(self)
 
         # Create the main container layout
         self.create_main_layout(structure_menu)
@@ -92,5 +92,5 @@ class MainWindow(QMainWindow):
         """
         self.centralWidget().layout().itemAt(0).widget().deleteLater()
 
-        structure_menu = StructureMenu(self, self.service_manager)
+        structure_menu = StructureMenu(self)
         self.create_main_layout(structure_menu)

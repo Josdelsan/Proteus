@@ -31,67 +31,27 @@ from proteus.services.project_service import ProjectService
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@dataclass(init=False)
+@dataclass
 class ServiceManager:
     """
     Service manager for the PROTEUS application. It is used to manage the
     services instances providing a simple interface to access them.
     """
 
-    # Instance attributes
+    # Class attributes
     archetype_service: ArchetypeService = None
-    _project_service: ProjectService = None
+    project_service: ProjectService = None
 
-    # ----------------------------------------------------------------------
-    # Method     : __init__
-    # Description: Class constructor
-    # Date       : 15/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __init__(self):
-        """
-        Class constructor
-        """
-        # Create an ArchetypeService instance
-        self.archetype_service = ArchetypeService()
-
-        # Create a ProjectService instance as None
-        # It will be created when a project is opened
-        self._project_service = None
-        
-    # ----------------------------------------------------------------------
-    # Property   : project_service
-    # Description: Getter for the project service instance
-    # Date       : 15/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @property
-    def project_service(self) -> ProjectService:
-        """
-        Getter for the project service instance. Check if the instance
-        exists before returning it.
-        """
-        assert isinstance(self._project_service, ProjectService), \
-            "You must load a project before using project service."
-        
-        return self._project_service
+    @classmethod
+    def get_archetype_service_instance(cls) -> ArchetypeService:
+        if not cls.archetype_service:
+            cls.archetype_service = ArchetypeService()
+        return cls.archetype_service
     
-    # ----------------------------------------------------------------------
-    # Method     : load_project
-    # Description: Load a project and create the project service instance
-    # Date       : 15/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def load_project(self, project_path: str) -> None:
-        """
-        Load a project and create the project service instance
-        """
-        assert project_path is not None, "Project path cannot be None"
-
-        # Create a ProjectService instance
-        self._project_service = ProjectService(project_path)
+    @classmethod
+    def get_project_service_instance(cls) -> ProjectService:
+        if not cls.project_service:
+            cls.project_service = ProjectService()
+        return cls.project_service
 
 
