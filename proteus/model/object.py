@@ -161,7 +161,7 @@ class Object(AbstractObject):
         super().load_properties(root)
 
         # Children dictionary (will be loaded on demand)
-        self._children : dict[ProteusID,Object] = None
+        self._children : List[Object] = None
 
 
     # ----------------------------------------------------------------------
@@ -173,7 +173,7 @@ class Object(AbstractObject):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @property
-    def children(self) -> dict[ProteusID,Object]:
+    def children(self) -> List[Object]:
         """
         Property children getter. Loads children from XML file on demand.
         :return: Dictionary of children objects
@@ -181,7 +181,7 @@ class Object(AbstractObject):
         # Check if children dictionary is not initialized
         if self._children is None:
             # Initialize children dictionary
-            self._children : dict[ProteusID,Object] = dict[ProteusID,Object]()
+            self._children : List[Object] = []
 
             # Load children from XML file
             self.load_children()
@@ -240,22 +240,43 @@ class Object(AbstractObject):
             
             object.parent = self
 
-            self.children[child_id] = object
+            self.children.append(object)
 
     # ----------------------------------------------------------------------
-    # Method     : add_child
+    # Method     : get_descendants
+    # Description: It returns a list with all the children of an object.
+    # Date       : 23/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_descendants(self) -> List:
+        """
+        It returns a list with all the children of an object.
+        :return: list with all the children of an object.
+        """
+        # Return the list with all the descendants of an object
+        return self.children
+
+
+    # ----------------------------------------------------------------------
+    # Method     : add_descendant
     # Description: It adds a child to a PROTEUS object.
     # Date       : 26/04/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    def add_child(self, child: Object) -> None:
+    def add_descendant(self, child: Object, position: int = None) -> None:
         """
         It adds a child to a PROTEUS object if class is accepted.
 
         :param child: Child Object to be added.
+        :param position: Position in the children list where the child will be added.
         """
+        # If position is not specified, add the object at the end
+        if position is None:
+            position = len(self.children)
+
         # Check if the child is a valid object
         assert isinstance(child, Object), \
             f"Child {child} is not a valid PROTEUS object."
@@ -268,11 +289,11 @@ class Object(AbstractObject):
             Child is class {child.classes}."
 
         # Check if the child is already a child of this object
-        assert child.id not in self.children, \
+        assert child.id not in [o.id for o in self.children], \
             f"Object {child.id} is already a child of {self.id}."
 
         # Add the child to the children dictionary and set the parent
-        self.children[child.id] = child
+        self.children.insert(position, child)
         child.parent = self
 
 
@@ -301,7 +322,7 @@ class Object(AbstractObject):
         children_element = ET.SubElement(object_element, CHILDREN_TAG)
 
         # Create <child> subelements
-        for child in self.children.values():
+        for child in self.children:
             child_element = ET.SubElement(children_element, CHILD_TAG)
             child_element.set('id', child.id)
 
@@ -316,7 +337,7 @@ class Object(AbstractObject):
     #              Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
 
-    def clone_object(self, parent: Union[Object,Project], project: Project):
+    def clone_object(self, parent: Union[Object,Project], project: Project, position: int = None) -> None:
         """
         Function that clones an object in a new parent. This function doesn't
         save the object in the system but add it to the parent children so
@@ -324,6 +345,7 @@ class Object(AbstractObject):
 
         :param parent: Parent of the new object.
         :param project: Project where the object will be saved.
+        :param position: Position in the children list where the child will be added.
         :type parent: Union[Object,Project].
         """
 
@@ -336,7 +358,7 @@ class Object(AbstractObject):
             new_id = ProteusID(shortuuid.random(length=12))
 
             # Check if the new id is already in use
-            if new_id in project.get_ids_from_project():
+            if new_id in project.get_ids():
                 generate_new_id(project)
             
             return new_id
@@ -349,12 +371,10 @@ class Object(AbstractObject):
             f"Parent project must be instance of Project."
         
         # Check if parent is not None
-        assert parent.__class__.__name__ == "Project" \
-            or isinstance(parent, Object), \
+        assert parent.__class__.__name__ == "Project"       \
+            or isinstance(parent, Object),                  \
             f"Parent must be instance of Object or Project"
-        
-        # TODO: Check accepted children of the parent to
-        # see if the object can be added
+
 
         # Deepcopy so we don't change the original object.
         # Differences between copy and deepcopy -> https://www.programiz.com/python-programming/shallow-deep-copy
@@ -375,33 +395,28 @@ class Object(AbstractObject):
         new_object.path = project_objects_path / f"{new_object.id}.xml"
 
         # Add the new object to the parent children and set the parent
-        match parent.__class__.__name__:
-            case "Object":
-                parent.add_child(new_object)
-            case "Project":
-                parent.add_document(new_object)
+        parent.add_descendant(new_object, position)
 
         # If the object has children we clone them
-        if len(new_object.children.keys()) > 0:
+        if len(new_object.children) > 0:
 
-            # Get the children ids
-            # NOTE: We use a set to avoid problems with the dictionary
-            # changing size during iteration.
-            children_ids = set(new_object.children.keys())
-            for child_id in children_ids:
+            # Get the children list
+            children = list(new_object.children)
 
+            # Clone the children
+            for child in children:
                 # Clone the child
-                child = new_object.children[child_id]
-                new_child = child.clone_object(new_object, project)
+                child.clone_object(new_object, project, len(new_object.children))
 
-                # Remove old child if it changed
-                if new_child.id != child_id:
-                    new_object.children.pop(child_id)
+                # Remove the old child from the children list
+                new_object.children.remove(child)
+
 
         # Check the new object is valid
         assert isinstance(new_object, Object), \
             f"Failed to clone {self.id} with parent {parent.id} in project {project.id}."
-
+        
+        # Return the new object
         return new_object
             
 
@@ -420,7 +435,7 @@ class Object(AbstractObject):
         It saves an Object in the system.
         """
         # Save every child
-        children = set(self.children.values())
+        children = list(self.children)
         for child in children:
             child.save()
 
@@ -436,11 +451,7 @@ class Object(AbstractObject):
         # Delete the object if it is DEAD
         elif(self.state == ProteusState.DEAD):
             # Delete itself from the parent children
-            match self.parent.__class__.__name__:
-                case "Object":
-                    self.parent.children.pop(self.id)
-                case "Project":
-                    self.parent.documents.pop(self.id)
+            self.parent.get_descendants().remove(self)
 
             # Check if the file exists
             # NOTE: file might not exist if the object was created but not saved
@@ -465,5 +476,5 @@ class Object(AbstractObject):
         self.state = ProteusState.DEAD
 
         # Delete every child
-        for child in self.children.values():
+        for child in self.children:
             child.delete()

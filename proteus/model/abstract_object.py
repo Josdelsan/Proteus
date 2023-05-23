@@ -12,17 +12,27 @@
 #   square brackets throw an exception if the key does not exits.
 # ==========================================================================
 
-# imports
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
 
-# standard library imports
-import lxml.etree as ET
 from enum import Enum
-from typing import Type
-from abc import ABC
+from typing import Type, List
+from abc import ABC, abstractmethod
 
-# local imports (starting from root)
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
+
+import lxml.etree as ET
+
+# --------------------------------------------------------------------------
+# Project specific imports (starting from root)
+# --------------------------------------------------------------------------
+
 from proteus.model import *
 from proteus.model.properties import Property, PropertyFactory
+
 
 # --------------------------------------------------------------------------
 # Class: ProteusStates
@@ -284,3 +294,64 @@ class AbstractObject(ABC):
 
         # return parent elmenent, i.e. <project> or <object>
         return parent_element
+
+
+    # ----------------------------------------------------------------------
+    # Method     : get_ids
+    # Description: It returns a list with all the ids of the descendant.
+    # Date       : 23/05/2023
+    # Version    : 0.2
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def get_ids(self) -> list[ProteusID]:
+        """
+        Method that returns a list with all the ids of the descendant.
+        
+        :return: A list with all the ids of the project.
+        """
+
+        # Initialize an empty list of ids
+        ids : list[ProteusID] = []
+
+        # For each document in the project, we get the ids of the document
+        # and their children recursively
+        for descendant in self.get_descendants():
+            ids.extend(descendant.get_ids())
+
+        ids.append(self.id)
+            
+        return ids
+
+    # ----------------------------------------------------------------------
+    # Method     : get_descendants
+    # Description: It returns a list with all the descendants of an object.
+    # Date       : 23/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @abstractmethod
+    def get_descendants(self) -> List:
+        """
+        It returns a list with all the descendants of an object.
+
+        :return: a list with all the descendants of an object.
+        """
+        pass
+
+    # ----------------------------------------------------------------------
+    # Method     : add_descendant
+    # Description: It adds a descendant to a PROTEUS abstract object.
+    # Date       : 26/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @abstractmethod
+    def add_descendant(self, child, position: int = None) -> None:
+        """
+        It adds a descendant to a PROTEUS abstract object.
+
+        :param child: the descendant to be added.
+        :param position: the position where the descendant is added.
+        """
+        pass

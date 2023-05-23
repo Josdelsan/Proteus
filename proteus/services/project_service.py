@@ -113,12 +113,12 @@ class ProjectService():
                 self.project_index[object.id] = object
 
             # Add children to the index
-            for child in object.children.values():
+            for child in object.get_descendants():
                 _populate_index_private(child)
 
         # Load project index, this forces load for
         # every object in the project
-        for document in self.project.documents.values():
+        for document in self.project.get_descendants():
             _populate_index_private(document)
 
         # Include project in the index if it is not there
@@ -236,7 +236,7 @@ class ProjectService():
         children_struc : List = list()
 
         # Add children to the structure
-        for child in object.children.values():
+        for child in object.get_descendants():
 
             # Initialize an empty dictionary to store the current object structure
             obj_struc : Dict[ProteusID, List] = {}
@@ -271,7 +271,7 @@ class ProjectService():
         proj_struc : Dict = {}
 
         # Add documents to the structure
-        for document in self.project.documents.values():
+        for document in self.project.get_descendants():
             proj_struc[document.id] = document.id
 
         return proj_struc

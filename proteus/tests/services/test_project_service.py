@@ -40,13 +40,15 @@ def project_service():
     """
     It returns a new instance of the ProjectService class.
     """
-    return ProjectService(SAMPLE_PROJECT_PATH)
+    project_service : ProjectService = ProjectService()
+    project_service.load_project(SAMPLE_PROJECT_PATH)
+    return project_service
 
 # --------------------------------------------------------------------------
 # Tests
 # --------------------------------------------------------------------------
 
-def test_project_service_init(project_service : ProjectService):
+def test_load_project(project_service : ProjectService):
     """
     It tests the initialization of the project service.
     """
@@ -55,8 +57,7 @@ def test_project_service_init(project_service : ProjectService):
         "Project should be instance of Project"
     
     # Get all ids from the project
-    project_ids : List[ProteusID] = project_service.project.get_ids_from_project()
-    project_ids.append(project_service.project.id)
+    project_ids : List[ProteusID] = project_service.project.get_ids()
 
     # Get ids present in the index
     index_ids : List[ProteusID] = project_service.project_index.keys()
@@ -75,7 +76,7 @@ def test_get_project_structure(project_service : ProjectService):
     project_structure : List[ProteusID] = project_service.get_project_structure()
 
     # Get project documents ids
-    project_document_ids : List[ProteusID] = project_service.project.documents.keys()
+    project_document_ids : List[ProteusID] = [d.id for d in project_service.project.documents]
 
     # Check that the project structure is correct
     assert set(project_document_ids) == set(project_structure),                 \
@@ -102,7 +103,7 @@ def test_get_object_structure(project_service : ProjectService):
 
     # Get object children ids
     object : Object = project_service._get_element_by_id(object_id)
-    object_children_ids : List[ProteusID] = set(object.children.keys())
+    object_children_ids : List[ProteusID] = set([o.id for o in object.children])
 
     # Get object structure children ids
     children_dicts : List[Dict] = object_structure[object_id]

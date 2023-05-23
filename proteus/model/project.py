@@ -26,6 +26,7 @@ import os
 import pathlib
 import shutil
 import logging
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -139,7 +140,7 @@ class Project(AbstractObject):
         super().load_properties(root)
 
         # Documents dictionary
-        self._documents : dict[ProteusID,Object] = None
+        self._documents : List[Object] = None
 
     # ----------------------------------------------------------------------
     # Property   : documents
@@ -150,7 +151,7 @@ class Project(AbstractObject):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @property
-    def documents(self) -> dict[ProteusID,Object]:
+    def documents(self) -> List[Object]:
         """
         Property documents getter. Loads documents from XML file on demand.
         :return: documents dictionary.
@@ -158,13 +159,14 @@ class Project(AbstractObject):
         # Check if documents dictionary is not initialized
         if self._documents is None:
             # Initialize documents dictionary
-            self._documents : dict[ProteusID,Object] = dict[ProteusID,Object]()
+            self._documents : List[Object] = []
 
             # Load documents from XML file
             self.load_documents()
 
         # Return documents dictionary
         return self._documents
+    
 
     # ----------------------------------------------------------------------
     # Method     : load_documents
@@ -207,22 +209,43 @@ class Project(AbstractObject):
             # Add the document to the documents dictionary and set the parent
             object = Object.load(document_id, self)
             object.parent = self
-            self.documents[document_id] = object
+            self.documents.append(object)
 
     # ----------------------------------------------------------------------
-    # Method     : add_document
-    # Description: Adds a document to the project.
-    # Date       : 26/04/2023
+    # Method     : get_descendants
+    # Description: It returns a list with all the documents of a project.
+    # Date       : 23/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    def get_descendants(self) -> List:
+        """
+        It returns a list with all the documents of a project.
+        :return: list with all the documents of a project.
+        """
+        # Return the list with all the descendants of an object
+        return self.documents
 
-    def add_document(self, document: Object) -> None:
+    # ----------------------------------------------------------------------
+    # Method     : add_descendants
+    # Description: Adds a document to the project given a document and its
+    #              position.
+    # Date       : 26/04/2023
+    # Version    : 0.2
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def add_descendant(self, document: Object, position: int = None) -> None:
         """
         Method that adds a document to the project.
         
         :param document: Document to be added to the project.
+        :param position: Position of the document in the project.
         """
+
+        # If position is not specified, add the document at the end
+        if position is None:
+            position = len(self.documents)
 
         # Check if the document is a valid object
         assert isinstance(document, Object), \
@@ -233,11 +256,11 @@ class Project(AbstractObject):
             f"The object is not a Proteus document. Object is class: {document.classes}"
         
         # Check if the document is already in the project
-        assert document.id not in self.documents, \
+        assert document.id not in [o.id for o in self.documents], \
             f"Document {document.id} is already in the project {self.id}."
 
         # Add the document to the project
-        self.documents[document.id] = document
+        self.documents.insert(position, document)
         document.parent = self
 
     # ----------------------------------------------------------------------
@@ -264,7 +287,7 @@ class Project(AbstractObject):
         documents_element = ET.SubElement(project_element, DOCUMENTS_TAG)
 
         # Create <document> subelements
-        for document in self.documents.values():
+        for document in self.documents:
             if(document.state != ProteusState.DEAD):
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
                 document_element.set('id', document.id)
@@ -285,7 +308,7 @@ class Project(AbstractObject):
         It saves a project in the system.
         """
         # Save all the documents
-        documents = set(self.documents.values())
+        documents = list(self.documents)
         for document in documents:
             document.save()
 
@@ -342,48 +365,5 @@ class Project(AbstractObject):
         # Load the new project and return it
         return Project.load(target_dir)
     
-    # ----------------------------------------------------------------------
-    # Method     : get_ids_from_project
-    # Description: It returns a list with all the ids of the project.
-    # Date       : 24/04/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-
-    def get_ids_from_project(self) -> list[ProteusID]:
-        """
-        Method that returns a list with all the ids of the project.
-        
-        :return: A list with all the ids of the project.
-        """
-
-        # TODO: This method might be moved to the Object class
-        def get_ids_from_object(object: Object) -> list[ProteusID]:
-            """
-            Helper function that returns a list with all the ids of the object.
-            
-            :param object: Object from which we want to get the ids.
-            :return: A list with all the ids of the object.
-            """
-
-            # Initialize an empty list of ids
-            ids : list[ProteusID] = []
-
-            # If the object has children, we get the ids of the children
-            for child in object.children.values():
-                ids.extend(get_ids_from_object(child))
-
-            # Add the id of the current object to the list
-            ids.append(object.id)
-            return ids
-
-        # Initialize an empty list of ids
-        ids : list[ProteusID] = []
-
-        # For each document in the project, we get the ids of the document
-        # and their children recursively
-        for document in self.documents.values():
-            ids.extend(get_ids_from_object(document))
-            
-        return ids
+    
     

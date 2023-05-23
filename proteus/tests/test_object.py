@@ -152,10 +152,10 @@ def test_children_lazy_load(sample_object_fixture: str, request):
 
     # Check that children are loaded when accessing children
     # property for the first time
-    assert(type(sample_object.children) == dict),                     \
+    assert(type(sample_object.children) == list),                     \
         f"Children should have been loaded when accessing 'children'  \
         property but they are of type {type(sample_object.children)}"
-    assert(type(sample_object._children) == dict),                    \
+    assert(type(sample_object._children) == list),                    \
         f"Children private var should have been loaded when accessing \
         'Children' property but they are of type {type(sample_project._documents)}"
 
@@ -189,10 +189,11 @@ def test_load_children(sample_object_fixture: str, request):
     sample_object.load_children()
 
     # Check that Object contains all the children of the xml    
-    assert(all(child in sample_object.children.keys() for child in children_list)), \
+    sample_object_children_ids = [o.id for o in sample_object.children]
+    assert(all(child in sample_object_children_ids for child in children_list)), \
         f"Object does not contain all the children of the xml file.                 \
         Children in xml file: {children_list}                                       \
-        Children in object: {sample_object.children.keys()}"
+        Children in object: {sample_object_children_ids}"
     
 def test_generate_xml(sample_object: Object):
     """
@@ -233,7 +234,7 @@ def test_clone_object(sample_object_to_clone_fixture: str, sample_parent_fixture
     """
     Test Object clone_object method
     """
-    sample_object_to_clone = request.getfixturevalue(sample_object_to_clone_fixture)
+    sample_object_to_clone : Object = request.getfixturevalue(sample_object_to_clone_fixture)
     sample_parent = request.getfixturevalue(sample_parent_fixture)
 
     # Clone object
@@ -248,14 +249,10 @@ def test_clone_object(sample_object_to_clone_fixture: str, sample_parent_fixture
         f"Object state is not {ProteusState.FRESH} but {new_object.state}"
     
     # Check the object is in the parent children
-    # TODO: Should this be in a separate test?
-    match sample_parent.__class__.__name__:
-            case "Object":
-                assert new_object.id in sample_parent.children.keys(), \
-                    f"Object {new_object.id} was not found in {sample_parent.children.keys()}"
-            case "Project":
-                assert new_object.id in sample_parent.documents.keys(), \
-                    f"Object {new_object.id} was not found in {sample_parent.documents.keys()}"
+    parent_descendants_ids = [o.id for o in sample_parent.get_descendants()]
+    assert new_object.id in parent_descendants_ids, \
+        f"Object {new_object.id} was not found in {parent_descendants_ids}"
+
 
     
     # Check the children are in the new object
@@ -291,7 +288,7 @@ def test_delete(sample_document: Object):
         f"Object was not marked as DEAD. State: {sample_document.state}"
     
     # Check object children were marked as DEAD
-    for child in sample_document.children.values():
+    for child in sample_document.children:
         assert(child.state == ProteusState.DEAD), \
             f"Object child was not marked as DEAD. State: {child.state}"
 

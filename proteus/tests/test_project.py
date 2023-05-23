@@ -108,14 +108,14 @@ def test_init(path):
     It tests the init method of the Project class.
     """
     # Create a project using the constructor
-    test_project = Project(SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME)
+    test_project = Project(path)
 
     # Check type of the project
     assert(isinstance(test_project, Project)), \
         f"Project is not an instance of Project class. It is {type(test_project)}"
 
     # Get root element of the xml file
-    root : ET.Element = fixtures.get_root(SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME)
+    root : ET.Element = fixtures.get_root(path)
 
     # Compare ET element id with the project id
     assert(root.attrib["id"] == test_project.id), \
@@ -160,10 +160,10 @@ def test_documents_lazy_load(sample_project_fixture: str, request):
 
     # Check that documents are loaded when accessing documents
     # property for the first time
-    assert(type(sample_project.documents) == dict),                     \
+    assert(type(sample_project.documents) == list),                     \
         f"Documents should have been loaded when accessing 'documents'  \
         property but they are of type {type(sample_project.documents)}"
-    assert(type(sample_project._documents) == dict),                    \
+    assert(type(sample_project._documents) == list),                    \
         f"Documents private var should have been loaded when accessing  \
         'documents' property but they are of type {type(sample_project._documents)}"
 
@@ -196,8 +196,9 @@ def test_load_documents(sample_project_fixture: str, request):
     # fails.
     sample_project.load_documents()
 
-    # Check that Object contains all the documents of the xml    
-    assert(all(document in sample_project.documents.keys() for document in documents_list)), \
+    # Check that Object contains all the documents of the xml
+    documents_ids = [document.id for document in sample_project.documents]    
+    assert(all(document in documents_ids for document in documents_list)), \
         f"Project does not contain all the documents of the xml file.                        \
         Documents in xml file: {documents_list}                                              \
         Documents in Project: {sample_project.documents.keys()}"
@@ -287,15 +288,15 @@ def test_set_property(sample_project: Project):
         f"Property was not set. Expected value: {new_property} \
         Actual value: {sample_project.get_property(name)}"
     
-def test_get_ids_from_project(sample_project: Project):
+def test_get_ids(sample_project: Project):
     """
     Test Project get_ids_from_project method
     """
-    # Expected ids in sample_project
-    expected_len = 6
+    # Expected ids in sample_project, including the project id
+    expected_len = 7
 
     # Get ids from project
-    ids = sample_project.get_ids_from_project()
+    ids = sample_project.get_ids()
 
     # Check that ids are equal
     assert(len(ids) == expected_len), \
@@ -343,7 +344,7 @@ def test_save_project_document_edit(cloned_project: Project):
     """
     # Get document by id
     document_id = "3fKhMAkcEe2C"
-    document = cloned_project.documents[document_id]
+    document = [d for d in cloned_project.get_descendants() if d.id == document_id][0]
 
     # Set a new name property value
     (new_property, _, _) = fixtures.create_property(STRING_PROPERTY_TAG, "name", "general", "Test value")
@@ -382,7 +383,7 @@ def test_save_project_document_delete(cloned_project: Project):
     """
     # Get document by id
     document_id = "3fKhMAkcEe2C"
-    document = cloned_project.documents[document_id]
+    document = [d for d in cloned_project.get_descendants() if d.id == document_id][0]
 
     # Get number of documents before delete
     num_documents_before_delete = len(cloned_project.documents)
