@@ -14,15 +14,17 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QMainWindow, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QMainWindow
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 from proteus.services.service_manager import ServiceManager
-from proteus.views.components.menu_bar import MenuBar
-from proteus.views.components.structure_menu import StructureMenu
+from proteus.views.components.main_menu import MainMenu
+from proteus.views.components.document_list import DocumentList
+from proteus.views.utils.decorators import component
+from proteus.views.utils.event_manager import Event
 
 
 # --------------------------------------------------------------------------
@@ -32,65 +34,27 @@ from proteus.views.components.structure_menu import StructureMenu
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
+@component(QMainWindow, update_events=[Event.OPEN_PROJECT])
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
 
+    def create_component(self):
         # Create an ArchetypeService instance
         self.service_manager = ServiceManager()
 
         # Set the window title
         self.setWindowTitle("Proteus application")
 
-        # Create the menu bar
-        menubar = MenuBar(self)
-        self.setMenuBar(menubar)
+        # Create the main top menu
+        mainmenu = MainMenu(self)
+        self.setMenuBar(mainmenu)
 
-        # Create structure menu
-        structure_menu = StructureMenu(self)
+        # Create document list menu
+        document_list = DocumentList(self)
+        self.setCentralWidget(document_list)
 
-        # Create the main container layout
-        self.create_main_layout(structure_menu)
+    def update_component(self):
+        # TODO: Implement update on open project
+        pass
 
-        # Get project archetypes
-        """ archetypes = self.archetype_service.get_project_archetypes()
-        for project_arch in archetypes:
-            label =QLabel(f"{project_arch.id} \n \t {project_arch.documents.keys()} \n")
-            layout.addWidget(label) """
 
-    def create_main_layout(self, structure_menu: QWidget):
-        main_widget = QWidget()
-        main_layout = QVBoxLayout()
-        main_widget.setLayout(main_layout)
 
-        # Splitter
-        splitter = QSplitter()
-        splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
-
-        # Structure container
-        structure_menu.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
-        splitter.addWidget(structure_menu)
-
-        container2 = QWidget()
-        container2.setStyleSheet("background-color: #FFFFFF;")
-        container2.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
-        splitter.addWidget(container2)
-
-        main_layout.addWidget(splitter)
-
-        self.setCentralWidget(main_widget)
-
-    # TODO: This is a temporary solution for testing purposes.
-    # This should be implemented using observers.
-    def reload_structure_menu(self):
-        """
-        Reload the StructureMenu widget in the MainWindow
-        """
-        self.centralWidget().layout().itemAt(0).widget().deleteLater()
-
-        structure_menu = StructureMenu(self)
-        self.create_main_layout(structure_menu)

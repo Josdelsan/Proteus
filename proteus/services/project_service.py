@@ -25,6 +25,7 @@ from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property
+from proteus.views.utils.event_manager import EventManager, Event
 
 # --------------------------------------------------------------------------
 # Class: ProjectService
@@ -59,6 +60,8 @@ class ProjectService():
 
         # Populate project index
         self._populate_index()
+
+        EventManager().notify(Event.OPEN_PROJECT)
 
 
     # ----------------------------------------------------------------------

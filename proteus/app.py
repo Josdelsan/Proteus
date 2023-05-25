@@ -69,7 +69,7 @@ class ProteusApplication:
         app = QApplication([])
 
         # Create the main window
-        window = MainWindow()
+        window = MainWindow(parent=None)
         window.show()
 
         # Execute the application
@@ -84,7 +84,7 @@ class ProteusApplication:
             print( f"{property.__class__.__name__} {property.name} = {property.value}" )
 
         document : Object
-        for document in project.documents.values():
+        for document in project.documents:
             print( f"document {document.id=}" )
 
         print("project.xml")
@@ -95,7 +95,7 @@ class ProteusApplication:
             encoding='utf-8',
             pretty_print=True).decode() )
 
-        for document in project.documents.values():
+        for document in project.documents:
             print(f"{document.id}.xml")
             print("------------------")
             print( ET.tostring(document.generate_xml(),
@@ -131,7 +131,7 @@ class ProteusApplication:
             print(f"{key}:")
             for obj in value:
                 print(f"\t{obj.id}")
-                print(f"\t\t{obj.children.keys()}")
+                print(f"\t\t{obj.children}")
 
         
 
@@ -140,14 +140,14 @@ class ProteusApplication:
         documents = ArchetypeManager.load_document_archetypes()
         for document in documents:
             print(document.path, "\n", document.id)
-            print(document.children.keys())
+            print(document.children)
 
         print("Archetype Project Test")
         print("------------------------")
         projects = ArchetypeManager.load_project_archetypes()
         for project_arch in projects:
             print(project_arch.path, "\n", project_arch.id)
-            print(project_arch.documents.keys())
+            print(project_arch.documents)
 
 
         # # object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")

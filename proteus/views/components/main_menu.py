@@ -29,22 +29,21 @@ from proteus.views.utils.decorators import component
 
 # --------------------------------------------------------------------------
 # Class: MenuBar
-# Description: PyQT6 menubar class for the PROTEUS application menus
+# Description: PyQT6 main manu class for the PROTEUS application menu
 # Date: 16/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 @component(QMenuBar)
-@dataclass(init=False)
-class MenuBar():
+class MainMenu():
     """
     Menubar for the PROTEUS application. It is used to manage the
     creation of the menubar and its actions.
     """
 
     # ----------------------------------------------------------------------
-    # Method     : create_menu_bar
-    # Description: Create the menubar for the PROTEUS application
+    # Method     : create_component
+    # Description: Create the main menu for the PROTEUS application
     # Date       : 16/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
@@ -86,6 +85,16 @@ class MenuBar():
         )
 
     # ----------------------------------------------------------------------
+    # Method     : update_component
+    # Description: Update the main menu for the PROTEUS application
+    # Date       : 25/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_component(self) -> None:
+        pass
+
+    # ----------------------------------------------------------------------
     # Method     : open_file
     # Description: Open a project using a file dialog and load it
     # Date       : 16/05/2023
@@ -104,9 +113,3 @@ class MenuBar():
         if directory_path:
             self.project_service.load_project(project_path=directory_path)
 
-            # TODO: This is a temporary solution for testing purposes.
-            # This should be implemented using observers.
-
-            # Reload the StructureMenu widget in the MainWindow
-            main_window = self.parent
-            main_window.reload_structure_menu()
