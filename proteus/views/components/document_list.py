@@ -51,7 +51,7 @@ class DocumentList():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_component(self) -> QTabWidget:
+    def create_component(self) -> None:
         """ """
         pass
 
