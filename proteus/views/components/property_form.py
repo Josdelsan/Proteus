@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,24 +22,62 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.object import Object
-from proteus.views.utils.decorators import component
+from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.input_factory import PropertyInputFactory
+from proteus.controller.command_stack import Command
+from proteus.views.components.abstract_component import AbstractComponent
 
 
+# --------------------------------------------------------------------------
+# Class: PropertyForm
+# Description: Class for the PROTEUS application properties form component.
+# Date: 27/05/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class PropertyForm(QWidget, AbstractComponent):
+    """
+    Class for the PROTEUS application properties form component. It is used
+    to display the properties of an element in a form. Properties are grouped
+    by categories in tabs. Each property is displayed in a widget that is
+    created using the PropertyInputFactory class.
+    """
 
-@component(QWidget)
-class PropertyForm():
-
-    def __init__(self, object_id : Object, *args, **kwargs) -> None:
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Class constructor, invoke the parents class constructors
+    #              and create the component.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(self, element_id=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors and create
+        the component.
+        """
         super().__init__(*args, **kwargs)
+        AbstractComponent.__init__(self, element_id)
 
-        self.object_id = object_id
+        # Create a dictionary to hold the input widgets for each property
+        # NOTE: This is used to get the input values when the form is accepted
         self.input_widgets = {}
 
+        # Create the component
+        self.create_component()
+        
+    # ----------------------------------------------------------------------
+    # Method     : create_component
+    # Description: Create the component.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def create_component(self) -> None:
-
-        self.object = self.project_service._get_element_by_id(self.object_id)
+        """
+        Create the component.
+        """
+        self.object = Command.get_element(self.element_id)
 
         # Set the window name
         window_name = self.object.get_property('name').value
@@ -96,11 +133,33 @@ class PropertyForm():
         self.setLayout(form_layout)
 
 
-
+    # ----------------------------------------------------------------------
+    # Method     : update_component
+    # Description: Update the component.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def update_component(self) -> None:
+        """
+        Note: This component is never updated once created.
+        """
         pass
-
+    
+    # ----------------------------------------------------------------------
+    # Method     : save_button_clicked
+    # Description: Manage the save button clicked event. It gets the values
+    #              of the input widgets and updates the properties of the
+    #              element.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def save_button_clicked(self):
+        """
+        Manage the save button clicked event. It gets the values of the input
+        widgets and updates the properties of the element.
+        """
         # Empty dictionary to hold the properties values to update
         update_list = []
 
@@ -123,14 +182,27 @@ class PropertyForm():
                 cloned_property = original_prop.clone(new_prop_value)
                 update_list.append(cloned_property)
 
-        print(update_list)
-        self.project_service.update_properties(self.object_id, update_list)
+        # Update the properties of the element if there are changes
+        if len(update_list) > 0:
+            Command.update_properties(self.element_id, update_list)
 
         # Close the form window
         self.close()
         self.deleteLater()
 
+    # ----------------------------------------------------------------------
+    # Method     : cancel_button_clicked
+    # Description: Manage the cancel button clicked event. It closes the
+    #              form window without saving any changes.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def cancel_button_clicked(self):
+        """
+        Manage the cancel button clicked event. It closes the form window
+        without saving any changes.
+        """
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()

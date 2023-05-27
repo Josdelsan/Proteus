@@ -50,7 +50,7 @@ def test_project_archetypes_lazy_load(archetype_service: ArchetypeService):
         "ArchetypeService._project_archetypes should be None"
 
     # Load the project archetypes calling the property
-    project_archetypes : List[Project] = archetype_service.project_archetypes
+    project_archetypes : List[Project] = archetype_service.get_project_archetypes()
 
     # Check that the project archetypes are loaded
     assert isinstance(project_archetypes, list), \
@@ -67,7 +67,7 @@ def test_document_archetypes_lazy_load(archetype_service: ArchetypeService):
         "ArchetypeService._document_archetypes should be None"
 
     # Load the document archetypes calling the property
-    document_archetypes : List[Object] = archetype_service.document_archetypes
+    document_archetypes : List[Object] = archetype_service.get_document_archetypes()
 
     # Check that the document archetypes are loaded
     assert isinstance(document_archetypes, list), \
@@ -84,7 +84,7 @@ def test_object_arquetypes_lazy_load(archetype_service: ArchetypeService):
         "ArchetypeService._object_archetypes should be None"
 
     # Load the object archetypes calling the property
-    object_archetypes : Dict[str, List[Object]] = archetype_service.object_archetypes
+    object_archetypes : Dict[str, List[Object]] = archetype_service.get_object_archetypes()
 
     # Check that the object archetypes are loaded
     assert isinstance(object_archetypes, dict), \
@@ -92,18 +92,15 @@ def test_object_arquetypes_lazy_load(archetype_service: ArchetypeService):
     assert archetype_service._object_archetypes == object_archetypes, \
         "ArchetypeService._object_archetypes should be equal to ArchetypeService.object_archetypes"
 
-def test_archetype_index_lazy_load(archetype_service: ArchetypeService):
+def test_archetype_index_load(archetype_service: ArchetypeService):
     """
     It tests the lazy load of the archetype index.
     """
-    # Check that the archetype index is not loaded
-    assert archetype_service.archetype_index == {}, \
-        "ArchetypeService.archetype_index should be an empty dict"
     
     # Load the archetypes calling the properties
-    project_archetypes  : List[Project]           = archetype_service.project_archetypes
-    document_archetypes : List[Object]            = archetype_service.document_archetypes
-    object_archetypes   : Dict[str, List[Object]] = archetype_service.object_archetypes
+    project_archetypes  : List[Project]           = archetype_service.get_project_archetypes()
+    document_archetypes : List[Object]            = archetype_service.get_document_archetypes()
+    object_archetypes   : Dict[str, List[Object]] = archetype_service.get_object_archetypes()
 
     # Get ids of the archetypes
     project_archetypes_ids  : List[ProteusID] = set(project.id for project in project_archetypes)
@@ -177,9 +174,9 @@ def test_get_archetype_by_id(id: str, archetype_service: ArchetypeService):
     ARCHETYPE_ID = ProteusID(id)
 
     # Lazy load the archetypes
-    archetype_service.project_archetypes
-    archetype_service.document_archetypes
-    archetype_service.object_archetypes
+    archetype_service.get_project_archetypes()
+    archetype_service.get_document_archetypes()
+    archetype_service.get_object_archetypes()
 
     # Load the archetype by id
     archetype : Union[Project, Object] = archetype_service._get_archetype_by_id(ARCHETYPE_ID)

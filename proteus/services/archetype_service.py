@@ -2,15 +2,19 @@
 # File: archetype_service.py
 # Description: Archetypes repository interface
 # Date: 07/04/2023
-# Version: 0.1
+# Version: 0.2
 # Author: José María Delgado Sánchez
+# ==========================================================================
+# Update: 27/05/2023 (José María Delgado Sánchez)
+# Description:
+# - Atributes are now class atributes instead of instance atributes.
+#   Methods are now class methods instead of instance methods.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from dataclasses import dataclass, field
 from typing import Union, List, Dict
 
 # --------------------------------------------------------------------------
@@ -33,143 +37,116 @@ from proteus.model.archetype_manager import ArchetypeManager
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@dataclass
 class ArchetypeService():
     """
     Acts as an interface for the Archetypes repository.
     """
 
-    # dataclass instance attributes
+    # Class attributes
     _project_archetypes  : List[Project]                           = None
     _document_archetypes : List[Object]                            = None
     _object_archetypes   : Dict[str, List[Object]]                 = None
-    archetype_index      : Dict[ProteusID,Union[Project, Object]] = field(default_factory=dict)
+    archetype_index      : Dict[ProteusID,Union[Project, Object]]  = {}
 
     # ----------------------------------------------------------------------
-    # Property   : project_archetypes
-    # Description: Property project_archetypes getter. Loads the list of
+    # Property   : get_project_archetypes
+    # Description: Project_archetypes getter. Loads the list of
     #              project archetypes on demand.
     # Date       : 02/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @property
-    def project_archetypes(self) -> List[Project]:
+    @classmethod
+    def get_project_archetypes(cls) -> List[Project]:
         """
-        Property for the list of project archetypes.
+        Project_archetypes getter. Loads the list of project archetypes on demand.
         """
         # Lazy loading of project archetypes
-        if self._project_archetypes is None:
+        if cls._project_archetypes is None:
             # Load project archetypes using the ArchetypeManager
-            self._project_archetypes = ArchetypeManager.load_project_archetypes()
+            cls._project_archetypes = ArchetypeManager.load_project_archetypes()
 
             # Check that the list of project archetypes is a list
-            assert isinstance(self._project_archetypes,list), \
-                f"Could not load project archetypes. ArchetypeManager returned {self._project_archetypes}"
+            assert isinstance(cls._project_archetypes,list), \
+                f"Could not load project archetypes. ArchetypeManager returned {cls._project_archetypes}"
             
             # Populate the archetype index
-            for project in self._project_archetypes:
+            for project in cls._project_archetypes:
                 # Check for collisions
-                assert project.id not in self.archetype_index, \
+                assert project.id not in cls.archetype_index, \
                     f"Project archetype id {project.id} already exists in the archetype index"
 
                 # Add the project archetype to the archetype index
-                self.archetype_index[project.id] = project
+                cls.archetype_index[project.id] = project
 
-        return self._project_archetypes
+        return cls._project_archetypes
     
     # ----------------------------------------------------------------------
-    # Property   : document_archetypes
-    # Description: Property document_archetypes getter. Loads the list of
+    # Property   : get_document_archetypes
+    # Description: Document_archetypes getter. Loads the list of
     #              document archetypes on demand.
     # Date       : 02/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @property
-    def document_archetypes(self) -> List[Object]:
+    @classmethod
+    def get_document_archetypes(cls) -> List[Object]:
         """
-        Property for the list of document archetypes.
+        Document_archetypes getter. Loads the list of document archetypes on demand.
         """
         # Lazy loading of document archetypes
-        if self._document_archetypes is None:
+        if cls._document_archetypes is None:
             # Load document archetypes using the ArchetypeManager
-            self._document_archetypes = ArchetypeManager.load_document_archetypes()
+            cls._document_archetypes = ArchetypeManager.load_document_archetypes()
 
             # Check that the list of document archetypes is a list
-            assert isinstance(self._document_archetypes,list), \
-                f"Could not load document archetypes. ArchetypeManager returned {self._document_archetypes}"
+            assert isinstance(cls._document_archetypes,list), \
+                f"Could not load document archetypes. ArchetypeManager returned {cls._document_archetypes}"
             
             # Populate the archetype index
-            for document in self._document_archetypes:
+            for document in cls._document_archetypes:
                 # Check for collisions
-                assert document.id not in self.archetype_index, \
+                assert document.id not in cls.archetype_index, \
                     f"Document archetype id {document.id} already exists in the archetype index"
                 
                 # Add the document archetype to the archetype index
-                self.archetype_index[document.id] = document
+                cls.archetype_index[document.id] = document
 
-        return self._document_archetypes
+        return cls._document_archetypes
 
     # ----------------------------------------------------------------------
-    # Property   : object_archetypes
-    # Description: Property object_archetypes getter. Loads the list of
+    # Property   : get_object_archetypes
+    # Description: Object_archetypes getter. Loads the list of
     #              object archetypes on demand.
     # Date       : 02/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @property
-    def object_archetypes(self) -> Dict[str, List[Object]]:
+    @classmethod
+    def get_object_archetypes(cls) -> Dict[str, List[Object]]:
         """
-        Property for the list of object archetypes.
+        Object_archetypes getter. Loads the list of object archetypes on demand.
         """
         # Lazy loading of object archetypes
-        if self._object_archetypes is None:
+        if cls._object_archetypes is None:
             # Load object archetypes using the ArchetypeManager
-            self._object_archetypes = ArchetypeManager.load_object_archetypes()
+            cls._object_archetypes = ArchetypeManager.load_object_archetypes()
 
             # Check that the list of object archetypes is a list
-            assert isinstance(self._object_archetypes,dict), \
-                f"Could not load object archetypes. ArchetypeManager returned {self._object_archetypes}"
+            assert isinstance(cls._object_archetypes,dict), \
+                f"Could not load object archetypes. ArchetypeManager returned {cls._object_archetypes}"
             
             # Populate the archetype index
-            for object_type in self._object_archetypes.keys():
-                for object in self._object_archetypes[object_type]:
+            for object_type in cls._object_archetypes.keys():
+                for object in cls._object_archetypes[object_type]:
                     # Check for collisions
-                    assert object.id not in self.archetype_index, \
+                    assert object.id not in cls.archetype_index, \
                         f"Object archetype id {object.id} already exists in the archetype index"
 
                     # Add the object archetype to the archetype index
-                    self.archetype_index[object.id] = object
+                    cls.archetype_index[object.id] = object
 
-        return self._object_archetypes
-    
-    # ----------------------------------------------------------------------
-    # Method     : get_project_archetypes
-    # Description: Returns the list of project archetypes
-    # Date       : 04/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def get_project_archetypes(self) -> List[Project]:
-        """
-        Returns the list of project archetypes.
-        """
-        return self.project_archetypes
-    
-    # ----------------------------------------------------------------------
-    # Method     : get_document_archetypes
-    # Description: Returns the list of document archetypes
-    # Date       : 04/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def get_document_archetypes(self) -> List[Object]:
-        """
-        Returns the list of document archetypes.
-        """
-        return self.document_archetypes
+        return cls._object_archetypes
     
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes_classes
@@ -178,11 +155,11 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_classes(self) -> List[str]:
+    def get_object_archetypes_classes(cls) -> List[str]:
         """
         Returns the list of object archetypes classes.
         """
-        return list(self.object_archetypes.keys())
+        return list(cls.get_object_archetypes().keys())
     
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes_by_class
@@ -191,11 +168,11 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_by_class(self, object_class : str) -> List[Object]:
+    def get_object_archetypes_by_class(cls, object_class : str) -> List[Object]:
         """
         Returns the list of object archetypes for a given class.
         """
-        return self.object_archetypes[object_class]
+        return cls.get_object_archetypes()[object_class]
     
     # ----------------------------------------------------------------------
     # Method     : get_archetype_by_id
@@ -204,15 +181,15 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _get_archetype_by_id(self, archetype_id : ProteusID) -> Union[Project, Object]:
+    def _get_archetype_by_id(cls, archetype_id : ProteusID) -> Union[Project, Object]:
         """
         Returns the archetype with the given id.
         """
         # Check that the archetype id is valid
-        assert archetype_id in self.archetype_index, \
+        assert archetype_id in cls.archetype_index, \
             f"Archetype with id {archetype_id} was not found"
 
-        return self.archetype_index[archetype_id]
+        return cls.archetype_index[archetype_id]
     
     # ----------------------------------------------------------------------
     # Method     : create_project
@@ -222,7 +199,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_project(self,
+    def create_project(cls,
                        archetype_id : ProteusID,
                        project_name : str,
                        save_path : str
@@ -236,7 +213,7 @@ class ArchetypeService():
             "Project must have a valid name"
 
         # Get the project archetype
-        project_archetype = self._get_archetype_by_id(archetype_id)
+        project_archetype = cls._get_archetype_by_id(archetype_id)
 
         # Check that the archetype is a project archetype
         assert isinstance(project_archetype, Project), \
@@ -253,7 +230,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_object(self,
+    def create_object(cls,
                       archetype_id : ProteusID,
                       parent : Object,
                       project : Project
@@ -263,7 +240,7 @@ class ArchetypeService():
         project and an archetype id.
         """
         # Get the object archetype
-        object_archetype = self._get_archetype_by_id(archetype_id)
+        object_archetype = cls._get_archetype_by_id(archetype_id)
 
         # Check that the archetype is an object archetype
         assert isinstance(object_archetype, Object), \

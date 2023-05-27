@@ -31,6 +31,7 @@ from typing import List, Dict
 # --------------------------------------------------------------------------
 class Event(Enum):
     OPEN_PROJECT = "open_project"
+    MODIFY_OBJECT = "modify_object"
     # TODO: Add more events
 
 

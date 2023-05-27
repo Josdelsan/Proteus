@@ -20,53 +20,35 @@ from typing import List
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.services.service_manager import ServiceManager
-from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.event_manager import EventManager, Event
 
 
 # ----------------------------------------------------------------------
-# function    : component
+# function   : subscribe_to (decorator)
 # Description: Decorator for the PROTEUS application views. It is used
-#              to create the components of the frontend.
+#              to subscribe the component to the events of the
+#              application.
 # Date       : 25/05/2023
 # Version    : 0.1
 # Author     : José María Delgado Sánchez
 # ----------------------------------------------------------------------
-def component(base_cls, update_events : List[Event] = []):
+def subscribe_to(update_events : List[Event] = []):
     """
-    Decorator for the PROTEUS application views. It is used to create the
-    components of the frontend. Handles the creation of the component,
-    dependency injection and event subscription.
+    Decorator for the PROTEUS application views. It is used to subscribe
+    the component to the events of the application.
 
-    :param base_cls: Base class of the component(PyQT6 class)
     :param update_events: List of events to subscribe to (default: empty list)
     """
-    def decorator_func(cls):
+    def decorator(cls):
 
-        # ----------------------------------------------------------------------
-        # class      : Component
-        # Description: Component class for the PROTEUS application views.
-        # Date       : 25/05/2023
-        # Version    : 0.1
-        # Author     : José María Delgado Sánchez
-        # ----------------------------------------------------------------------
-        class Component(cls, base_cls):
-            def __init__(self, parent, *args, **kwargs):
-                super().__init__(parent, *args, **kwargs)
-
-                # Parent widget
-                self.parent = parent
-
-                # Dependency injection
-                self.archetype_service = ServiceManager.get_archetype_service_instance()
-                self.project_service = ServiceManager.get_project_service_instance()
-
-                # Create the component
-                self.create_component()
-
-                # Subscribe to events
-                for event in update_events:
-                    EventManager.attach(event, self)
-
-        return Component
-    return decorator_func
+        # Call the original __init__ method before subscribing to events
+        # Override the __init__ method of the class
+        original_init = cls.__init__
+        def new_init(self, *args, **kwargs):
+            original_init(self, *args, **kwargs)
+            # Subscribe to events
+            for event in update_events:
+                EventManager.attach(event, self)
+        cls.__init__ = new_init
+        return cls
+    return decorator

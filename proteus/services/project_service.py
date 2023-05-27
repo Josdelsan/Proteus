@@ -2,15 +2,19 @@
 # File: project_service.py
 # Description: Project interface
 # Date: 06/05/2023
-# Version: 0.1
+# Version: 0.2
 # Author: José María Delgado Sánchez
+# ==========================================================================
+# Update: 27/05/2023 (José María Delgado Sánchez)
+# Description:
+# - Atributes are now class atributes instead of instance atributes.
+#   Methods are now class methods instead of instance methods.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from dataclasses import dataclass, field
 from typing import Union, List, Dict
 
 # --------------------------------------------------------------------------
@@ -25,7 +29,6 @@ from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property
-from proteus.views.utils.event_manager import EventManager, Event
 
 # --------------------------------------------------------------------------
 # Class: ProjectService
@@ -34,7 +37,6 @@ from proteus.views.utils.event_manager import EventManager, Event
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@dataclass
 class ProjectService():
     """
     Acts as an interface for project, documents and objects operations.
@@ -42,9 +44,10 @@ class ProjectService():
     """
 
     project       : Project                 = None
-    project_index : Dict[ProteusID, Object] = field(default_factory=dict)
+    project_index : Dict[ProteusID, Object] = {}
 
-    def load_project (self, project_path: str):
+    @classmethod
+    def load_project (cls, project_path: str):
         """
         Initializes the project service with the given project path. Force
         the load of every object in the project to store it in a dictionary
@@ -53,15 +56,13 @@ class ProjectService():
         :param project_path: Path to the project directory.
         """
         # Load project
-        self.project = Project.load(project_path)
+        cls.project = Project.load(project_path)
 
         # Initialize project index
-        self.project_index = {}
+        cls.project_index = {}
 
         # Populate project index
-        self._populate_index()
-
-        EventManager().notify(Event.OPEN_PROJECT)
+        cls._populate_index()
 
 
     # ----------------------------------------------------------------------
@@ -72,7 +73,8 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _get_element_by_id (self, element_id: ProteusID) -> Union[Project, Object]:
+    @classmethod
+    def _get_element_by_id (cls, element_id: ProteusID) -> Union[Project, Object]:
         """
         Returns the project or object with the given id.
 
@@ -80,15 +82,15 @@ class ProjectService():
         :return: Project or object with the given id.
         """
         # Populate index to check for new objects
-        if element_id not in self.project_index:
-            self._populate_index()
+        if element_id not in cls.project_index:
+            cls._populate_index()
 
         # Check if the element is in the index
-        assert element_id in self.project_index, \
+        assert element_id in cls.project_index, \
             f"Element with id {element_id} not found."
 
         # Return the element
-        return self.project_index[element_id]
+        return cls.project_index[element_id]
     
     # ----------------------------------------------------------------------
     # Method     : _populate_index
@@ -99,7 +101,8 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _populate_index (self) -> None:
+    @classmethod
+    def _populate_index (cls) -> None:
         """
         Populates the project index with the all the objects in the project.
         If an object was already in the index, it will be ignored.
@@ -112,8 +115,8 @@ class ProjectService():
             :param object: Object to add to the index.
             """
             # If the object is not in the index, add it
-            if object.id not in self.project_index:
-                self.project_index[object.id] = object
+            if object.id not in cls.project_index:
+                cls.project_index[object.id] = object
 
             # Add children to the index
             for child in object.get_descendants():
@@ -121,12 +124,12 @@ class ProjectService():
 
         # Load project index, this forces load for
         # every object in the project
-        for document in self.project.get_descendants():
+        for document in cls.project.get_descendants():
             _populate_index_private(document)
 
         # Include project in the index if it is not there
-        if self.project.id not in self.project_index:
-            self.project_index[self.project.id] = self.project
+        if cls.project.id not in cls.project_index:
+            cls.project_index[cls.project.id] = cls.project
 
     # ----------------------------------------------------------------------
     # Method     : get_properties
@@ -135,14 +138,15 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_properties (self, element_id : ProteusID) -> Dict[str, Property]:
+    @classmethod
+    def get_properties (cls, element_id : ProteusID) -> Dict[str, Property]:
         """
         Returns the project or object properties.
 
         :param element_id: Id of the project or object.
         :return: Dictionary of properties.
         """
-        element = self._get_element_by_id(element_id)
+        element = cls._get_element_by_id(element_id)
 
         return element.properties
         
@@ -153,14 +157,15 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_properties (self, element_id : ProteusID, properties: List[Property]) -> None:
+    @classmethod
+    def update_properties (cls, element_id : ProteusID, properties: List[Property]) -> None:
         """
         Updates the project or object properties.
 
         :param element_id: Id of the project or object.
         :param properties: List of properties to update.
         """
-        element = self._get_element_by_id(element_id)
+        element = cls._get_element_by_id(element_id)
 
         for property in properties:
             element.set_property(property)
@@ -172,11 +177,12 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def save_project (self) -> None:
+    @classmethod
+    def save_project (cls) -> None:
         """
         Saves the project to disk.
         """
-        self.project.save()
+        cls.project.save()
 
     # ----------------------------------------------------------------------
     # Method     : delete_object
@@ -187,7 +193,8 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_object (self, object_id: ProteusID) -> None:
+    @classmethod
+    def delete_object (cls, object_id: ProteusID) -> None:
         """
         Deletes the object with the given id from the project. Changes are
         not saved to disk until save_project is called.
@@ -195,7 +202,7 @@ class ProjectService():
         :param object_id: Id of the object to delete.
         """
         # Get object using helper method
-        object = self._get_element_by_id(object_id)
+        object = cls._get_element_by_id(object_id)
 
         object.delete()
 
@@ -206,7 +213,8 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_structure (self, object_id: ProteusID) -> Dict[Object, List]:
+    @classmethod
+    def get_object_structure (cls, object_id: ProteusID) -> Dict[Object, List]:
         """
         Returns the element structure as a tree. Each element is represented
         by a dictionary with the following structure: {id: [{id: [{...}, {...}, ...]}, {...}, ...]}.
@@ -217,18 +225,19 @@ class ProjectService():
         :return: Dictionary with the element structure.
         """
         # Get object using helper method
-        object : Object = self._get_element_by_id(object_id)
+        object : Object = cls._get_element_by_id(object_id)
         
         # Initialize an empty dictionary to store the object structure
         obj_struc : Dict[Object, List] = {}
 
         # Create object structure
-        obj_struc_list : List = self._get_object_structure(object)
+        obj_struc_list : List = cls._get_object_structure(object)
         obj_struc[object] = obj_struc_list
 
         return obj_struc
         
-    def _get_object_structure (self, object: Object) -> Dict[Object, List]:
+    @classmethod
+    def _get_object_structure (cls, object: Object) -> Dict[Object, List]:
         """
         Private method for get_object_structure.
         """
@@ -246,7 +255,7 @@ class ProjectService():
             obj_struc : Dict[Object, List] = {}
 
             # Create child structure
-            child_struc : Dict[Object, List] = self._get_object_structure(child)
+            child_struc : Dict[Object, List] = cls._get_object_structure(child)
             obj_struc[child] = child_struc
 
             # Add child to the list
@@ -261,11 +270,12 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_project_structure (self) -> List[Object]:
+    @classmethod
+    def get_project_structure (cls) -> List[Object]:
         """
         Returns the project structure one depth level. Each element is
         represented by a dictionary with the following structure: {id: id, ...}
 
         :return: Dictionary with the project documents.
         """
-        return self.project.get_descendants()
+        return cls.project.get_descendants()

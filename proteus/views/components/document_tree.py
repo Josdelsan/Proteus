@@ -27,10 +27,12 @@ from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
 # --------------------------------------------------------------------------
 
 from proteus.model.object import Object
-from proteus.views.utils.decorators import component
+from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.utils.input_factory import PropertyInputFactory
 from proteus.views.components.property_form import PropertyForm
+from proteus.views.components.abstract_component import AbstractComponent
+from proteus.controller.command_stack import Command
 
 
 # --------------------------------------------------------------------------
@@ -41,8 +43,8 @@ from proteus.views.components.property_form import PropertyForm
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@component(QWidget)
-class DocumentTree():
+@subscribe_to()
+class DocumentTree(QWidget, AbstractComponent):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
@@ -50,17 +52,23 @@ class DocumentTree():
 
     # ----------------------------------------------------------------------
     # Method     : __init__
-    # Description: Constructor for the document structure tree component, it
-    #              adds the document id to the component.
-    # Date       : 25/05/2023
+    # Description: Class constructor, invoke the parents class constructors
+    #              and create the component.
+    # Date       : 27/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, document : Object, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
+        super().__init__(parent, *args, **kwargs)
+        AbstractComponent.__init__(self, element_id)
 
-        self.document = document
+        # Form window widget
+        # NOTE: This is used to avoid memory leaks
         self.form_window = None
+
+        # Create the component
+        self.create_component()
+        
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -81,7 +89,7 @@ class DocumentTree():
         tree_widget.header().setVisible(False)
 
         # Get document structure and top level items
-        structure : Dict = self.project_service.get_object_structure(self.document.id)
+        structure : Dict = Command.get_object_structure(self.element_id)
 
         # Populate tree widget
         self.populate_tree(tree_widget, [structure])
@@ -100,7 +108,8 @@ class DocumentTree():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def update_component(self, *args, **kwargs) -> None:
-        """ """
+        # TODO: Update the document tree when when an object is added,
+        #       removed or modified
         pass
 
     # ----------------------------------------------------------------------
@@ -122,10 +131,20 @@ class DocumentTree():
             self.populate_tree(child_item, child_dict[child]) 
 
 
+    # ----------------------------------------------------------------------
+    # Method     : object_properties_form
+    # Description: Manage the itemDoubleClicked event. Display a form with
+    #              the object properties separated by categories. Only one
+    #              form can be opened at a time.
+    # Date       : 16/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def object_properties_form(self, item):
         """
-        Slot function to handle the itemDoubleClicked event.
-        Display a form with the object properties separated by categories.
+        Manage the itemDoubleClicked event. Display a form with the object
+        properties separated by categories. Only one form can be opened at a
+        time.
         """
         if self.form_window is None:
 
@@ -133,7 +152,7 @@ class DocumentTree():
             item_id = item.data(1, 0)
 
             # Create the properties form window
-            self.form_window = PropertyForm(item_id)
+            self.form_window = PropertyForm(element_id=item_id)
             self.form_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # Set the widget to be deleted on close
             self.form_window.show()
 

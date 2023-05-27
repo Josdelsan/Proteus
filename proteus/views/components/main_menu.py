@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from dataclasses import dataclass
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,7 +23,9 @@ from PyQt6.QtGui import QAction
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.decorators import component
+from proteus.views.utils.decorators import subscribe_to
+from proteus.controller.command_stack import Command
+from proteus.views.components.abstract_component import AbstractComponent
 
 
 # --------------------------------------------------------------------------
@@ -34,12 +35,27 @@ from proteus.views.utils.decorators import component
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@component(QMenuBar)
-class MainMenu():
+@subscribe_to()
+class MainMenu(QMenuBar, AbstractComponent):
     """
     Menubar for the PROTEUS application. It is used to manage the
     creation of the menubar and its actions.
     """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Class constructor, invoke the parents class constructors
+    #              and create the component.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(self, parent=None, *args, **kwargs) -> None:
+        super().__init__(parent, *args, **kwargs)
+        AbstractComponent.__init__(self)
+
+        # Create the component
+        self.create_component()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -75,9 +91,19 @@ class MainMenu():
         # Edit menu
         # ---------------------------------------------
         edit_menu = self.addMenu("Edit")
+
+        # Undo action
+        undo_action = QAction("Undo", self)
+        undo_action.triggered.connect(self.undo_action)
+        edit_menu.addAction(undo_action)
+
+        # Redo action
+        redo_action = QAction("Redo", self)
+        redo_action.triggered.connect(self.redo_action)
+        edit_menu.addAction(redo_action)
+
         edit_menu.addActions(
             [
-                QAction("Undo", self),
                 QAction("Cut", self),
                 QAction("Copy", self),
                 QAction("Paste", self),
@@ -92,18 +118,23 @@ class MainMenu():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def update_component(self) -> None:
+        # TODO: Update main menu options depending on the current state
+        #       of the application
         pass
 
+
     # ----------------------------------------------------------------------
-    # Method     : open_file
-    # Description: Open a project using a file dialog and load it
+    # Method     : open_project
+    # Description: Manage the open project action, open a project using a
+    #              file dialog and loads it.
     # Date       : 16/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def open_project(self):
         """
-        Open a file using a file dialog and perform some action with the selected path.
+        Manage the open project action, open a project using a file dialog
+        and loads it.
         """
         directory_dialog = QFileDialog(self)
         directory_path = directory_dialog.getExistingDirectory(
@@ -111,5 +142,27 @@ class MainMenu():
         )
 
         if directory_path:
-            self.project_service.load_project(project_path=directory_path)
+            Command.load_project(project_path=directory_path)
 
+
+    # ----------------------------------------------------------------------
+    # Method     : undo_action
+    # Description: Manage the undo action, undo the last action performed
+    #              by the user if the action is undoable.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def undo_action(self):
+        Command.undo()
+
+    # ----------------------------------------------------------------------
+    # Method     : redo_action
+    # Description: Manage the redo action, redo the last undo action
+    #              performed by the user.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def redo_action(self):
+        Command.redo()

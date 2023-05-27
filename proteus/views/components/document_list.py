@@ -24,9 +24,11 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 # --------------------------------------------------------------------------
 
 from proteus.model.object import Object
-from proteus.views.utils.decorators import component
+from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.document_tree import DocumentTree
+from proteus.views.components.abstract_component import AbstractComponent
+from proteus.controller.command_stack import Command
 
 
 # --------------------------------------------------------------------------
@@ -37,13 +39,28 @@ from proteus.views.components.document_tree import DocumentTree
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@component(QTabWidget, [Event.OPEN_PROJECT])
-class DocumentList():
+@subscribe_to([Event.OPEN_PROJECT])
+class DocumentList(QTabWidget, AbstractComponent):
     """
     Documents tab menu component for the PROTEUS application. It is used to
     display the documents of the project in a tab menu. It also manages the
     creation of the document tree component and render for each document.
     """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Class constructor, invoke the parents class constructors
+    #              and create the component.
+    # Date       : 27/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(self, parent=None, *args, **kwargs) -> None:
+        super().__init__(parent, *args, **kwargs)
+        AbstractComponent.__init__(self)
+
+        # Create the component
+        self.create_component()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -68,7 +85,7 @@ class DocumentList():
         Update the documents tab menu component.
         """
         # Get project structure from project service
-        project_structure = self.project_service.get_project_structure()
+        project_structure = Command.get_project_structure()
 
         # Add a document tab for each document in the project
         for document in project_structure:
@@ -97,7 +114,7 @@ class DocumentList():
         splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
 
         # Tree widget
-        document_tree = DocumentTree(document, self)
+        document_tree = DocumentTree(self, document.id)
         document_tree.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
