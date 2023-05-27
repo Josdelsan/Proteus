@@ -17,14 +17,20 @@ from typing import Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QLabel, QTabWidget, QDialogButtonBox
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
+
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.object import Object
 from proteus.views.utils.decorators import component
 from proteus.views.utils.event_manager import Event
+from proteus.views.utils.input_factory import PropertyInputFactory
+from proteus.views.components.property_form import PropertyForm
 
 
 # --------------------------------------------------------------------------
@@ -50,10 +56,11 @@ class DocumentTree():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, document_id : str, *args, **kwargs) -> None:
+    def __init__(self, document : Object, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.document_id = document_id
+        self.document = document
+        self.form_window = None
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -66,19 +73,20 @@ class DocumentTree():
         """
         Create the document tree for each document in the project.
         """
+        # Create vertical layout
         layout = QVBoxLayout(self)
 
+        # Create tree widget and set header
         tree_widget = QTreeWidget()
-        tree_widget.setHeaderLabels([self.document_id])
+        tree_widget.header().setVisible(False)
 
-        structure : Dict = self.project_service.get_object_structure(self.document_id)
-        top_level_items = structure[self.document_id]
+        # Get document structure and top level items
+        structure : Dict = self.project_service.get_object_structure(self.document.id)
 
-        for item in top_level_items:
-            item_id = list(item.keys())[0]
-            item_widget = QTreeWidgetItem([item_id])
-            self.populate_tree(item_widget, item[item_id])
-            tree_widget.addTopLevelItem(item_widget)
+        # Populate tree widget
+        self.populate_tree(tree_widget, [structure])
+
+        tree_widget.itemDoubleClicked.connect(self.object_properties_form)
 
         layout.addWidget(tree_widget)
         self.setLayout(layout)
@@ -103,11 +111,40 @@ class DocumentTree():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def populate_tree(self, parent_item, children):
-        for child in children:
-            child_id = list(child.keys())[0]
-            child_item = QTreeWidgetItem(parent_item, [child_id])
-            self.populate_tree(
-                child_item, child[child_id]
-            ) 
+        for child_dict in children:
+            # Get child object and its name
+            child = list(child_dict.keys())[0]
+            child_name = child.get_property("name").value
 
-        
+            # Create child item and populate it
+            child_item = QTreeWidgetItem(parent_item, [child_name])
+            child_item.setData(1, 0, child.id)
+            self.populate_tree(child_item, child_dict[child]) 
+
+
+    def object_properties_form(self, item):
+        """
+        Slot function to handle the itemDoubleClicked event.
+        Display a form with the object properties separated by categories.
+        """
+        if self.form_window is None:
+
+            # Get item id
+            item_id = item.data(1, 0)
+
+            # Create the properties form window
+            self.form_window = PropertyForm(item_id)
+            self.form_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # Set the widget to be deleted on close
+            self.form_window.show()
+
+            # Connect the form window's `destroyed` signal to cleanup
+            self.form_window.destroyed.connect(self.form_window_cleanup)
+        else:
+            # If the window is already open, activate it, raise it, and play a system alert sound
+            self.form_window.activateWindow()
+            self.form_window.raise_()
+            QApplication.beep()
+
+    def form_window_cleanup(self):
+        # Cleanup the reference to the form window
+        self.form_window = None

@@ -206,7 +206,7 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_structure (self, object_id: ProteusID) -> Dict[ProteusID, List]:
+    def get_object_structure (self, object_id: ProteusID) -> Dict[Object, List]:
         """
         Returns the element structure as a tree. Each element is represented
         by a dictionary with the following structure: {id: [{id: [{...}, {...}, ...]}, {...}, ...]}.
@@ -216,24 +216,25 @@ class ProjectService():
         :param element_id: Id of the element.
         :return: Dictionary with the element structure.
         """
-        # TODO: Return the object structure using a more verbose format like
-        #       a name property or similar.
-        obj_struc : Dict[ProteusID, List] = {}
-        obj_struc_list : List = self._get_object_structure(object_id)
-        obj_struc[object_id] = obj_struc_list
+        # Get object using helper method
+        object : Object = self._get_element_by_id(object_id)
+        
+        # Initialize an empty dictionary to store the object structure
+        obj_struc : Dict[Object, List] = {}
+
+        # Create object structure
+        obj_struc_list : List = self._get_object_structure(object)
+        obj_struc[object] = obj_struc_list
 
         return obj_struc
         
-    def _get_object_structure (self, object_id: ProteusID) -> List[Dict[ProteusID, List]]:
+    def _get_object_structure (self, object: Object) -> Dict[Object, List]:
         """
         Private method for get_object_structure.
         """
-        # Get object using helper method
-        object : Object = self._get_element_by_id(object_id)
-
         # Check that the element is an object
         assert isinstance(object, Object), \
-            f"Element with id {object_id} is not an object."
+            f"Element with id {object} is not an object."
         
         # Initialize an empty list to store the objects
         children_struc : List = list()
@@ -242,11 +243,11 @@ class ProjectService():
         for child in object.get_descendants():
 
             # Initialize an empty dictionary to store the current object structure
-            obj_struc : Dict[ProteusID, List] = {}
+            obj_struc : Dict[Object, List] = {}
 
             # Create child structure
-            child_struc : Dict[ProteusID, List] = self._get_object_structure(child.id)
-            obj_struc[child.id] = child_struc
+            child_struc : Dict[Object, List] = self._get_object_structure(child)
+            obj_struc[child] = child_struc
 
             # Add child to the list
             children_struc.append(obj_struc)
@@ -260,21 +261,11 @@ class ProjectService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_project_structure (self) -> List[ProteusID]:
+    def get_project_structure (self) -> List[Object]:
         """
         Returns the project structure one depth level. Each element is
         represented by a dictionary with the following structure: {id: id, ...}
 
         :return: Dictionary with the project documents.
         """
-        # TODO: Return the project structure using a more verbose format like
-        #       a name property or similar.
-
-        # Initialize an empty dictionary to store the current project structure
-        proj_struc : Dict = {}
-
-        # Add documents to the structure
-        for document in self.project.get_descendants():
-            proj_struc[document.id] = document.id
-
-        return proj_struc
+        return self.project.get_descendants()

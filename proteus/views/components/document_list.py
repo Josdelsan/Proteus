@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.object import Object
 from proteus.views.utils.decorators import component
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.document_tree import DocumentTree
@@ -70,8 +71,8 @@ class DocumentList():
         project_structure = self.project_service.get_project_structure()
 
         # Add a document tab for each document in the project
-        for tab_name in project_structure:
-            self.add_document(tab_name)
+        for document in project_structure:
+            self.add_document(document)
 
 
     # ----------------------------------------------------------------------
@@ -82,7 +83,7 @@ class DocumentList():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def add_document(self, tab_name):
+    def add_document(self, document : Object):
         """
         Add a document to the tab menu creating its child components (tree and
         render).
@@ -96,11 +97,12 @@ class DocumentList():
         splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
 
         # Tree widget
-        document_tree = DocumentTree(tab_name, self)
+        document_tree = DocumentTree(document, self)
         document_tree.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
         splitter.addWidget(document_tree)
+
 
         container2 = QWidget()
         container2.setStyleSheet("background-color: #FFFFFF;")
@@ -110,7 +112,9 @@ class DocumentList():
         splitter.addWidget(container2)
 
 
+        # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)
         tab.setLayout(tab_layout)
 
-        self.addTab(tab, tab_name)
+        document_name = document.get_property("name").value
+        self.addTab(tab, document_name)

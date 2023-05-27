@@ -73,10 +73,10 @@ def test_get_project_structure(project_service : ProjectService):
     It tests the get_project_structure method.
     """
     # Get project structure
-    project_structure : List[ProteusID] = project_service.get_project_structure()
+    project_structure : List[Object] = project_service.get_project_structure()
 
     # Get project documents ids
-    project_document_ids : List[ProteusID] = [d.id for d in project_service.project.documents]
+    project_document_ids : List[Object] = project_service.project.documents
 
     # Check that the project structure is correct
     assert set(project_document_ids) == set(project_structure),                 \
@@ -98,22 +98,21 @@ def test_get_object_structure(project_service : ProjectService):
     assert len(object_structure.keys()) == 1, \
         f"Object structure should have 1 element in first depth level"
     
-    # Get object id
-    object_id : ProteusID = list(object_structure.keys())[0]
+    # Get object
+    object : ProteusID = list(object_structure.keys())[0]
 
-    # Get object children ids
-    object : Object = project_service._get_element_by_id(object_id)
-    object_children_ids : List[ProteusID] = set([o.id for o in object.children])
+    # Get object children
+    object_children : List[ProteusID] = set(object.children)
 
     # Get object structure children ids
-    children_dicts : List[Dict] = object_structure[object_id]
-    object_structure_children_ids : List[ProteusID] = set([ list(d.keys())[0] for d in children_dicts ])
+    children_dicts : List[Dict] = object_structure[object]
+    object_structure_children : List[ProteusID] = set([ list(d.keys())[0] for d in children_dicts ])
 
     # Check that the object structure is correct second depth level
-    assert object_children_ids == object_structure_children_ids,                \
-        f"Object structure is not correct"                                      \
-        f"\n\tObject children ids: {object_children_ids}"                       \
-        f"\n\tObject structure children ids: {object_structure_children_ids}"
+    assert object_children == object_structure_children,                \
+        f"Object structure is not correct"                              \
+        f"\n\tObject children: {object_children}"                       \
+        f"\n\tObject structure children: {object_structure_children}"
 
 # TODO: test populate index
 # TODO: test get properties
