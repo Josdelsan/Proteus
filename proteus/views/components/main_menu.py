@@ -95,11 +95,13 @@ class MainMenu(QMenuBar, AbstractComponent):
         # Undo action
         undo_action = QAction("Undo", self)
         undo_action.triggered.connect(self.undo_action)
+        undo_action.setShortcut("Ctrl+Z")
         edit_menu.addAction(undo_action)
 
         # Redo action
         redo_action = QAction("Redo", self)
         redo_action.triggered.connect(self.redo_action)
+        redo_action.setShortcut("Ctrl+Y")
         edit_menu.addAction(redo_action)
 
         edit_menu.addActions(
@@ -117,7 +119,7 @@ class MainMenu(QMenuBar, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         # TODO: Update main menu options depending on the current state
         #       of the application
         pass

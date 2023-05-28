@@ -128,15 +128,8 @@ class Command():
         :param element_id: The id of the element to update its properties.
         :param new_properties: The new properties of the element.
         """
-        # Get the old properties before updating the properties
-        old_properties_dict = ProjectService.get_properties(element_id)
-        old_properties = [old_properties_dict[prop.name] for prop in new_properties]
-
         # Push the command to the command stack
-        cls._push(UpdatePropertiesCommand(element_id, old_properties, new_properties))
-
-        # Notify the frontend components
-        EventManager().notify(Event.MODIFY_OBJECT, element_id=element_id)
+        cls._push(UpdatePropertiesCommand(element_id, new_properties))
 
     # ----------------------------------------------------------------------
     # Method     : load_project
@@ -156,7 +149,7 @@ class Command():
         :param project_path: The path of the project to load.
         """
         ProjectService.load_project(project_path)
-        EventManager().notify(Event.OPEN_PROJECT)
+        EventManager().notify(event=Event.OPEN_PROJECT)
 
     # ----------------------------------------------------------------------
     # Method     : get_object_structure

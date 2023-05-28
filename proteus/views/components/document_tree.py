@@ -27,13 +27,13 @@ from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
 # --------------------------------------------------------------------------
 
 from proteus.model.object import Object
+from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.utils.input_factory import PropertyInputFactory
 from proteus.views.components.property_form import PropertyForm
 from proteus.views.components.abstract_component import AbstractComponent
 from proteus.controller.command_stack import Command
-
 
 # --------------------------------------------------------------------------
 # Class: DocumentTree
@@ -43,7 +43,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to()
+@subscribe_to([Event.MODIFY_OBJECT])
 class DocumentTree(QWidget, AbstractComponent):
     """
     Document structure tree component for the PROTEUS application. It is used
@@ -65,6 +65,10 @@ class DocumentTree(QWidget, AbstractComponent):
         # Form window widget
         # NOTE: This is used to avoid memory leaks
         self.form_window = None
+
+        # Tree items dictionary used to make easier the access to the tree
+        # items on update events
+        self.tree_items = {}
 
         # Create the component
         self.create_component()
@@ -94,7 +98,12 @@ class DocumentTree(QWidget, AbstractComponent):
         # Populate tree widget
         self.populate_tree(tree_widget, [structure])
 
+        # Connect double click to object properties form
         tree_widget.itemDoubleClicked.connect(self.object_properties_form)
+
+        # Expand all items and disable double click expand
+        tree_widget.expandAll()
+        tree_widget.setExpandsOnDoubleClick(False)
 
         layout.addWidget(tree_widget)
         self.setLayout(layout)
@@ -107,10 +116,34 @@ class DocumentTree(QWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
-        # TODO: Update the document tree when when an object is added,
-        #       removed or modified
-        pass
+    def update_component(self, event, *args, **kwargs) -> None:
+        """
+        Update the document tree component depending on the event received.
+        """
+        # Handle events
+        match event:
+            case Event.MODIFY_OBJECT:
+                # Get the modifies element id
+                element_id = kwargs.get("element_id")
+
+                # Check if the element id is in the tree items dictionary
+                if element_id in self.tree_items:
+                    # Get the tree item
+                    tree_item = self.tree_items[element_id]
+
+                    # Get the object
+                    object : Object = Command.get_element(element_id)
+
+                    # Update the tree item
+                    tree_item.setText(0, object.get_property("name").value)
+                    
+                    if object.state is ProteusState.DIRTY:
+                        tree_item.setForeground(0, Qt.GlobalColor.darkGreen)
+                    else:
+                        tree_item.setForeground(0, Qt.GlobalColor.black)
+
+
+        
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree
@@ -125,9 +158,16 @@ class DocumentTree(QWidget, AbstractComponent):
             child = list(child_dict.keys())[0]
             child_name = child.get_property("name").value
 
-            # Create child item and populate it
+            # Create child item
             child_item = QTreeWidgetItem(parent_item, [child_name])
+
+            # Store child id in the item data column 1 role 0
             child_item.setData(1, 0, child.id)
+
+            # Add child item to tree items dictionary
+            self.tree_items[child.id] = child_item
+
+            # Populate child item
             self.populate_tree(child_item, child_dict[child]) 
 
 

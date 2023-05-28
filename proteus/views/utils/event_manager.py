@@ -105,4 +105,4 @@ class EventManager():
         if event in cls._events:
             # Notify the components
             for component in cls._events[event]:
-                component.update_component(*args, **kwargs)
+                component.update_component(event, *args, **kwargs)

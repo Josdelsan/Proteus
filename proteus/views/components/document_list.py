@@ -80,7 +80,7 @@ class DocumentList(QTabWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         """
         Update the documents tab menu component.
         """

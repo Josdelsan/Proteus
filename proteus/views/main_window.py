@@ -93,7 +93,7 @@ class MainWindow(QMainWindow, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         """
         Update the main window when a new project is opened.
         """

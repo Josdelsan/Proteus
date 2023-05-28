@@ -71,7 +71,7 @@ class AbstractComponent():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @abstractmethod
-    def update_component(self, *args, **kwargs):
+    def update_component(self, event, *args, **kwargs):
         pass
 
     

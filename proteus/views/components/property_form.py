@@ -140,7 +140,7 @@ class PropertyForm(QWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         """
         Note: This component is never updated once created.
         """
