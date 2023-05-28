@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="3fKhMAkcEe2C" classes="section" acceptedChildren=":Proteus-any">
+<object id="3fKhMAkcEe2C" classes=":Proteus-document" acceptedChildren=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Documento de Requisitos del sistema]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
@@ -8,6 +8,7 @@
     <markdownProperty name="description" category="detail"><![CDATA[En el presente documento...]]></markdownProperty>
   </properties>
   <children>
-    <child id="64xM8FLyxtaE"/>
+    <child id="3fKhMAkcEe21"/>
+    <child id="3fKhMAkcEe2S"/>
   </children>
 </object>

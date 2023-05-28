@@ -5,7 +5,8 @@
     acceptedChildren=":Proteus-none"
 >
     <properties>
-        <markdownProperty name="description">El usuario solicita al sistema...</markdownProperty>
+        <stringProperty name="name" category="general">Paso 1</stringProperty>
+        <markdownProperty name="description" category="detail">El usuario solicita al sistema...</markdownProperty>
     </properties>
 
     <children>
