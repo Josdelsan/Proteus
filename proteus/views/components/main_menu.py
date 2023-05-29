@@ -10,22 +10,26 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QMenuBar, QFileDialog
+from PyQt6.QtWidgets import QMenuBar, QFileDialog, QApplication
 from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt
 
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.project import Project
 from proteus.views.utils.decorators import subscribe_to
 from proteus.controller.command_stack import Command
 from proteus.views.components.abstract_component import AbstractComponent
+from proteus.views.components.new_project_form import NewProjectForm
 
 
 # --------------------------------------------------------------------------
@@ -54,6 +58,11 @@ class MainMenu(QMenuBar, AbstractComponent):
         super().__init__(parent, *args, **kwargs)
         AbstractComponent.__init__(self)
 
+        # New project window widget
+        # NOTE: This is needed to avoid the garbage collector to delete the
+        #       window when it is created and memory leaks.
+        self.new_project_window = None
+
         # Create the component
         self.create_component()
 
@@ -74,9 +83,16 @@ class MainMenu(QMenuBar, AbstractComponent):
         # ---------------------------------------------
         file_menu = self.addMenu("File")
 
+        # New action
+        new_action = QAction("New...", self)
+        new_action.triggered.connect(self.new_project)
+        new_action.setShortcut("Ctrl+N")
+        file_menu.addAction(new_action)
+
         # Open action
         open_action = QAction("Open...", self)
         open_action.triggered.connect(self.open_project)
+        open_action.setShortcut("Ctrl+O")
         file_menu.addAction(open_action)
 
         # Close save action
@@ -124,6 +140,48 @@ class MainMenu(QMenuBar, AbstractComponent):
         #       of the application
         pass
 
+    
+    # ----------------------------------------------------------------------
+    # Method     : new_project
+    # Description: Manage the new project action, open a window to select
+    #              project archetype, name and path and creates a new
+    #              project.
+    # Date       : 28/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def new_project(self):
+        """
+        Manage the new project action, open a window to select project
+        archetype, name and path and creates a new project.
+        """
+        def form_window_cleanup():
+            # Cleanup the reference to the form window
+            self.new_project_window = None
+            self.parent().setEnabled(True)
+
+        if self.new_project_window is None:
+
+            # Create the properties form window
+            self.new_project_window = NewProjectForm()
+
+            # Set the widget to be deleted on close and to stay on top
+            self.new_project_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  
+            self.new_project_window.setWindowFlags(self.new_project_window.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
+
+            # Show the form window
+            self.new_project_window.show()
+
+            # Connect the form window's `destroyed` signal to cleanup
+            self.new_project_window.destroyed.connect(form_window_cleanup)
+
+            # Disable the main application window
+            self.parent().setEnabled(False)
+        else:
+            # If the window is already open, activate it, raise it, and play a system alert sound
+            self.new_project_window.activateWindow()
+            self.new_project_window.raise_()
+            QApplication.beep()
 
     # ----------------------------------------------------------------------
     # Method     : open_project

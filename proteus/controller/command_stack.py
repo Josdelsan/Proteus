@@ -24,6 +24,7 @@ from PyQt6.QtGui import QUndoStack
 
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.services.project_service import ProjectService
+from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -192,3 +193,39 @@ class Command():
         Get the element given its id.
         """
         return ProjectService._get_element_by_id(element_id)
+    
+    # ----------------------------------------------------------------------
+    # Method     : create_project
+    # Description: Create a new project with the given archetype id, name
+    #              and path.
+    # Date       : 28/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def create_project(cls, archetype_id, name, path):
+        """
+        Create a new project with the given archetype id, name and path.
+
+        :param archetype_id: The id of the archetype to create the project.
+        :param name: The name of the project.
+        :param path: The path of the project.
+        """
+        ArchetypeService.create_project(archetype_id, name, path)
+        project_path : str = f"{path}/{name}"
+        cls.load_project(project_path)
+
+
+    # ----------------------------------------------------------------------
+    # Method     : get_project_archetypes
+    # Description: Get project archetypes.
+    # Date       : 28/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_project_archetypes(cls) -> List[Project]:
+        """
+        Get project archetypes.
+        """
+        return ArchetypeService.get_project_archetypes()

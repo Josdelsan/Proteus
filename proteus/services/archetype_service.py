@@ -155,6 +155,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @classmethod
     def get_object_archetypes_classes(cls) -> List[str]:
         """
         Returns the list of object archetypes classes.
@@ -168,6 +169,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @classmethod
     def get_object_archetypes_by_class(cls, object_class : str) -> List[Object]:
         """
         Returns the list of object archetypes for a given class.
@@ -181,6 +183,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @classmethod
     def _get_archetype_by_id(cls, archetype_id : ProteusID) -> Union[Project, Object]:
         """
         Returns the archetype with the given id.
@@ -199,6 +202,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @classmethod
     def create_project(cls,
                        archetype_id : ProteusID,
                        project_name : str,
@@ -230,6 +234,7 @@ class ArchetypeService():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @classmethod
     def create_object(cls,
                       archetype_id : ProteusID,
                       parent : Object,

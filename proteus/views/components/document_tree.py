@@ -186,6 +186,12 @@ class DocumentTree(QWidget, AbstractComponent):
         properties separated by categories. Only one form can be opened at a
         time.
         """
+        def form_window_cleanup():
+            # Cleanup the reference to the form window
+            self.form_window = None
+            self.parent().setEnabled(True)
+
+
         if self.form_window is None:
 
             # Get item id
@@ -193,17 +199,22 @@ class DocumentTree(QWidget, AbstractComponent):
 
             # Create the properties form window
             self.form_window = PropertyForm(element_id=item_id)
-            self.form_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # Set the widget to be deleted on close
+
+            # Set the widget to be deleted on close and to stay on top
+            self.form_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  
+            self.form_window.setWindowFlags(self.form_window.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
+
+            # Show the form window
             self.form_window.show()
 
             # Connect the form window's `destroyed` signal to cleanup
-            self.form_window.destroyed.connect(self.form_window_cleanup)
+            self.form_window.destroyed.connect(form_window_cleanup)
+
+            # Disable the main application window
+            self.parent().setEnabled(False)
         else:
             # If the window is already open, activate it, raise it, and play a system alert sound
             self.form_window.activateWindow()
             self.form_window.raise_()
             QApplication.beep()
 
-    def form_window_cleanup(self):
-        # Cleanup the reference to the form window
-        self.form_window = None

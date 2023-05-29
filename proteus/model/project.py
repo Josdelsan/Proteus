@@ -330,7 +330,7 @@ class Project(AbstractObject):
     # Author     : José María Delgado Sánchez  
     # ----------------------------------------------------------------------
     
-    def clone_project(self, filename_path_to_save: str, new_project_dir_name: str) -> Project:
+    def clone_project(self, filename_path_to_save: str, new_project_dir_name: str) -> None:
         """
         Method that creates a new project from an existing project.
         
@@ -338,6 +338,8 @@ class Project(AbstractObject):
         :param new_project_dir_name: Name of the new project directory.
         :return: The new project.
         """
+        log.info(f"Cloning project {self.id} into {filename_path_to_save} with name {new_project_dir_name}")
+
         assert os.path.isdir(filename_path_to_save), \
             f"The given path is not a directory: {filename_path_to_save}"
         
@@ -362,8 +364,13 @@ class Project(AbstractObject):
             project_file = target_dir / PROJECT_FILE_NAME
             os.rename(project_arquetype_file, project_file)
 
-        # Load the new project and return it
-        return Project.load(target_dir)
+        # Load the new project to check if it is correct
+        cloned_project : Project = Project.load(target_dir)
+        assert cloned_project is not None, \
+            f"Error loading the cloned project {target_dir}"
+        
+        log.info(f"Project cloned successfully.")
+        del cloned_project
     
     
     
