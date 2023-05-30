@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, \
-                            QDialogButtonBox
+                            QDialogButtonBox, QFormLayout
 
 
 # --------------------------------------------------------------------------
@@ -105,15 +105,15 @@ class PropertyForm(QWidget):
             # Create a QWidget for the category if it doesn't exist
             if category not in category_widgets:
                 category_widget = QWidget()
-                category_layout = QVBoxLayout(category_widget)
+                category_layout = QFormLayout(category_widget)
                 category_widgets[category] = category_widget
             else:
                 category_widget = category_widgets[category]
                 category_layout = category_widget.layout()
 
             # Create the property input widget
-            prop_widget, input_field_widget = PropertyInputFactory.create(prop)
-            category_layout.addWidget(prop_widget)
+            input_field_widget = PropertyInputFactory.create(prop)
+            category_layout.addRow(f"{prop.name}:",input_field_widget)
 
             # Add the input field widget to the input widgets dictionary
             # NOTE: This is used to retrieve the values of the widgets that changed

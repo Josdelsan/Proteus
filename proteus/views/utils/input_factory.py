@@ -17,7 +17,8 @@ from typing import Dict, Callable, Tuple
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QDateEdit, QVBoxLayout, QTextEdit, QFormLayout
+from PyQt6.QtWidgets import QWidget, QLineEdit, QDateEdit, QTextEdit, QCheckBox
+from PyQt6.QtCore import Qt
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -39,48 +40,43 @@ from proteus.model.properties.classlist_property import ClassListProperty
 
 
 
-def _string_property_widget(property: StringProperty) -> Tuple[QWidget, QLineEdit]:
-    widget = QWidget()
+def _string_property_input(property: StringProperty) -> Tuple[QWidget, QLineEdit]:
+    string_input = QLineEdit()
+    string_input.setText(property.value)
+    return string_input
 
-    layout = QFormLayout()
-    widget.setLayout(layout)
+def _date_property_input(property) -> Tuple[QWidget, QDateEdit]:
+    date_input = QDateEdit()
+    date_input.setDate(property.value)
+    return date_input
 
-    label = QLabel(f"{property.name}:")
-    string_edit = QLineEdit()
-    string_edit.setText(property.value)
+def _markdown_property_input(property) -> Tuple[QWidget, QTextEdit]:
+    markdown_input = QTextEdit()
+    markdown_input.setPlainText(property.value)
+    return markdown_input
 
-    layout.addRow(label, string_edit)
+def _boolean_property_input(property) -> QLineEdit:
+    boolean_input = QCheckBox()
+    state = Qt.CheckState.Checked if bool(property.value) else Qt.CheckState.Unchecked
+    boolean_input.setCheckState(state)
+    return  boolean_input
 
-    return widget, string_edit
+def _float_property_input(property) -> QLineEdit:
+    # TODO: Perform validation to prevent non-numeric values
+    float_input = QLineEdit()
+    float_input.setText(str(property.value))
+    return float_input
 
-def _date_property_widget(property) -> Tuple[QWidget, QDateEdit]:
-    widget = QWidget()
+def _integer_property_input(property) -> QLineEdit:
+    # TODO: Perform validation to prevent non-numeric values
+    float_input = QLineEdit()
+    float_input.setText(str(property.value))
+    return float_input
 
-    layout = QFormLayout()
-    widget.setLayout(layout)
-
-    label = QLabel(f"{property.name}:")
-    date_edit = QDateEdit()
-    date_edit.setDate(property.value)
-
-    layout.addRow(label, date_edit)
-
-    return widget, date_edit
-
-def _markdown_property_widget(property) -> Tuple[QWidget, QTextEdit]:
-    widget = QWidget()
-
-    layout = QVBoxLayout()
-    widget.setLayout(layout)
-
-    label = QLabel(f"{property.name}:")
-    markdown_edit = QTextEdit()
-    markdown_edit.setPlainText(property.value)
-
-    layout.addWidget(label)
-    layout.addWidget(markdown_edit)
-
-    return widget, markdown_edit
+def _enum_property_input(property) -> QLineEdit:
+    enum_input = QLineEdit()
+    enum_input.setText(property.value)
+    return enum_input
 
 # --------------------------------------------------------------------------
 # Class: PropertyInputFactory
@@ -93,15 +89,20 @@ def _markdown_property_widget(property) -> Tuple[QWidget, QTextEdit]:
 class PropertyInputFactory():
 
     property_input_map : Dict[type[Property], Callable] = {
-        StringProperty: _string_property_widget,
-        DateProperty: _date_property_widget,
-        MarkdownProperty: _markdown_property_widget,
+        StringProperty: _string_property_input,
+        DateProperty: _date_property_input,
+        MarkdownProperty: _markdown_property_input,
+        BooleanProperty: _boolean_property_input,
+        FloatProperty: _float_property_input,
+        IntegerProperty: _integer_property_input,
+        EnumProperty: _enum_property_input,
     }
 
     widget_conversion_map: Dict[type[QWidget], Callable[[QWidget], str]] = {
         QLineEdit: lambda widget: widget.text(),
-        QDateEdit: lambda widget: widget.date(),
+        QDateEdit: lambda widget: widget.date().toPyDate(),
         QTextEdit: lambda widget: widget.toPlainText(),
+        QCheckBox: lambda widget: widget.isChecked(),
     }
 
     # ----------------------------------------------------------------------
@@ -111,12 +112,12 @@ class PropertyInputFactory():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def create(cls, property: Property):
+    @staticmethod
+    def create(property: Property):
         try:
-            return cls.property_input_map[type(property)](property)
+            return PropertyInputFactory.property_input_map[type(property)](property)
         except KeyError:
-            proteus.logger.error(f"Property input for {type(property)} not found")
+            proteus.logger.error(f"Property input widget for {type(property)} was not found")
             return None
     
     # ----------------------------------------------------------------------
@@ -127,11 +128,11 @@ class PropertyInputFactory():
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def widget_to_value(cls, widget) -> str:
+    @staticmethod
+    def widget_to_value(widget) -> str:
         widget_type = type(widget)
-        if widget_type in cls.widget_conversion_map:
-            conversion_func = cls.widget_conversion_map[widget_type]
+        if widget_type in PropertyInputFactory.widget_conversion_map:
+            conversion_func = PropertyInputFactory.widget_conversion_map[widget_type]
             return conversion_func(widget)
         else:
             proteus.logger.error(f"Unsupported widget type {widget_type} when converting to string")
