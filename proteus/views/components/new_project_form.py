@@ -16,8 +16,9 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QFrame, QSizePolicy, QDialogButtonBox
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QLabel, \
+                            QComboBox, QLineEdit, QPushButton, QFrame, \
+                            QSizePolicy, QDialogButtonBox
 
 
 # --------------------------------------------------------------------------
@@ -26,7 +27,6 @@ from PyQt6.QtGui import QAction
 
 from proteus.model.project import Project
 from proteus.controller.command_stack import Command
-from proteus.views.components.abstract_component import AbstractComponent
 
 # --------------------------------------------------------------------------
 # Class: NewProject
@@ -35,7 +35,7 @@ from proteus.views.components.abstract_component import AbstractComponent
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectForm(QWidget, AbstractComponent):
+class NewProjectForm(QWidget):
     """
     New project component class for the PROTEUS application. It provides a
     form to create new projects from project archetypes.
@@ -51,7 +51,6 @@ class NewProjectForm(QWidget, AbstractComponent):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
-        AbstractComponent.__init__(self)
 
         # Properties for creating a new project
         self._name = None
@@ -166,7 +165,7 @@ class NewProjectForm(QWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs):
+    def update_component(self, *args, **kwargs):
         pass
 
     # ----------------------------------------------------------------------

@@ -15,18 +15,16 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, \
+                            QDialogButtonBox
 
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.input_factory import PropertyInputFactory
 from proteus.controller.command_stack import Command
-from proteus.views.components.abstract_component import AbstractComponent
-
 
 # --------------------------------------------------------------------------
 # Class: PropertyForm
@@ -35,12 +33,12 @@ from proteus.views.components.abstract_component import AbstractComponent
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyForm(QWidget, AbstractComponent):
+class PropertyForm(QWidget):
     """
     Class for the PROTEUS application properties form component. It is used
-    to display the properties of an element in a form. Properties are grouped
-    by categories in tabs. Each property is displayed in a widget that is
-    created using the PropertyInputFactory class.
+    to display the properties of an element in a form. Properties are
+    grouped by categories in tabs. Each property is displayed in a widget
+    that is created using the PropertyInputFactory class.
     """
 
     # ----------------------------------------------------------------------
@@ -57,10 +55,14 @@ class PropertyForm(QWidget, AbstractComponent):
         the component.
         """
         super().__init__(*args, **kwargs)
-        AbstractComponent.__init__(self, element_id)
+
+        # Set the element id, reference to the element whose properties
+        # will be displayed
+        self.element_id = element_id
 
         # Create a dictionary to hold the input widgets for each property
-        # NOTE: This is used to get the input values when the form is accepted
+        # NOTE: This is used to get the input values when the form is
+        #       accepted
         self.input_widgets = {}
 
         # Create the component
@@ -140,7 +142,7 @@ class PropertyForm(QWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
+    def update_component(self, *args, **kwargs) -> None:
         """
         Note: This component is never updated once created.
         """
@@ -157,8 +159,8 @@ class PropertyForm(QWidget, AbstractComponent):
     # ----------------------------------------------------------------------
     def save_button_clicked(self):
         """
-        Manage the save button clicked event. It gets the values of the input
-        widgets and updates the properties of the element.
+        Manage the save button clicked event. It gets the values of the
+        input widgets and updates the properties of the element.
         """
         # Empty dictionary to hold the properties values to update
         update_list = []

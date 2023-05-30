@@ -18,8 +18,7 @@ from typing import Dict
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QLabel, QTabWidget, QDialogButtonBox
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem
 
 
 # --------------------------------------------------------------------------
@@ -30,9 +29,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
-from proteus.views.utils.input_factory import PropertyInputFactory
 from proteus.views.components.property_form import PropertyForm
-from proteus.views.components.abstract_component import AbstractComponent
 from proteus.controller.command_stack import Command
 
 # --------------------------------------------------------------------------
@@ -44,7 +41,7 @@ from proteus.controller.command_stack import Command
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 @subscribe_to([Event.MODIFY_OBJECT])
-class DocumentTree(QWidget, AbstractComponent):
+class DocumentTree(QWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
@@ -60,14 +57,16 @@ class DocumentTree(QWidget, AbstractComponent):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
-        AbstractComponent.__init__(self, element_id)
+
+        # Set tree document id
+        self.element_id = element_id
 
         # Form window widget
         # NOTE: This is used to avoid memory leaks
         self.form_window = None
 
         # Tree items dictionary used to make easier the access to the tree
-        # items on update events
+        # items on update events. Access by object id
         self.tree_items = {}
 
         # Create the component

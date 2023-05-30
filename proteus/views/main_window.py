@@ -22,9 +22,9 @@ from PyQt6.QtWidgets import QMainWindow
 
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
+from proteus.views.components.archetype_menu import ArchetypeMenu
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
-from proteus.views.components.abstract_component import AbstractComponent
 
 
 # --------------------------------------------------------------------------
@@ -35,7 +35,7 @@ from proteus.views.components.abstract_component import AbstractComponent
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 @subscribe_to(update_events=[Event.OPEN_PROJECT])
-class MainWindow(QMainWindow, AbstractComponent):
+class MainWindow(QMainWindow):
     """
     Main window for the PROTEUS application. It is used to display the main
     menu and the documents tab menu. Update the main window when a new
@@ -56,7 +56,6 @@ class MainWindow(QMainWindow, AbstractComponent):
         the component.
         """
         super().__init__(*args, **kwargs)
-        AbstractComponent.__init__(self)
 
         # Create the component
         self.create_component()
@@ -82,6 +81,10 @@ class MainWindow(QMainWindow, AbstractComponent):
         mainmenu = MainMenu(self)
         self.setMenuBar(mainmenu)
 
+        # Create archeype tab menu
+        archetype_menu = ArchetypeMenu("Archetype menu", self)
+        self.addToolBar(archetype_menu)
+
         # Create document list menu
         self.document_list = DocumentList(self)
         self.setCentralWidget(self.document_list)
@@ -93,7 +96,7 @@ class MainWindow(QMainWindow, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
+    def update_component(self, *args, **kwargs) -> None:
         """
         Update the main window when a new project is opened.
         """
@@ -106,6 +109,3 @@ class MainWindow(QMainWindow, AbstractComponent):
         # Create document list menu
         self.document_list = DocumentList(self)
         self.setCentralWidget(self.document_list)
-
-
-

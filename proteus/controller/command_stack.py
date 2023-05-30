@@ -194,6 +194,10 @@ class Command():
         """
         return ProjectService._get_element_by_id(element_id)
     
+    # ======================================================================
+    # Archetype methods
+    # ======================================================================
+    
     # ----------------------------------------------------------------------
     # Method     : create_project
     # Description: Create a new project with the given archetype id, name
@@ -229,3 +233,17 @@ class Command():
         Get project archetypes.
         """
         return ArchetypeService.get_project_archetypes()
+
+    # ----------------------------------------------------------------------
+    # Method     : get_object_archetypes
+    # Description: Get object archetypes.
+    # Date       : 29/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_object_archetypes(cls) -> Dict[str, List[Object]]:
+        """
+        Get object archetypes.
+        """
+        return ArchetypeService.get_object_archetypes()

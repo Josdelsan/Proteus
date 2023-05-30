@@ -1,5 +1,5 @@
 # ==========================================================================
-# File: menu_bar.py
+# File: main_menu.py
 # Description: PyQT6 menubar for the PROTEUS application
 # Date: 16/05/2023
 # Version: 0.1
@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,10 +24,8 @@ from PyQt6.QtCore import Qt
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.project import Project
 from proteus.views.utils.decorators import subscribe_to
 from proteus.controller.command_stack import Command
-from proteus.views.components.abstract_component import AbstractComponent
 from proteus.views.components.new_project_form import NewProjectForm
 
 
@@ -40,7 +37,7 @@ from proteus.views.components.new_project_form import NewProjectForm
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 @subscribe_to()
-class MainMenu(QMenuBar, AbstractComponent):
+class MainMenu(QMenuBar):
     """
     Menubar for the PROTEUS application. It is used to manage the
     creation of the menubar and its actions.
@@ -56,7 +53,6 @@ class MainMenu(QMenuBar, AbstractComponent):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
-        AbstractComponent.__init__(self)
 
         # New project window widget
         # NOTE: This is needed to avoid the garbage collector to delete the
@@ -135,7 +131,7 @@ class MainMenu(QMenuBar, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
+    def update_component(self, *args, **kwargs) -> None:
         # TODO: Update main menu options depending on the current state
         #       of the application
         pass

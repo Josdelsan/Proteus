@@ -5,6 +5,7 @@
     acceptedChildren=":Proteus-none"
 >
     <properties>
+        <stringProperty name="name">Paso caso de uso</stringProperty>
         <markdownProperty name="description">El usuario solicita al sistema...</markdownProperty>
     </properties>
 

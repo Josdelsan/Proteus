@@ -11,7 +11,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,7 +26,6 @@ from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.document_tree import DocumentTree
-from proteus.views.components.abstract_component import AbstractComponent
 from proteus.controller.command_stack import Command
 
 
@@ -40,7 +38,7 @@ from proteus.controller.command_stack import Command
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 @subscribe_to([Event.OPEN_PROJECT])
-class DocumentList(QTabWidget, AbstractComponent):
+class DocumentList(QTabWidget):
     """
     Documents tab menu component for the PROTEUS application. It is used to
     display the documents of the project in a tab menu. It also manages the
@@ -57,7 +55,6 @@ class DocumentList(QTabWidget, AbstractComponent):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
-        AbstractComponent.__init__(self)
 
         # Create the component
         self.create_component()
@@ -80,7 +77,7 @@ class DocumentList(QTabWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
+    def update_component(self, *args, **kwargs) -> None:
         """
         Update the documents tab menu component.
         """
@@ -91,7 +88,6 @@ class DocumentList(QTabWidget, AbstractComponent):
         for document in project_structure:
             self.add_document(document)
 
-
     # ----------------------------------------------------------------------
     # Method     : add_document
     # Description: Add a document to the tab menu creating its child
@@ -100,7 +96,7 @@ class DocumentList(QTabWidget, AbstractComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def add_document(self, document : Object):
+    def add_document(self, document: Object):
         """
         Add a document to the tab menu creating its child components (tree and
         render).
@@ -108,7 +104,7 @@ class DocumentList(QTabWidget, AbstractComponent):
         # Create document tab widget
         tab = QWidget()
         tab_layout = QVBoxLayout(tab)
-        
+
         # Splitter
         splitter = QSplitter()
         splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
@@ -120,14 +116,12 @@ class DocumentList(QTabWidget, AbstractComponent):
         )
         splitter.addWidget(document_tree)
 
-
         container2 = QWidget()
         container2.setStyleSheet("background-color: #FFFFFF;")
         container2.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
         splitter.addWidget(container2)
-
 
         # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)
