@@ -182,7 +182,7 @@ class ProjectService():
         """
         Saves the project to disk.
         """
-        cls.project.save()
+        cls.project.save_project()
 
     # ----------------------------------------------------------------------
     # Method     : delete_object

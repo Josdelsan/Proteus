@@ -40,7 +40,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.MODIFY_OBJECT])
+@subscribe_to([Event.MODIFY_OBJECT, Event.SAVE_PROJECT])
 class DocumentTree(QWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
@@ -119,8 +119,17 @@ class DocumentTree(QWidget):
         """
         Update the document tree component depending on the event received.
         """
+        def tree_item_color_update(tree_item, object):
+            if object.state is ProteusState.DIRTY:
+                tree_item.setForeground(0, Qt.GlobalColor.darkYellow)
+            elif object.state is ProteusState.FRESH:
+                tree_item.setForeground(0, Qt.GlobalColor.darkGreen)
+            else:
+                tree_item.setForeground(0, Qt.GlobalColor.black)
+
         # Handle events
         match event:
+            # Change the modified object name and color
             case Event.MODIFY_OBJECT:
                 # Get the modifies element id
                 element_id = kwargs.get("element_id")
@@ -135,14 +144,14 @@ class DocumentTree(QWidget):
 
                     # Update the tree item
                     tree_item.setText(0, object.get_property("name").value)
-                    
-                    if object.state is ProteusState.DIRTY:
-                        tree_item.setForeground(0, Qt.GlobalColor.darkGreen)
-                    else:
-                        tree_item.setForeground(0, Qt.GlobalColor.black)
+                    tree_item_color_update(tree_item, object)
+            
+            # Change all the tree items color
+            case Event.SAVE_PROJECT:
+                items = self.tree_items.values()
+                for tree_item in items:
+                    tree_item.setForeground(0, Qt.GlobalColor.black)
 
-
-        
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree
@@ -169,6 +178,9 @@ class DocumentTree(QWidget):
             # Populate child item
             self.populate_tree(child_item, child_dict[child]) 
 
+    # ----------------------------------------------------------------------
+    # Component action methods
+    # ----------------------------------------------------------------------
 
     # ----------------------------------------------------------------------
     # Method     : object_properties_form

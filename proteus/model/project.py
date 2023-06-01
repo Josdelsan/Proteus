@@ -320,6 +320,8 @@ class Project(AbstractObject):
             tree = ET.ElementTree(root)
             tree.write(self.path, pretty_print=True, xml_declaration=True, encoding="utf-8")
             self.state = ProteusState.CLEAN
+        
+        log.info(f"Project saved successfully.")
 
         
     # ----------------------------------------------------------------------
@@ -370,7 +372,7 @@ class Project(AbstractObject):
             f"Error loading the cloned project {target_dir}"
         
         log.info(f"Project cloned successfully.")
-        del cloned_project
+        return cloned_project
     
     
     

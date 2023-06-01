@@ -22,6 +22,7 @@ from PyQt6.QtGui import QUndoStack
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
+import proteus
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
@@ -91,6 +92,7 @@ class Command():
         """
         Undo the last command. Only works if the command is undoable.
         """
+        proteus.logger.info("Undoing last command")
         cls._get_instance().undo()
 
     # ----------------------------------------------------------------------
@@ -106,8 +108,12 @@ class Command():
         Redo the last command. Only works if the command is
         undoable/redoable.
         """
+        proteus.logger.info("Redoing last command")
         cls._get_instance().redo()
 
+    # ======================================================================
+    # Project methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : update_properties
@@ -130,6 +136,7 @@ class Command():
         :param new_properties: The new properties of the element.
         """
         # Push the command to the command stack
+        proteus.logger.info(f"Updating properties of element with id: {element_id}")
         cls._push(UpdatePropertiesCommand(element_id, new_properties))
 
     # ----------------------------------------------------------------------
@@ -149,6 +156,7 @@ class Command():
 
         :param project_path: The path of the project to load.
         """
+        proteus.logger.info(f"Loading project from path: {project_path}")
         ProjectService.load_project(project_path)
         EventManager().notify(event=Event.OPEN_PROJECT)
 
@@ -164,6 +172,7 @@ class Command():
         """
         Get the structure of an object given its id.
         """
+        proteus.logger.info(f"Getting structure of object with id: {object_id}")
         return ProjectService.get_object_structure(object_id)
     
     # ----------------------------------------------------------------------
@@ -178,7 +187,27 @@ class Command():
         """
         Get the structure of the current project.
         """
+        proteus.logger.info("Getting structure of current project")
         return ProjectService.get_project_structure()
+    
+    # ----------------------------------------------------------------------
+    # Method     : save_project
+    # Description: Save the current project state including all the children
+    #              objects and documents.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def save_project(cls):
+        """
+        Save the current project state including all the children objects
+        and documents.
+        """
+        proteus.logger.info("Saving current project")
+        ProjectService.save_project()
+        cls._get_instance().clear()
+        EventManager().notify(event=Event.SAVE_PROJECT)
     
     # ----------------------------------------------------------------------
     # Method     : get_element
@@ -192,6 +221,7 @@ class Command():
         """
         Get the element given its id.
         """
+        proteus.logger.info(f"Getting element with id: {element_id}")
         return ProjectService._get_element_by_id(element_id)
     
     # ======================================================================
@@ -215,6 +245,7 @@ class Command():
         :param name: The name of the project.
         :param path: The path of the project.
         """
+        proteus.logger.info(f"Creating project with archetype id: {archetype_id}, name: {name} and path: {path}")
         ArchetypeService.create_project(archetype_id, name, path)
         project_path : str = f"{path}/{name}"
         cls.load_project(project_path)
@@ -232,6 +263,7 @@ class Command():
         """
         Get project archetypes.
         """
+        proteus.logger.info("Getting project archetypes")
         return ArchetypeService.get_project_archetypes()
 
     # ----------------------------------------------------------------------
@@ -246,4 +278,5 @@ class Command():
         """
         Get object archetypes.
         """
+        proteus.logger.info("Getting object archetypes")
         return ArchetypeService.get_object_archetypes()

@@ -31,9 +31,9 @@ from typing import List, Dict
 # --------------------------------------------------------------------------
 class Event(Enum):
     OPEN_PROJECT = "open_project"
+    SAVE_PROJECT = "save_project"
     MODIFY_OBJECT = "modify_object"
-    # TODO: Add more events
-
+    
 
 # --------------------------------------------------------------------------
 # Class: EventManager

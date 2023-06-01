@@ -135,6 +135,7 @@ class MainMenu(QDockWidget):
 
         # Save action
         save_button = buttons.save_project_button(self)
+        save_button.clicked.connect(Command.save_project)
         tab_layout.addWidget(save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ---------
