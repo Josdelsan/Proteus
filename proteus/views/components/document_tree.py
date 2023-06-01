@@ -29,7 +29,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
-from proteus.views.components.property_form import PropertyForm
+from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Command
 
 # --------------------------------------------------------------------------
@@ -185,35 +185,11 @@ class DocumentTree(QWidget):
         properties separated by categories. Only one form can be opened at a
         time.
         """
-        def form_window_cleanup():
-            # Cleanup the reference to the form window
-            self.form_window = None
-            self.parent().setEnabled(True)
+        # Get item id
+        item_id = item.data(1, 0)
 
+        # Create the properties form window
+        form_window = PropertyDialog(element_id=item_id)
+        form_window.exec()
 
-        if self.form_window is None:
-
-            # Get item id
-            item_id = item.data(1, 0)
-
-            # Create the properties form window
-            self.form_window = PropertyForm(element_id=item_id)
-
-            # Set the widget to be deleted on close and to stay on top
-            self.form_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  
-            self.form_window.setWindowFlags(self.form_window.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
-
-            # Show the form window
-            self.form_window.show()
-
-            # Connect the form window's `destroyed` signal to cleanup
-            self.form_window.destroyed.connect(form_window_cleanup)
-
-            # Disable the main application window
-            self.parent().setEnabled(False)
-        else:
-            # If the window is already open, activate it, raise it, and play a system alert sound
-            self.form_window.activateWindow()
-            self.form_window.raise_()
-            QApplication.beep()
 

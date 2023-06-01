@@ -15,6 +15,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtCore import Qt
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -22,7 +23,6 @@ from PyQt6.QtWidgets import QMainWindow
 
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
-from proteus.views.components.archetype_menu import ArchetypeMenu
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 
@@ -77,17 +77,16 @@ class MainWindow(QMainWindow):
         # Set the window size
         self.resize(800, 600)
 
-        # Create the main top menu
-        mainmenu = MainMenu(self)
-        self.setMenuBar(mainmenu)
-
         # Create archeype tab menu
-        archetype_menu = ArchetypeMenu("Archetype menu", self)
-        self.addToolBar(archetype_menu)
+        main_menu = MainMenu("Archetype menu", self)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,main_menu)
 
         # Create document list menu
         self.document_list = DocumentList(self)
         self.setCentralWidget(self.document_list)
+
+        # Create the status bar
+        self.statusBar().showNormal()
 
     # ----------------------------------------------------------------------
     # Method     : create_component

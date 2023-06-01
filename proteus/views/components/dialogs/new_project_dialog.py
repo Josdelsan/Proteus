@@ -1,5 +1,5 @@
 # ==========================================================================
-# File: new_project_form.py
+# File: new_project_dialog.py
 # Description: PyQT6 new project component for the PROTEUS application
 # Date: 28/05/2023
 # Version: 0.1
@@ -16,7 +16,7 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QLabel, \
+from PyQt6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QLabel, \
                             QComboBox, QLineEdit, QPushButton, QFrame, \
                             QSizePolicy, QDialogButtonBox
 
@@ -35,10 +35,10 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectForm(QWidget):
+class NewProjectDialog(QDialog):
     """
     New project component class for the PROTEUS application. It provides a
-    form to create new projects from project archetypes.
+    dialog form to create new projects from project archetypes.
     """
 
     # ----------------------------------------------------------------------

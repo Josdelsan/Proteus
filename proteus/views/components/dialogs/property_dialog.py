@@ -1,5 +1,5 @@
 # ==========================================================================
-# File: property_form.py
+# File: property_dialog.py
 # Description: PyQT6 properties form component for the PROTEUS application
 # Date: 26/05/2023
 # Version: 0.1
@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, \
-                            QDialogButtonBox, QFormLayout
+                            QDialogButtonBox, QFormLayout, QDialog
 
 
 # --------------------------------------------------------------------------
@@ -33,7 +33,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyForm(QWidget):
+class PropertyDialog(QDialog):
     """
     Class for the PROTEUS application properties form component. It is used
     to display the properties of an element in a form. Properties are
