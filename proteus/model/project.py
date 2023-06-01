@@ -263,6 +263,9 @@ class Project(AbstractObject):
         self.documents.insert(position, document)
         document.parent = self
 
+        # Set dirty flag
+        self.state = ProteusState.DIRTY
+
     # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.

@@ -239,7 +239,7 @@ class ArchetypeService():
                       archetype_id : ProteusID,
                       parent : Object,
                       project : Project
-                      ) -> None:
+                      ) -> Object:
         """
         Creates a new object/document from an archetype given the new parent,
         project and an archetype id.
@@ -252,4 +252,4 @@ class ArchetypeService():
             f"Archetype with id {archetype_id} is not an object archetype"
 
         # Create the object from the archetype
-        object_archetype.clone_object(parent, project)
+        return object_archetype.clone_object(parent, project)

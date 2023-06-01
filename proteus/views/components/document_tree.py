@@ -40,7 +40,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.MODIFY_OBJECT, Event.SAVE_PROJECT])
+@subscribe_to([Event.MODIFY_OBJECT, Event.SAVE_PROJECT, Event.CLONE_OBJECT, Event.DELETE_OBJECT])
 class DocumentTree(QWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
@@ -99,6 +99,7 @@ class DocumentTree(QWidget):
 
         # Connect double click to object properties form
         tree_widget.itemDoubleClicked.connect(self.object_properties_form)
+        tree_widget.itemClicked.connect(self.select_object)
 
         # Expand all items and disable double click expand
         tree_widget.expandAll()
@@ -135,16 +136,17 @@ class DocumentTree(QWidget):
                 element_id = kwargs.get("element_id")
 
                 # Check if the element id is in the tree items dictionary
-                if element_id in self.tree_items:
-                    # Get the tree item
-                    tree_item = self.tree_items[element_id]
+                if element_id not in self.tree_items:
+                    return
+                # Get the tree item
+                tree_item = self.tree_items[element_id]
 
-                    # Get the object
-                    object : Object = Command.get_element(element_id)
+                # Get the object
+                object : Object = Command.get_element(element_id)
 
-                    # Update the tree item
-                    tree_item.setText(0, object.get_property("name").value)
-                    tree_item_color_update(tree_item, object)
+                # Update the tree item
+                tree_item.setText(0, object.get_property("name").value)
+                tree_item_color_update(tree_item, object)
             
             # Change all the tree items color
             case Event.SAVE_PROJECT:
@@ -152,6 +154,43 @@ class DocumentTree(QWidget):
                 for tree_item in items:
                     tree_item.setForeground(0, Qt.GlobalColor.black)
 
+            # Add the new object to the tree
+            case Event.CLONE_OBJECT:
+                # Get the new object
+                new_object = kwargs.get("cloned_object")
+
+                # Check if the parent item is in the tree items dictionary
+                if new_object.parent.id not in self.tree_items:
+                    return
+                
+                # Get the parent item
+                parent_item = self.tree_items[new_object.parent.id]
+
+                # Create the new item
+                new_item = QTreeWidgetItem(parent_item, [new_object.get_property("name").value])
+                tree_item_color_update(new_item, new_object)
+                new_item.setData(1, 0, new_object.id)
+
+                # Add the new item to the tree items dictionary
+                self.tree_items[new_object.id] = new_item
+
+            # Remove the object from the tree
+            case Event.DELETE_OBJECT:
+                # Get the deleted object id
+                element_id = kwargs.get("element_id")
+
+                # Check if the element id is in the tree items dictionary
+                if element_id not in self.tree_items:
+                    return
+                
+                # Get the tree item
+                tree_item = self.tree_items[element_id]
+
+                # Remove the item from the tree
+                tree_item.parent().removeChild(tree_item)
+
+                # Remove the item from the tree items dictionary
+                self.tree_items.pop(element_id)
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree
@@ -203,5 +242,23 @@ class DocumentTree(QWidget):
         # Create the properties form window
         form_window = PropertyDialog(element_id=item_id)
         form_window.exec()
+
+    # ----------------------------------------------------------------------
+    # Method     : select_object
+    # Description: Manage the itemClicked event. Select the object in the
+    #              view.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def select_object(self, item):
+        """
+        Manage the itemClicked event. Select the object in the view.
+        """
+        # Get item id
+        item_id = item.data(1, 0)
+
+        # Select object in the view
+        Command.select_object(item_id)
 
 

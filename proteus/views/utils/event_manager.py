@@ -33,6 +33,8 @@ class Event(Enum):
     OPEN_PROJECT = "open_project"
     SAVE_PROJECT = "save_project"
     MODIFY_OBJECT = "modify_object"
+    CLONE_OBJECT = "clone_object"
+    DELETE_OBJECT = "delete_object"
     
 
 # --------------------------------------------------------------------------

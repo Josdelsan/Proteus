@@ -259,4 +259,4 @@ class MainMenu(QDockWidget):
     # ----------------------------------------------------------------------
     def clone_archetype(self, archetype_id: str) -> None:
         """ """
-        print(archetype_id)
+        Command.create_object(archetype_id=archetype_id)

@@ -296,6 +296,10 @@ class Object(AbstractObject):
         self.children.insert(position, child)
         child.parent = self
 
+        # Set dirty flag
+        if self.state != ProteusState.FRESH:
+            self.state = ProteusState.DIRTY
+
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml
@@ -337,7 +341,7 @@ class Object(AbstractObject):
     #              Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
 
-    def clone_object(self, parent: Union[Object,Project], project: Project, position: int = None) -> None:
+    def clone_object(self, parent: Union[Object,Project], project: Project, position: int = None) -> Object:
         """
         Function that clones an object in a new parent. This function doesn't
         save the object in the system but add it to the parent children so

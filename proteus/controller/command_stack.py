@@ -24,6 +24,7 @@ from PyQt6.QtGui import QUndoStack
 
 import proteus
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
+from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -47,6 +48,7 @@ class Command():
 
     # Class attributes
     _stack : QUndoStack = None
+    _last_selected_item : str = None
 
     # ----------------------------------------------------------------------
     # Method     : get_instance
@@ -110,6 +112,20 @@ class Command():
         """
         proteus.logger.info("Redoing last command")
         cls._get_instance().redo()
+
+    # ----------------------------------------------------------------------
+    # Method     : select_object
+    # Description: Store last selected object id by the user.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def select_object(cls, object_id):
+        """
+        Store last selected object id by the user.
+        """
+        cls._last_selected_item = object_id
 
     # ======================================================================
     # Project methods
@@ -250,6 +266,24 @@ class Command():
         project_path : str = f"{path}/{name}"
         cls.load_project(project_path)
 
+    # ----------------------------------------------------------------------
+    # Method     : create_object
+    # Description: Create a new object with the given archetype id
+    #              and parent id.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def create_object(cls, archetype_id):
+        """
+        Create a new object with the given archetype id and parent id.
+
+        :param archetype_id: The id of the archetype to create the object.
+        :param parent_id: The id of the parent object.
+        """
+        proteus.logger.info(f"Creating object from archetype: {archetype_id} and parent id: {cls._last_selected_item}")
+        cls._push(CloneArchetypeObjectCommand(archetype_id, cls._last_selected_item))
 
     # ----------------------------------------------------------------------
     # Method     : get_project_archetypes
