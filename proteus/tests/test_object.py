@@ -277,19 +277,5 @@ def test_set_property(sample_object: Object):
         f"Property was not set. Expected value: {new_property} \
         Actual value: {sample_object.get_property(name)}"
 
-def test_delete(sample_document: Object):
-    """
-    Test Object delete method
-    """
-    sample_document.delete()
-
-    # Check that object was marked as DEAD
-    assert(sample_document.state == ProteusState.DEAD), \
-        f"Object was not marked as DEAD. State: {sample_document.state}"
-    
-    # Check object children were marked as DEAD
-    for child in sample_document.children:
-        assert(child.state == ProteusState.DEAD), \
-            f"Object child was not marked as DEAD. State: {child.state}"
 
 # NOTE save method is tested with the save_project method in test_project.py

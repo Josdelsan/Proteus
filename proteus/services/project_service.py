@@ -28,7 +28,9 @@ from typing import Union, List, Dict
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.model.abstract_object import ProteusState
 from proteus.model.properties import Property
+
 
 # --------------------------------------------------------------------------
 # Class: ProjectService
@@ -37,17 +39,17 @@ from proteus.model.properties import Property
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ProjectService():
+class ProjectService:
     """
     Acts as an interface for project, documents and objects operations.
     Loads a project into memory and provides methods to perform operations.
     """
 
-    project       : Project                 = None
-    project_index : Dict[ProteusID, Object] = {}
+    project: Project = None
+    project_index: Dict[ProteusID, Object] = {}
 
     @classmethod
-    def load_project (cls, project_path: str):
+    def load_project(cls, project_path: str):
         """
         Initializes the project service with the given project path. Force
         the load of every object in the project to store it in a dictionary
@@ -64,7 +66,6 @@ class ProjectService():
         # Populate project index
         cls._populate_index()
 
-
     # ----------------------------------------------------------------------
     # Method     : _get_element
     # Description: Helper method that returns the project or object with
@@ -74,7 +75,7 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def _get_element_by_id (cls, element_id: ProteusID) -> Union[Project, Object]:
+    def _get_element_by_id(cls, element_id: ProteusID) -> Union[Project, Object]:
         """
         Returns the project or object with the given id.
 
@@ -86,12 +87,13 @@ class ProjectService():
             cls._populate_index()
 
         # Check if the element is in the index
-        assert element_id in cls.project_index, \
-            f"Element with id {element_id} not found."
+        assert (
+            element_id in cls.project_index
+        ), f"Element with id {element_id} not found."
 
         # Return the element
         return cls.project_index[element_id]
-    
+
     # ----------------------------------------------------------------------
     # Method     : _populate_index
     # Description: Helper method that populates the project index with
@@ -102,12 +104,13 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def _populate_index (cls) -> None:
+    def _populate_index(cls) -> None:
         """
         Populates the project index with the all the objects in the project.
         If an object was already in the index, it will be ignored.
         """
-        def _populate_index_private (object: Object) -> None:
+
+        def _populate_index_private(object: Object) -> None:
             """
             Private helper method that populates the project index with
             the all the objects in the project recursively.
@@ -139,7 +142,7 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_properties (cls, element_id : ProteusID) -> Dict[str, Property]:
+    def get_properties(cls, element_id: ProteusID) -> Dict[str, Property]:
         """
         Returns the project or object properties.
 
@@ -149,7 +152,7 @@ class ProjectService():
         element = cls._get_element_by_id(element_id)
 
         return element.properties
-        
+
     # ----------------------------------------------------------------------
     # Method     : update_properties
     # Description: Updates the project or object properties.
@@ -158,7 +161,9 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def update_properties (cls, element_id : ProteusID, properties: List[Property]) -> None:
+    def update_properties(
+        cls, element_id: ProteusID, properties: List[Property]
+    ) -> None:
         """
         Updates the project or object properties.
 
@@ -178,33 +183,42 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def save_project (cls) -> None:
+    def save_project(cls) -> None:
         """
         Saves the project to disk.
         """
         cls.project.save_project()
 
     # ----------------------------------------------------------------------
-    # Method     : delete_object
-    # Description: Deletes the object with the given id from the project.
-    #              Changes are not saved to disk until save_project is
-    #              called.
+    # Method     : change_state_recursive
+    # Description: Changes the state of the object with the given id and
+    #              all its children recursively.
     # Date       : 06/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def delete_object (cls, object_id: ProteusID) -> None:
+    def change_state(cls, object_id: ProteusID, new_state : ProteusState) -> None:
         """
-        Deletes the object with the given id from the project. Changes are
-        not saved to disk until save_project is called.
+        Changes the state of the object with the given id and all its children
+        recursively.
 
-        :param object_id: Id of the object to delete.
+        :param object_id: Id of the object to change state.
+        :param new_state: New state of the object.
         """
+        # Private helper function
+        def _change_state(object: Object, new_state : ProteusState) -> None:
+            # Change state of object
+            object.state = new_state
+
+            # Change state of children
+            for child in object.get_descendants():
+                _change_state(child, new_state)
+
         # Get object using helper method
         object = cls._get_element_by_id(object_id)
 
-        object.delete()
+        _change_state(object, new_state)
 
     # ----------------------------------------------------------------------
     # Method     : get_object_structure
@@ -214,7 +228,7 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_object_structure (cls, object_id: ProteusID) -> Dict[Object, List]:
+    def get_object_structure(cls, object_id: ProteusID) -> Dict[Object, List]:
         """
         Returns the element structure as a tree. Each element is represented
         by a dictionary with the following structure: {id: [{id: [{...}, {...}, ...]}, {...}, ...]}.
@@ -225,44 +239,42 @@ class ProjectService():
         :return: Dictionary with the element structure.
         """
         # Get object using helper method
-        object : Object = cls._get_element_by_id(object_id)
-        
+        object: Object = cls._get_element_by_id(object_id)
+
         # Initialize an empty dictionary to store the object structure
-        obj_struc : Dict[Object, List] = {}
+        obj_struc: Dict[Object, List] = {}
 
         # Create object structure
-        obj_struc_list : List = cls._get_object_structure(object)
+        obj_struc_list: List = cls._get_object_structure(object)
         obj_struc[object] = obj_struc_list
 
         return obj_struc
-        
+
     @classmethod
-    def _get_object_structure (cls, object: Object) -> Dict[Object, List]:
+    def _get_object_structure(cls, object: Object) -> Dict[Object, List]:
         """
         Private method for get_object_structure.
         """
         # Check that the element is an object
-        assert isinstance(object, Object), \
-            f"Element with id {object} is not an object."
-        
+        assert isinstance(object, Object), f"Element with id {object} is not an object."
+
         # Initialize an empty list to store the objects
-        children_struc : List = list()
+        children_struc: List = list()
 
         # Add children to the structure
         for child in object.get_descendants():
-
             # Initialize an empty dictionary to store the current object structure
-            obj_struc : Dict[Object, List] = {}
+            obj_struc: Dict[Object, List] = {}
 
             # Create child structure
-            child_struc : Dict[Object, List] = cls._get_object_structure(child)
+            child_struc: Dict[Object, List] = cls._get_object_structure(child)
             obj_struc[child] = child_struc
 
             # Add child to the list
             children_struc.append(obj_struc)
 
         return children_struc
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_project_structure
     # Description: Returns the project structure one depth level.
@@ -271,7 +283,7 @@ class ProjectService():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_project_structure (cls) -> List[Object]:
+    def get_project_structure(cls) -> List[Object]:
         """
         Returns the project structure one depth level. Each element is
         represented by a dictionary with the following structure: {id: id, ...}

@@ -464,22 +464,3 @@ class Object(AbstractObject):
                 # Delete the file
                 os.remove(self.path)
 
-
-    # ----------------------------------------------------------------------
-    # Method     : delete
-    # Description: It marks an Object as dead. It will be deleted when the
-    #              project is saved.
-    # Date       : 01/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-
-    def delete(self) -> None:
-        """
-        It marks an Object as dead. It will be deleted when the project is saved.
-        """
-        self.state = ProteusState.DEAD
-
-        # Delete every child
-        for child in self.children:
-            child.delete()
