@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="64xM8FLyxtaE"
-    classes="requisito-producto caso-de-uso"
-    acceptedChildren="paso-caso-de-uso"
+    id="use-case"
+    classes="product-requirement use-case"
+    acceptedChildren="use-case-step"
 >
     <properties>
-        <stringProperty name="name">Registrar pedido</stringProperty>
+        <stringProperty name="name">Caso de uso</stringProperty>
         <stringProperty name="version">0.1</stringProperty>
         <dateProperty name="created">2015-05-16</dateProperty>
         <stringProperty name="createdBy">Amador Durán</stringProperty>
@@ -14,7 +14,7 @@
     </properties>
 
     <children>
-        <child id="3fKhMAkcEe2E"/>
+        <child id="use-case-step"/>
     </children>
 
     <traces>

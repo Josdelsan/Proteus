@@ -23,6 +23,7 @@ from PyQt6.QtGui import QUndoStack
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
 from proteus.services.project_service import ProjectService
@@ -48,7 +49,7 @@ class Command():
 
     # Class attributes
     _stack : QUndoStack = None
-    _last_selected_item : str = None
+    _last_selected_item : ProteusID = None
 
     # ----------------------------------------------------------------------
     # Method     : get_instance
@@ -63,7 +64,13 @@ class Command():
         Get the command stack instance, creating it if it does not exist.
         """
         if cls._stack is None:
+            # Create the command stack
             cls._stack = QUndoStack()
+
+            # Connect the signals to the event manager to notify the frontend
+            cls._stack.canRedoChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
+            cls._stack.canUndoChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
+            cls._stack.cleanChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
         return cls._stack
     
     # ----------------------------------------------------------------------
@@ -94,7 +101,7 @@ class Command():
         """
         Undo the last command. Only works if the command is undoable.
         """
-        proteus.logger.info("Undoing last command")
+        proteus.logger.info(f"Undoing last command: {cls._get_instance().undoText()}")
         cls._get_instance().undo()
 
     # ----------------------------------------------------------------------
@@ -110,7 +117,7 @@ class Command():
         Redo the last command. Only works if the command is
         undoable/redoable.
         """
-        proteus.logger.info("Redoing last command")
+        proteus.logger.info(f"Redoing last command: {cls._get_instance().redoText()}")
         cls._get_instance().redo()
 
     # ----------------------------------------------------------------------
@@ -126,6 +133,35 @@ class Command():
         Store last selected object id by the user.
         """
         cls._last_selected_item = object_id
+        EventManager().notify(event=Event.SELECT_OBJECT)
+
+    # ----------------------------------------------------------------------
+    # Method     : get_selected_object
+    # Description: Get last selected object id by the user.
+    # Date       : 02/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_selected_object_id(cls) -> ProteusID:
+        """
+        Get last selected object id by the user.
+        """
+        return cls._last_selected_item
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_selected_object
+    # Description: Get last selected object by the user.
+    # Date       : 02/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_selected_object(cls) -> Object:
+        """
+        Get last selected object by the user.
+        """
+        return ProjectService._get_element_by_id(cls._last_selected_item)
 
     # ======================================================================
     # Project methods
@@ -237,7 +273,6 @@ class Command():
         """
         Get the element given its id.
         """
-        proteus.logger.info(f"Getting element with id: {element_id}")
         return ProjectService._get_element_by_id(element_id)
     
     # ======================================================================
@@ -314,3 +349,17 @@ class Command():
         """
         proteus.logger.info("Getting object archetypes")
         return ArchetypeService.get_object_archetypes()
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_archetype_by_id
+    # Description: Get archetype by id.
+    # Date       : 02/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_archetype_by_id(cls, archetype_id) -> Union[Object, Project]:
+        """
+        Get archetype by id.
+        """
+        return ArchetypeService._get_archetype_by_id(archetype_id)

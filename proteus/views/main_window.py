@@ -25,6 +25,7 @@ from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
+from proteus.controller.command_stack import Command
 
 
 # --------------------------------------------------------------------------
@@ -34,7 +35,7 @@ from proteus.views.utils.event_manager import Event
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to(update_events=[Event.OPEN_PROJECT])
+@subscribe_to(update_events=[Event.OPEN_PROJECT, Event.SELECT_OBJECT])
 class MainWindow(QMainWindow):
     """
     Main window for the PROTEUS application. It is used to display the main
@@ -79,7 +80,7 @@ class MainWindow(QMainWindow):
 
         # Create archeype tab menu
         main_menu = MainMenu("Archetype menu", self)
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea,main_menu)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, main_menu)
 
         # Create document list menu
         self.document_list = DocumentList(self)
@@ -95,16 +96,36 @@ class MainWindow(QMainWindow):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         """
-        Update the main window when a new project is opened.
+        Update the main window.
         """
-        # TODO: Check for unsaved changes
+        # Handle events
+        match event:
+            # ------------------------------------------------
+            # Event: OPEN_PROJECT
+            # Description: Open project initialization
+            # ------------------------------------------------
+            case Event.OPEN_PROJECT:
+                # Delete the existing document list widget
+                if self.document_list is not None:
+                    self.document_list.setParent(None)
 
-        # Delete the existing document list widget
-        if self.document_list is not None:
-            self.document_list.setParent(None)
+                # Create document list menu
+                self.document_list = DocumentList(self)
+                self.setCentralWidget(self.document_list)
 
-        # Create document list menu
-        self.document_list = DocumentList(self)
-        self.setCentralWidget(self.document_list)
+            # ------------------------------------------------
+            # Event: SELECT_OBJECT
+            # Description: Update the status bar with the
+            #              selected object
+            # ------------------------------------------------
+            case Event.SELECT_OBJECT:
+                # Get the selected object
+                selected_object = Command.get_selected_object()
+
+                # Update the status bar
+                object_name = selected_object.properties["name"].value
+                self.statusBar().showMessage(
+                    f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
+                )

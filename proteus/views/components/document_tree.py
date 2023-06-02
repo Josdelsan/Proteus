@@ -128,9 +128,27 @@ class DocumentTree(QWidget):
             else:
                 tree_item.setForeground(0, Qt.GlobalColor.black)
 
+        # NOTE: Refactor this method and populate_tree to
+        #       avoid code duplication
+        def populate(parent_widget, object):
+            # Create the new item
+            new_item = QTreeWidgetItem(parent_widget, [object.get_property("name").value])
+            tree_item_color_update(new_item, object)
+            new_item.setData(1, 0, object.id)
+
+            # Add the new item to the tree items dictionary
+            self.tree_items[object.id] = new_item
+
+            # Check if the object has children
+            for child in object.children:
+                populate(new_item, child)
+
         # Handle events
         match event:
-            # Change the modified object name and color
+            # ------------------------------------------------
+            # Event: MODIFY_OBJECT
+            # Description: Update the tree item name and color
+            # ------------------------------------------------
             case Event.MODIFY_OBJECT:
                 # Get the modifies element id
                 element_id = kwargs.get("element_id")
@@ -148,13 +166,19 @@ class DocumentTree(QWidget):
                 tree_item.setText(0, object.get_property("name").value)
                 tree_item_color_update(tree_item, object)
             
-            # Change all the tree items color
+            # ------------------------------------------------
+            # Event: SAVE_PROJECT
+            # Description: Change all the tree items color
+            # ------------------------------------------------
             case Event.SAVE_PROJECT:
                 items = self.tree_items.values()
                 for tree_item in items:
                     tree_item.setForeground(0, Qt.GlobalColor.black)
 
-            # Add the new object to the tree
+            # ------------------------------------------------
+            # Event: CLONE_OBJECT
+            # Description: Add the new object to the tree
+            # ------------------------------------------------
             case Event.CLONE_OBJECT:
                 # Get the new object
                 new_object = kwargs.get("cloned_object")
@@ -166,15 +190,17 @@ class DocumentTree(QWidget):
                 # Get the parent item
                 parent_item = self.tree_items[new_object.parent.id]
 
+                # Update the parent item color
+                parent = Command.get_element(new_object.parent.id)
+                tree_item_color_update(parent_item, parent)
+
                 # Create the new item
-                new_item = QTreeWidgetItem(parent_item, [new_object.get_property("name").value])
-                tree_item_color_update(new_item, new_object)
-                new_item.setData(1, 0, new_object.id)
+                populate(parent_item, new_object)
 
-                # Add the new item to the tree items dictionary
-                self.tree_items[new_object.id] = new_item
-
-            # Remove the object from the tree
+            # ------------------------------------------------
+            # Event: DELETE_OBJECT
+            # Description: Remove the object from the tree
+            # ------------------------------------------------
             case Event.DELETE_OBJECT:
                 # Get the deleted object id
                 element_id = kwargs.get("element_id")

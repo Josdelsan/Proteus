@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
     id="3fKhMAkcEe2E"
-    classes="requisito-producto caso-de-uso paso-caso-de-uso"
+    classes="product-requirement use-case use-case-step"
     acceptedChildren=":Proteus-none"
 >
     <properties>

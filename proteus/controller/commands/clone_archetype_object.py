@@ -67,6 +67,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         """
         Redo the command, cloning the archetype object.
         """
+        # Set redo text
+        self.setText(f"Clone archetype object {self.archetype_id} to {self.parent_id}")
+
         # Get the parent and project object
         parent = ProjectService._get_element_by_id(self.parent_id)
         project = ProjectService.project
@@ -88,6 +91,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         """
         Undo the command, deleting the cloned object.
         """
+        # Set undo text
+        self.setText(f"Delete cloned object {self.cloned_object.id}")
+
         # Delete the object and its children
         for child in self.cloned_object.get_descendants():
             delete_object(child)

@@ -71,11 +71,15 @@ class UpdatePropertiesCommand(QUndoCommand):
         Do the command, updating the properties of the element using the
         new properties.
         """
+        # Set redo command text
+        self.setText(f"Update properties of {self.element_id}")
+
         # Update the properties of the element and change its state
         ProjectService.update_properties(self.element_id, self.new_properties)
 
         # Notify the frontend components
         EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
+
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -90,6 +94,9 @@ class UpdatePropertiesCommand(QUndoCommand):
         Undo the command, updating the properties of the element to the
         previous values.
         """
+        # Set undo command text
+        self.setText(f"Undo update properties of {self.element_id}")
+
         # Update the properties of the element
         ProjectService.update_properties(self.element_id, self.old_properties)
 

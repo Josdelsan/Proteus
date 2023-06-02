@@ -20,18 +20,21 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget, QDockWidget, \
                             QToolButton, QStyle, QApplication, QSizePolicy,\
                             QFileDialog, QMessageBox
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.model import PROTEUS_ANY
 from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
 from proteus.controller.command_stack import Command
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.utils import buttons
+from proteus.views.utils.buttons import ArchetypeMenuButton
+from proteus.views.utils.event_manager import Event
 
 
 # --------------------------------------------------------------------------
@@ -41,7 +44,7 @@ from proteus.views.utils import buttons
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to()
+@subscribe_to([Event.STACK_CHANGED, Event.SELECT_OBJECT])
 class MainMenu(QDockWidget):
     """
     Main menu component for the PROTEUS application. It is used to
@@ -59,6 +62,14 @@ class MainMenu(QDockWidget):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
+
+        # Main menu buttons that are updated
+        self.save_button: QToolButton = None
+        self.undo_button: QToolButton = None
+        self.redo_button: QToolButton = None
+
+        # Archetype menu buttons that are updated
+        self.archetype_buttons: Dict[ArchetypeMenuButton] = {}
 
         # Tab widget to display app menus in different tabs
         self.tab_widget = QTabWidget()
@@ -94,7 +105,7 @@ class MainMenu(QDockWidget):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab("Main")
+        self.add_main_tab("Project")
 
         # Get the object archetypes
         object_archetypes_dict: Dict[
@@ -134,22 +145,22 @@ class MainMenu(QDockWidget):
         tab_layout.addWidget(open_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Save action
-        save_button = buttons.save_project_button(self)
-        save_button.clicked.connect(Command.save_project)
-        tab_layout.addWidget(save_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.save_button = buttons.save_project_button(self)
+        self.save_button.clicked.connect(Command.save_project)
+        tab_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ---------
         # Edit menu
         # ---------
         # Undo action
-        undo_button = buttons.undo_button(self)
-        undo_button.clicked.connect(Command.undo)
-        tab_layout.addWidget(undo_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.undo_button = buttons.undo_button(self)
+        self.undo_button.clicked.connect(Command.undo)
+        tab_layout.addWidget(self.undo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Redo action
-        redo_button = buttons.redo_button(self)
-        redo_button.clicked.connect(Command.redo)
-        tab_layout.addWidget(redo_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.redo_button = buttons.redo_button(self)
+        self.redo_button.clicked.connect(Command.redo)
+        tab_layout.addWidget(self.redo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ---------------------------------------------
 
@@ -174,25 +185,71 @@ class MainMenu(QDockWidget):
 
         # Add the archetype widgets to the tab widget
         for archetype in object_archetypes:
-            archetype_widget = QToolButton(parent=archetypes_widget)
-            archetype_widget.setToolTip(archetype.properties["name"].value)
+            # Create the archetype button
+            archetype_button = ArchetypeMenuButton(archetypes_widget, archetype)
 
-            # TODO: Change the icon for the archetype icon
-            icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
-            archetype_widget.setIcon(QIcon(icon))
+            # Add the archetype button to the archetype buttons dictionary
+            self.archetype_buttons[archetype.id] = archetype_button
 
             # Connect the clicked signal to the clone archetype method
-            archetype_widget.clicked.connect(
+            archetype_button.clicked.connect(
                 lambda checked, arg=archetype.id: self.clone_archetype(arg)
             )
 
             # Add the archetype widget to the tab widget layout
-            archetypes_layout.addWidget(archetype_widget)
+            archetypes_layout.addWidget(archetype_button)
 
         # Set the tab widget layout as the main widget of the tab widget
         archetypes_widget.setLayout(archetypes_layout)
         self.tab_widget.addTab(archetypes_widget, class_name)
         
+
+    def update_component(self, event, *args, **kwargs) -> None:
+        
+        # Handle events
+        match event:
+            # ------------------------------------------------
+            # Event: STACK_CHANGED
+            # Description: Disable or enable main menu buttons
+            # ------------------------------------------------
+            case Event.STACK_CHANGED:
+                can_undo = Command._get_instance().canUndo()
+                can_redo = Command._get_instance().canRedo()
+                unsaved_changes = not Command._get_instance().isClean()
+
+                self.undo_button.setEnabled(can_undo)
+                self.redo_button.setEnabled(can_redo)
+                self.save_button.setEnabled(unsaved_changes)
+
+            # ------------------------------------------------
+            # Event: SELECT_OBJECT
+            # Description: Enable or disable archetype buttons
+            # ------------------------------------------------
+            case Event.SELECT_OBJECT:
+                # Get the selected object and its accepted children
+                selected_object = Command.get_selected_object()
+                accepted_children = selected_object.acceptedChildren.split()
+
+                # Iterate over the archetype buttons
+                for archetype_id in self.archetype_buttons.keys():
+                    # Get the archetype button
+                    archetype_button = self.archetype_buttons[archetype_id]
+
+                    # Get the archetype
+                    archetype = Command.get_archetype_by_id(archetype_id)
+
+                    assert type(archetype) is Object, \
+                        f"Archetype {archetype_id} is not an object"
+                    
+                    # Get the archetype class (last class in the class hierarchy)
+                    archetype_class = archetype.classes.split()[-1]
+
+                    # Enable or disable the archetype button
+                    archetype_button.setEnabled(
+                        archetype_class in accepted_children
+                        or PROTEUS_ANY in accepted_children
+                    )
+
 
     # ----------------------------------------------------------------------
     # Component action methods

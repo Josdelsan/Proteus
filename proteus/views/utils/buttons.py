@@ -11,10 +11,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import os
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+import typing
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget, QDockWidget, \
                             QToolButton, QStyle, QApplication, QSizePolicy
 from PyQt6.QtGui import QIcon
@@ -24,6 +27,18 @@ from PyQt6.QtCore import Qt, QSize
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.config import Config
+from proteus.model.object import Object
+
+# --------------------------------------------------------------------------
+# Constants
+# --------------------------------------------------------------------------
+
+config : Config = Config()
+
+# --------------------------------------------------------------------------
+# Functions
+# --------------------------------------------------------------------------
 
 def new_project_button(parent: QWidget) -> QToolButton:
     """
@@ -98,6 +113,9 @@ def save_project_button(parent: QWidget) -> QToolButton:
     # Set shorcut
     save_button.setShortcut("Ctrl+S")
 
+    # Set enabled initial value
+    save_button.setEnabled(False)
+
     return save_button
 
 def undo_button(parent: QWidget) -> QToolButton:
@@ -122,6 +140,9 @@ def undo_button(parent: QWidget) -> QToolButton:
 
     # Set shorcut
     undo_button.setShortcut("Ctrl+Z")
+
+    # Set enabled initial value
+    undo_button.setEnabled(False)
 
     return undo_button
 
@@ -148,7 +169,52 @@ def redo_button(parent: QWidget) -> QToolButton:
     # Set shorcut
     redo_button.setShortcut("Ctrl+Y")
 
+    # Set enabled initial value
+    redo_button.setEnabled(False)
+
     return redo_button
+
+
+# --------------------------------------------------------------------------
+# Classes
+# --------------------------------------------------------------------------
+
+class ArchetypeMenuButton(QToolButton):
+    """
+    Class that implements a button for the archetype menu.
+    """
+
+    def __init__(self, parent: QWidget, archetype : Object) -> None:
+        super().__init__(parent)
+
+        # Set icon
+        archetype_icon = QIcon()
+
+        # Get icon path
+        icon_directory_path = f"{config.icons_directory}/archetypes"
+        icon_path = f"{icon_directory_path}/{archetype.id}.svg"
+
+        # Check if icon exists
+        if not os.path.isfile(icon_path):
+            icon_path = f"{icon_directory_path}/default.svg"
+
+        # Add icon
+        archetype_icon.addFile(icon_path, QSize(32, 32))
+        self.setIcon(archetype_icon)
+        self.setIconSize(QSize(32, 32))
+
+        # Set tooltip
+        arch_name = archetype.properties["name"].value
+        self.setToolTip(f"{arch_name}")
+        self.setStatusTip(f"Archetype {arch_name}, class {archetype.classes}")
+
+        # Set text
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self.setText(arch_name)
+
+        # Set enabled initial value
+        self.setEnabled(False)
+
 
 
 

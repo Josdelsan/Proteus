@@ -30,11 +30,18 @@ from typing import List, Dict
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class Event(Enum):
+    # Project events
     OPEN_PROJECT = "open_project"
     SAVE_PROJECT = "save_project"
+
+    # Object events
     MODIFY_OBJECT = "modify_object"
     CLONE_OBJECT = "clone_object"
     DELETE_OBJECT = "delete_object"
+    SELECT_OBJECT = "select_object"
+
+    # Stack related events
+    STACK_CHANGED = "stack_changed"
     
 
 # --------------------------------------------------------------------------

@@ -281,11 +281,12 @@ class Object(AbstractObject):
         assert isinstance(child, Object), \
             f"Child {child} is not a valid PROTEUS object."
 
+        accepted_children : List[ProteusClassTag] = self.acceptedChildren.split()
         # Check if the child is accepted
-        assert child.classes[-1] in self.acceptedChildren  \
-            or PROTEUS_ANY in self.acceptedChildren,       \
+        assert child.classes.split()[-1] in accepted_children  \
+            or PROTEUS_ANY in accepted_children,       \
             f"Child is not accepted by {self.id}.          \
-            Accepted children are {self.acceptedChildren}. \
+            Accepted children are {accepted_children}. \
             Child is class {child.classes}."
 
         # Check if the child is already a child of this object

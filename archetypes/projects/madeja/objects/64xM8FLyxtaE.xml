@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
     id="64xM8FLyxtaE"
-    classes="requisito-producto caso-de-uso"
-    acceptedChildren="paso-caso-de-uso"
+    classes="product-requirement use-case"
+    acceptedChildren="use-case-step"
 >
     <properties>
         <stringProperty name="name" category="general">Registrar pedido</stringProperty>
