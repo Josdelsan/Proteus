@@ -26,6 +26,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.views.utils.event_manager import EventManager, Event
 
+
 # --------------------------------------------------------------------------
 # Class: DeleteObjectCommand
 # Description: Controller class delete an object.
@@ -45,13 +46,12 @@ class DeleteObjectCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, object_id : ProteusID):
+    def __init__(self, object_id: ProteusID):
         super(DeleteObjectCommand, self).__init__()
 
-        self.before_clone_parent_state : ProteusState = None
-        self.object : Object = ProjectService._get_element_by_id(object_id)
-        self.old_object_state : ProteusState = self.object.state
-    
+        self.before_clone_parent_state: ProteusState = None
+        self.object: Object = ProjectService._get_element_by_id(object_id)
+        self.old_object_state: ProteusState = self.object.state
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -71,17 +71,12 @@ class DeleteObjectCommand(QUndoCommand):
         ProjectService.change_state(self.object.id, ProteusState.DEAD)
 
         # Modify the parent state depending on its current state
-        if self.object.parent is ProteusState.FRESH:
-            self.before_clone_parent_state = ProteusState.FRESH
-            after_clone_parent_state = ProteusState.FRESH
-        elif self.object.parent is ProteusState.DIRTY:
-            self.before_clone_parent_state = ProteusState.DIRTY
+        self.before_clone_parent_state = self.object.parent.state
+
+        if self.before_clone_parent_state is ProteusState.CLEAN:
             after_clone_parent_state = ProteusState.DIRTY
         else:
-            # NOTE: We don't need to check if the parent is DEAD because
-            #       the you can't delete from a DEAD parent
-            self.before_clone_parent_state = ProteusState.CLEAN
-            after_clone_parent_state = ProteusState.DIRTY
+            after_clone_parent_state = self.before_clone_parent_state
 
         self.object.parent.state = after_clone_parent_state
 
@@ -110,4 +105,4 @@ class DeleteObjectCommand(QUndoCommand):
         self.object.parent.state = self.before_clone_parent_state
 
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_OBJECT, cloned_object=self.object)
+        EventManager.notify(Event.ADD_OBJECT, object=self.object)

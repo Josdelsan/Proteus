@@ -36,17 +36,17 @@ class Event(Enum):
 
     # Object events
     MODIFY_OBJECT = "modify_object"
-    ADD_OBJECT = "clone_object"
+    ADD_OBJECT = "add_object"
     DELETE_OBJECT = "delete_object"
     SELECT_OBJECT = "select_object"
 
     # Document events
-    CLONE_DOCUMENT = "clone_document"
+    ADD_DOCUMENT = "add_document"
     DELETE_DOCUMENT = "delete_document"
 
     # Stack related events
     STACK_CHANGED = "stack_changed"
-    
+
 
 # --------------------------------------------------------------------------
 # Class: EventManager
@@ -55,14 +55,14 @@ class Event(Enum):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class EventManager():
+class EventManager:
     """
     Event manager for the PROTEUS events. It is used to notify the components
     of the frontend when an event is triggered.
     """
 
     # Class attributes
-    _events : Dict[Event, List] = {}
+    _events: Dict[Event, List] = {}
 
     # ----------------------------------------------------------------------
     # Method     : attach

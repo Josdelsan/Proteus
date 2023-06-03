@@ -29,6 +29,7 @@ from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
 
+
 # --------------------------------------------------------------------------
 # Class: CloneArchetypeDocumentCommand
 # Description: Controller class to clone an archetype object.
@@ -48,14 +49,13 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, archetype_id):
+    def __init__(self, archetype_id: ProteusID):
         super(CloneArchetypeDocumentCommand, self).__init__()
 
-        self.archetype_id : ProteusID = archetype_id
-        self.before_clone_parent_state : ProteusState = None
-        self.after_clone_parent_state : ProteusState = None
-        self.cloned_object : Object = None
-    
+        self.archetype_id: ProteusID = archetype_id
+        self.before_clone_parent_state: ProteusState = None
+        self.after_clone_parent_state: ProteusState = None
+        self.cloned_object: Object = None
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -86,7 +86,9 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
             self.before_clone_parent_state = parent.state
 
             # Clone the archetype object
-            self.cloned_object = ArchetypeService.create_object(self.archetype_id, parent, project)
+            self.cloned_object = ArchetypeService.create_object(
+                self.archetype_id, parent, project
+            )
 
             # Save the parent state after clone
             self.after_clone_parent_state = parent.state
@@ -101,9 +103,8 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
             parent = ProjectService.project
             parent.state = self.after_clone_parent_state
 
-
         # Emit the event to update the view
-        EventManager.notify(Event.CLONE_DOCUMENT, cloned_document=self.cloned_object)
+        EventManager.notify(Event.ADD_DOCUMENT, document=self.cloned_object)
 
     # ----------------------------------------------------------------------
     # Method     : undo

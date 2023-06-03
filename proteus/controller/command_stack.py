@@ -16,7 +16,7 @@ from typing import List, Dict, Union
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QUndoStack
+from PyQt6.QtGui import QUndoStack, QUndoCommand
 
 # --------------------------------------------------------------------------
 # Project specific imports (starting from root)
@@ -25,14 +25,19 @@ from PyQt6.QtGui import QUndoStack
 import proteus
 from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
-from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
-from proteus.controller.commands.clone_archetype_document import CloneArchetypeDocumentCommand
+from proteus.controller.commands.clone_archetype_object import (
+    CloneArchetypeObjectCommand,
+)
+from proteus.controller.commands.clone_archetype_document import (
+    CloneArchetypeDocumentCommand,
+)
 from proteus.controller.commands.delete_object import DeleteObjectCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
 from proteus.model.object import Object
 from proteus.model.project import Project
+from proteus.model.properties import Property
 
 
 # --------------------------------------------------------------------------
@@ -42,7 +47,7 @@ from proteus.model.project import Project
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class Controller():
+class Controller:
     """
     Controller class to manage backend operations in the PROTEUS presentation
     layer. It provides undo and redo operations if the command is undoable.
@@ -50,8 +55,8 @@ class Controller():
     """
 
     # Class attributes
-    _stack : QUndoStack = None
-    _last_selected_item : ProteusID = None
+    _stack: QUndoStack = None
+    _last_selected_item: ProteusID = None
 
     # ----------------------------------------------------------------------
     # Method     : get_instance
@@ -70,11 +75,17 @@ class Controller():
             cls._stack = QUndoStack()
 
             # Connect the signals to the event manager to notify the frontend
-            cls._stack.canRedoChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
-            cls._stack.canUndoChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
-            cls._stack.cleanChanged.connect(lambda: EventManager().notify(event=Event.STACK_CHANGED))
+            cls._stack.canRedoChanged.connect(
+                lambda: EventManager().notify(event=Event.STACK_CHANGED)
+            )
+            cls._stack.canUndoChanged.connect(
+                lambda: EventManager().notify(event=Event.STACK_CHANGED)
+            )
+            cls._stack.cleanChanged.connect(
+                lambda: EventManager().notify(event=Event.STACK_CHANGED)
+            )
         return cls._stack
-    
+
     # ----------------------------------------------------------------------
     # Method     : push
     # Description: Push a command to the command stack
@@ -83,7 +94,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def _push(cls, command):
+    def _push(cls, command: QUndoCommand) -> None:
         """
         Push a command to the command stack.
 
@@ -99,7 +110,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def undo(cls):
+    def undo(cls) -> None:
         """
         Undo the last command. Only works if the command is undoable.
         """
@@ -114,7 +125,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def redo(cls):
+    def redo(cls) -> None:
         """
         Redo the last command. Only works if the command is
         undoable/redoable.
@@ -130,11 +141,13 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def select_object(cls, object_id):
+    def select_object(cls, object_id: ProteusID) -> None:
         """
         Store last selected object id by the user.
+
+        :param object_id: The id of the object selected by the user.
         """
-        cls._last_selected_item = object_id
+        cls._last_selected_item: ProteusID = object_id
         EventManager().notify(event=Event.SELECT_OBJECT)
 
     # ----------------------------------------------------------------------
@@ -149,8 +162,10 @@ class Controller():
         """
         Get last selected object id by the user.
         """
+        assert cls._last_selected_item is not None, "No object selected"
+
         return cls._last_selected_item
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_selected_object
     # Description: Get last selected object by the user.
@@ -163,7 +178,7 @@ class Controller():
         """
         Get last selected object by the user.
         """
-        return ProjectService._get_element_by_id(cls._last_selected_item)
+        return ProjectService._get_element_by_id(cls.get_selected_object_id())
 
     # ======================================================================
     # Project methods
@@ -178,7 +193,9 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def update_properties(cls, element_id, new_properties):
+    def update_properties(
+        cls, element_id: ProteusID, new_properties: List[Property]
+    ) -> None:
         """
         Update the properties of an element given its id. It pushes the
         command to the command stack.
@@ -202,7 +219,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def delete_object(cls, object_id : ProteusID):
+    def delete_object(cls, object_id: ProteusID) -> None:
         """
         Delete an object given its id. It pushes the command to the command
         stack.
@@ -224,7 +241,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def load_project(cls, project_path):
+    def load_project(cls, project_path: str) -> None:
         """
         Load a project from a given path.
 
@@ -245,13 +262,13 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_object_structure(cls, object_id) -> Dict[Object, List]:
+    def get_object_structure(cls, object_id: ProteusID) -> Dict[Object, List]:
         """
         Get the structure of an object given its id.
         """
         proteus.logger.info(f"Getting structure of object with id: {object_id}")
         return ProjectService.get_object_structure(object_id)
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_project_structure
     # Description: Get the structure of the current project.
@@ -266,7 +283,7 @@ class Controller():
         """
         proteus.logger.info("Getting structure of current project")
         return ProjectService.get_project_structure()
-    
+
     # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Save the current project state including all the children
@@ -276,7 +293,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def save_project(cls):
+    def save_project(cls) -> None:
         """
         Save the current project state including all the children objects
         and documents.
@@ -285,7 +302,7 @@ class Controller():
         ProjectService.save_project()
         cls._get_instance().clear()
         EventManager().notify(event=Event.SAVE_PROJECT)
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_element
     # Description: Get the element given its id.
@@ -294,12 +311,12 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_element(cls, element_id) -> Union[Object, Project]:
+    def get_element(cls, element_id: ProteusID) -> Union[Object, Project]:
         """
         Get the element given its id.
         """
         return ProjectService._get_element_by_id(element_id)
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_current_project_id
     # Description: Get the id of the current project.
@@ -312,12 +329,16 @@ class Controller():
         """
         Get the id of the current project.
         """
+        current_project: Project = ProjectService.project
+
+        assert current_project is not None, "Project is not loaded"
+
         return ProjectService.project
-    
+
     # ======================================================================
     # Archetype methods
     # ======================================================================
-    
+
     # ----------------------------------------------------------------------
     # Method     : create_project
     # Description: Create a new project with the given archetype id, name
@@ -327,7 +348,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def create_project(cls, archetype_id, name, path):
+    def create_project(cls, archetype_id, name, path) -> None:
         """
         Create a new project with the given archetype id, name and path.
 
@@ -335,9 +356,11 @@ class Controller():
         :param name: The name of the project.
         :param path: The path of the project.
         """
-        proteus.logger.info(f"Creating project with archetype id: {archetype_id}, name: {name} and path: {path}")
+        proteus.logger.info(
+            f"Creating project with archetype id: {archetype_id}, name: {name} and path: {path}"
+        )
         ArchetypeService.create_project(archetype_id, name, path)
-        project_path : str = f"{path}/{name}"
+        project_path: str = f"{path}/{name}"
         cls.load_project(project_path)
 
     # ----------------------------------------------------------------------
@@ -349,15 +372,18 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def create_object(cls, archetype_id):
+    def create_object(cls, archetype_id) -> None:
         """
         Create a new object with the given archetype id and parent id.
 
         :param archetype_id: The id of the archetype to create the object.
-        :param parent_id: The id of the parent object.
         """
-        proteus.logger.info(f"Creating object from archetype: {archetype_id} and parent id: {cls._last_selected_item}")
-        cls._push(CloneArchetypeObjectCommand(archetype_id, cls._last_selected_item))
+        proteus.logger.info(
+            f"Creating object from archetype: {archetype_id} and parent id: {cls.get_selected_object_id()}"
+        )
+        cls._push(
+            CloneArchetypeObjectCommand(archetype_id, cls.get_selected_object_id())
+        )
 
     # ----------------------------------------------------------------------
     # Method     : create_document
@@ -367,7 +393,7 @@ class Controller():
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def create_document(cls, archetype_id):
+    def create_document(cls, archetype_id: ProteusID) -> None:
         """
         Create a new document with the given archetype id.
 
@@ -405,7 +431,7 @@ class Controller():
         """
         proteus.logger.info("Getting object archetypes")
         return ArchetypeService.get_object_archetypes()
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_document_archetypes
     # Description: Get document archetypes.
@@ -420,7 +446,7 @@ class Controller():
         """
         proteus.logger.info("Getting document archetypes")
         return ArchetypeService.get_document_archetypes()
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_archetype_by_id
     # Description: Get archetype by id.

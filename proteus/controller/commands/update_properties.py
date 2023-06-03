@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
+from typing import List, Dict
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,6 +23,7 @@ from PyQt6.QtGui import QUndoCommand
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.model.properties import Property
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -47,17 +48,21 @@ class UpdatePropertiesCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, element_id, new_properties):
+    def __init__(self, element_id: ProteusID, new_properties: List[Property]):
         super(UpdatePropertiesCommand, self).__init__()
 
         # Get the old properties before updating the properties
-        old_properties_dict = ProjectService.get_properties(element_id)
+        old_properties_dict: Dict[str, Property] = ProjectService.get_properties(
+            element_id
+        )
         old_properties = [old_properties_dict[prop.name] for prop in new_properties]
 
-        self.element_id : ProteusID = element_id
-        self.old_properties : List = old_properties
-        self.old_state : ProteusState = ProjectService._get_element_by_id(element_id).state
-        self.new_properties : List = new_properties
+        self.element_id: ProteusID = element_id
+        self.old_properties: List = old_properties
+        self.old_state: ProteusState = ProjectService._get_element_by_id(
+            element_id
+        ).state
+        self.new_properties: List = new_properties
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -79,7 +84,6 @@ class UpdatePropertiesCommand(QUndoCommand):
 
         # Notify the frontend components
         EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
-
 
     # ----------------------------------------------------------------------
     # Method     : undo

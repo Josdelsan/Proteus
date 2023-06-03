@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -28,6 +27,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
+
 
 # --------------------------------------------------------------------------
 # Class: CloneArchetypeObjectCommand
@@ -48,15 +48,14 @@ class CloneArchetypeObjectCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, archetype_id, parent_id):
+    def __init__(self, archetype_id: ProteusID, parent_id: ProteusID):
         super(CloneArchetypeObjectCommand, self).__init__()
 
-        self.archetype_id : ProteusID = archetype_id
-        self.parent_id : ProteusID = parent_id
-        self.before_clone_parent_state : ProteusState = None
-        self.after_clone_parent_state : ProteusState = None
-        self.cloned_object : Object = None
-    
+        self.archetype_id: ProteusID = archetype_id
+        self.parent_id: ProteusID = parent_id
+        self.before_clone_parent_state: ProteusState = None
+        self.after_clone_parent_state: ProteusState = None
+        self.cloned_object: Object = None
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -77,7 +76,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         #       to the ProteusID change.
         if self.cloned_object is None:
             # Set redo text
-            self.setText(f"Clone archetype object {self.archetype_id} to {self.parent_id}")
+            self.setText(
+                f"Clone archetype object {self.archetype_id} to {self.parent_id}"
+            )
 
             # Get the parent and project object
             parent = ProjectService._get_element_by_id(self.parent_id)
@@ -87,7 +88,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
             self.before_clone_parent_state = parent.state
 
             # Clone the archetype object
-            self.cloned_object = ArchetypeService.create_object(self.archetype_id, parent, project)
+            self.cloned_object = ArchetypeService.create_object(
+                self.archetype_id, parent, project
+            )
 
             # Save the parent state after clone
             self.after_clone_parent_state = parent.state
@@ -102,9 +105,8 @@ class CloneArchetypeObjectCommand(QUndoCommand):
             parent = ProjectService._get_element_by_id(self.parent_id)
             parent.state = self.after_clone_parent_state
 
-
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_OBJECT, cloned_object=self.cloned_object)
+        EventManager.notify(Event.ADD_OBJECT, object=self.cloned_object)
 
     # ----------------------------------------------------------------------
     # Method     : undo

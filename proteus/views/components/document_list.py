@@ -39,7 +39,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.CLONE_DOCUMENT, Event.DELETE_DOCUMENT])
+@subscribe_to([Event.ADD_DOCUMENT, Event.DELETE_DOCUMENT])
 class DocumentList(QTabWidget):
     """
     Documents tab menu component for the PROTEUS application. It is used to
@@ -97,8 +97,8 @@ class DocumentList(QTabWidget):
             # Event: STACK_CHANGED
             # Description: Disable or enable main menu buttons
             # ------------------------------------------------
-            case Event.CLONE_DOCUMENT:
-                new_document = kwargs.get("cloned_document")
+            case Event.ADD_DOCUMENT:
+                new_document = kwargs.get("document")
                 self.add_document(new_document)
 
             case Event.DELETE_DOCUMENT:
