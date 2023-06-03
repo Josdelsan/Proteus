@@ -33,6 +33,7 @@ from proteus.views.utils.decorators import subscribe_to
 from proteus.controller.command_stack import Command
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event
@@ -155,6 +156,11 @@ class MainMenu(QDockWidget):
         self.project_properties_button.clicked.connect(self.project_properties)
         tab_layout.addWidget(self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
+        # Add document action
+        self.add_document_button = buttons.add_document_button(self)
+        self.add_document_button.clicked.connect(self.add_document)
+        tab_layout.addWidget(self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
         # ---------
         # Edit menu
         # ---------
@@ -262,6 +268,7 @@ class MainMenu(QDockWidget):
             # ------------------------------------------------
             case Event.OPEN_PROJECT:
                 self.project_properties_button.setEnabled(True)
+                self.add_document_button.setEnabled(True)
 
 
     # ----------------------------------------------------------------------
@@ -348,3 +355,20 @@ class MainMenu(QDockWidget):
         project = Command.get_current_project()
         project_properties_window = PropertyDialog(project.id)
         project_properties_window.exec()
+
+    # ----------------------------------------------------------------------
+    # Method     : add_document
+    # Description: Manage the add document action, open a window to select
+    #              document archetype.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def add_document(self):
+        """
+        Manage the add document action, open a window to select document
+        archetype.
+        """
+        # Create the properties form window
+        add_document_window = NewDocumentDialog()
+        add_document_window.exec()

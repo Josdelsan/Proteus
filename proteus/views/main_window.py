@@ -14,7 +14,7 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QWidget
 from PyQt6.QtCore import Qt
 
 # --------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, main_menu)
 
         # Create document list menu
-        self.document_list = DocumentList(self)
+        self.document_list = QWidget(self)
         self.setCentralWidget(self.document_list)
 
         # Create the status bar
@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
                 self.setCentralWidget(self.document_list)
 
                 project = Command.get_current_project()
-                self.setWindowTitle(f"Proteus application - {project.name}")
+                self.setWindowTitle(f"Proteus application - {project.properties['name'].value}")
 
             # ------------------------------------------------
             # Event: SELECT_OBJECT

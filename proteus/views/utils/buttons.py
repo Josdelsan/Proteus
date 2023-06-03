@@ -203,6 +203,36 @@ def project_properties_button(parent: QWidget) -> QToolButton:
 
     return properties_button
 
+
+
+def add_document_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a add document button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    add_button = QToolButton(parent)
+
+    # Set file icon
+    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
+    add_button.setIcon(QIcon(file_icon))
+    add_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    add_button.setToolTip("Add document\nCtrl+D")
+    add_button.setStatusTip("Add document to the project. Shortcut: Ctrl+D")
+    
+    # Set text
+    add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    add_button.setText("Add")
+
+    # Set shorcut
+    add_button.setShortcut("Ctrl+D")
+
+    # Set enabled initial value
+    add_button.setEnabled(False)
+
+    return add_button
+
 # --------------------------------------------------------------------------
 # Classes
 # --------------------------------------------------------------------------

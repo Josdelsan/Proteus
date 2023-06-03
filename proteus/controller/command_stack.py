@@ -26,6 +26,7 @@ import proteus
 from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
+from proteus.controller.commands.clone_archetype_document import CloneArchetypeDocumentCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -335,6 +336,23 @@ class Command():
         cls._push(CloneArchetypeObjectCommand(archetype_id, cls._last_selected_item))
 
     # ----------------------------------------------------------------------
+    # Method     : create_document
+    # Description: Create a new document with the given archetype id
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def create_document(cls, archetype_id):
+        """
+        Create a new document with the given archetype id.
+
+        :param archetype_id: The id of the archetype to create the document.
+        """
+        proteus.logger.info(f"Creating document from archetype: {archetype_id}")
+        cls._push(CloneArchetypeDocumentCommand(archetype_id))
+
+    # ----------------------------------------------------------------------
     # Method     : get_project_archetypes
     # Description: Get project archetypes.
     # Date       : 28/05/2023
@@ -363,6 +381,21 @@ class Command():
         """
         proteus.logger.info("Getting object archetypes")
         return ArchetypeService.get_object_archetypes()
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_document_archetypes
+    # Description: Get document archetypes.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_document_archetypes(cls) -> List[Object]:
+        """
+        Get document archetypes.
+        """
+        proteus.logger.info("Getting document archetypes")
+        return ArchetypeService.get_document_archetypes()
     
     # ----------------------------------------------------------------------
     # Method     : get_archetype_by_id

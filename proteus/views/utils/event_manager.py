@@ -40,6 +40,10 @@ class Event(Enum):
     DELETE_OBJECT = "delete_object"
     SELECT_OBJECT = "select_object"
 
+    # Document events
+    CLONE_DOCUMENT = "clone_document"
+    DELETE_DOCUMENT = "delete_document"
+
     # Stack related events
     STACK_CHANGED = "stack_changed"
     

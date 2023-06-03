@@ -11,6 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Dict
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -22,6 +23,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
@@ -37,7 +39,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.OPEN_PROJECT])
+@subscribe_to([Event.CLONE_DOCUMENT, Event.DELETE_DOCUMENT])
 class DocumentList(QTabWidget):
     """
     Documents tab menu component for the PROTEUS application. It is used to
@@ -55,6 +57,9 @@ class DocumentList(QTabWidget):
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
+        
+        # Tabs dictionary
+        self.tabs : Dict[ProteusID, QWidget] = {}
 
         # Create the component
         self.create_component()
@@ -68,7 +73,12 @@ class DocumentList(QTabWidget):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """ """
-        pass
+        # Get project structure from project service
+        project_structure = Command.get_project_structure()
+
+        # Add a document tab for each document in the project
+        for document in project_structure:
+            self.add_document(document)
 
     # ----------------------------------------------------------------------
     # Method     : update_component
@@ -77,16 +87,25 @@ class DocumentList(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
+    def update_component(self, event, *args, **kwargs) -> None:
         """
         Update the documents tab menu component.
         """
-        # Get project structure from project service
-        project_structure = Command.get_project_structure()
+        # Handle events
+        match event:
+            # ------------------------------------------------
+            # Event: STACK_CHANGED
+            # Description: Disable or enable main menu buttons
+            # ------------------------------------------------
+            case Event.CLONE_DOCUMENT:
+                new_document = kwargs.get("cloned_document")
+                self.add_document(new_document)
 
-        # Add a document tab for each document in the project
-        for document in project_structure:
-            self.add_document(document)
+            case Event.DELETE_DOCUMENT:
+                document_id = kwargs.get("element_id")
+                self.removeTab(self.indexOf(self.tabs[document_id]))
+                self.tabs[document_id].deleteLater()
+        
 
     # ----------------------------------------------------------------------
     # Method     : add_document
@@ -126,6 +145,9 @@ class DocumentList(QTabWidget):
         # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)
         tab.setLayout(tab_layout)
+
+        # Add tab to the dictionary
+        self.tabs[document.id] = tab
 
         document_name = document.get_property("name").value
         self.addTab(tab, document_name)
