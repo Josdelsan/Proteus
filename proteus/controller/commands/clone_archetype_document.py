@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: clone_archetype_document.py
-# Description: Command to clone an archetype document.
+# Description: Controller to clone an archetype document.
 # Date: 03/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -31,14 +31,14 @@ from proteus.views.utils.event_manager import EventManager, Event
 
 # --------------------------------------------------------------------------
 # Class: CloneArchetypeDocumentCommand
-# Description: Command class to clone an archetype object.
+# Description: Controller class to clone an archetype object.
 # Date: 03/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class CloneArchetypeDocumentCommand(QUndoCommand):
     """
-    Command class to clone an archetype document.
+    Controller class to clone an archetype document.
     """
 
     # ----------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: update_properties.py
-# Description: Command to update the properties of an element.
+# Description: Controller to update the properties of an element.
 # Date: 27/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -30,14 +30,14 @@ from proteus.views.utils.event_manager import EventManager, Event
 
 # --------------------------------------------------------------------------
 # Class: UpdatePropertiesCommand
-# Description: Command class to update the properties of an element.
+# Description: Controller class to update the properties of an element.
 # Date: 27/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class UpdatePropertiesCommand(QUndoCommand):
     """
-    Command class to update the properties of an element.
+    Controller class to update the properties of an element.
     """
 
     # ----------------------------------------------------------------------

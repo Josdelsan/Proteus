@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QLabel, \
 # --------------------------------------------------------------------------
 
 from proteus.model.project import Project
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
 # Class: NewProject
@@ -77,7 +77,7 @@ class NewProjectDialog(QDialog):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get project archetypes
-        project_archetypes : List[Project] = Command.get_project_archetypes()
+        project_archetypes : List[Project] = Controller.get_project_archetypes()
         # Create a combo box with the project archetypes
         archetype_label = QLabel("Select Project Archetype:")
         archetype_combo = QComboBox()
@@ -196,7 +196,7 @@ class NewProjectDialog(QDialog):
             return
         
         # Create the project
-        Command.create_project(self._archetype_id, self._name, self._path)
+        Controller.create_project(self._archetype_id, self._name, self._path)
 
         # Close the form window
         self.close()

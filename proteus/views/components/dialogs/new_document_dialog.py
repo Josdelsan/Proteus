@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QLabel, \
 # --------------------------------------------------------------------------
 
 from proteus.model.object import Object
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
 # Class: Newdocument
@@ -75,7 +75,7 @@ class NewDocumentDialog(QDialog):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get document archetypes
-        document_archetypes : List[Object] = Command.get_document_archetypes()
+        document_archetypes : List[Object] = Controller.get_document_archetypes()
         # Create a combo box with the document archetypes
         archetype_label = QLabel("Select document Archetype:")
         archetype_combo = QComboBox()
@@ -152,7 +152,7 @@ class NewDocumentDialog(QDialog):
             return
         
         # Create the document
-        Command.create_document(self._archetype_id)
+        Controller.create_document(self._archetype_id)
 
         # Close the form window
         self.close()

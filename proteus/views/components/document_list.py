@@ -28,7 +28,7 @@ from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.document_tree import DocumentTree
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
@@ -74,7 +74,7 @@ class DocumentList(QTabWidget):
     def create_component(self) -> None:
         """ """
         # Get project structure from project service
-        project_structure = Command.get_project_structure()
+        project_structure = Controller.get_project_structure()
 
         # Add a document tab for each document in the project
         for document in project_structure:

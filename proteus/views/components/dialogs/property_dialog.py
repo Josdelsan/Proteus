@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, \
 # --------------------------------------------------------------------------
 
 from proteus.views.utils.input_factory import PropertyInputFactory
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
 # Class: PropertyForm
@@ -79,7 +79,7 @@ class PropertyDialog(QDialog):
         """
         Create the component.
         """
-        self.object = Command.get_element(self.element_id)
+        self.object = Controller.get_element(self.element_id)
 
         # Set the window name
         window_name = self.object.get_property('name').value
@@ -186,7 +186,7 @@ class PropertyDialog(QDialog):
 
         # Update the properties of the element if there are changes
         if len(update_list) > 0:
-            Command.update_properties(self.element_id, update_list)
+            Controller.update_properties(self.element_id, update_list)
 
         # Close the form window
         self.close()

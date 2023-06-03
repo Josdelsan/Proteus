@@ -25,7 +25,7 @@ from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
                 self.document_list = DocumentList(self)
                 self.setCentralWidget(self.document_list)
 
-                project = Command.get_current_project()
+                project = Controller.get_current_project()
                 self.setWindowTitle(f"Proteus application - {project.properties['name'].value}")
 
             # ------------------------------------------------
@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
             # ------------------------------------------------
             case Event.SELECT_OBJECT:
                 # Get the selected object
-                selected_object = Command.get_selected_object()
+                selected_object = Controller.get_selected_object()
 
                 # Update the status bar
                 object_name = selected_object.properties["name"].value

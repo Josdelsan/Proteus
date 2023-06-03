@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: command_stack.py
-# Description: Command stack to manage undo and redo operations.
+# Description: Controller stack to manage undo and redo operations.
 # Date: 27/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -37,14 +37,14 @@ from proteus.model.project import Project
 
 # --------------------------------------------------------------------------
 # Class: CommandStack
-# Description: Command stack class to manage undo and redo operations.
+# Description: Controller stack class to manage undo and redo operations.
 # Date: 27/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class Command():
+class Controller():
     """
-    Command class to manage backend operations in the PROTEUS presentation
+    Controller class to manage backend operations in the PROTEUS presentation
     layer. It provides undo and redo operations if the command is undoable.
     Notifies the frontend components when the command is executed.
     """

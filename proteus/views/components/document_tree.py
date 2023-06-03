@@ -32,7 +32,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
 # Class: DocumentTree
@@ -93,7 +93,7 @@ class DocumentTree(QWidget):
         self.tree_widget.header().setVisible(False)
 
         # Get document structure and top level items
-        structure : Dict = Command.get_object_structure(self.element_id)
+        structure : Dict = Controller.get_object_structure(self.element_id)
 
         # Populate tree widget
         self.populate_tree(self.tree_widget, [structure])
@@ -165,7 +165,7 @@ class DocumentTree(QWidget):
                 tree_item = self.tree_items[element_id]
 
                 # Get the object
-                object : Object = Command.get_element(element_id)
+                object : Object = Controller.get_element(element_id)
 
                 # Update the tree item
                 tree_item.setText(0, object.get_property("name").value)
@@ -196,7 +196,7 @@ class DocumentTree(QWidget):
                 parent_item = self.tree_items[new_object.parent.id]
 
                 # Update the parent item color
-                parent = Command.get_element(new_object.parent.id)
+                parent = Controller.get_element(new_object.parent.id)
                 tree_item_color_update(parent_item, parent)
 
                 # Create the new item
@@ -290,7 +290,7 @@ class DocumentTree(QWidget):
         item_id = item.data(1, 0)
 
         # Select object in the view
-        Command.select_object(item_id)
+        Controller.select_object(item_id)
 
 
     # ----------------------------------------------------------------------
@@ -317,14 +317,14 @@ class DocumentTree(QWidget):
         selected_item_id = selected_item.data(1, 0)
 
         # Get the selected item object
-        selected_item_object = Command.get_element(selected_item_id)
+        selected_item_object = Controller.get_element(selected_item_id)
 
         # Create the context menu
         context_menu = QMenu(self)
 
         # Create the delete action
         action_delete_object = QAction("Delete", self)
-        action_delete_object.triggered.connect(lambda: Command.delete_object(selected_item_id))
+        action_delete_object.triggered.connect(lambda: Controller.delete_object(selected_item_id))
 
         # Add the actions to the context menu
         context_menu.addAction(action_delete_object)

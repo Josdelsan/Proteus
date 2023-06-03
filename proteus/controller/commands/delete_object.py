@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: delete_object.py
-# Description: Command to delete an object.
+# Description: Controller to delete an object.
 # Date: 03/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -28,14 +28,14 @@ from proteus.views.utils.event_manager import EventManager, Event
 
 # --------------------------------------------------------------------------
 # Class: DeleteObjectCommand
-# Description: Command class delete an object.
+# Description: Controller class delete an object.
 # Date: 03/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class DeleteObjectCommand(QUndoCommand):
     """
-    Command class to delete an object.
+    Controller class to delete an object.
     """
 
     # ----------------------------------------------------------------------

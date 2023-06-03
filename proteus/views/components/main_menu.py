@@ -30,7 +30,7 @@ import proteus
 from proteus.model import PROTEUS_ANY
 from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
-from proteus.controller.command_stack import Command
+from proteus.controller.command_stack import Controller
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
@@ -112,7 +112,7 @@ class MainMenu(QDockWidget):
         # Get the object archetypes
         object_archetypes_dict: Dict[
             str, List[Object]
-        ] = Command.get_object_archetypes()
+        ] = Controller.get_object_archetypes()
         # Create a tab for each class of object archetypes
         for class_name in object_archetypes_dict.keys():
             self.add_archetype_tab(class_name, object_archetypes_dict[class_name])
@@ -148,7 +148,7 @@ class MainMenu(QDockWidget):
 
         # Save action
         self.save_button = buttons.save_project_button(self)
-        self.save_button.clicked.connect(Command.save_project)
+        self.save_button.clicked.connect(Controller.save_project)
         tab_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Project properties action
@@ -166,12 +166,12 @@ class MainMenu(QDockWidget):
         # ---------
         # Undo action
         self.undo_button = buttons.undo_button(self)
-        self.undo_button.clicked.connect(Command.undo)
+        self.undo_button.clicked.connect(Controller.undo)
         tab_layout.addWidget(self.undo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Redo action
         self.redo_button = buttons.redo_button(self)
-        self.redo_button.clicked.connect(Command.redo)
+        self.redo_button.clicked.connect(Controller.redo)
         tab_layout.addWidget(self.redo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ---------------------------------------------
@@ -225,9 +225,9 @@ class MainMenu(QDockWidget):
             # Description: Disable or enable main menu buttons
             # ------------------------------------------------
             case Event.STACK_CHANGED:
-                can_undo = Command._get_instance().canUndo()
-                can_redo = Command._get_instance().canRedo()
-                unsaved_changes = not Command._get_instance().isClean()
+                can_undo = Controller._get_instance().canUndo()
+                can_redo = Controller._get_instance().canRedo()
+                unsaved_changes = not Controller._get_instance().isClean()
 
                 self.undo_button.setEnabled(can_undo)
                 self.redo_button.setEnabled(can_redo)
@@ -239,7 +239,7 @@ class MainMenu(QDockWidget):
             # ------------------------------------------------
             case Event.SELECT_OBJECT:
                 # Get the selected object and its accepted children
-                selected_object = Command.get_selected_object()
+                selected_object = Controller.get_selected_object()
                 accepted_children = selected_object.acceptedChildren.split()
 
                 # Iterate over the archetype buttons
@@ -248,7 +248,7 @@ class MainMenu(QDockWidget):
                     archetype_button = self.archetype_buttons[archetype_id]
 
                     # Get the archetype
-                    archetype = Command.get_archetype_by_id(archetype_id)
+                    archetype = Controller.get_archetype_by_id(archetype_id)
 
                     assert type(archetype) is Object, \
                         f"Archetype {archetype_id} is not an object"
@@ -315,7 +315,7 @@ class MainMenu(QDockWidget):
         # Load the project from the selected directory
         if directory_path:
             try:
-                Command.load_project(project_path=directory_path)
+                Controller.load_project(project_path=directory_path)
             except Exception as e:
                 proteus.logger.error(e)
 
@@ -336,7 +336,7 @@ class MainMenu(QDockWidget):
     # ----------------------------------------------------------------------
     def clone_archetype(self, archetype_id: str) -> None:
         """ """
-        Command.create_object(archetype_id=archetype_id)
+        Controller.create_object(archetype_id=archetype_id)
 
     # ----------------------------------------------------------------------
     # Method     : project_properties
@@ -352,7 +352,7 @@ class MainMenu(QDockWidget):
         project properties.
         """
         # Create the properties form window
-        project = Command.get_current_project()
+        project = Controller.get_current_project()
         project_properties_window = PropertyDialog(project.id)
         project_properties_window.exec()
 
