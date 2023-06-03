@@ -175,6 +175,34 @@ def redo_button(parent: QWidget) -> QToolButton:
     return redo_button
 
 
+def project_properties_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a project properties button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    properties_button = QToolButton(parent)
+
+    # Set file icon
+    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogDetailedView)
+    properties_button.setIcon(QIcon(file_icon))
+    properties_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    properties_button.setToolTip("Project properties\nCtrl+P")
+    properties_button.setStatusTip("Show project properties. Shortcut: Ctrl+P")
+    
+    # Set text
+    properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    properties_button.setText("Properties")
+
+    # Set shorcut
+    properties_button.setShortcut("Ctrl+P")
+
+    # Set enabled initial value
+    properties_button.setEnabled(False)
+
+    return properties_button
+
 # --------------------------------------------------------------------------
 # Classes
 # --------------------------------------------------------------------------

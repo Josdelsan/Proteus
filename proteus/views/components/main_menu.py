@@ -32,6 +32,7 @@ from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
 from proteus.controller.command_stack import Command
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
+from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event
@@ -44,7 +45,7 @@ from proteus.views.utils.event_manager import Event
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.STACK_CHANGED, Event.SELECT_OBJECT])
+@subscribe_to([Event.STACK_CHANGED, Event.SELECT_OBJECT, Event.OPEN_PROJECT])
 class MainMenu(QDockWidget):
     """
     Main menu component for the PROTEUS application. It is used to
@@ -149,6 +150,11 @@ class MainMenu(QDockWidget):
         self.save_button.clicked.connect(Command.save_project)
         tab_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
+        # Project properties action
+        self.project_properties_button = buttons.project_properties_button(self)
+        self.project_properties_button.clicked.connect(self.project_properties)
+        tab_layout.addWidget(self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
         # ---------
         # Edit menu
         # ---------
@@ -249,6 +255,13 @@ class MainMenu(QDockWidget):
                         archetype_class in accepted_children
                         or PROTEUS_ANY in accepted_children
                     )
+            
+            # ------------------------------------------------
+            # Event: OPEN_PROJECT
+            # Description: Enable project properties button
+            # ------------------------------------------------
+            case Event.OPEN_PROJECT:
+                self.project_properties_button.setEnabled(True)
 
 
     # ----------------------------------------------------------------------
@@ -317,3 +330,21 @@ class MainMenu(QDockWidget):
     def clone_archetype(self, archetype_id: str) -> None:
         """ """
         Command.create_object(archetype_id=archetype_id)
+
+    # ----------------------------------------------------------------------
+    # Method     : project_properties
+    # Description: Manage the project properties action, open a window to
+    #              edit the project properties.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def project_properties(self):
+        """
+        Manage the project properties action, open a window to edit the
+        project properties.
+        """
+        # Create the properties form window
+        project = Command.get_current_project()
+        project_properties_window = PropertyDialog(project.id)
+        project_properties_window.exec()

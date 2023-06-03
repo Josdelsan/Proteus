@@ -115,6 +115,9 @@ class MainWindow(QMainWindow):
                 self.document_list = DocumentList(self)
                 self.setCentralWidget(self.document_list)
 
+                project = Command.get_current_project()
+                self.setWindowTitle(f"Proteus application - {project.name}")
+
             # ------------------------------------------------
             # Event: SELECT_OBJECT
             # Description: Update the status bar with the
@@ -129,3 +132,6 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage(
                     f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
                 )
+
+            # TODO: Update title and status bar on project properties change
+            #       save project, etc.

@@ -275,6 +275,20 @@ class Command():
         """
         return ProjectService._get_element_by_id(element_id)
     
+    # ----------------------------------------------------------------------
+    # Method     : get_current_project_id
+    # Description: Get the id of the current project.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_current_project(cls) -> Project:
+        """
+        Get the id of the current project.
+        """
+        return ProjectService.project
+    
     # ======================================================================
     # Archetype methods
     # ======================================================================
