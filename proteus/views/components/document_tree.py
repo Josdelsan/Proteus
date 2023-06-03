@@ -11,27 +11,46 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QMenu
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QMenu,
+    QStyle,
+    QApplication,
+)
 
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
+
+# --------------------------------------------------------------------------
+# Global variables and constants
+# --------------------------------------------------------------------------
+
+TREE_ITEM_COLOR = {
+    ProteusState.FRESH: Qt.GlobalColor.darkGreen,
+    ProteusState.DIRTY: Qt.GlobalColor.darkYellow,
+    ProteusState.DEAD: Qt.GlobalColor.darkRed,
+    ProteusState.CLEAN: Qt.GlobalColor.black,
+}
 
 
 # --------------------------------------------------------------------------
@@ -94,10 +113,10 @@ class DocumentTree(QWidget):
         self.tree_widget.header().setVisible(False)
 
         # Get document structure and top level items
-        structure: Dict = Controller.get_object_structure(self.element_id)
+        top_level_object: Object = Controller.get_element(self.element_id)
 
         # Populate tree widget
-        self.populate_tree(self.tree_widget, [structure])
+        self.populate_tree(self.tree_widget, top_level_object)
 
         # Connect double click to object properties form
         self.tree_widget.itemDoubleClicked.connect(self.object_properties_form)
@@ -125,32 +144,6 @@ class DocumentTree(QWidget):
         """
         Update the document tree component depending on the event received.
         """
-
-        def tree_item_color_update(tree_item, object):
-            if object.state is ProteusState.DIRTY:
-                tree_item.setForeground(0, Qt.GlobalColor.darkYellow)
-            elif object.state is ProteusState.FRESH:
-                tree_item.setForeground(0, Qt.GlobalColor.darkGreen)
-            else:
-                tree_item.setForeground(0, Qt.GlobalColor.black)
-
-        # NOTE: Refactor this method and populate_tree to
-        #       avoid code duplication
-        def populate(parent_widget, object):
-            # Create the new item
-            new_item = QTreeWidgetItem(
-                parent_widget, [object.get_property("name").value]
-            )
-            tree_item_color_update(new_item, object)
-            new_item.setData(1, 0, object.id)
-
-            # Add the new item to the tree items dictionary
-            self.tree_items[object.id] = new_item
-
-            # Check if the object has children
-            for child in object.children:
-                populate(new_item, child)
-
         # Handle events
         match event:
             # ------------------------------------------------
@@ -172,7 +165,7 @@ class DocumentTree(QWidget):
 
                 # Update the tree item
                 tree_item.setText(0, object.get_property("name").value)
-                tree_item_color_update(tree_item, object)
+                tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
             # ------------------------------------------------
             # Event: SAVE_PROJECT
@@ -200,10 +193,10 @@ class DocumentTree(QWidget):
 
                 # Update the parent item color
                 parent = Controller.get_element(new_object.parent.id)
-                tree_item_color_update(parent_item, parent)
+                parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
 
                 # Create the new item
-                populate(parent_item, new_object)
+                self.populate_tree(parent_item, new_object)
 
             # ------------------------------------------------
             # Event: DELETE_OBJECT
@@ -220,6 +213,13 @@ class DocumentTree(QWidget):
                 # Get the tree item
                 tree_item = self.tree_items[element_id]
 
+                # Get parent object to update the color
+                parent_id: ProteusID = tree_item.parent().data(1, 0)
+                parent_object = Controller.get_element(parent_id)
+                tree_item.parent().setForeground(
+                    0, TREE_ITEM_COLOR[parent_object.state]
+                )
+
                 # Remove the item from the tree
                 tree_item.parent().removeChild(tree_item)
 
@@ -229,27 +229,29 @@ class DocumentTree(QWidget):
     # ----------------------------------------------------------------------
     # Method     : populate_tree
     # Description: Populate document tree given the document structure
-    # Date       : 25/05/2023
-    # Version    : 0.1
+    # Date       : 04/06/2023
+    # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def populate_tree(self, parent_item, children):
-        for child_dict in children:
-            # Get child object and its name
-            child = list(child_dict.keys())[0]
-            child_name = child.get_property("name").value
+    def populate_tree(self, parent_item, object):
+        """
+        Populate the document tree given an object. This method is recursive.
+        Iterate over the object children and populate the tree with them.
 
-            # Create child item
-            child_item = QTreeWidgetItem(parent_item, [child_name])
+        :param parent_item: The parent item of the object
+        :param object: The object to populate the tree
+        """
+        # Create the new item
+        new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
+        new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+        new_item.setData(1, 0, object.id)
 
-            # Store child id in the item data column 1 role 0
-            child_item.setData(1, 0, child.id)
+        # Add the new item to the tree items dictionary
+        self.tree_items[object.id] = new_item
 
-            # Add child item to tree items dictionary
-            self.tree_items[child.id] = child_item
-
-            # Populate child item
-            self.populate_tree(child_item, child_dict[child])
+        # Check if the object has children
+        for child in object.children:
+            self.populate_tree(new_item, child)
 
     # ----------------------------------------------------------------------
     # Component action methods
@@ -329,6 +331,10 @@ class DocumentTree(QWidget):
         action_delete_object.triggered.connect(
             lambda: Controller.delete_object(selected_item_id)
         )
+        delete_icon = QApplication.style().standardIcon(
+            QStyle.StandardPixmap.SP_TrashIcon
+        )
+        action_delete_object.setIcon(delete_icon)
 
         # Add the actions to the context menu
         context_menu.addAction(action_delete_object)
