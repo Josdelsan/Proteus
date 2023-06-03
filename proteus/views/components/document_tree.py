@@ -18,7 +18,9 @@ from typing import Dict
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, \
+                            QMenu
 
 
 # --------------------------------------------------------------------------
@@ -40,7 +42,7 @@ from proteus.controller.command_stack import Command
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.MODIFY_OBJECT, Event.SAVE_PROJECT, Event.CLONE_OBJECT, Event.DELETE_OBJECT])
+@subscribe_to([Event.MODIFY_OBJECT, Event.SAVE_PROJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT])
 class DocumentTree(QWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
@@ -61,9 +63,8 @@ class DocumentTree(QWidget):
         # Set tree document id
         self.element_id = element_id
 
-        # Form window widget
-        # NOTE: This is used to avoid memory leaks
-        self.form_window = None
+        # tree widget
+        self.tree_widget = None
 
         # Tree items dictionary used to make easier the access to the tree
         # items on update events. Access by object id
@@ -88,24 +89,28 @@ class DocumentTree(QWidget):
         layout = QVBoxLayout(self)
 
         # Create tree widget and set header
-        tree_widget = QTreeWidget()
-        tree_widget.header().setVisible(False)
+        self.tree_widget = QTreeWidget()
+        self.tree_widget.header().setVisible(False)
 
         # Get document structure and top level items
         structure : Dict = Command.get_object_structure(self.element_id)
 
         # Populate tree widget
-        self.populate_tree(tree_widget, [structure])
+        self.populate_tree(self.tree_widget, [structure])
 
         # Connect double click to object properties form
-        tree_widget.itemDoubleClicked.connect(self.object_properties_form)
-        tree_widget.itemClicked.connect(self.select_object)
+        self.tree_widget.itemDoubleClicked.connect(self.object_properties_form)
+        self.tree_widget.itemClicked.connect(self.select_object)
+
+        # Set context menu policy
+        self.tree_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree_widget.customContextMenuRequested.connect(self.show_context_menu)
 
         # Expand all items and disable double click expand
-        tree_widget.expandAll()
-        tree_widget.setExpandsOnDoubleClick(False)
+        self.tree_widget.expandAll()
+        self.tree_widget.setExpandsOnDoubleClick(False)
 
-        layout.addWidget(tree_widget)
+        layout.addWidget(self.tree_widget)
         self.setLayout(layout)
 
 
@@ -176,10 +181,10 @@ class DocumentTree(QWidget):
                     tree_item.setForeground(0, Qt.GlobalColor.black)
 
             # ------------------------------------------------
-            # Event: CLONE_OBJECT
+            # Event: ADD_OBJECT
             # Description: Add the new object to the tree
             # ------------------------------------------------
-            case Event.CLONE_OBJECT:
+            case Event.ADD_OBJECT:
                 # Get the new object
                 new_object = kwargs.get("cloned_object")
 
@@ -288,3 +293,41 @@ class DocumentTree(QWidget):
         Command.select_object(item_id)
 
 
+    # ----------------------------------------------------------------------
+    # Method     : show_context_menu
+    # Description: Manage the context menu event. Display a context menu
+    #              with the available actions for the selected object.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def show_context_menu(self, position):
+        """
+        Manage the context menu event. Display a context menu with the
+        available actions for the selected object.
+        """
+        # Get the selected item
+        selected_item = self.tree_widget.currentItem()
+
+        # Check if the selected item is not None
+        if selected_item is None:
+            return
+
+        # Get the selected item id
+        selected_item_id = selected_item.data(1, 0)
+
+        # Get the selected item object
+        selected_item_object = Command.get_element(selected_item_id)
+
+        # Create the context menu
+        context_menu = QMenu(self)
+
+        # Create the delete action
+        action_delete_object = QAction("Delete", self)
+        action_delete_object.triggered.connect(lambda: Command.delete_object(selected_item_id))
+
+        # Add the actions to the context menu
+        context_menu.addAction(action_delete_object)
+
+        # Show the context menu
+        context_menu.exec(self.tree_widget.viewport().mapToGlobal(position))

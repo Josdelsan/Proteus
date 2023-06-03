@@ -104,7 +104,7 @@ class CloneArchetypeObjectCommand(QUndoCommand):
 
 
         # Emit the event to update the view
-        EventManager.notify(Event.CLONE_OBJECT, cloned_object=self.cloned_object)
+        EventManager.notify(Event.ADD_OBJECT, cloned_object=self.cloned_object)
 
     # ----------------------------------------------------------------------
     # Method     : undo

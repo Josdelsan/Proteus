@@ -36,7 +36,7 @@ class Event(Enum):
 
     # Object events
     MODIFY_OBJECT = "modify_object"
-    CLONE_OBJECT = "clone_object"
+    ADD_OBJECT = "clone_object"
     DELETE_OBJECT = "delete_object"
     SELECT_OBJECT = "select_object"
 

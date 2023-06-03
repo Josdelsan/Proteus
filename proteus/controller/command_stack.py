@@ -27,6 +27,7 @@ from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
 from proteus.controller.commands.clone_archetype_document import CloneArchetypeDocumentCommand
+from proteus.controller.commands.delete_object import DeleteObjectCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -191,6 +192,29 @@ class Command():
         # Push the command to the command stack
         proteus.logger.info(f"Updating properties of element with id: {element_id}")
         cls._push(UpdatePropertiesCommand(element_id, new_properties))
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_object
+    # Description: Delete an object given its id. It pushes the command to
+    #              the command stack.
+    # Date       : 03/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def delete_object(cls, object_id : ProteusID):
+        """
+        Delete an object given its id. It pushes the command to the command
+        stack.
+
+        Notify the frontend components when the command is executed passing
+        the object_id as a parameter. DELETE_OBJECT event is triggered.
+
+        :param object_id: The id of the object to delete.
+        """
+        # Push the command to the command stack
+        proteus.logger.info(f"Deleting object with id: {object_id}")
+        cls._push(DeleteObjectCommand(object_id))
 
     # ----------------------------------------------------------------------
     # Method     : load_project
