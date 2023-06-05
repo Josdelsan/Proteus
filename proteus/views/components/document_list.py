@@ -23,9 +23,10 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 # Project specific imports
 # --------------------------------------------------------------------------
 
+import proteus
 from proteus.model import ProteusID
 from proteus.model.object import Object
-from proteus.views.utils.decorators import subscribe_to
+from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.document_render import DocumentRender
@@ -40,7 +41,6 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.ADD_DOCUMENT, Event.DELETE_DOCUMENT])
 class DocumentList(QTabWidget):
     """
     Documents tab menu component for the PROTEUS application. It is used to
@@ -70,6 +70,10 @@ class DocumentList(QTabWidget):
         # Create the component
         self.create_component()
 
+        # Subscribe to events
+        EventManager.attach(Event.ADD_DOCUMENT, self.update_on_add_document, self)
+        EventManager.attach(Event.DELETE_DOCUMENT, self.update_on_delete_document, self)
+
     # ----------------------------------------------------------------------
     # Method     : create_component
     # Description: Create the documents tab menu component
@@ -86,42 +90,29 @@ class DocumentList(QTabWidget):
         for document in project_structure:
             self.add_document(document)
 
-    # ----------------------------------------------------------------------
-    # Method     : update_component
-    # Description: Update the documents tab menu component
-    # Date       : 25/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
-        """
-        Update the documents tab menu component.
-        """
-        # Handle events
-        match event:
-            # ------------------------------------------------
-            # Event: STACK_CHANGED
-            # Description: Disable or enable main menu buttons
-            # ------------------------------------------------
-            case Event.ADD_DOCUMENT:
-                new_document = kwargs.get("document")
-                self.add_document(new_document)
+        proteus.logger.info("Document list tabs component created")
 
-            case Event.DELETE_DOCUMENT:
-                document_id = kwargs.get("element_id")
-
-                # Delete tab from tabs widget
-                document_tab = self.tabs.get(document_id)
-                self.removeTab(self.indexOf(document_tab))
-
-                # Delete child components
-                for child_component in self.tab_children.get(document_id):
-                    child_component.delete_component()
-
-                # Delete tab object
-                document_tab.parent = None
-                document_tab.deleteLater()
         
+    # ----------------------------------------------------------------------
+    def update_on_add_document(self, *args, **kwargs) -> None:
+        new_document = kwargs.get("document")
+        self.add_document(new_document)
+
+    # ----------------------------------------------------------------------
+    def update_on_delete_document(self, *args, **kwargs) -> None:
+        document_id = kwargs.get("element_id")
+
+        # Delete tab from tabs widget
+        document_tab = self.tabs.get(document_id)
+        self.removeTab(self.indexOf(document_tab))
+
+        # Delete child components
+        for child_component in self.tab_children.get(document_id):
+            child_component.delete_component()
+
+        # Delete tab object
+        document_tab.parent = None
+        document_tab.deleteLater()
 
     # ----------------------------------------------------------------------
     # Method     : add_document

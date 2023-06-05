@@ -29,14 +29,14 @@ from PyQt6.QtCore import Qt, QSize
 import proteus
 from proteus.model import PROTEUS_ANY
 from proteus.model.object import Object
-from proteus.views.utils.decorators import subscribe_to
+from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.controller.command_stack import Controller
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
-from proteus.views.utils.event_manager import Event
+from proteus.views.utils.event_manager import Event, EventManager
 
 
 # --------------------------------------------------------------------------
@@ -46,7 +46,6 @@ from proteus.views.utils.event_manager import Event
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.STACK_CHANGED, Event.SELECT_OBJECT, Event.OPEN_PROJECT])
 class MainMenu(QDockWidget):
     """
     Main menu component for the PROTEUS application. It is used to
@@ -78,6 +77,12 @@ class MainMenu(QDockWidget):
 
         # Create the component
         self.create_component()
+
+        # Subscribe to events
+        EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
+        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
+        EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
+
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -119,6 +124,8 @@ class MainMenu(QDockWidget):
 
         # Set the tab widget as the main widget of the component
         self.setWidget(self.tab_widget)
+
+        proteus.logger.info("Main menu component created")
 
     # ----------------------------------------------------------------------
     # Method     : add_main_tab
@@ -215,60 +222,47 @@ class MainMenu(QDockWidget):
         archetypes_widget.setLayout(archetypes_layout)
         self.tab_widget.addTab(archetypes_widget, class_name)
         
+    # ----------------------------------------------------------------------
+    def update_on_stack_changed(self, *args, **kwargs) -> None:
+        """ """
+        can_undo = Controller._get_instance().canUndo()
+        can_redo = Controller._get_instance().canRedo()
+        unsaved_changes = not Controller._get_instance().isClean()
 
-    def update_component(self, event, *args, **kwargs) -> None:
-        
-        # Handle events
-        match event:
-            # ------------------------------------------------
-            # Event: STACK_CHANGED
-            # Description: Disable or enable main menu buttons
-            # ------------------------------------------------
-            case Event.STACK_CHANGED:
-                can_undo = Controller._get_instance().canUndo()
-                can_redo = Controller._get_instance().canRedo()
-                unsaved_changes = not Controller._get_instance().isClean()
+        self.undo_button.setEnabled(can_undo)
+        self.redo_button.setEnabled(can_redo)
+        self.save_button.setEnabled(unsaved_changes)
 
-                self.undo_button.setEnabled(can_undo)
-                self.redo_button.setEnabled(can_redo)
-                self.save_button.setEnabled(unsaved_changes)
+    # ----------------------------------------------------------------------
+    def update_on_select_object(self, *args, **kwargs) -> None:
+        # Get the selected object and its accepted children
+        selected_object = Controller.get_selected_object()
+        accepted_children = selected_object.acceptedChildren.split()
 
-            # ------------------------------------------------
-            # Event: SELECT_OBJECT
-            # Description: Enable or disable archetype buttons
-            # ------------------------------------------------
-            case Event.SELECT_OBJECT:
-                # Get the selected object and its accepted children
-                selected_object = Controller.get_selected_object()
-                accepted_children = selected_object.acceptedChildren.split()
+        # Iterate over the archetype buttons
+        for archetype_id in self.archetype_buttons.keys():
+            # Get the archetype button
+            archetype_button = self.archetype_buttons[archetype_id]
 
-                # Iterate over the archetype buttons
-                for archetype_id in self.archetype_buttons.keys():
-                    # Get the archetype button
-                    archetype_button = self.archetype_buttons[archetype_id]
+            # Get the archetype
+            archetype = Controller.get_archetype_by_id(archetype_id)
 
-                    # Get the archetype
-                    archetype = Controller.get_archetype_by_id(archetype_id)
-
-                    assert type(archetype) is Object, \
-                        f"Archetype {archetype_id} is not an object"
-                    
-                    # Get the archetype class (last class in the class hierarchy)
-                    archetype_class = archetype.classes.split()[-1]
-
-                    # Enable or disable the archetype button
-                    archetype_button.setEnabled(
-                        archetype_class in accepted_children
-                        or PROTEUS_ANY in accepted_children
-                    )
+            assert type(archetype) is Object, \
+                f"Archetype {archetype_id} is not an object"
             
-            # ------------------------------------------------
-            # Event: OPEN_PROJECT
-            # Description: Enable project properties button
-            # ------------------------------------------------
-            case Event.OPEN_PROJECT:
-                self.project_properties_button.setEnabled(True)
-                self.add_document_button.setEnabled(True)
+            # Get the archetype class (last class in the class hierarchy)
+            archetype_class = archetype.classes.split()[-1]
+
+            # Enable or disable the archetype button
+            archetype_button.setEnabled(
+                archetype_class in accepted_children
+                or PROTEUS_ANY in accepted_children
+            )
+    
+    # ----------------------------------------------------------------------
+    def update_on_open_project(self, *args, **kwargs) -> None:
+        self.project_properties_button.setEnabled(True)
+        self.add_document_button.setEnabled(True)
 
 
     # ----------------------------------------------------------------------

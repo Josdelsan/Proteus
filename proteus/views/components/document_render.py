@@ -29,8 +29,9 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.views.utils.decorators import subscribe_to
+from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.views.utils.event_manager import Event, EventManager
+
 
 # --------------------------------------------------------------------------
 # Class: DocumentRender
@@ -39,7 +40,6 @@ from proteus.views.utils.event_manager import Event, EventManager
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to([Event.ADD_OBJECT, Event.MODIFY_OBJECT])
 class DocumentRender(QScrollArea):
     """
     Document render component for the PROTEUS application. It is used to
@@ -54,14 +54,17 @@ class DocumentRender(QScrollArea):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, document_id=None, *args, **kwargs) -> None:
+    def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
         super().__init__(parent, *args, **kwargs)
-        self.document_id = document_id
+        self.element_id = element_id
         self.label = QLabel("")
 
         self.create_component()
 
-    
+        EventManager.attach(Event.MODIFY_OBJECT, self.update_component, self)
+        EventManager.attach(Event.ADD_OBJECT, self.update_component, self)
+        EventManager.attach(Event.DELETE_OBJECT, self.update_component, self)
+
     # ----------------------------------------------------------------------
     # Method     : create_component
     # Description: Create the document render component.
@@ -79,7 +82,7 @@ class DocumentRender(QScrollArea):
         self.setWidget(widget)
         layout = QVBoxLayout()
 
-        xml = Controller().get_document_xml(self.document_id)
+        xml = Controller().get_document_xml(self.element_id)
         self.label = QLabel(f"{xml}")
 
         layout.addWidget(self.label)
@@ -96,7 +99,7 @@ class DocumentRender(QScrollArea):
         """
         Update the document render component.
         """
-        xml = Controller().get_document_xml(self.document_id)
+        xml = Controller().get_document_xml(self.element_id)
         self.label.setText(f"{xml}")
 
     # ----------------------------------------------------------------------
@@ -110,7 +113,9 @@ class DocumentRender(QScrollArea):
         """
         Delete the document render component.
         """
-        EventManager.detach(Event.MODIFY_OBJECT, self)
-        EventManager.detach(Event.ADD_OBJECT, self)
+        # Detach the component from the event manager
+        EventManager.detach(self)
+
+        # Delete the component
         self.parent = None
         self.deleteLater()

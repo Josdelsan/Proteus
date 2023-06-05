@@ -21,10 +21,11 @@ from PyQt6.QtCore import Qt
 # Project specific imports
 # --------------------------------------------------------------------------
 
+import proteus
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
-from proteus.views.utils.decorators import subscribe_to
-from proteus.views.utils.event_manager import Event
+from proteus.views.utils.decorators import subscribe_to, trigger_on
+from proteus.views.utils.event_manager import Event, EventManager
 from proteus.controller.command_stack import Controller
 
 
@@ -35,7 +36,6 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-@subscribe_to(update_events=[Event.OPEN_PROJECT, Event.SELECT_OBJECT])
 class MainWindow(QMainWindow):
     """
     Main window for the PROTEUS application. It is used to display the main
@@ -60,6 +60,10 @@ class MainWindow(QMainWindow):
 
         # Create the component
         self.create_component()
+
+        # Subscribe to events
+        EventManager.attach(Event.OPEN_PROJECT, self.update_on_project_open, self)
+        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -89,49 +93,29 @@ class MainWindow(QMainWindow):
         # Create the status bar
         self.statusBar().showNormal()
 
+        proteus.logger.info("Main window component created")
+
+
     # ----------------------------------------------------------------------
-    # Method     : create_component
-    # Description: Create the main menu for the PROTEUS application
-    # Date       : 16/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
+    def update_on_project_open(self, *args, **kwargs) -> None:
+        # Delete the existing document list widget
+        if self.document_list is not None:
+            self.document_list.setParent(None)
+
+        # Create document list menu
+        self.document_list = DocumentList(self)
+        self.setCentralWidget(self.document_list)
+
+        project = Controller.get_current_project()
+        self.setWindowTitle(f"Proteus application - {project.properties['name'].value}")
+
     # ----------------------------------------------------------------------
-    def update_component(self, event, *args, **kwargs) -> None:
-        """
-        Update the main window.
-        """
-        # Handle events
-        match event:
-            # ------------------------------------------------
-            # Event: OPEN_PROJECT
-            # Description: Open project initialization
-            # ------------------------------------------------
-            case Event.OPEN_PROJECT:
-                # Delete the existing document list widget
-                if self.document_list is not None:
-                    self.document_list.setParent(None)
+    def update_on_select_object(self, *args, **kwargs) -> None:
+        # Get the selected object
+        selected_object = Controller.get_selected_object()
 
-                # Create document list menu
-                self.document_list = DocumentList(self)
-                self.setCentralWidget(self.document_list)
-
-                project = Controller.get_current_project()
-                self.setWindowTitle(f"Proteus application - {project.properties['name'].value}")
-
-            # ------------------------------------------------
-            # Event: SELECT_OBJECT
-            # Description: Update the status bar with the
-            #              selected object
-            # ------------------------------------------------
-            case Event.SELECT_OBJECT:
-                # Get the selected object
-                selected_object = Controller.get_selected_object()
-
-                # Update the status bar
-                object_name = selected_object.properties["name"].value
-                self.statusBar().showMessage(
-                    f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
-                )
-
-            # TODO: Update title and status bar on project properties change
-            #       save project, etc.
+        # Update the status bar
+        object_name = selected_object.properties["name"].value
+        self.statusBar().showMessage(
+            f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
+        )

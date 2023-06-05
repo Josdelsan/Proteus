@@ -11,11 +11,13 @@
 # --------------------------------------------------------------------------
 
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
+
+from PyQt6.QtWidgets import QWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -51,8 +53,8 @@ class Event(Enum):
 # --------------------------------------------------------------------------
 # Class: EventManager
 # Description: Event manager for the PROTEUS events.
-# Date: 25/05/2023
-# Version: 0.1
+# Date: 05/06/2023
+# Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class EventManager:
@@ -62,17 +64,18 @@ class EventManager:
     """
 
     # Class attributes
-    _events: Dict[Event, List] = {}
+    _events: Dict[Event, List[Tuple[callable, QWidget]]] = {}
+    _subscribed_components: Dict[QWidget, List[callable]] = {}
 
     # ----------------------------------------------------------------------
     # Method     : attach
-    # Description: Attach a component to an event
+    # Description: Attach a component method to an event
     # Date       : 25/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def attach(cls, event: Event, component):
+    def attach(cls, event: Event, method: callable, component: QWidget):
         """
         Attach a component to an event.
         """
@@ -81,7 +84,12 @@ class EventManager:
         if event not in cls._events:
             cls._events[event] = []
 
-        cls._events[event].append(component)
+        # Check if the component was already registered
+        if component not in cls._subscribed_components:
+            cls._subscribed_components[component] = []
+
+        cls._events[event].append((method, component))
+        cls._subscribed_components[component].append(method)
 
     # ----------------------------------------------------------------------
     # Method     : detach
@@ -91,14 +99,24 @@ class EventManager:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def detach(cls, event: Event, component):
+    def detach(cls, component: QWidget):
         """
-        Detach a component to an event.
+        Detach all the methods of a component from all the events.
         """
 
-        # Check if the event exists
-        if event in cls._events:
-            cls._events[event].remove(component)
+        # Check if the component was already registered
+        if component in cls._subscribed_components:
+            # Detach the component from all the events
+            for event in cls._events:
+                # Iterate over the methods of the event
+                for method, instance in cls._events[event]:
+                    # Check if the method belongs to the component
+                    if method in cls._subscribed_components[component]:
+                        cls._events[event].remove((method, instance))
+                        cls._subscribed_components[component].remove(method)
+
+            # Remove the component from the subscribed components
+            cls._subscribed_components.pop(component)
 
     # ----------------------------------------------------------------------
     # Method     : notify
@@ -117,5 +135,5 @@ class EventManager:
         # Check if the event exists
         if event in cls._events:
             # Notify the components
-            for component in cls._events[event]:
-                component.update_component(event, *args, **kwargs)
+            for method, component in cls._events[event]:
+                method(component, *args, **kwargs)
