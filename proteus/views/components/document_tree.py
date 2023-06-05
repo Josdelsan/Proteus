@@ -37,7 +37,7 @@ from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to
-from proteus.views.utils.event_manager import Event
+from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
 
@@ -225,6 +225,24 @@ class DocumentTree(QWidget):
 
                 # Remove the item from the tree items dictionary
                 self.tree_items.pop(element_id)
+
+     # ----------------------------------------------------------------------
+    # Method     : delete_component
+    # Description: Delete the document render component.
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_component(self, *args, **kwargs) -> None:
+        """
+        Delete the document render component.
+        """
+        EventManager.detach(Event.MODIFY_OBJECT, self)
+        EventManager.detach(Event.ADD_OBJECT, self)
+        EventManager.detach(Event.DELETE_OBJECT, self)
+        EventManager.detach(Event.SAVE_PROJECT, self)
+        self.parent = None
+        self.deleteLater()
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree

@@ -21,11 +21,13 @@ from typing import Union, List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+import lxml.etree as ET
+
 # --------------------------------------------------------------------------
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, CHILDREN_TAG, CHILD_TAG
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
@@ -291,3 +293,53 @@ class ProjectService:
         :return: Dictionary with the project documents.
         """
         return cls.project.get_descendants()
+    
+    # ----------------------------------------------------------------------
+    # Method     : generate_document_xml
+    # Description: Generates the xml file for the given document.
+    # Date       : 04/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def generate_document_xml(cls, document_id: ProteusID) -> ET.Element:
+        """
+        Generates the xml file for the given document. Iterates until no
+        child tags are found. Replaces child tags with the xml of the child
+        object.
+
+        :param document_id: Id of the document.
+        """
+        # Get document using helper method
+        document = cls._get_element_by_id(document_id)
+
+        # Generate xml file
+        root: ET.element = document.generate_xml()
+
+        # Iterate until no chil tags are found
+        while root.findall(f".//{CHILD_TAG}"):
+
+            # Load children
+            children : ET.Element = root.findall(f".//{CHILD_TAG}")
+
+            # Parse object's children
+            child_element : ET.Element
+            for child_element in children:
+                child_id : ProteusID = child_element.attrib['id']
+
+                # Get child object
+                child: Object = cls._get_element_by_id(child_id)
+
+                # Remove dead objects
+                if child.state == ProteusState.DEAD:
+                    parent_element : ET.Element = child_element.getparent()
+                    parent_element.remove(child_element)
+                else:
+                    # Generate xml file
+                    child_xml : ET.Element = child.generate_xml()
+
+                    # Replace child element with xml
+                    parent_element : ET.Element = child_element.getparent()
+                    parent_element.replace(child_element, child_xml)
+
+        return root

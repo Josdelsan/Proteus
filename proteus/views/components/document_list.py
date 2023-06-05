@@ -11,13 +11,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
+from typing import Dict, List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSplitter, QLabel
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -26,8 +26,9 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.utils.decorators import subscribe_to
-from proteus.views.utils.event_manager import Event
+from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.components.document_tree import DocumentTree
+from proteus.views.components.document_render import DocumentRender
 from proteus.controller.command_stack import Controller
 
 
@@ -60,6 +61,11 @@ class DocumentList(QTabWidget):
         
         # Tabs dictionary
         self.tabs : Dict[ProteusID, QWidget] = {}
+
+        # Tab children
+        # NOTE: Store children components of each tab in a dictionary to
+        #       delete them later
+        self.tab_children : Dict[ProteusID, List] = {}
 
         # Create the component
         self.create_component()
@@ -103,8 +109,18 @@ class DocumentList(QTabWidget):
 
             case Event.DELETE_DOCUMENT:
                 document_id = kwargs.get("element_id")
-                self.removeTab(self.indexOf(self.tabs[document_id]))
-                self.tabs[document_id].deleteLater()
+
+                # Delete tab from tabs widget
+                document_tab = self.tabs.get(document_id)
+                self.removeTab(self.indexOf(document_tab))
+
+                # Delete child components
+                for child_component in self.tab_children.get(document_id):
+                    child_component.delete_component()
+
+                # Delete tab object
+                document_tab.parent = None
+                document_tab.deleteLater()
         
 
     # ----------------------------------------------------------------------
@@ -135,12 +151,12 @@ class DocumentList(QTabWidget):
         )
         splitter.addWidget(document_tree)
 
-        container2 = QWidget()
-        container2.setStyleSheet("background-color: #FFFFFF;")
-        container2.setSizePolicy(
+        document_render = DocumentRender(self, document.id)
+        document_render.setStyleSheet("background-color: #FFFFFF;")
+        document_render.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
-        splitter.addWidget(container2)
+        splitter.addWidget(document_render)
 
         # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)
@@ -148,6 +164,7 @@ class DocumentList(QTabWidget):
 
         # Add tab to the dictionary
         self.tabs[document.id] = tab
+        self.tab_children[document.id] = [document_tree, document_render]
 
         document_name = document.get_property("name").value
         self.addTab(tab, document_name)

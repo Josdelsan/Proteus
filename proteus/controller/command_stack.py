@@ -17,6 +17,7 @@ from typing import List, Dict, Union
 # --------------------------------------------------------------------------
 
 from PyQt6.QtGui import QUndoStack, QUndoCommand
+import lxml.etree as ET
 
 # --------------------------------------------------------------------------
 # Project specific imports (starting from root)
@@ -334,6 +335,24 @@ class Controller:
         assert current_project is not None, "Project is not loaded"
 
         return ProjectService.project
+
+    # ----------------------------------------------------------------------
+    # Method     : get_document_xml
+    # Description: Get the xml of a document given its id.
+    # Date       : 04/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_document_xml(cls, document_id: ProteusID) -> str:
+        """
+        Get the xml of a document given its id.
+        """
+        proteus.logger.info(f"Getting xml of document with id: {document_id}")
+        document_xml: ET.Element = ProjectService.generate_document_xml(document_id)
+        return ET.tostring(
+            document_xml, xml_declaration=True, encoding="utf-8", pretty_print=True
+        ).decode()
 
     # ======================================================================
     # Archetype methods
