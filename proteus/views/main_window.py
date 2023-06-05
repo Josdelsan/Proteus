@@ -22,6 +22,7 @@ from PyQt6.QtCore import Qt
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.model.project import Project
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
 from proteus.views.utils.decorators import subscribe_to, trigger_on
@@ -64,6 +65,7 @@ class MainWindow(QMainWindow):
         # Subscribe to events
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_project_open, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
+        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -107,7 +109,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.document_list)
 
         project = Controller.get_current_project()
-        self.setWindowTitle(f"Proteus application - {project.properties['name'].value}")
+        self.setWindowTitle(f"Proteus application - {project.get_property('name').value}")
 
     # ----------------------------------------------------------------------
     def update_on_select_object(self, *args, **kwargs) -> None:
@@ -119,3 +121,15 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(
             f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
         )
+
+    # ----------------------------------------------------------------------
+    def update_on_modify_object(self, *args, **kwargs) -> None:
+        # Get element id
+        element_id = kwargs["element_id"]
+
+        # Get project
+        project: Project = Controller.get_current_project()
+
+        # Check if element id is project id
+        if element_id == project.id:
+            self.setWindowTitle(f"Proteus application - {project.get_property('name').value}")

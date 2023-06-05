@@ -40,7 +40,10 @@ class Event(Enum):
     MODIFY_OBJECT = "modify_object"
     ADD_OBJECT = "add_object"
     DELETE_OBJECT = "delete_object"
+
+    # Selection events
     SELECT_OBJECT = "select_object"
+    DESELECT_OBJECT = "deselect_object"
 
     # Document events
     ADD_DOCUMENT = "add_document"

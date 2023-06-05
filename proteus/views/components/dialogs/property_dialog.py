@@ -10,6 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -134,20 +135,6 @@ class PropertyDialog(QDialog):
 
         self.setLayout(form_layout)
 
-
-    # ----------------------------------------------------------------------
-    # Method     : update_component
-    # Description: Update the component.
-    # Date       : 27/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
-        """
-        Note: This component is never updated once created.
-        """
-        pass
-    
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
     # Description: Manage the save button clicked event. It gets the values
@@ -208,3 +195,40 @@ class PropertyDialog(QDialog):
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()
+
+    # ----------------------------------------------------------------------
+    # Method     : object_property_dialog (static)
+    # Description: Handle the creation and display of the form window.
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def object_property_dialog(element_id):
+        """
+        Handle the creation and display of the form window.
+        """
+        # Create the form window
+        form_window = PropertyDialog(element_id)
+
+        # Show the form window
+        form_window.exec()
+    # ----------------------------------------------------------------------
+    # Method     : project_property_dialog (static)
+    # Description: Handle the creation and display of the form window.
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def project_property_dialog():
+        """
+        Handle the creation and display of the form window.
+        """
+        current_project_id: ProteusID = Controller.get_current_project().id
+
+        # Create the form window
+        form_window = PropertyDialog(current_project_id)
+
+        # Show the form window
+        form_window.exec()

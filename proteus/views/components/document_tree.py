@@ -11,6 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Dict
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -35,6 +36,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID
 from proteus.model.object import Object
+from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.views.utils.event_manager import Event, EventManager
@@ -79,14 +81,14 @@ class DocumentTree(QWidget):
         super().__init__(parent, *args, **kwargs)
 
         # Set tree document id
-        self.element_id = element_id
+        self.element_id: ProteusID = element_id
 
         # tree widget
-        self.tree_widget = None
+        self.tree_widget: QTreeWidget = None
 
         # Tree items dictionary used to make easier the access to the tree
         # items on update events. Access by object id
-        self.tree_items = {}
+        self.tree_items: Dict[ProteusID, QTreeWidgetItem] = {}
 
         # Create the component
         self.create_component()
@@ -96,6 +98,7 @@ class DocumentTree(QWidget):
         EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
         EventManager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
         EventManager.attach(Event.DELETE_OBJECT, self.update_on_delete_object, self)
+        EventManager.attach(Event.DESELECT_OBJECT, self.update_on_deselect_object, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -122,8 +125,12 @@ class DocumentTree(QWidget):
         self.populate_tree(self.tree_widget, top_level_object)
 
         # Connect double click to object properties form
-        self.tree_widget.itemDoubleClicked.connect(self.object_properties_form)
-        self.tree_widget.itemClicked.connect(self.select_object)
+        self.tree_widget.itemDoubleClicked.connect(
+            lambda item: PropertyDialog.object_property_dialog(item.data(1, 0))
+        )
+        self.tree_widget.itemClicked.connect(
+            lambda item: Controller.select_object(item.data(1, 0))
+        )
 
         # Set context menu policy
         self.tree_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -144,7 +151,7 @@ class DocumentTree(QWidget):
         # Check if the element id is in the tree items dictionary
         if element_id not in self.tree_items:
             return
-        
+
         # Get the tree item
         tree_item = self.tree_items[element_id]
 
@@ -195,15 +202,28 @@ class DocumentTree(QWidget):
         # Get parent object to update the color
         parent_id: ProteusID = tree_item.parent().data(1, 0)
         parent_object = Controller.get_element(parent_id)
-        tree_item.parent().setForeground(
-            0, TREE_ITEM_COLOR[parent_object.state]
-        )
+        tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
         # Remove the item from the tree
         tree_item.parent().removeChild(tree_item)
 
         # Remove the item from the tree items dictionary
         self.tree_items.pop(element_id)
+
+    # ----------------------------------------------------------------------
+    def update_on_deselect_object(self, *args, **kwargs) -> None:
+        # Get the deselected object id
+        element_id = kwargs.get("element_id")
+
+        # Check if the element id is in the tree items dictionary
+        if element_id not in self.tree_items:
+            return
+
+        # Get the tree item
+        tree_item = self.tree_items[element_id]
+
+        # Set selected to false
+        tree_item.setSelected(False)
 
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -255,46 +275,6 @@ class DocumentTree(QWidget):
     # ----------------------------------------------------------------------
 
     # ----------------------------------------------------------------------
-    # Method     : object_properties_form
-    # Description: Manage the itemDoubleClicked event. Display a form with
-    #              the object properties separated by categories. Only one
-    #              form can be opened at a time.
-    # Date       : 16/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def object_properties_form(self, item):
-        """
-        Manage the itemDoubleClicked event. Display a form with the object
-        properties separated by categories. Only one form can be opened at a
-        time.
-        """
-        # Get item id
-        item_id = item.data(1, 0)
-
-        # Create the properties form window
-        form_window = PropertyDialog(element_id=item_id)
-        form_window.exec()
-
-    # ----------------------------------------------------------------------
-    # Method     : select_object
-    # Description: Manage the itemClicked event. Select the object in the
-    #              view.
-    # Date       : 01/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def select_object(self, item):
-        """
-        Manage the itemClicked event. Select the object in the view.
-        """
-        # Get item id
-        item_id = item.data(1, 0)
-
-        # Select object in the view
-        Controller.select_object(item_id)
-
-    # ----------------------------------------------------------------------
     # Method     : show_context_menu
     # Description: Manage the context menu event. Display a context menu
     #              with the available actions for the selected object.
@@ -317,24 +297,59 @@ class DocumentTree(QWidget):
         # Get the selected item id
         selected_item_id = selected_item.data(1, 0)
 
-        # Get the selected item object
-        selected_item_object = Controller.get_element(selected_item_id)
+        # Store if selected item is the document root item
+        element: Object = Controller.get_element(selected_item_id)
+        is_document: bool = isinstance(element.parent, Project)
 
         # Create the context menu
         context_menu = QMenu(self)
 
+        # Create the edit action
+        action_edit_object = QAction("Edit", self)
+        action_edit_object.triggered.connect(
+            lambda: PropertyDialog.object_property_dialog(selected_item_id)
+        )
+        edit_icon = QApplication.style().standardIcon(
+            QStyle.StandardPixmap.SP_FileDialogDetailedView
+        )
+        action_edit_object.setIcon(edit_icon)
+
         # Create the delete action
         action_delete_object = QAction("Delete", self)
         action_delete_object.triggered.connect(
-            lambda: Controller.delete_object(selected_item_id)
+            lambda: self.delete_object(selected_item_id)
         )
         delete_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_TrashIcon
         )
         action_delete_object.setIcon(delete_icon)
+        # Disable the delete action if the selected item is the document
+        if is_document:
+            action_delete_object.setEnabled(False)
 
         # Add the actions to the context menu
+        context_menu.addAction(action_edit_object)
         context_menu.addAction(action_delete_object)
 
         # Show the context menu
         context_menu.exec(self.tree_widget.viewport().mapToGlobal(position))
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_object
+    # Description: Manage the delete key pressed event. Delete the selected
+    #              object.
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_object(self, element_id: ProteusID) -> None:
+        """
+        Manage the delete key pressed event. Delete the selected object.
+        """
+        # Delete the object
+        Controller.delete_object(element_id)
+
+        # NOTE: Deselect the last object selected because last object selected
+        #       might be the deleted object. This is a workaround to avoid
+        #       selecting an object marked as DEAD.
+        Controller.deselect_object()

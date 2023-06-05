@@ -148,8 +148,29 @@ class Controller:
 
         :param object_id: The id of the object selected by the user.
         """
+        # Deselect the last selected object if it exists
+        if cls._last_selected_item is not None:
+            cls.deselect_object()
+        
+        # Select the new object
         cls._last_selected_item: ProteusID = object_id
         EventManager().notify(event=Event.SELECT_OBJECT)
+
+    # ----------------------------------------------------------------------
+    # Method     : deselect_object
+    # Description: Deselect the last selected object id by the user.
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def deselect_object(cls) -> None:
+        """
+        Deselect the last selected object id by the user.
+        """
+        deselected_object_id = cls._last_selected_item
+        cls._last_selected_item: ProteusID = None
+        EventManager().notify(event=Event.DESELECT_OBJECT, element_id=deselected_object_id)
 
     # ----------------------------------------------------------------------
     # Method     : get_selected_object

@@ -73,6 +73,7 @@ class DocumentList(QTabWidget):
         # Subscribe to events
         EventManager.attach(Event.ADD_DOCUMENT, self.update_on_add_document, self)
         EventManager.attach(Event.DELETE_DOCUMENT, self.update_on_delete_document, self)
+        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -114,6 +115,21 @@ class DocumentList(QTabWidget):
         document_tab.parent = None
         document_tab.deleteLater()
 
+    # ----------------------------------------------------------------------
+    def update_on_modify_object(self, *args, **kwargs) -> None:
+        element_id = kwargs.get("element_id")
+
+        # Check if exists a tab for the element
+        if element_id in self.tabs:
+            # Get document tab
+            document_tab = self.tabs.get(element_id)
+
+            # Change tab name
+            element: Object = Controller.get_element(element_id)
+            document_name: str = element.get_property("name").value
+            self.setTabText(self.indexOf(document_tab), document_name)
+
+    
     # ----------------------------------------------------------------------
     # Method     : add_document
     # Description: Add a document to the tab menu creating its child

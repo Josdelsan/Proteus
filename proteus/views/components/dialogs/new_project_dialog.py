@@ -159,16 +159,6 @@ class NewProjectDialog(QDialog):
         browse_button.clicked.connect(select_project_path)
 
     # ----------------------------------------------------------------------
-    # Method     : update_component
-    # Description: Update the component
-    # Date       : 28/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs):
-        pass
-
-    # ----------------------------------------------------------------------
     # Method     : save_button_clicked
     # Description: Save button clicked event handler
     # Date       : 29/05/2023
@@ -217,3 +207,18 @@ class NewProjectDialog(QDialog):
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()
+
+    # ----------------------------------------------------------------------
+    # Method     : create_dialog (static)
+    # Description: Create a new project dialog and show it
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def create_dialog() -> None:
+        """
+        Create a new project dialog and show it
+        """
+        dialog = NewProjectDialog()
+        dialog.exec()

@@ -81,6 +81,7 @@ class MainMenu(QDockWidget):
         # Subscribe to events
         EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
+        EventManager.attach(Event.DESELECT_OBJECT, self.udpate_on_deselect_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
 
 
@@ -145,7 +146,7 @@ class MainMenu(QDockWidget):
         # ---------
         # New action
         new_button = buttons.new_project_button(self)
-        new_button.clicked.connect(self.new_project)
+        new_button.clicked.connect(NewProjectDialog.create_dialog)
         tab_layout.addWidget(new_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Open action
@@ -160,12 +161,12 @@ class MainMenu(QDockWidget):
 
         # Project properties action
         self.project_properties_button = buttons.project_properties_button(self)
-        self.project_properties_button.clicked.connect(self.project_properties)
+        self.project_properties_button.clicked.connect(PropertyDialog.project_property_dialog)
         tab_layout.addWidget(self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Add document action
         self.add_document_button = buttons.add_document_button(self)
-        self.add_document_button.clicked.connect(self.add_document)
+        self.add_document_button.clicked.connect(NewDocumentDialog.create_dialog)
         tab_layout.addWidget(self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ---------
@@ -212,7 +213,7 @@ class MainMenu(QDockWidget):
 
             # Connect the clicked signal to the clone archetype method
             archetype_button.clicked.connect(
-                lambda checked, arg=archetype.id: self.clone_archetype(arg)
+                lambda checked, arg=archetype.id: Controller.create_object(archetype_id=arg)
             )
 
             # Add the archetype widget to the tab widget layout
@@ -221,7 +222,8 @@ class MainMenu(QDockWidget):
         # Set the tab widget layout as the main widget of the tab widget
         archetypes_widget.setLayout(archetypes_layout)
         self.tab_widget.addTab(archetypes_widget, class_name)
-        
+
+
     # ----------------------------------------------------------------------
     def update_on_stack_changed(self, *args, **kwargs) -> None:
         """ """
@@ -260,6 +262,14 @@ class MainMenu(QDockWidget):
             )
     
     # ----------------------------------------------------------------------
+    def udpate_on_deselect_object(self, *args, **kwargs) -> None:
+        """
+        Disable all the archetype buttons when there is not selected object.
+        """
+        for button in self.archetype_buttons.values():
+            button.setEnabled(False)
+
+    # ----------------------------------------------------------------------
     def update_on_open_project(self, *args, **kwargs) -> None:
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
@@ -268,24 +278,6 @@ class MainMenu(QDockWidget):
     # ----------------------------------------------------------------------
     # Component action methods
     # ----------------------------------------------------------------------
-
-    # ----------------------------------------------------------------------
-    # Method     : new_project
-    # Description: Manage the new project action, open a window to select
-    #              project archetype, name and path and creates a new
-    #              project.
-    # Date       : 28/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def new_project(self):
-        """
-        Manage the new project action, open a window to select project
-        archetype, name and path and creates a new project.
-        """
-        # Create the properties form window
-        new_project_window = NewProjectDialog()
-        new_project_window.exec()
 
     # ----------------------------------------------------------------------
     # Method     : open_project
@@ -321,48 +313,3 @@ class MainMenu(QDockWidget):
                 error_dialog.setInformativeText(str(e))
                 error_dialog.exec()
                 
-    # ----------------------------------------------------------------------
-    # Method     : clone_archetype
-    # Description: Clone the selected archetype
-    # Date       : 01/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def clone_archetype(self, archetype_id: str) -> None:
-        """ """
-        Controller.create_object(archetype_id=archetype_id)
-
-    # ----------------------------------------------------------------------
-    # Method     : project_properties
-    # Description: Manage the project properties action, open a window to
-    #              edit the project properties.
-    # Date       : 03/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def project_properties(self):
-        """
-        Manage the project properties action, open a window to edit the
-        project properties.
-        """
-        # Create the properties form window
-        project = Controller.get_current_project()
-        project_properties_window = PropertyDialog(project.id)
-        project_properties_window.exec()
-
-    # ----------------------------------------------------------------------
-    # Method     : add_document
-    # Description: Manage the add document action, open a window to select
-    #              document archetype.
-    # Date       : 03/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def add_document(self):
-        """
-        Manage the add document action, open a window to select document
-        archetype.
-        """
-        # Create the properties form window
-        add_document_window = NewDocumentDialog()
-        add_document_window.exec()

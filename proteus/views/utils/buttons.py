@@ -193,7 +193,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     
     # Set text
     properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    properties_button.setText("Properties")
+    properties_button.setText("Project properties")
 
     # Set shorcut
     properties_button.setShortcut("Ctrl+P")
@@ -223,7 +223,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
     
     # Set text
     add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    add_button.setText("Add")
+    add_button.setText("Add document")
 
     # Set shorcut
     add_button.setShortcut("Ctrl+D")

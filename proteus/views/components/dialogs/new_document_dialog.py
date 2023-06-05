@@ -127,16 +127,7 @@ class NewDocumentDialog(QDialog):
         archetype_combo.currentIndexChanged.connect(update_description)
         # Update the description for the first archetype
         update_description()
-
-    # ----------------------------------------------------------------------
-    # Method     : update_component
-    # Description: Update the component
-    # Date       : 28/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs):
-        pass
+        
 
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
@@ -173,3 +164,19 @@ class NewDocumentDialog(QDialog):
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()
+
+
+    # ----------------------------------------------------------------------
+    # Method     : create_dialog
+    # Description: Create a new document dialog and show it
+    # Date       : 05/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def create_dialog() -> None:
+        """
+        Create a new document dialog and show it
+        """
+        dialog = NewDocumentDialog()
+        dialog.exec()
