@@ -82,6 +82,7 @@ class DocumentList(QTabWidget):
         EventManager.attach(Event.DELETE_DOCUMENT, self.update_on_delete_document, self)
         EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
 
+
     # ----------------------------------------------------------------------
     # Method     : create_component
     # Description: Create the documents tab menu component
@@ -101,6 +102,12 @@ class DocumentList(QTabWidget):
         # Add a document tab for each document in the project
         for document in project_structure:
             self.add_document(document)
+
+        # Connect singal to handle document tab change
+        self.currentChanged.connect(self.current_document_changed)
+        # Call the current document changed method to update the document for the
+        # first time
+        self.current_document_changed(index=0)
 
         proteus.logger.info("Document list tabs component created")
 
@@ -248,3 +255,32 @@ class DocumentList(QTabWidget):
             element: Object = Controller.get_element(element_id)
             document_name: str = element.get_property("name").value
             self.setTabText(self.indexOf(document_tab), document_name)
+
+    # ======================================================================
+    # Component slots methods (connected to the component signals)
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : current_document_changed
+    # Description: Slot triggered when the current document tab is changed.
+    #              It updates the current document id in the controller.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def current_document_changed(self, index: int) -> None:
+        """
+        Slot triggered when the current document tab is changed. It updates
+        the current document id in the controller.
+        """
+        # Get document id
+        document_id: ProteusID = None
+        if index >= 0:
+            document_tab: QWidget = self.widget(index)
+            # Get the document id (key) from the tab (value)
+            document_id: ProteusID = list(self.tabs.keys())[
+                list(self.tabs.values()).index(document_tab)
+            ]
+
+        # Update current document id in the controller
+        Controller.current_document(document_id)

@@ -83,6 +83,7 @@ class MainMenu(QDockWidget):
         self.redo_button: QToolButton = None
         self.project_properties_button: QToolButton = None
         self.add_document_button: QToolButton = None
+        self.delete_document_button: QToolButton = None
 
         # Archetype menu buttons that are updated
         self.archetype_buttons: Dict[ProteusID, ArchetypeMenuButton] = {}
@@ -98,6 +99,11 @@ class MainMenu(QDockWidget):
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
         EventManager.attach(Event.DESELECT_OBJECT, self.udpate_on_deselect_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
+        EventManager.attach(
+            Event.CURRENT_DOCUMENT_CHANGED,
+            self.update_on_current_document_changed,
+            self,
+        )
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -192,6 +198,13 @@ class MainMenu(QDockWidget):
         self.add_document_button.clicked.connect(NewDocumentDialog.create_dialog)
         tab_layout.addWidget(
             self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft
+        )
+
+        # Delete document action
+        self.delete_document_button: QToolButton = buttons.delete_document_button(self)
+        self.delete_document_button.clicked.connect(self.delete_current_document)
+        tab_layout.addWidget(
+            self.delete_document_button, alignment=Qt.AlignmentFlag.AlignLeft
         )
 
         # ---------
@@ -360,6 +373,28 @@ class MainMenu(QDockWidget):
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
 
+    # ----------------------------------------------------------------------
+    # Method     : update_on_current_document_changed
+    # Description: Update the state of the document buttons when the
+    #              current document changes.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_current_document_changed(self, *args, **kwargs) -> None:
+        """
+        Update the state of the document buttons when the current document
+        changes, enabling or disabling them depending on the state.
+
+        Triggered by: Event.CURRENT_DOCUMENT_CHANGED
+        """
+        document_id: ProteusID = kwargs["document_id"]
+
+        # Store if there is a document open
+        is_document_open: bool = document_id is not None
+
+        self.delete_document_button.setEnabled(is_document_open)
+
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
@@ -398,3 +433,35 @@ class MainMenu(QDockWidget):
                 error_dialog.setText("Error loading the project.")
                 error_dialog.setInformativeText(str(e))
                 error_dialog.exec()
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_current_document
+    # Description: Manage the delete current document action, delete the
+    #              current document.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_current_document(self):
+        """
+        Manage the delete current document action, delete the current
+        document. Use a confirmation dialog to confirm the action.
+        """
+        # Get the current document
+        document: Object = Controller.get_current_document()
+        document_name: str = document.get_property("name").value
+
+        # Show a confirmation dialog
+        confirmation_dialog = QMessageBox()
+        confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+        confirmation_dialog.setWindowTitle("Delete document")
+        confirmation_dialog.setText(f"Are you sure you want to delete the document {document_name}?")
+        confirmation_dialog.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        confirmation_dialog.accepted.connect(
+            # Delete the document
+            lambda arg=document.id: Controller.delete_document(arg)
+        )
+        confirmation_dialog.exec()

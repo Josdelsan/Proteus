@@ -33,6 +33,7 @@ from proteus.controller.commands.clone_archetype_document import (
     CloneArchetypeDocumentCommand,
 )
 from proteus.controller.commands.delete_object import DeleteObjectCommand
+from proteus.controller.commands.delete_document import DeleteDocumentCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -57,7 +58,14 @@ class Controller:
 
     # Class attributes
     _stack: QUndoStack = None
+
+    # TODO: Consider moving this logic to a frontend class
     _last_selected_item: ProteusID = None
+    _current_document: ProteusID = None
+
+    # ======================================================================
+    # Command stack methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : get_instance
@@ -134,6 +142,10 @@ class Controller:
         proteus.logger.info(f"Redoing last command: {cls._get_instance().redoText()}")
         cls._get_instance().redo()
 
+    # ======================================================================
+    # Selected elements methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
     # Method     : select_object
     # Description: Store last selected object id by the user.
@@ -148,10 +160,12 @@ class Controller:
 
         :param object_id: The id of the object selected by the user.
         """
+        assert object_id is not None, "Object id cannot be None"
+
         # Deselect the last selected object if it exists
         if cls._last_selected_item is not None:
             cls.deselect_object()
-        
+
         # Select the new object
         cls._last_selected_item: ProteusID = object_id
         EventManager().notify(event=Event.SELECT_OBJECT)
@@ -170,7 +184,9 @@ class Controller:
         """
         deselected_object_id = cls._last_selected_item
         cls._last_selected_item: ProteusID = None
-        EventManager().notify(event=Event.DESELECT_OBJECT, element_id=deselected_object_id)
+        EventManager().notify(
+            event=Event.DESELECT_OBJECT, element_id=deselected_object_id
+        )
 
     # ----------------------------------------------------------------------
     # Method     : get_selected_object
@@ -201,6 +217,55 @@ class Controller:
         Get last selected object by the user.
         """
         return ProjectService._get_element_by_id(cls.get_selected_object_id())
+
+    # ----------------------------------------------------------------------
+    # Method     : current_document
+    # Description: Store the current document id.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def current_document(cls, document_id: ProteusID) -> None:
+        """
+        Store the current document id. Store None if no document is open.
+
+        :param document_id: The id of the current document.
+        """
+        cls._current_document_id = document_id
+        EventManager().notify(
+            event=Event.CURRENT_DOCUMENT_CHANGED, document_id=cls._current_document_id
+        )
+
+    # ----------------------------------------------------------------------
+    # Method     : get_current_document_id
+    # Description: Get the current document id.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_current_document_id(cls) -> Union[ProteusID, None]:
+        """
+        Get the current document id. Return None if no document is open.
+        """
+        return cls._current_document_id
+
+    # ----------------------------------------------------------------------
+    # Method     : get_current_document
+    # Description: Get the current document.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_current_document(cls) -> Object:
+        """
+        Get the current document. Throw an exception if no document is open.
+        """
+        assert cls.get_current_document_id() is not None, "No document opened"
+
+        return ProjectService._get_element_by_id(cls.get_current_document_id())
 
     # ======================================================================
     # Project methods
@@ -254,6 +319,29 @@ class Controller:
         # Push the command to the command stack
         proteus.logger.info(f"Deleting object with id: {object_id}")
         cls._push(DeleteObjectCommand(object_id))
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_document
+    # Description: Delete a document given its id. It pushes the command to
+    #              the command stack.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def delete_document(cls, document_id: ProteusID) -> None:
+        """
+        Delete a document given its id. It pushes the command to the command
+        stack.
+
+        Notify the frontend components when the command is executed passing
+        the document_id as a parameter. DELETE_DOCUMENT event is triggered.
+
+        :param document_id: The id of the document to delete.
+        """
+        # Push the command to the command stack
+        proteus.logger.info(f"Deleting document with id: {document_id}")
+        cls._push(DeleteDocumentCommand(document_id))
 
     # ----------------------------------------------------------------------
     # Method     : load_project
