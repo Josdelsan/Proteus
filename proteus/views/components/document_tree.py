@@ -311,7 +311,6 @@ class DocumentTree(QWidget):
             if s.state != ProteusState.DEAD
         ]
         position: int = siblings.index(new_object)
-        print(position)
 
         # Create the new item
         self.populate_tree(parent_item, new_object, position=position)
@@ -332,6 +331,27 @@ class DocumentTree(QWidget):
 
         Triggered by: Event.DELETE_OBJECT
         """
+
+        def delete_item(item: QTreeWidgetItem) -> None:
+            """
+            Helper method to delete item widget and its children recursively.
+            """
+            # Get the children widgets
+            children_widgets: List[QTreeWidgetItem] = [
+                item.child(i) for i in range(item.childCount())
+            ]
+
+            # Iterate over the children widgets
+            for child_widget in children_widgets:
+                delete_item(child_widget)
+
+            # Remove the item from its parent
+            item.parent().removeChild(item)
+
+            # Remove the item from the tree items dictionary
+            self.tree_items.pop(item.data(1, 0))
+            
+
         # Get the deleted object id
         element_id: ProteusID = kwargs.get("element_id")
 
@@ -353,11 +373,8 @@ class DocumentTree(QWidget):
         parent_object: Object = Controller.get_element(parent_id)
         tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
-        # Remove the item from the tree
-        tree_item.parent().removeChild(tree_item)
-
-        # Remove the item from the tree items dictionary
-        self.tree_items.pop(element_id)
+        # Remove the item from the tree including its children
+        delete_item(tree_item)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_deselect_object
