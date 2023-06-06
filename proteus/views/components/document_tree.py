@@ -18,7 +18,7 @@ from typing import Dict
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -29,7 +29,6 @@ from PyQt6.QtWidgets import (
     QApplication,
 )
 
-
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
@@ -38,7 +37,6 @@ from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
-from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
@@ -67,6 +65,7 @@ class DocumentTree(QWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
+    Display the document structure like a file system tree.
     """
 
     # ----------------------------------------------------------------------
@@ -78,6 +77,14 @@ class DocumentTree(QWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors, create
+        the component and connect update methods to the events.
+
+        Store the document id reference. Create the tree widget and the
+        tree items dictionary to make easier the access to the tree items
+        on update events using the element id.
+        """
         super().__init__(parent, *args, **kwargs)
 
         # Set tree document id
@@ -87,7 +94,7 @@ class DocumentTree(QWidget):
         self.tree_widget: QTreeWidget = None
 
         # Tree items dictionary used to make easier the access to the tree
-        # items on update events. Access by object id
+        # items on update events. Access by object id.
         self.tree_items: Dict[ProteusID, QTreeWidgetItem] = {}
 
         # Create the component
@@ -102,17 +109,19 @@ class DocumentTree(QWidget):
 
     # ----------------------------------------------------------------------
     # Method     : create_component
-    # Description: Create the document tree for each document in the project
+    # Description: Create the document tree for the document referenced by
+    #              the element id.
     # Date       : 25/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the document tree for each document in the project.
+        Create the document tree for the document referenced by the element
+        id.
         """
         # Create vertical layout
-        layout = QVBoxLayout(self)
+        layout: QVBoxLayout = QVBoxLayout(self)
 
         # Create tree widget and set header
         self.tree_widget = QTreeWidget()
@@ -144,97 +153,19 @@ class DocumentTree(QWidget):
         self.setLayout(layout)
 
     # ----------------------------------------------------------------------
-    def update_on_modify_object(self, *args, **kwargs) -> None:
-        # Get the modifies element id
-        element_id = kwargs.get("element_id")
-
-        # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
-            return
-
-        # Get the tree item
-        tree_item = self.tree_items[element_id]
-
-        # Get the object
-        object: Object = Controller.get_element(element_id)
-
-        # Update the tree item
-        tree_item.setText(0, object.get_property("name").value)
-        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
-
-    # ----------------------------------------------------------------------
-    def update_on_save_project(self, *args, **kwargs) -> None:
-        items = self.tree_items.values()
-        for tree_item in items:
-            tree_item.setForeground(0, Qt.GlobalColor.black)
-
-    # ----------------------------------------------------------------------
-    def update_on_add_object(self, *args, **kwargs) -> None:
-        # Get the new object
-        new_object = kwargs.get("object")
-
-        # Check if the parent item is in the tree items dictionary
-        if new_object.parent.id not in self.tree_items:
-            return
-
-        # Get the parent item
-        parent_item = self.tree_items[new_object.parent.id]
-
-        # Update the parent item color
-        parent = Controller.get_element(new_object.parent.id)
-        parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
-
-        # Create the new item
-        self.populate_tree(parent_item, new_object)
-
-    # ----------------------------------------------------------------------
-    def update_on_delete_object(self, *args, **kwargs) -> None:
-        # Get the deleted object id
-        element_id = kwargs.get("element_id")
-
-        # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
-            return
-
-        # Get the tree item
-        tree_item = self.tree_items[element_id]
-
-        # Get parent object to update the color
-        parent_id: ProteusID = tree_item.parent().data(1, 0)
-        parent_object = Controller.get_element(parent_id)
-        tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
-
-        # Remove the item from the tree
-        tree_item.parent().removeChild(tree_item)
-
-        # Remove the item from the tree items dictionary
-        self.tree_items.pop(element_id)
-
-    # ----------------------------------------------------------------------
-    def update_on_deselect_object(self, *args, **kwargs) -> None:
-        # Get the deselected object id
-        element_id = kwargs.get("element_id")
-
-        # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
-            return
-
-        # Get the tree item
-        tree_item = self.tree_items[element_id]
-
-        # Set selected to false
-        tree_item.setSelected(False)
-
-    # ----------------------------------------------------------------------
     # Method     : delete_component
-    # Description: Delete the document render component.
+    # Description: Delete the document tree component.
     # Date       : 05/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def delete_component(self, *args, **kwargs) -> None:
         """
-        Delete the document render component.
+        Manage the deletion of the document tree component. Detach from
+        events and delete the component.
+
+        This method must be called by the parent component in order to
+        delete the document tree before deleting the parent (document tab)
         """
         # Detach from events
         EventManager.detach(self)
@@ -260,7 +191,11 @@ class DocumentTree(QWidget):
         """
         # Create the new item
         new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
+
+        # Set the item color based on the object ProteusState
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+
+        # Set the item data to store the object id
         new_item.setData(1, 0, object.id)
 
         # Add the new item to the tree items dictionary
@@ -270,9 +205,183 @@ class DocumentTree(QWidget):
         for child in object.children:
             self.populate_tree(new_item, child)
 
+    # ======================================================================
+    # Component update methods (triggered by PROTEUS application events)
+    # ======================================================================
+
     # ----------------------------------------------------------------------
-    # Component action methods
+    # Method     : update_on_modify_object
+    # Description: Update the document tree when an object is modified.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    def update_on_modify_object(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when an object is modified. Look for the
+        object in the tree items dictionary and update the tree item properties.
+
+        Triggered by: Event.MODIFY_OBJECT
+        """
+        # Get the modifies element id
+        element_id: ProteusID = kwargs.get("element_id")
+
+        # Check the element id is not None
+        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+
+        # Check if the element id is in the tree items dictionary
+        if element_id not in self.tree_items:
+            return
+
+        # Get the tree item
+        tree_item: QTreeWidgetItem = self.tree_items[element_id]
+
+        # Get the object
+        object: Object = Controller.get_element(element_id)
+
+        # Update the tree item
+        tree_item.setText(0, object.get_property("name").value)
+        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_save_project
+    # Description: Update the document tree when a project is saved.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_save_project(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when a project is saved. Iterate over the
+        tree items and set the color to black (no changes).
+
+        Triggered by: Event.SAVE_PROJECT
+        """
+        items = self.tree_items.values()
+        for tree_item in items:
+            tree_item.setForeground(0, Qt.GlobalColor.black)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_add_object
+    # Description: Update the document tree when an object is added.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_add_object(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when an object is added. Look for the
+        parent item in the tree items dictionary and add the new item to
+        the parent item including the new object children. Update the parent
+        item color based on the parent object ProteusState.
+
+        Triggered by: Event.ADD_OBJECT
+        """
+        # Get the new object
+        new_object: Object = kwargs.get("object")
+
+        # Check the object is instance of Object
+        assert isinstance(
+            new_object, Object
+        ), "Object is not instance of Object on ADD_OBJECT event"
+
+        # Check if the parent item is in the tree items dictionary
+        if new_object.parent.id not in self.tree_items:
+            return
+
+        # Get the parent item
+        parent_item: QTreeWidgetItem = self.tree_items[new_object.parent.id]
+
+        # Update the parent item color
+        # NOTE: Parent will always be an Object. Project cannot be selected
+        #       as parent to trigger ADD_OBJECT event. When adding an object
+        #       with Project as parent ADD_DOCUMENT event is triggered.
+        parent: Object = Controller.get_element(new_object.parent.id)
+        parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
+
+        # Create the new item
+        self.populate_tree(parent_item, new_object)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_delete_object
+    # Description: Update the document tree when an object is deleted.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_delete_object(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when an object is deleted. Look for the
+        object in the tree items dictionary and remove the item from its
+        parent item and tree items dictionary. Update the parent item color
+        based on the parent object ProteusState.
+
+        Triggered by: Event.DELETE_OBJECT
+        """
+        # Get the deleted object id
+        element_id: ProteusID = kwargs.get("element_id")
+
+        # Check the element id is not None
+        assert element_id is not None, "Element id is None on DELETE_OBJECT event"
+
+        # Check if the element id is in the tree items dictionary
+        if element_id not in self.tree_items:
+            return
+
+        # Get the tree item
+        tree_item: QTreeWidgetItem = self.tree_items[element_id]
+
+        # Get parent object to update the color
+        # NOTE: Parent will always be an Object. Project cannot be selected
+        #       as parent to trigger DELETE_OBJECT event. When deleting object
+        #       with Project parent DELETE_DOCUMENT event is triggered.
+        parent_id: ProteusID = tree_item.parent().data(1, 0)
+        parent_object: Object = Controller.get_element(parent_id)
+        tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
+
+        # Remove the item from the tree
+        tree_item.parent().removeChild(tree_item)
+
+        # Remove the item from the tree items dictionary
+        self.tree_items.pop(element_id)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_deselect_object
+    # Description: Update the document tree when an object is deselected.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_deselect_object(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when an object is deselected. Look for the
+        object in the tree items dictionary and set the selected property to
+        false.
+
+        This method is necessary when handling the selection of objects when
+        the application has multiple document tree widgets.
+
+        Triggered by: Event.DESELECT_OBJECT
+        """
+        # Get the deselected object id
+        element_id: ProteusID = kwargs.get("element_id")
+
+        # Check the element id is not None
+        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+
+        # Check if the element id is in the tree items dictionary
+        if element_id not in self.tree_items:
+            return
+
+        # Get the tree item
+        tree_item: QTreeWidgetItem = self.tree_items[element_id]
+
+        # Set selected to false
+        tree_item.setSelected(False)
+
+    # ======================================================================
+    # Component slots methods (connected to the component signals)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : show_context_menu
@@ -288,24 +397,26 @@ class DocumentTree(QWidget):
         available actions for the selected object.
         """
         # Get the selected item
-        selected_item = self.tree_widget.currentItem()
+        selected_item: QTreeWidgetItem = self.tree_widget.currentItem()
 
         # Check if the selected item is not None
         if selected_item is None:
             return
 
         # Get the selected item id
-        selected_item_id = selected_item.data(1, 0)
+        selected_item_id: ProteusID = selected_item.data(1, 0)
 
         # Store if selected item is the document root item
+        # NOTE: Elements stored in the tree items dictionary are always
+        #       Objects.
         element: Object = Controller.get_element(selected_item_id)
         is_document: bool = isinstance(element.parent, Project)
 
         # Create the context menu
-        context_menu = QMenu(self)
+        context_menu: QMenu = QMenu(self)
 
         # Create the edit action
-        action_edit_object = QAction("Edit", self)
+        action_edit_object: QAction = QAction("Edit", self)
         action_edit_object.triggered.connect(
             lambda: PropertyDialog.object_property_dialog(selected_item_id)
         )
@@ -315,7 +426,7 @@ class DocumentTree(QWidget):
         action_edit_object.setIcon(edit_icon)
 
         # Create the delete action
-        action_delete_object = QAction("Delete", self)
+        action_delete_object: QAction = QAction("Delete", self)
         action_delete_object.triggered.connect(
             lambda: self.delete_object(selected_item_id)
         )
@@ -342,6 +453,8 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # TODO: Consider connecting this method directly to the delete key
+    #       pressed event.
     def delete_object(self, element_id: ProteusID) -> None:
         """
         Manage the delete key pressed event. Delete the selected object.

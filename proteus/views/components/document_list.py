@@ -11,13 +11,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, List
+from typing import Dict, List, Union
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSplitter, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSplitter
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -26,7 +26,6 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSpli
 import proteus
 from proteus.model import ProteusID
 from proteus.model.object import Object
-from proteus.views.utils.decorators import subscribe_to, trigger_on
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.document_render import DocumentRender
@@ -57,15 +56,23 @@ class DocumentList(QTabWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors, create
+        the component and connect update methods to the events.
+
+        Store the tabs for each document in a dictionary to access them
+        later. Also store the children components of each tab in a
+        dictionary to delete when the tab is closed.
+        """
         super().__init__(parent, *args, **kwargs)
-        
+
         # Tabs dictionary
-        self.tabs : Dict[ProteusID, QWidget] = {}
+        self.tabs: Dict[ProteusID, QWidget] = {}
 
         # Tab children
         # NOTE: Store children components of each tab in a dictionary to
         #       delete them later
-        self.tab_children : Dict[ProteusID, List] = {}
+        self.tab_children: Dict[ProteusID, List] = {}
 
         # Create the component
         self.create_component()
@@ -83,9 +90,13 @@ class DocumentList(QTabWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
-        """ """
+        """
+        Create the documents tab menu component. It gets the project
+        structure from the controller and creates a tab for each
+        document.
+        """
         # Get project structure from project service
-        project_structure = Controller.get_project_structure()
+        project_structure: List[Object] = Controller.get_project_structure()
 
         # Add a document tab for each document in the project
         for document in project_structure:
@@ -93,43 +104,6 @@ class DocumentList(QTabWidget):
 
         proteus.logger.info("Document list tabs component created")
 
-        
-    # ----------------------------------------------------------------------
-    def update_on_add_document(self, *args, **kwargs) -> None:
-        new_document = kwargs.get("document")
-        self.add_document(new_document)
-
-    # ----------------------------------------------------------------------
-    def update_on_delete_document(self, *args, **kwargs) -> None:
-        document_id = kwargs.get("element_id")
-
-        # Delete tab from tabs widget
-        document_tab = self.tabs.get(document_id)
-        self.removeTab(self.indexOf(document_tab))
-
-        # Delete child components
-        for child_component in self.tab_children.get(document_id):
-            child_component.delete_component()
-
-        # Delete tab object
-        document_tab.parent = None
-        document_tab.deleteLater()
-
-    # ----------------------------------------------------------------------
-    def update_on_modify_object(self, *args, **kwargs) -> None:
-        element_id = kwargs.get("element_id")
-
-        # Check if exists a tab for the element
-        if element_id in self.tabs:
-            # Get document tab
-            document_tab = self.tabs.get(element_id)
-
-            # Change tab name
-            element: Object = Controller.get_element(element_id)
-            document_name: str = element.get_property("name").value
-            self.setTabText(self.indexOf(document_tab), document_name)
-
-    
     # ----------------------------------------------------------------------
     # Method     : add_document
     # Description: Add a document to the tab menu creating its child
@@ -141,24 +115,25 @@ class DocumentList(QTabWidget):
     def add_document(self, document: Object):
         """
         Add a document to the tab menu creating its child components (tree and
-        render).
+        render). Document tab consists of a widget that contains the document
+        tree and render components separated by a splitter.
         """
         # Create document tab widget
-        tab = QWidget()
-        tab_layout = QVBoxLayout(tab)
+        tab: QWidget = QWidget()
+        tab_layout: QVBoxLayout = QVBoxLayout(tab)
 
         # Splitter
-        splitter = QSplitter()
+        splitter: QSplitter = QSplitter()
         splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
 
         # Tree widget
-        document_tree = DocumentTree(self, document.id)
+        document_tree: DocumentTree = DocumentTree(self, document.id)
         document_tree.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
         splitter.addWidget(document_tree)
 
-        document_render = DocumentRender(self, document.id)
+        document_render: DocumentRender = DocumentRender(self, document.id)
         document_render.setStyleSheet("background-color: #FFFFFF;")
         document_render.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
@@ -173,5 +148,103 @@ class DocumentList(QTabWidget):
         self.tabs[document.id] = tab
         self.tab_children[document.id] = [document_tree, document_render]
 
-        document_name = document.get_property("name").value
+        document_name: str = document.get_property("name").value
         self.addTab(tab, document_name)
+
+    # ======================================================================
+    # Component update methods (triggered by PROTEUS application events)
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_add_document
+    # Description: Update the documents tab menu component when a new
+    #              document is added to the project.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_add_document(self, *args, **kwargs) -> None:
+        """
+        Update the documents tab menu component when a new document is added
+        to the project. It creates a new tab for the document using the add
+        document method.
+
+        Triggered by: Event.ADD_DOCUMENT
+        """
+        new_document: Object = kwargs.get("document")
+
+        # Check the document is instance of Object
+        # Check the object is instance of Object
+        assert isinstance(
+            new_document, Object
+        ), "Object is not instance of Object on ADD_DOCUMENT event"
+
+        self.add_document(new_document)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_delete_document
+    # Description: Update the documents tab menu component when a document
+    #              is deleted from the project.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_delete_document(self, *args, **kwargs) -> None:
+        """
+        Update the documents tab menu component when a document is deleted
+        from the project. It deletes the tab from the tabs widget and
+        deletes the child components.
+
+        Triggered by: Event.DELETE_DOCUMENT
+        """
+        document_id: ProteusID = kwargs.get("element_id")
+
+        # Check the element id is not None
+        assert document_id is not None, "Element id is None on DELETE_OBJECT event"
+
+        # Check there is a tab for the document
+        assert (
+            document_id in self.tabs
+        ), f"Document tab not found for document {document_id} on DELETE_DOCUMENT event"
+
+        # Delete tab from tabs widget
+        document_tab: QWidget = self.tabs.get(document_id)
+        self.removeTab(self.indexOf(document_tab))
+
+        # Delete child components
+        child_component: Union[DocumentTree, DocumentRender] = None
+        for child_component in self.tab_children.get(document_id):
+            child_component.delete_component()
+
+        # Delete tab object
+        document_tab.parent = None
+        document_tab.deleteLater()
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_modify_object
+    # Description: Update the documents tab menu component when an object
+    #              is modified.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_modify_object(self, *args, **kwargs) -> None:
+        """
+        Update the documents tab menu component when an object is modified.
+        It changes the tab name with the new document name if the object
+        modified is a document.
+        """
+        element_id: ProteusID = kwargs.get("element_id")
+
+        # Check the element id is not None
+        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+
+        # Check if exists a tab for the element
+        if element_id in self.tabs:
+            # Get document tab
+            document_tab: QWidget = self.tabs.get(element_id)
+
+            # Change tab name
+            element: Object = Controller.get_element(element_id)
+            document_name: str = element.get_property("name").value
+            self.setTabText(self.indexOf(document_tab), document_name)

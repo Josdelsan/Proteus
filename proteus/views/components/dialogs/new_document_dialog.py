@@ -16,17 +16,25 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QLabel, \
-                            QComboBox, QLineEdit, QPushButton, QFrame, \
-                            QSizePolicy, QDialogButtonBox
+from PyQt6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QComboBox,
+    QFrame,
+    QSizePolicy,
+    QDialogButtonBox,
+)
 
 
 # --------------------------------------------------------------------------
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
+
 
 # --------------------------------------------------------------------------
 # Class: Newdocument
@@ -50,10 +58,14 @@ class NewDocumentDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors and create
+        the component. Create properties to store the new document data.
+        """
         super().__init__(parent, *args, **kwargs)
 
         # Properties for creating a new document
-        self._archetype_id = None
+        self._archetype_id: ProteusID = None
 
         # Create the component
         self.create_component()
@@ -66,35 +78,38 @@ class NewDocumentDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
-        layout = QVBoxLayout()
+        layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
         # Create a separator widget
-        separator = QFrame()
+        separator: QFrame = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get document archetypes
-        document_archetypes : List[Object] = Controller.get_document_archetypes()
+        document_archetypes: List[Object] = Controller.get_document_archetypes()
         # Create a combo box with the document archetypes
-        archetype_label = QLabel("Select document Archetype:")
-        archetype_combo = QComboBox()
+        archetype_label: QLabel = QLabel("Select document Archetype:")
+        archetype_combo: QComboBox = QComboBox()
+
+        archetype: Object = None
         for archetype in document_archetypes:
             archetype_combo.addItem(archetype.properties["name"].value)
-        
 
         # Show the archetype description
-        description_label = QLabel("Document Description:")
-        description_output = QLabel()
-
+        description_label: QLabel = QLabel("Document Description:")
+        description_output: QLabel = QLabel()
 
         # Create Save and Cancel buttons
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
+        button_box: QDialogButtonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
+        )
         button_box.accepted.connect(self.save_button_clicked)
         button_box.rejected.connect(self.cancel_button_clicked)
 
         # Error message label
-        self.error_label = QLabel()
+        self.error_label: QLabel = QLabel()
         self.error_label.setStyleSheet("color: red")
 
         # Add the widgets to the layout
@@ -103,13 +118,15 @@ class NewDocumentDialog(QDialog):
         layout.addWidget(separator)
         layout.addWidget(description_label)
         layout.addWidget(description_output)
-        
+
         layout.addWidget(button_box)
 
         # Set fixed width for the window
         self.setFixedWidth(400)
         # Allow vertical expansion for the description
-        description_output.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        description_output.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
 
         # ---------------------------------------------
         # Actions
@@ -119,7 +136,7 @@ class NewDocumentDialog(QDialog):
         def update_description():
             index = archetype_combo.currentIndex()
             if index >= 0:
-                archetype = document_archetypes[index]
+                archetype: Object = document_archetypes[index]
                 self._archetype_id = archetype.id
                 description_output.setText(archetype.properties["description"].value)
 
@@ -127,7 +144,10 @@ class NewDocumentDialog(QDialog):
         archetype_combo.currentIndexChanged.connect(update_description)
         # Update the description for the first archetype
         update_description()
-        
+
+    # ======================================================================
+    # Dialog slots methods (connected to the component signals)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
@@ -137,11 +157,14 @@ class NewDocumentDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def save_button_clicked(self):
-        
+        """
+        Manage the save button clicked event. It creates a new document from
+        the selected archetype.
+        """
         if self._archetype_id is None:
             self.error_label.setText("Please select a valid document archetype")
             return
-        
+
         # Create the document
         Controller.create_document(self._archetype_id)
 
@@ -165,6 +188,9 @@ class NewDocumentDialog(QDialog):
         self.close()
         self.deleteLater()
 
+    # ======================================================================
+    # Dialog static methods (create and show the form window)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : create_dialog

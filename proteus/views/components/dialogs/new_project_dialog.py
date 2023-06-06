@@ -16,17 +16,28 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QLabel, \
-                            QComboBox, QLineEdit, QPushButton, QFrame, \
-                            QSizePolicy, QDialogButtonBox
+from PyQt6.QtWidgets import (
+    QFileDialog,
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QComboBox,
+    QLineEdit,
+    QPushButton,
+    QFrame,
+    QSizePolicy,
+    QDialogButtonBox,
+)
 
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
+
 
 # --------------------------------------------------------------------------
 # Class: NewProject
@@ -50,12 +61,16 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors and create
+        the component. Create properties to store the new project data.
+        """
         super().__init__(parent, *args, **kwargs)
 
         # Properties for creating a new project
-        self._name = None
-        self._path = None
-        self._archetype_id = None
+        self._name: str = None
+        self._path: str = None
+        self._archetype_id: ProteusID = None
 
         # Create the component
         self.create_component()
@@ -68,45 +83,52 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
-        layout = QVBoxLayout()
+        """
+        Create the component to display the new project dialog form.
+        """
+        layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
         # Create a separator widget
-        separator = QFrame()
+        separator: QFrame = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get project archetypes
-        project_archetypes : List[Project] = Controller.get_project_archetypes()
+        project_archetypes: List[Project] = Controller.get_project_archetypes()
         # Create a combo box with the project archetypes
-        archetype_label = QLabel("Select Project Archetype:")
-        archetype_combo = QComboBox()
+        archetype_label: QLabel = QLabel("Select Project Archetype:")
+        archetype_combo: QComboBox = QComboBox()
+
+        archetype: Project = None
         for archetype in project_archetypes:
             archetype_combo.addItem(archetype.properties["name"].value)
-        
 
         # Show the archetype description
-        description_label = QLabel("Project Description:")
-        description_output = QLabel()
+        description_label: QLabel = QLabel("Project Description:")
+        description_output: QLabel = QLabel()
 
         # Create the name input widget
         name_label = QLabel("Enter Project Name:")
         # NOTE: Temporary solution to get the name of the project
         #       in save_button_clicked method
-        self.name_input = QLineEdit()
+        self.name_input: QLineEdit = QLineEdit()
 
         # Create the path input widget
-        path_label = QLabel("Select Project Path:")
-        path_input = QLabel()
+        path_label: QLabel = QLabel("Select Project Path:")
+        path_input: QLabel = QLabel()
         browse_button = QPushButton("Browse")
 
         # Create Save and Cancel buttons
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
+        button_box: QDialogButtonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
+        )
         button_box.accepted.connect(self.save_button_clicked)
         button_box.rejected.connect(self.cancel_button_clicked)
 
         # Error message label
-        self.error_label = QLabel()
+        self.error_label: QLabel = QLabel()
         self.error_label.setStyleSheet("color: red")
 
         # Add the widgets to the layout
@@ -127,7 +149,9 @@ class NewProjectDialog(QDialog):
         # Set fixed width for the window
         self.setFixedWidth(400)
         # Allow vertical expansion for the description
-        description_output.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        description_output.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
 
         # ---------------------------------------------
         # Actions
@@ -137,7 +161,7 @@ class NewProjectDialog(QDialog):
         def update_description():
             index = archetype_combo.currentIndex()
             if index >= 0:
-                archetype = project_archetypes[index]
+                archetype: Project = project_archetypes[index]
                 self._archetype_id = archetype.id
                 description_output.setText(archetype.properties["description"].value)
 
@@ -148,15 +172,19 @@ class NewProjectDialog(QDialog):
 
         # Open a file dialog to select the project path
         def select_project_path():
-            file_dialog = QFileDialog()
+            file_dialog: QFileDialog = QFileDialog()
             file_dialog.setFileMode(QFileDialog.FileMode.Directory)
             if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-                path = file_dialog.selectedFiles()[0]
+                path: str = file_dialog.selectedFiles()[0]
                 path_input.setText(path)
-                self._path = path
+                self._path: str = path
 
         # Open a file dialog when the user clicks on the browse button
         browse_button.clicked.connect(select_project_path)
+
+    # ======================================================================
+    # Dialog slots methods (connected to the component signals)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
@@ -167,24 +195,23 @@ class NewProjectDialog(QDialog):
     # ----------------------------------------------------------------------
     # TODO: Validate if path exists before creating the project
     def save_button_clicked(self):
-         
         # Get the project name
-        self._name = self.name_input.text()
+        self._name: str = self.name_input.text()
 
         # TODO: This is a temporal solution for testing purposes.
         #       Create a proper validator and
         if self._name is None or self._name == "":
             self.error_label.setText("Please enter a valid project name")
             return
-        
+
         if self._path is None or self._path == "":
             self.error_label.setText("Please select a valid project path")
             return
-        
+
         if self._archetype_id is None:
             self.error_label.setText("Please select a valid project archetype")
             return
-        
+
         # Create the project
         Controller.create_project(self._archetype_id, self._name, self._path)
 
@@ -207,6 +234,10 @@ class NewProjectDialog(QDialog):
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()
+
+    # ======================================================================
+    # Dialog static methods (create and show the form window)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : create_dialog (static)

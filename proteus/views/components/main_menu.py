@@ -16,27 +16,32 @@ from typing import List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget, QDockWidget, \
-                            QToolButton, QStyle, QApplication, QSizePolicy,\
-                            QFileDialog, QMessageBox
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QWidget,
+    QHBoxLayout,
+    QTabWidget,
+    QDockWidget,
+    QToolButton,
+    QSizePolicy,
+    QFileDialog,
+    QMessageBox,
+)
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.model import PROTEUS_ANY
+from proteus.model import PROTEUS_ANY, ProteusID
 from proteus.model.object import Object
-from proteus.views.utils.decorators import subscribe_to, trigger_on
-from proteus.controller.command_stack import Controller
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
@@ -62,18 +67,28 @@ class MainMenu(QDockWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(self, parent=None, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors, create
+        the component and connect update methods to the events.
+
+        Manage the creation of the instace variables to store updatable
+        buttons (save, undo, redo, etc.) and the tab widget to display the
+        different menus.
+        """
         super().__init__(parent, *args, **kwargs)
 
         # Main menu buttons that are updated
         self.save_button: QToolButton = None
         self.undo_button: QToolButton = None
         self.redo_button: QToolButton = None
+        self.project_properties_button: QToolButton = None
+        self.add_document_button: QToolButton = None
 
         # Archetype menu buttons that are updated
-        self.archetype_buttons: Dict[ArchetypeMenuButton] = {}
+        self.archetype_buttons: Dict[ProteusID, ArchetypeMenuButton] = {}
 
         # Tab widget to display app menus in different tabs
-        self.tab_widget = QTabWidget()
+        self.tab_widget: QTabWidget = QTabWidget()
 
         # Create the component
         self.create_component()
@@ -83,7 +98,6 @@ class MainMenu(QDockWidget):
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
         EventManager.attach(Event.DESELECT_OBJECT, self.udpate_on_deselect_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
-
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -136,49 +150,60 @@ class MainMenu(QDockWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def add_main_tab(self, tab_name: str) -> None:
-        """ """
+        """
+        Create the main menu tab and add it to the tab widget. It displays
+        the main menu buttons of the PROTEUS application.
+        """
         # Create the tab widget with a horizontal layout
-        main_tab = QWidget()
-        tab_layout = QHBoxLayout()
+        main_tab: QWidget = QWidget()
+        tab_layout: QHBoxLayout = QHBoxLayout()
 
         # ---------
         # File menu
         # ---------
         # New action
-        new_button = buttons.new_project_button(self)
+        new_button: QToolButton = buttons.new_project_button(self)
         new_button.clicked.connect(NewProjectDialog.create_dialog)
         tab_layout.addWidget(new_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Open action
-        open_button = buttons.open_project_button(self)
+        open_button: QToolButton = buttons.open_project_button(self)
         open_button.clicked.connect(self.open_project)
         tab_layout.addWidget(open_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Save action
-        self.save_button = buttons.save_project_button(self)
+        self.save_button: QToolButton = buttons.save_project_button(self)
         self.save_button.clicked.connect(Controller.save_project)
         tab_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Project properties action
-        self.project_properties_button = buttons.project_properties_button(self)
-        self.project_properties_button.clicked.connect(PropertyDialog.project_property_dialog)
-        tab_layout.addWidget(self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.project_properties_button: QToolButton = buttons.project_properties_button(
+            self
+        )
+        self.project_properties_button.clicked.connect(
+            PropertyDialog.project_property_dialog
+        )
+        tab_layout.addWidget(
+            self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft
+        )
 
         # Add document action
-        self.add_document_button = buttons.add_document_button(self)
+        self.add_document_button: QToolButton = buttons.add_document_button(self)
         self.add_document_button.clicked.connect(NewDocumentDialog.create_dialog)
-        tab_layout.addWidget(self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        tab_layout.addWidget(
+            self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft
+        )
 
         # ---------
         # Edit menu
         # ---------
         # Undo action
-        self.undo_button = buttons.undo_button(self)
+        self.undo_button: QToolButton = buttons.undo_button(self)
         self.undo_button.clicked.connect(Controller.undo)
         tab_layout.addWidget(self.undo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Redo action
-        self.redo_button = buttons.redo_button(self)
+        self.redo_button: QToolButton = buttons.redo_button(self)
         self.redo_button.clicked.connect(Controller.redo)
         tab_layout.addWidget(self.redo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -188,32 +213,40 @@ class MainMenu(QDockWidget):
         main_tab.setLayout(tab_layout)
         self.tab_widget.addTab(main_tab, tab_name)
 
-
     # ----------------------------------------------------------------------
     # Method     : add_archetype_tab
-    # Description: Add a tab to the tab widget for each class of object
+    # Description: Add a tab to the tab widget for a given class of object
     #              archetypes.
     # Date       : 29/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def add_archetype_tab(self, class_name: str, object_archetypes: List[Object]) -> None:
-        """ """
+    def add_archetype_tab(
+        self, class_name: str, object_archetypes: List[Object]
+    ) -> None:
+        """
+        Add a tab to the tab widget for a given class of object archetypes.
+        """
         # Create the archetype tab widget with a horizontal layout
-        archetypes_widget = QWidget()
-        archetypes_layout = QHBoxLayout()
+        archetypes_widget: QWidget = QWidget()
+        archetypes_layout: QHBoxLayout = QHBoxLayout()
 
         # Add the archetype widgets to the tab widget
+        archetype: Object = None
         for archetype in object_archetypes:
             # Create the archetype button
-            archetype_button = ArchetypeMenuButton(archetypes_widget, archetype)
+            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
+                archetypes_widget, archetype
+            )
 
             # Add the archetype button to the archetype buttons dictionary
             self.archetype_buttons[archetype.id] = archetype_button
 
             # Connect the clicked signal to the clone archetype method
             archetype_button.clicked.connect(
-                lambda checked, arg=archetype.id: Controller.create_object(archetype_id=arg)
+                lambda checked, arg=archetype.id: Controller.create_object(
+                    archetype_id=arg
+                )
             )
 
             # Add the archetype widget to the tab widget layout
@@ -223,61 +256,113 @@ class MainMenu(QDockWidget):
         archetypes_widget.setLayout(archetypes_layout)
         self.tab_widget.addTab(archetypes_widget, class_name)
 
+    # ======================================================================
+    # Component update methods (triggered by PROTEUS application events)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
+    # Method     : update_on_stack_changed
+    # Description: Update the state of save, undo and redo buttons when the
+    #              command stack changes.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def update_on_stack_changed(self, *args, **kwargs) -> None:
-        """ """
-        can_undo = Controller._get_instance().canUndo()
-        can_redo = Controller._get_instance().canRedo()
-        unsaved_changes = not Controller._get_instance().isClean()
+        """
+        Update the state of save, undo and redo buttons when the command
+        stack changes, enabling or disabling them depending on the state.
+
+        Triggered by: Event.STACK_CHANGED
+        """
+        can_undo: bool = Controller._get_instance().canUndo()
+        can_redo: bool = Controller._get_instance().canRedo()
+        unsaved_changes: bool = not Controller._get_instance().isClean()
 
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
         self.save_button.setEnabled(unsaved_changes)
 
     # ----------------------------------------------------------------------
+    # Method     : update_on_select_object
+    # Description: Update the state of the archetype buttons when an object
+    #              is selected.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def update_on_select_object(self, *args, **kwargs) -> None:
+        """
+        Update the state of the archetype buttons when an object is
+        selected, enabling or disabling them depending on the accepted
+        children of the selected object.
+
+        Triggered by: Event.SELECT_OBJECT
+        """
         # Get the selected object and its accepted children
-        selected_object = Controller.get_selected_object()
-        accepted_children = selected_object.acceptedChildren.split()
+        selected_object: Object = Controller.get_selected_object()
+        accepted_children: str = selected_object.acceptedChildren.split()
 
         # Iterate over the archetype buttons
         for archetype_id in self.archetype_buttons.keys():
             # Get the archetype button
-            archetype_button = self.archetype_buttons[archetype_id]
+            archetype_button: ArchetypeMenuButton = self.archetype_buttons[archetype_id]
 
             # Get the archetype
-            archetype = Controller.get_archetype_by_id(archetype_id)
+            archetype: Object = Controller.get_archetype_by_id(archetype_id)
 
-            assert type(archetype) is Object, \
-                f"Archetype {archetype_id} is not an object"
-            
+            assert (
+                type(archetype) is Object
+            ), f"Archetype {archetype_id} is not an object"
+
             # Get the archetype class (last class in the class hierarchy)
-            archetype_class = archetype.classes.split()[-1]
+            archetype_class: str = archetype.classes.split()[-1]
 
             # Enable or disable the archetype button
             archetype_button.setEnabled(
-                archetype_class in accepted_children
-                or PROTEUS_ANY in accepted_children
+                archetype_class in accepted_children or PROTEUS_ANY in accepted_children
             )
-    
+
     # ----------------------------------------------------------------------
+    # Method     : udpate_on_deselect_object
+    # Description: Disable all the archetype buttons when there is not
+    #              selected object.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    # NOTE: Deselecting is important to avoid errors when deleting objects
     def udpate_on_deselect_object(self, *args, **kwargs) -> None:
         """
         Disable all the archetype buttons when there is not selected object.
+
+        Triggered by: Event.DESELECT_OBJECT
         """
+        button: ArchetypeMenuButton = None
         for button in self.archetype_buttons.values():
             button.setEnabled(False)
 
     # ----------------------------------------------------------------------
+    # Method     : update_on_open_project
+    # Description: Enable the project properties and add document buttons
+    #              when a project is opened.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def update_on_open_project(self, *args, **kwargs) -> None:
+        """
+        Enable the project properties and add document buttons when a
+        project is opened.
+
+        Triggered by: Event.OPEN_PROJECT
+        """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
 
-
-    # ----------------------------------------------------------------------
-    # Component action methods
-    # ----------------------------------------------------------------------
+    # ======================================================================
+    # Component slots methods (connected to the component signals)
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : open_project
@@ -287,14 +372,15 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # TODO: Consider moving this dialog to a separate class
     def open_project(self):
         """
         Manage the open project action, open a project using a file dialog
         and loads it.
         """
         # Open the file dialog
-        directory_dialog = QFileDialog(self)
-        directory_path = directory_dialog.getExistingDirectory(
+        directory_dialog: QFileDialog = QFileDialog(self)
+        directory_path: str = directory_dialog.getExistingDirectory(
             None, "Open Directory", ""
         )
 
@@ -312,4 +398,3 @@ class MainMenu(QDockWidget):
                 error_dialog.setText("Error loading the project.")
                 error_dialog.setInformativeText(str(e))
                 error_dialog.exec()
-                
