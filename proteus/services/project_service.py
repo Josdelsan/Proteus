@@ -200,7 +200,7 @@ class ProjectService:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def change_state(cls, object_id: ProteusID, new_state : ProteusState) -> None:
+    def change_state(cls, object_id: ProteusID, new_state: ProteusState) -> None:
         """
         Changes the state of the object with the given id and all its children
         recursively.
@@ -208,8 +208,9 @@ class ProjectService:
         :param object_id: Id of the object to change state.
         :param new_state: New state of the object.
         """
+
         # Private helper function
-        def _change_state(object: Object, new_state : ProteusState) -> None:
+        def _change_state(object: Object, new_state: ProteusState) -> None:
             # Change state of object
             object.state = new_state
 
@@ -293,7 +294,37 @@ class ProjectService:
         :return: Dictionary with the project documents.
         """
         return cls.project.get_descendants()
-    
+
+    # ----------------------------------------------------------------------
+    # Method     : clone_object
+    # Description: Clones the object with the given id.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def clone_object(cls, object_id: ProteusID) -> None:
+        """
+        Clones the object with the given id and inserts it as a sibling next
+        to the original object.
+
+        :param object_id: Id of the object to clone.
+        """
+        # Get object using helper method
+        object: Object = cls._get_element_by_id(object_id)
+
+        # Check that the object is an object
+        assert isinstance(object, Object), f"Element with id {object} is not an object."
+
+        # Calculate position of the cloned object
+        siblings: List[Object] = object.parent.get_descendants()
+        cloned_position: int = siblings.index(object) + 1
+
+        # Clone object
+        return object.clone_object(
+            parent=object.parent, project=cls.project, position=cloned_position
+        )
+
     # ----------------------------------------------------------------------
     # Method     : generate_document_xml
     # Description: Generates the xml file for the given document.
@@ -318,28 +349,27 @@ class ProjectService:
 
         # Iterate until no chil tags are found
         while root.findall(f".//{CHILD_TAG}"):
-
             # Load children
-            children : ET.Element = root.findall(f".//{CHILD_TAG}")
+            children: ET.Element = root.findall(f".//{CHILD_TAG}")
 
             # Parse object's children
-            child_element : ET.Element
+            child_element: ET.Element
             for child_element in children:
-                child_id : ProteusID = child_element.attrib['id']
+                child_id: ProteusID = child_element.attrib["id"]
 
                 # Get child object
                 child: Object = cls._get_element_by_id(child_id)
 
                 # Remove dead objects
                 if child.state == ProteusState.DEAD:
-                    parent_element : ET.Element = child_element.getparent()
+                    parent_element: ET.Element = child_element.getparent()
                     parent_element.remove(child_element)
                 else:
                     # Generate xml file
-                    child_xml : ET.Element = child.generate_xml()
+                    child_xml: ET.Element = child.generate_xml()
 
                     # Replace child element with xml
-                    parent_element : ET.Element = child_element.getparent()
+                    parent_element: ET.Element = child_element.getparent()
                     parent_element.replace(child_element, child_xml)
 
         return root

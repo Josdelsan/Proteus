@@ -11,7 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
+from typing import Dict, List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -181,7 +181,7 @@ class DocumentTree(QWidget):
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def populate_tree(self, parent_item, object):
+    def populate_tree(self, parent_item: QTreeWidgetItem, object, position=None):
         """
         Populate the document tree given an object. This method is recursive.
         Iterate over the object children and populate the tree with them.
@@ -189,8 +189,13 @@ class DocumentTree(QWidget):
         :param parent_item: The parent item of the object
         :param object: The object to populate the tree
         """
-        # Create the new item
-        new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
+        # Create the new item, if position is not None insert the item in
+        # the given position
+        if position is not None:
+            new_item = QTreeWidgetItem(None, [object.get_property("name").value])
+            parent_item.insertChild(position, new_item)
+        else:
+            new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
 
         # Set the item color based on the object ProteusState
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
@@ -299,8 +304,17 @@ class DocumentTree(QWidget):
         parent: Object = Controller.get_element(new_object.parent.id)
         parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
 
+        # Calculate item position relative to its siblings omits DEAD objects
+        siblings: List[Object] = [
+            s
+            for s in new_object.parent.get_descendants()
+            if s.state != ProteusState.DEAD
+        ]
+        position: int = siblings.index(new_object)
+        print(position)
+
         # Create the new item
-        self.populate_tree(parent_item, new_object)
+        self.populate_tree(parent_item, new_object, position=position)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_object
@@ -366,8 +380,9 @@ class DocumentTree(QWidget):
         # Get the deselected object id
         element_id: ProteusID = kwargs.get("element_id")
 
-        # Check the element id is not None
-        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+        # NOTE: It is not necessary to check the element id is not None
+        #       because the event might be triggered and no object is
+        #       selected.
 
         # Check if the element id is in the tree items dictionary
         if element_id not in self.tree_items:
@@ -434,13 +449,27 @@ class DocumentTree(QWidget):
             QStyle.StandardPixmap.SP_TrashIcon
         )
         action_delete_object.setIcon(delete_icon)
-        # Disable the delete action if the selected item is the document
+
+        # Create clone action
+        action_clone_object: QAction = QAction("Clone", self)
+        action_clone_object.triggered.connect(
+            lambda: Controller.clone_object(selected_item_id)
+        )
+        clone_icon = QApplication.style().standardIcon(
+            QStyle.StandardPixmap.SP_DialogApplyButton
+        )
+        action_clone_object.setIcon(clone_icon)
+
+        # Disable the delete and clone action if the selected
+        # item is a document
         if is_document:
             action_delete_object.setEnabled(False)
+            action_clone_object.setEnabled(False)
 
         # Add the actions to the context menu
         context_menu.addAction(action_edit_object)
         context_menu.addAction(action_delete_object)
+        context_menu.addAction(action_clone_object)
 
         # Show the context menu
         context_menu.exec(self.tree_widget.viewport().mapToGlobal(position))

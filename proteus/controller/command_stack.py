@@ -32,6 +32,7 @@ from proteus.controller.commands.clone_archetype_object import (
 from proteus.controller.commands.clone_archetype_document import (
     CloneArchetypeDocumentCommand,
 )
+from proteus.controller.commands.clone_object import CloneObjectCommand
 from proteus.controller.commands.delete_object import DeleteObjectCommand
 from proteus.controller.commands.delete_document import DeleteDocumentCommand
 from proteus.services.project_service import ProjectService
@@ -296,6 +297,32 @@ class Controller:
         # Push the command to the command stack
         proteus.logger.info(f"Updating properties of element with id: {element_id}")
         cls._push(UpdatePropertiesCommand(element_id, new_properties))
+
+    # ----------------------------------------------------------------------
+    # Method     : clone_object
+    # Description: Clone an object given its id. It pushes the command to
+    #              the command stack.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def clone_object(cls, object_id: ProteusID) -> None:
+        """
+        Clone an object given its id. It pushes the command to the command
+        stack.
+
+        Notify the frontend components when the command is executed passing
+        the object_id as a parameter. ADD_OBJECT event is triggered.
+
+        :param object_id: The id of the object to clone.
+        """
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Push the command to the command stack
+        proteus.logger.info(f"Cloning object with id: {object_id}")
+        cls._push(CloneObjectCommand(object_id))
 
     # ----------------------------------------------------------------------
     # Method     : delete_object
