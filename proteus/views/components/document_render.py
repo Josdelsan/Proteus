@@ -14,17 +14,18 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEngineProfile
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
-    QLabel,
-    QScrollArea,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.controller.command_stack import Controller
 
@@ -36,7 +37,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentRender(QScrollArea):
+class DocumentRender(QWidget):
     """
     Document render component for the PROTEUS application. It is used to
     display the document render.
@@ -58,8 +59,8 @@ class DocumentRender(QScrollArea):
         Store the document id reference.
         """
         super().__init__(parent, *args, **kwargs)
-        self.element_id = element_id
-        self.label = QLabel("")
+        self.element_id: ProteusID = element_id
+        self.browser: QWebEngineView = None
 
         self.create_component()
 
@@ -78,17 +79,16 @@ class DocumentRender(QScrollArea):
         """
         Create the document render component.
         """
-        self.setWidgetResizable(True)
-
-        widget = QWidget()
-        self.setWidget(widget)
         layout = QVBoxLayout()
 
-        xml = Controller().get_document_xml(self.element_id)
-        self.label = QLabel(f"{xml}")
+        # Create the web view using the web engine profile
+        self.browser = QWebEngineView(self)
+        layout.addWidget(self.browser)
 
-        layout.addWidget(self.label)
-        widget.setLayout(layout)
+        html: str = Controller().get_document_html(self.element_id)
+        self.browser.setHtml(html)
+
+        self.setLayout(layout)
 
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -129,5 +129,5 @@ class DocumentRender(QScrollArea):
 
         Triggered by: Event.MODIFY_OBJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT
         """
-        xml = Controller().get_document_xml(self.element_id)
-        self.label.setText(f"{xml}")
+        html: str = Controller().get_document_html(self.element_id)
+        self.browser.setHtml(html)

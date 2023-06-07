@@ -24,6 +24,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
@@ -63,6 +64,9 @@ class Controller:
     # TODO: Consider moving this logic to a frontend class
     _last_selected_item: ProteusID = None
     _current_document: ProteusID = None
+
+    # TODO: This is a temporary solution to access the xslt files
+    config = Config()
 
     # ======================================================================
     # Command stack methods
@@ -480,15 +484,34 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_document_xml(cls, document_id: ProteusID) -> str:
+    def get_document_html(cls, document_id: ProteusID) -> str:
         """
-        Get the xml of a document given its id.
+        Get the html of a document given its id.
         """
         proteus.logger.info(f"Getting xml of document with id: {document_id}")
-        document_xml: ET.Element = ProjectService.generate_document_xml(document_id)
-        return ET.tostring(
-            document_xml, xml_declaration=True, encoding="utf-8", pretty_print=True
-        ).decode()
+
+        # NOTE: This is a temporary solution to access xls templates
+        XSL_TEMPLATE = cls.config.resources_directory / "xslt/PROTEUS_document.xsl"
+
+        # Get the document xml
+        xml: ET.Element = ProjectService.generate_document_xml(document_id)
+
+        # Create the transformer from the xsl file
+        transform = ET.XSLT(ET.parse(XSL_TEMPLATE))
+        result_tree: ET._XSLTResultTree = transform(xml)
+
+        # Serialize the HTML root to a string
+        html_string = ET.tostring(result_tree, encoding="unicode")
+
+        # TODO: This is a temporary solution because the xslt transformation
+        #       is not working properly. result_tree cast to string is not
+        #       valid html. ET.tostring is not working properly on the result
+        #       tree.
+        return str(result_tree)
+
+        # return ET.tostring(
+        #     document_xml, xml_declaration=True, encoding="utf-8", pretty_print=True
+        # ).decode()
 
     # ======================================================================
     # Archetype methods

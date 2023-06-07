@@ -63,10 +63,10 @@ class ProteusApplication:
         proteus.logger.info(f"{self.config.icons_directory = }")
         proteus.logger.info(f"{self.config.archetypes_directory = }")
 
-        self._old_main_tests()
+        # self._old_main_tests()
 
         # Create the application instance
-        app = QApplication([])
+        app = QApplication(sys.argv)
 
         # Create the main window
         window = MainWindow(parent=None)

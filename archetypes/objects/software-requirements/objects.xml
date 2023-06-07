@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects>
     <object id="use-case" />
-    <object id="use-case-step" />
+    <object id="actor" />
 </objects>
