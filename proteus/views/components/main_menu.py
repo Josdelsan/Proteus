@@ -421,18 +421,18 @@ class MainMenu(QDockWidget):
 
         # Load the project from the selected directory
         if directory_path:
-            try:
+            # try:
                 Controller.load_project(project_path=directory_path)
-            except Exception as e:
-                proteus.logger.error(e)
+            # except Exception as e:
+            #     proteus.logger.error(e)
 
-                # Show an error message dialog
-                error_dialog = QMessageBox()
-                error_dialog.setIcon(QMessageBox.Icon.Critical)
-                error_dialog.setWindowTitle("Error")
-                error_dialog.setText("Error loading the project.")
-                error_dialog.setInformativeText(str(e))
-                error_dialog.exec()
+            #     # Show an error message dialog
+            #     error_dialog = QMessageBox()
+            #     error_dialog.setIcon(QMessageBox.Icon.Critical)
+            #     error_dialog.setWindowTitle("Error")
+            #     error_dialog.setText("Error loading the project.")
+            #     error_dialog.setInformativeText(str(e))
+            #     error_dialog.exec()
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document

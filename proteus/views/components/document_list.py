@@ -136,8 +136,9 @@ class DocumentList(QTabWidget):
         # Tree widget
         document_tree: DocumentTree = DocumentTree(self, document.id)
         document_tree.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
         )
+        document_tree.setMinimumWidth(100)
         splitter.addWidget(document_tree)
 
         document_render: DocumentRender = DocumentRender(self, document.id)
@@ -145,6 +146,7 @@ class DocumentList(QTabWidget):
         document_render.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
+        document_render.setMinimumWidth(400)
         splitter.addWidget(document_render)
 
         # Add splitter with tree and render to tab layout
