@@ -20,15 +20,21 @@
             </div>
     
             <div id="document_version">
+                <xsl:text>Version</xsl:text>
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name='version']"/>
             </div>
     
             <div id="document_date">
-                <xsl:value-of select="properties/stringProperty[@name='date']"/>
+                <xsl:text>Date</xsl:text>
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="properties/dateProperty[@name='date']"/>
             </div>
     
     
             <div id="document_prepared_by">
+                <xsl:text>Author</xsl:text>
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name='author']"/>
             </div>
     

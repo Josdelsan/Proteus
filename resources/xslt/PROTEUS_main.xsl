@@ -17,5 +17,7 @@
     <xsl:include href="PROTEUS_utilities.xsl"/>
     <xsl:include href="PROTEUS_section.xsl"/>
     <xsl:include href="PROTEUS_document.xsl"/>
+    <xsl:include href="PROTEUS_paragraph.xsl"/>
+    <xsl:include href="PROTEUS_actor.xsl"/>
 
 </xsl:stylesheet>

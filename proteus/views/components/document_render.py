@@ -15,10 +15,11 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEngineProfile
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
+    QPushButton,
+    QTextEdit,
 )
 
 # --------------------------------------------------------------------------
@@ -85,8 +86,19 @@ class DocumentRender(QWidget):
         self.browser = QWebEngineView(self)
         layout.addWidget(self.browser)
 
+        self.html_textedit = QTextEdit(self)
+        self.html_textedit.setReadOnly(True)
+        self.html_textedit.setVisible(False)
+        layout.addWidget(self.html_textedit)
+
         html: str = Controller().get_document_html(self.element_id)
         self.browser.setHtml(html)
+        self.html_textedit.setPlainText(html)
+
+        # Add the button to switch between HTML and browser view
+        self.switch_button = QPushButton("Switch View", self)
+        self.switch_button.clicked.connect(self.switch_view)
+        layout.addWidget(self.switch_button)
 
         self.setLayout(layout)
 
@@ -131,3 +143,22 @@ class DocumentRender(QWidget):
         """
         html: str = Controller().get_document_html(self.element_id)
         self.browser.setHtml(html)
+        self.html_textedit.setPlainText(html)
+
+    # ======================================================================
+    # Component methods
+    # ======================================================================
+
+    def switch_view(self) -> None:
+        """
+        Switch between HTML and browser view.
+        """
+        is_browser_visible = self.browser.isVisible()
+        if is_browser_visible:
+            self.browser.setVisible(False)
+            self.html_textedit.setVisible(True)
+            self.switch_button.setText("Switch View: HTML")
+        else:
+            self.browser.setVisible(True)
+            self.html_textedit.setVisible(False)
+            self.switch_button.setText("Switch View: Browser")

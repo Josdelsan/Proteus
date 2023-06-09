@@ -19,11 +19,19 @@
         <!-- Nest level -->
         <xsl:param name="nest_level" select="1"/>
 
+        <!-- Calculate the normalized header level -->
+        <xsl:variable name="header_level">
+            <xsl:choose>
+            <xsl:when test="$nest_level > 6">6</xsl:when>
+            <xsl:otherwise><xsl:value-of select="$nest_level"/></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
         <!-- Calculate section index -->
         <xsl:variable name="section_index">
             <xsl:number level="multiple" count="object[@classes='section']" />
         </xsl:variable>
-        <xsl:element name="h{$nest_level}">
+        <xsl:element name="h{$header_level}">
             <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
             <xsl:attribute name="class">section</xsl:attribute>
             <xsl:value-of select="$section_index"/>

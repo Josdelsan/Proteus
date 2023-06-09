@@ -5,9 +5,10 @@
     acceptedChildren=":Proteus-none"
 >
     <properties>
-        <integerProperty name="id" category="general">001</integerProperty>
+        <stringProperty name="id" category="general">ATC-001</stringProperty>
         <stringProperty name="name" category="general">System actor</stringProperty>
         <stringProperty name="version" category="general">0.1</stringProperty>
+        <stringProperty name="role" category="general">Product Owner</stringProperty>
         <dateProperty name="created" category="general">2023-05-16</dateProperty>
         <stringProperty name="createdBy" category="general">José María Delgado</stringProperty>
         <markdownProperty name="description" category="detail">System actor...</markdownProperty>

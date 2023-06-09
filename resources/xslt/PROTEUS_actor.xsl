@@ -19,61 +19,31 @@
     exclude-result-prefixes="proteus"
 >
 
-<!-- ============================================= -->
-<!-- proteus:actor template                            -->
-<!-- ============================================= -->
+    <!-- ============================================= -->
+    <!-- proteus:actor template                        -->
+    <!-- ============================================= -->
 
-<xsl:template match="object[@id='actor']">
+    <xsl:template match="object[@classes='product-requirement actor']">
 
-    <div id="{properties/integerProperty[@name='id']}">
-        <table class="actor proteus_table">
+        <div id="{@id}">
+            <table class="actor remus_table">
 
-            <xsl:call-template name="generate_expanded_header"/>
+                <xsl:call-template name="generate_expanded_header">
+                    <xsl:with-param name="class"   select="'actor'"/>
+                </xsl:call-template>
 
-            <xsl:call-template name="generate_markdown_row">
-                <xsl:with-param name="label"   select="'Name'"/>
-                <xsl:with-param name="prefix"  select="'System actor: '"/>
-                <xsl:with-param name="content" select="properties/stringProperty[@name='name']"/>
-                <xsl:with-param name="postfix" select="'.'"/>
-                <xsl:with-param name="mode"    select="'paragraph'"/>
-            </xsl:call-template>
+                <xsl:call-template name="generate_markdown_row">
+                    <xsl:with-param name="label"   select="'Description'"/>
+                    <xsl:with-param name="prefix"  select="'Represents'"/>
+                    <xsl:with-param name="content" select="properties/stringProperty[@name='role']"/>
+                    <xsl:with-param name="postfix" select="'.'"/>
+                    <xsl:with-param name="mode"    select="'paragraph'"/>
+                </xsl:call-template>
 
-            <xsl:call-template name="generate_markdown_row">
-                <xsl:with-param name="label"   select="'Version'"/>
-                <xsl:with-param name="prefix"  select="'Version: '"/>
-                <xsl:with-param name="content" select="properties/stringProperty[@name='version']"/>
-                <xsl:with-param name="postfix" select="'.'"/>
-                <xsl:with-param name="mode"    select="'paragraph'"/>
-            </xsl:call-template>
+                <xsl:call-template name="generate_comments_row"/>
 
-            <xsl:call-template name="generate_markdown_row">
-                <xsl:with-param name="label"   select="'Created'"/>
-                <xsl:with-param name="prefix"  select="'Created: '"/>
-                <xsl:with-param name="content" select="properties/dateProperty[@name='created']"/>
-                <xsl:with-param name="postfix" select="'.'"/>
-                <xsl:with-param name="mode"    select="'paragraph'"/>
-            </xsl:call-template>
-
-            <xsl:call-template name="generate_markdown_row">
-                <xsl:with-param name="label"   select="'Created By'"/>
-                <xsl:with-param name="prefix"  select="'Created by: '"/>
-                <xsl:with-param name="content" select="properties/stringProperty[@name='createdBy']"/>
-                <xsl:with-param name="postfix" select="'.'"/>
-                <xsl:with-param name="mode"    select="'paragraph'"/>
-            </xsl:call-template>
-
-            <xsl:call-template name="generate_markdown_row">
-                <xsl:with-param name="label"   select="'Description'"/>
-                <xsl:with-param name="prefix"  select="'Description: '"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='description']"/>
-                <xsl:with-param name="postfix" select="'.'"/>
-                <xsl:with-param name="mode"    select="'paragraph'"/>
-            </xsl:call-template>
-
-            <xsl:call-template name="generate_comments_row"/>
-
-        </table>
-    </div>
-</xsl:template>
+            </table>
+        </div>
+    </xsl:template>
 
 </xsl:stylesheet>
