@@ -36,6 +36,9 @@ from proteus.controller.commands.clone_archetype_document import (
 from proteus.controller.commands.clone_object import CloneObjectCommand
 from proteus.controller.commands.delete_object import DeleteObjectCommand
 from proteus.controller.commands.delete_document import DeleteDocumentCommand
+from proteus.controller.commands.change_object_position import (
+    ChangeObjectPositionCommand,
+)
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
@@ -350,6 +353,35 @@ class Controller:
         # Push the command to the command stack
         proteus.logger.info(f"Deleting object with id: {object_id}")
         cls._push(DeleteObjectCommand(object_id))
+
+    # ----------------------------------------------------------------------
+    # Method     : change_object_position
+    # Description: Change the position of an object given its id. It pushes
+    #              the command to the command stack.
+    # Date       : 13/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def change_object_position(
+        cls, object_id: ProteusID, new_position: int, new_parent_id: ProteusID = None
+    ) -> None:
+        """
+        Change the position of an object given its id. It pushes the command
+        to the command stack.
+
+        Notify the frontend components when the command is executed passing
+        the object_id and object in DELETE_OBJECT and ADD_OBJECT events.
+
+        :param object_id: The id of the object to change its position.
+        :param new_position: The new position of the object.
+        :param new_parent_id: The new parent of the object.
+        """
+        # Push the command to the command stack
+        proteus.logger.info(f"Changing position of object with id: {object_id} to {new_position}")
+        cls._push(
+            ChangeObjectPositionCommand(object_id, new_position, new_parent_id)
+        )
 
     # ----------------------------------------------------------------------
     # Method     : delete_document

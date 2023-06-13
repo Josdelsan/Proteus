@@ -181,7 +181,7 @@ class DocumentTree(QWidget):
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def populate_tree(self, parent_item: QTreeWidgetItem, object, position=None):
+    def populate_tree(self, parent_item: QTreeWidgetItem, object: Object, position=None):
         """
         Populate the document tree given an object. This method is recursive.
         Iterate over the object children and populate the tree with them.
@@ -189,6 +189,10 @@ class DocumentTree(QWidget):
         :param parent_item: The parent item of the object
         :param object: The object to populate the tree
         """
+        # If object is DEAD do not add it to the tree
+        if object.state == ProteusState.DEAD:
+            return
+
         # Create the new item, if position is not None insert the item in
         # the given position
         if position is not None:
@@ -434,6 +438,9 @@ class DocumentTree(QWidget):
         # Check if the selected item is not None
         if selected_item is None:
             return
+        
+        # Get selected item index
+        index: int = self.tree_widget.indexFromItem(selected_item).row()
 
         # Get the selected item id
         selected_item_id: ProteusID = selected_item.data(1, 0)
@@ -477,6 +484,36 @@ class DocumentTree(QWidget):
         )
         action_clone_object.setIcon(clone_icon)
 
+        # Create move up action
+        action_move_up_object: QAction = QAction("Move up", self)
+        action_move_up_object.triggered.connect(
+            lambda: Controller.change_object_position(selected_item_id, index-1)
+        )
+        move_up_icon = QApplication.style().standardIcon(
+            QStyle.StandardPixmap.SP_ArrowUp
+        )
+        action_move_up_object.setIcon(move_up_icon)
+
+        # Create move down action
+        action_move_down_object: QAction = QAction("Move down", self)
+        action_move_down_object.triggered.connect(
+            lambda: Controller.change_object_position(selected_item_id, index+1)
+        )
+        move_down_icon = QApplication.style().standardIcon(
+            QStyle.StandardPixmap.SP_ArrowDown
+        )
+        action_move_down_object.setIcon(move_down_icon)
+
+        # Disable the move up action if the selected item is the first
+        # item in the list
+        if index == 0:
+            action_move_up_object.setEnabled(False)
+
+        # Disable the move down action if the selected item is the last
+        # item in the list
+        if index == selected_item.parent().childCount()-1:
+            action_move_down_object.setEnabled(False)
+
         # Disable the delete and clone action if the selected
         # item is a document
         if is_document:
@@ -487,6 +524,8 @@ class DocumentTree(QWidget):
         context_menu.addAction(action_edit_object)
         context_menu.addAction(action_delete_object)
         context_menu.addAction(action_clone_object)
+        context_menu.addAction(action_move_up_object)
+        context_menu.addAction(action_move_down_object)
 
         # Show the context menu
         context_menu.exec(self.tree_widget.viewport().mapToGlobal(position))

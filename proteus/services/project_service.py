@@ -326,6 +326,81 @@ class ProjectService:
         )
 
     # ----------------------------------------------------------------------
+    # Method     : change_object_position
+    # Description: Changes the position of the object with the given id.
+    # Date       : 13/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def change_object_position(
+        cls,
+        object_id: ProteusID,
+        new_position: int = None,
+        new_parent: Union[Project, Object] = None,
+    ) -> None:
+        """
+        Changes the position of the object with the given id.
+
+        :param object_id: Id of the object to change position.
+        :param new_position: New position of the object.
+        :param new_parent: New parent of the object.
+        """
+        # Check the object_id is valid
+        assert isinstance(object_id, str), f"Invalid object id {object_id}."
+
+        # Get object using helper method
+        object: Object = cls._get_element_by_id(object_id)
+
+        # Check that the object is an object
+        assert isinstance(object, Object), f"Element with id {object} is not an object."
+
+        # Set old parent to change its state later
+        old_parent: Union[Project, Object] = object.parent
+
+        # Store the current position of the object in its parent
+        current_position: int = old_parent.get_descendants().index(object)
+
+        # Change the old parent state to DIRTY if not FRESH
+        if old_parent.state != ProteusState.FRESH:
+            old_parent.state = ProteusState.DIRTY
+
+        # Remove object from current parent descendants
+        old_parent.get_descendants().pop(current_position)
+
+        # If new parent is not given, use the current parent
+        if new_parent is None:
+            new_parent = old_parent
+
+        # If position is given, calculate the real position omitting the
+        # dead objects
+        if new_position is not None:
+            # Get the descendants of the new parent
+            descendants: List[Object] = new_parent.get_descendants()
+
+            # Determine if the new position is upper or lower than the current
+            # position to calculate the iteration direction
+            if new_position < current_position:
+                print("revert")
+                # If the new position is upper, iterate backwards
+                descendants = list(reversed(descendants))
+
+            # Count the dead objects between the current position and the
+            # next alive object
+            dead_objects_count: int = 0
+            for descendant in descendants[current_position:]:
+                if descendant.state == ProteusState.DEAD:
+                    dead_objects_count += 1
+                else:
+                    break
+
+            # Set the new position
+            new_position += dead_objects_count
+
+        # Add object to new parent descendants
+        new_parent.add_descendant(object, new_position)
+
+    # ----------------------------------------------------------------------
     # Method     : generate_document_xml
     # Description: Generates the xml file for the given document.
     # Date       : 04/06/2023
