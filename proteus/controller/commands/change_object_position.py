@@ -59,7 +59,9 @@ class ChangeObjectPositionCommand(QUndoCommand):
 
         # Old parent information
         self.old_parent: Union[Project, Object] = self.object.parent
-        self.old_position: int = None
+        self.old_parent_descendants: List[
+            Object
+        ] = self.old_parent.get_descendants().copy()
         self.old_parent_state: ProteusState = self.old_parent.state
 
         # New parent information
@@ -68,17 +70,6 @@ class ChangeObjectPositionCommand(QUndoCommand):
         )
         self.new_position: int = new_position
         self.new_parent_state: ProteusState = self.new_parent.state
-
-        # Set old position relative to non DEAD objects
-        alive_siblings: List[Object] = [
-            d
-            for d in self.object.parent.get_descendants()
-            if d.state != ProteusState.DEAD
-        ]
-        self.old_position = alive_siblings.index(self.object)
-        # Normalize position
-        if self.old_position > self.new_position:
-            self.old_position += 1
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -93,7 +84,9 @@ class ChangeObjectPositionCommand(QUndoCommand):
         """
 
         # Set redo text
-        self.setText(f"Change position of {self.object.id} to {self.new_position}")
+        self.setText(
+            f"Change position of {self.object.id} to {self.new_position} in parent {self.new_parent.id}"
+        )
 
         # Call ProjectService method
         ProjectService.change_object_position(
@@ -118,12 +111,20 @@ class ChangeObjectPositionCommand(QUndoCommand):
         """
 
         # Set undo text
-        self.setText(f"Change position of {self.object.id} to {self.old_position}")
-
-        # Call ProjectService method
-        ProjectService.change_object_position(
-            self.object.id, self.old_position, self.old_parent
+        self.setText(
+            f"Change position of {self.object.id} to original position and parent"
         )
+
+        # Pop the object from the new parent, calculate the position in case
+        # it was None to add it to the end of the list
+        position: int = self.new_parent.get_descendants().index(self.object)
+        self.new_parent.get_descendants().pop(position)
+
+        # Restore descendants of the old parent
+        self.old_parent._children = self.old_parent_descendants.copy()
+
+        # Set the object parent to the old parent
+        self.object.parent = self.old_parent
 
         # Restore the state of the old and new parent
         self.old_parent.state = self.old_parent_state
