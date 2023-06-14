@@ -17,8 +17,8 @@ from typing import Dict, List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtGui import QAction, QDropEvent
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -33,6 +33,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+import proteus
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -127,6 +128,16 @@ class DocumentTree(QWidget):
         self.tree_widget = QTreeWidget()
         self.tree_widget.header().setVisible(False)
 
+        # Set drag and drop properties
+        self.tree_widget.setDragEnabled(True)
+        self.tree_widget.setAcceptDrops(True)
+        self.tree_widget.setDropIndicatorShown(True)
+        self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
+
+        # Connect drag and drop events
+        # self.tree_widget.dragMoveEvent = self.drag_move_event
+        self.tree_widget.dropEvent = self.drop_event
+
         # Get document structure and top level items
         top_level_object: Object = Controller.get_element(self.element_id)
 
@@ -181,7 +192,9 @@ class DocumentTree(QWidget):
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def populate_tree(self, parent_item: QTreeWidgetItem, object: Object, position=None):
+    def populate_tree(
+        self, parent_item: QTreeWidgetItem, object: Object, position=None
+    ):
         """
         Populate the document tree given an object. This method is recursive.
         Iterate over the object children and populate the tree with them.
@@ -354,7 +367,6 @@ class DocumentTree(QWidget):
 
             # Remove the item from the tree items dictionary
             self.tree_items.pop(item.data(1, 0))
-            
 
         # Get the deleted object id
         element_id: ProteusID = kwargs.get("element_id")
@@ -438,23 +450,27 @@ class DocumentTree(QWidget):
         # Check if the selected item is not None
         if selected_item is None:
             return
-        
-        # Get selected item index
-        index: int = self.tree_widget.indexFromItem(selected_item).row()
 
         # Get the selected item id
         selected_item_id: ProteusID = selected_item.data(1, 0)
 
-        # Store if selected item is the document root item
+        # Do not show context menu for document root item
         # NOTE: Elements stored in the tree items dictionary are always
         #       Objects.
         element: Object = Controller.get_element(selected_item_id)
         is_document: bool = isinstance(element.parent, Project)
+        if is_document:
+            return
+
+        # Get selected item index and parent item id to handle object
+        # position changes.
+        position_index: int = self.tree_widget.indexFromItem(selected_item).row()
+        parent_id: ProteusID = selected_item.parent().data(1, 0)
 
         # Create the context menu
         context_menu: QMenu = QMenu(self)
 
-        # Create the edit action
+        # Create the edit action --------------------------------------------
         action_edit_object: QAction = QAction("Edit", self)
         action_edit_object.triggered.connect(
             lambda: PropertyDialog.object_property_dialog(selected_item_id)
@@ -464,7 +480,7 @@ class DocumentTree(QWidget):
         )
         action_edit_object.setIcon(edit_icon)
 
-        # Create the delete action
+        # Create the delete action ------------------------------------------
         action_delete_object: QAction = QAction("Delete", self)
         action_delete_object.triggered.connect(
             lambda: self.delete_object(selected_item_id)
@@ -474,7 +490,7 @@ class DocumentTree(QWidget):
         )
         action_delete_object.setIcon(delete_icon)
 
-        # Create clone action
+        # Create clone action -----------------------------------------------
         action_clone_object: QAction = QAction("Clone", self)
         action_clone_object.triggered.connect(
             lambda: Controller.clone_object(selected_item_id)
@@ -484,20 +500,24 @@ class DocumentTree(QWidget):
         )
         action_clone_object.setIcon(clone_icon)
 
-        # Create move up action
+        # Create move up action ---------------------------------------------
         action_move_up_object: QAction = QAction("Move up", self)
         action_move_up_object.triggered.connect(
-            lambda: Controller.change_object_position(selected_item_id, index-1)
+            lambda: Controller.change_object_position(
+                selected_item_id, position_index - 1, parent_id
+            )
         )
         move_up_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_ArrowUp
         )
         action_move_up_object.setIcon(move_up_icon)
 
-        # Create move down action
+        # Create move down action -------------------------------------------
         action_move_down_object: QAction = QAction("Move down", self)
         action_move_down_object.triggered.connect(
-            lambda: Controller.change_object_position(selected_item_id, index+1)
+            lambda: Controller.change_object_position(
+                selected_item_id, position_index + 1, parent_id
+            )
         )
         move_down_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_ArrowDown
@@ -506,19 +526,13 @@ class DocumentTree(QWidget):
 
         # Disable the move up action if the selected item is the first
         # item in the list
-        if index == 0:
+        if position_index == 0:
             action_move_up_object.setEnabled(False)
 
         # Disable the move down action if the selected item is the last
         # item in the list
-        if index == selected_item.parent().childCount()-1:
+        if position_index == selected_item.parent().childCount() - 1:
             action_move_down_object.setEnabled(False)
-
-        # Disable the delete and clone action if the selected
-        # item is a document
-        if is_document:
-            action_delete_object.setEnabled(False)
-            action_clone_object.setEnabled(False)
 
         # Add the actions to the context menu
         context_menu.addAction(action_edit_object)
@@ -551,3 +565,80 @@ class DocumentTree(QWidget):
         #       might be the deleted object. This is a workaround to avoid
         #       selecting an object marked as DEAD.
         Controller.deselect_object()
+
+    def drag_move_event(self, event):
+        event.acceptProposedAction()
+
+    def drop_event(self, event: QDropEvent):
+        # Get dropped element_id
+        dropped_item = self.tree_widget.currentItem()
+        dropped_element_id: ProteusID = dropped_item.data(1, 0)
+
+        # Drop position
+        point: QPoint = event.position().toPoint()
+
+        # Get target element_id
+        target_item = self.tree_widget.itemAt(point)
+        try:
+            target_element_id: ProteusID = target_item.data(1, 0)
+        except AttributeError:
+            proteus.logger.warning(
+                f"Target item not found at position {point}."
+            )
+            return
+
+        # Check if dropped item and target item are not None
+        if dropped_item and target_item:
+            # Determine the drop behavior based on the drop position.
+            # If drop position is in the middle of the target item (50% height
+            # centered at the target item), then the dropped item will
+            # be added as a child of the target item. Otherwise, the dropped
+            # item will be added as a sibling of the target item depending on
+            # the drop position (above or below the target item).
+            target_rect = self.tree_widget.visualItemRect(target_item)
+            rect_center = target_rect.center()
+            rect_height = target_rect.height()
+
+            # Get the index of the target item
+            target_index: int = self.tree_widget.indexFromItem(target_item).row()
+
+            # Get the parent id
+            try:
+                parent_id: ProteusID = target_item.parent().data(1, 0)
+            except AttributeError:
+                proteus.logger.warning(
+                    "Failed to get the parent id of the target item. The target item is a root item."
+                )
+                return
+        
+
+            # If in the 25% of the bottom of the target item, then add the
+            # dropped item as a sibling above the target item
+            if event.position().y() > rect_center.y() + rect_height / 4:
+                proteus.logger.info(
+                    f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
+                )
+                Controller.change_object_position(
+                    dropped_element_id, target_index + 1, parent_id
+                )
+
+            # If in the 25% of the top of the target item, then add the
+            # dropped item as a sibling below the target item
+            elif event.position().y() < rect_center.y() - rect_height / 4:
+                proteus.logger.info(
+                    f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
+                )
+                Controller.change_object_position(
+                    dropped_element_id, target_index, parent_id
+                )
+
+            # If in the middle of the target item, then add the dropped item
+            # as a child of the target item. Position as None means that the
+            # dropped item will be added as the last child of the target item.
+            else:
+                proteus.logger.info(
+                    f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
+                )
+                Controller.change_object_position(
+                    dropped_element_id, None, target_element_id
+                )

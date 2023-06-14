@@ -336,18 +336,29 @@ class ProjectService:
     def change_object_position(
         cls,
         object_id: ProteusID,
-        new_position: int = None,
-        new_parent: Union[Project, Object] = None,
+        new_position: int,
+        new_parent: Union[Project, Object],
     ) -> None:
         """
-        Changes the position of the object with the given id.
+        Changes the position of the object with the given id. If position is
+        None, the object is moved to the end of the parent. Given position
+        must be relative to non DEAD objects.
 
         :param object_id: Id of the object to change position.
         :param new_position: New position of the object.
         :param new_parent: New parent of the object.
         """
+        # TODO: This method should be refactored to not recieve the new position
+        #       relative to non DEAD objects, but relative to all objects. Since
+        #       this is a problem when redoing delete operations.
+        
         # Check the object_id is valid
         assert isinstance(object_id, str), f"Invalid object id {object_id}."
+
+        # Check the new_parent is valid
+        assert isinstance(
+            new_parent, (Project, Object)
+        ), f"Invalid new parent {new_parent}."
 
         # Get object using helper method
         object: Object = cls._get_element_by_id(object_id)
@@ -358,8 +369,35 @@ class ProjectService:
         # Set old parent to change its state later
         old_parent: Union[Project, Object] = object.parent
 
-        # Store the current position of the object in its parent
+        # Store the current position of the object in its parent to later drop it
         current_position: int = old_parent.get_descendants().index(object)
+
+        # Descendants lists, one with the dead objects and one without them
+        # to calculate position relative to non DEAD objects
+        new_parent_descendants: List[Object] = new_parent.get_descendants()
+        alive_descendants: List[Object] = [
+                d for d in new_parent_descendants if d.state != ProteusState.DEAD
+            ]
+
+        # If no position is given or the position is greater than the number of
+        # alive descendants, move the object to the end of the parent
+        if new_position is None or new_position >= len(alive_descendants):
+            new_position = None
+        # If position is given, calculate the real position using a reference sibling
+        else:
+            # Use a sibling as reference to calculate the real position relative to
+            # non DEAD objects and once the object in current position is removed
+            reference_sibling: Object = alive_descendants[new_position]
+
+            # If the new parent is the same as the old parent, take into account
+            # the object in current position is going to be removed
+            if old_parent == new_parent:
+                # Simulate the removal of the object in current position
+                descendants_copy: List[Object] = new_parent_descendants.copy()
+                descendants_copy.pop(current_position)
+                new_position = descendants_copy.index(reference_sibling)
+            else:
+                new_position = new_parent_descendants.index(reference_sibling)
 
         # Change the old parent state to DIRTY if not FRESH
         if old_parent.state != ProteusState.FRESH:
@@ -367,35 +405,6 @@ class ProjectService:
 
         # Remove object from current parent descendants
         old_parent.get_descendants().pop(current_position)
-
-        # If new parent is not given, use the current parent
-        if new_parent is None:
-            new_parent = old_parent
-
-        # If position is given, calculate the real position omitting the
-        # dead objects
-        if new_position is not None:
-            # Get the descendants of the new parent
-            descendants: List[Object] = new_parent.get_descendants()
-
-            # Determine if the new position is upper or lower than the current
-            # position to calculate the iteration direction
-            if new_position < current_position:
-                print("revert")
-                # If the new position is upper, iterate backwards
-                descendants = list(reversed(descendants))
-
-            # Count the dead objects between the current position and the
-            # next alive object
-            dead_objects_count: int = 0
-            for descendant in descendants[current_position:]:
-                if descendant.state == ProteusState.DEAD:
-                    dead_objects_count += 1
-                else:
-                    break
-
-            # Set the new position
-            new_position += dead_objects_count
 
         # Add object to new parent descendants
         new_parent.add_descendant(object, new_position)

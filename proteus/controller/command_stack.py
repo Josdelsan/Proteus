@@ -131,7 +131,9 @@ class Controller:
         """
         Undo the last command. Only works if the command is undoable.
         """
-        proteus.logger.info(f"Undoing last command: {cls._get_instance().undoText()}")
+        proteus.logger.info(
+            f"Undoing last command [ {cls._get_instance().undoText()} ]"
+        )
         cls._get_instance().undo()
 
     # ----------------------------------------------------------------------
@@ -147,7 +149,9 @@ class Controller:
         Redo the last command. Only works if the command is
         undoable/redoable.
         """
-        proteus.logger.info(f"Redoing last command: {cls._get_instance().redoText()}")
+        proteus.logger.info(
+            f"Redoing last command [ {cls._get_instance().redoText()} ]"
+        )
         cls._get_instance().redo()
 
     # ======================================================================
@@ -174,6 +178,7 @@ class Controller:
         if cls._last_selected_item is not None:
             cls.deselect_object()
 
+        proteus.logger.info(f"Selecting object {object_id}")
         # Select the new object
         cls._last_selected_item: ProteusID = object_id
         EventManager().notify(event=Event.SELECT_OBJECT)
@@ -190,6 +195,7 @@ class Controller:
         """
         Deselect the last selected object id by the user.
         """
+        proteus.logger.info(f"Deselecting object {cls._last_selected_item}")
         deselected_object_id = cls._last_selected_item
         cls._last_selected_item: ProteusID = None
         EventManager().notify(
@@ -240,6 +246,7 @@ class Controller:
 
         :param document_id: The id of the current document.
         """
+        proteus.logger.info(f"Setting current document {document_id}")
         cls._current_document_id = document_id
         EventManager().notify(
             event=Event.CURRENT_DOCUMENT_CHANGED, document_id=cls._current_document_id
@@ -302,7 +309,9 @@ class Controller:
         :param new_properties: The new properties of the element.
         """
         # Push the command to the command stack
-        proteus.logger.info(f"Updating properties of element with id: {element_id}")
+        proteus.logger.info(
+            f"Updating properties of element with id: {element_id}. New properties: {new_properties}"
+        )
         cls._push(UpdatePropertiesCommand(element_id, new_properties))
 
     # ----------------------------------------------------------------------
@@ -364,11 +373,12 @@ class Controller:
     # ----------------------------------------------------------------------
     @classmethod
     def change_object_position(
-        cls, object_id: ProteusID, new_position: int, new_parent_id: ProteusID = None
+        cls, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
     ) -> None:
         """
         Change the position of an object given its id. It pushes the command
-        to the command stack.
+        to the command stack. If position is None, the object is moved to the
+        end of the parent.
 
         Notify the frontend components when the command is executed passing
         the object_id and object in DELETE_OBJECT and ADD_OBJECT events.
@@ -378,10 +388,10 @@ class Controller:
         :param new_parent_id: The new parent of the object.
         """
         # Push the command to the command stack
-        proteus.logger.info(f"Changing position of object with id: {object_id} to {new_position}")
-        cls._push(
-            ChangeObjectPositionCommand(object_id, new_position, new_parent_id)
+        proteus.logger.info(
+            f"Changing position of object with id: {object_id} to {new_position}"
         )
+        cls._push(ChangeObjectPositionCommand(object_id, new_position, new_parent_id))
 
     # ----------------------------------------------------------------------
     # Method     : delete_document

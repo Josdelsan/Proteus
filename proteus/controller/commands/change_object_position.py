@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Union
+from typing import Union, List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,7 +27,6 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
 
 
@@ -51,7 +50,7 @@ class ChangeObjectPositionCommand(QUndoCommand):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID = None
+        self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
     ):
         super(ChangeObjectPositionCommand, self).__init__()
 
@@ -60,18 +59,26 @@ class ChangeObjectPositionCommand(QUndoCommand):
 
         # Old parent information
         self.old_parent: Union[Project, Object] = self.object.parent
-        self.old_position: int = self.old_parent.get_descendants().index(self.object)
+        self.old_position: int = None
         self.old_parent_state: ProteusState = self.old_parent.state
 
         # New parent information
+        self.new_parent: Union[Project, Object] = ProjectService._get_element_by_id(
+            new_parent_id
+        )
         self.new_position: int = new_position
-        self.new_parent: Union[Project, Object] = None
-        # Initialize new parent depending on the new_parent_id value
-        if new_parent_id is None:
-            self.new_parent = self.old_parent
-        else:
-            self.new_parent = ProjectService._get_element_by_id(new_parent_id)
         self.new_parent_state: ProteusState = self.new_parent.state
+
+        # Set old position relative to non DEAD objects
+        alive_siblings: List[Object] = [
+            d
+            for d in self.object.parent.get_descendants()
+            if d.state != ProteusState.DEAD
+        ]
+        self.old_position = alive_siblings.index(self.object)
+        # Normalize position
+        if self.old_position > self.new_position:
+            self.old_position += 1
 
     # ----------------------------------------------------------------------
     # Method     : redo

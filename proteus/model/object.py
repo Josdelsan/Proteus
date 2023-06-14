@@ -289,11 +289,7 @@ class Object(AbstractObject):
             Accepted children are {accepted_children}. \
             Child is class {child.classes}."
 
-        # Check if the child is already a child of this object
-        assert child.id not in [o.id for o in self.children], \
-            f"Object {child.id} is already a child of {self.id}."
-
-        # Add the child to the children dictionary and set the parent
+        # Add the child to the children list and set the parent
         self.children.insert(position, child)
         child.parent = self
 
