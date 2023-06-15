@@ -135,7 +135,7 @@ class DocumentTree(QWidget):
         self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
 
         # Connect drag and drop events
-        # self.tree_widget.dragMoveEvent = self.drag_move_event
+        # TODO: Drag must show if drop is allowed for different objects types
         self.tree_widget.dropEvent = self.drop_event
 
         # Get document structure and top level items
@@ -514,9 +514,10 @@ class DocumentTree(QWidget):
 
         # Create move down action -------------------------------------------
         action_move_down_object: QAction = QAction("Move down", self)
+        # TODO: Fix change position method to avoid using +2
         action_move_down_object.triggered.connect(
             lambda: Controller.change_object_position(
-                selected_item_id, position_index + 1, parent_id
+                selected_item_id, position_index + 2, parent_id
             )
         )
         move_down_icon = QApplication.style().standardIcon(
@@ -566,9 +567,14 @@ class DocumentTree(QWidget):
         #       selecting an object marked as DEAD.
         Controller.deselect_object()
 
-    def drag_move_event(self, event):
-        event.acceptProposedAction()
-
+    # ----------------------------------------------------------------------
+    # Method     : drop_event
+    # Description: Manage the drop event. Move the dropped object to the
+    #              target position.
+    # Date       : 14/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def drop_event(self, event: QDropEvent):
         # Get dropped element_id
         dropped_item = self.tree_widget.currentItem()

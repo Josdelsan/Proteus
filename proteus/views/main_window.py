@@ -15,7 +15,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QMainWindow, QWidget
+from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -180,3 +180,50 @@ class MainWindow(QMainWindow):
             self.setWindowTitle(
                 f"Proteus application - {project.get_property('name').value}"
             )
+
+    # ======================================================================
+    # Component slots methods
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : closeEvent
+    # Description: Handle the close event for the main window.
+    # Date       : 15/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def closeEvent(self, event):
+        """
+        Handle the close event for the main window. Check if the project
+        has unsaved changes and show a confirmation dialog to the user.
+        """
+        def close_without_saving():
+            # Clean the command stack
+            Controller._get_instance().clear()
+            # Close the application
+            event.accept()
+
+        def close_with_saving():
+            # Save the project
+            Controller.save_project()
+            # Close the application
+            event.accept()
+
+        # Check if the project has unsaved changes
+        unsaved_changes: bool = not Controller._get_instance().isClean()
+
+        if unsaved_changes:
+            # Show a confirmation dialog
+            confirmation_dialog = QMessageBox()
+            confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+            confirmation_dialog.setWindowTitle("Exit Proteus without saving")
+            confirmation_dialog.setText(
+                "Do you want to save changes before exiting Proteus?"
+            )
+            confirmation_dialog.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+            confirmation_dialog.accepted.connect(close_with_saving)
+            confirmation_dialog.rejected.connect(close_without_saving)
+            confirmation_dialog.exec()

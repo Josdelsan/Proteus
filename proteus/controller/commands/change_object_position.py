@@ -121,6 +121,9 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.new_parent.get_descendants().pop(position)
 
         # Restore descendants of the old parent
+        # NOTE: Accessing private attribute _children is not recommended, but
+        #       it is the only way to restore the state of the old parent since
+        #       the service method does not take into account DEAD objects correctly
         self.old_parent._children = self.old_parent_descendants.copy()
 
         # Set the object parent to the old parent
