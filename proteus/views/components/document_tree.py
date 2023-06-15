@@ -18,7 +18,7 @@ from typing import Dict, List
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QAction, QDropEvent
+from PyQt6.QtGui import QAction, QDropEvent, QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -46,6 +47,18 @@ from proteus.controller.command_stack import Controller
 # Global variables and constants
 # --------------------------------------------------------------------------
 
+config: Config = Config()
+TREE_ICONS_PATH = f"{config.icons_directory}/tree_icons"
+
+# Tree icons
+TREE_ICONS = {
+    "section": f"{TREE_ICONS_PATH}/section.svg",
+    "paragraph": f"{TREE_ICONS_PATH}/paragraph.svg",
+    ":Proteus-document": f"{TREE_ICONS_PATH}/document.svg",
+    "actor": f"{TREE_ICONS_PATH}/actor.svg",
+}
+
+# Tree item color
 TREE_ITEM_COLOR = {
     ProteusState.FRESH: Qt.GlobalColor.darkGreen,
     ProteusState.DIRTY: Qt.GlobalColor.darkYellow,
@@ -216,6 +229,13 @@ class DocumentTree(QWidget):
 
         # Set the item color based on the object ProteusState
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+
+        # Set the icon based on the object last class
+        object_class: str = object.classes.split()[-1]
+        try:
+            new_item.setIcon(0, QIcon(TREE_ICONS[object_class]))
+        except KeyError:
+            new_item.setIcon(0, QIcon(TREE_ICONS["paragraph"]))
 
         # Set the item data to store the object id
         new_item.setData(1, 0, object.id)

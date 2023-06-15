@@ -68,6 +68,7 @@ class DocumentRender(QWidget):
         EventManager.attach(Event.MODIFY_OBJECT, self.update_component, self)
         EventManager.attach(Event.ADD_OBJECT, self.update_component, self)
         EventManager.attach(Event.DELETE_OBJECT, self.update_component, self)
+        EventManager.attach(Event.CURRENT_DOCUMENT_CHANGED, self.update_component, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -137,13 +138,21 @@ class DocumentRender(QWidget):
     # ----------------------------------------------------------------------
     def update_component(self, *args, **kwargs) -> None:
         """
-        Update the document render component.
+        Update the document render component when there is by an event. Just
+        update the component if it is the current document displayed.
 
         Triggered by: Event.MODIFY_OBJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT
+        Event.CURRENT_DOCUMENT_CHANGED
         """
-        html: str = Controller().get_document_html(self.element_id)
-        self.browser.setHtml(html)
-        self.html_textedit.setPlainText(html)
+
+        current_document_id: ProteusID = Controller.get_current_document_id()
+
+        # If the current document is not the same as the document render
+        # element id, do not update the component
+        if current_document_id != self.element_id:
+            html: str = Controller().get_document_html(self.element_id)
+            self.browser.setHtml(html)
+            self.html_textedit.setPlainText(html)
 
     # ======================================================================
     # Component methods

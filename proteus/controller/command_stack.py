@@ -195,7 +195,6 @@ class Controller:
         """
         Deselect the last selected object id by the user.
         """
-        proteus.logger.info(f"Deselecting object {cls._last_selected_item}")
         deselected_object_id = cls._last_selected_item
         cls._last_selected_item: ProteusID = None
         EventManager().notify(

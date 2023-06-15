@@ -17,7 +17,7 @@ from typing import Dict, List, Union
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget, QSizePolicy, QSplitter
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -127,27 +127,34 @@ class DocumentList(QTabWidget):
         """
         # Create document tab widget
         tab: QWidget = QWidget()
-        tab_layout: QVBoxLayout = QVBoxLayout(tab)
+        tab_layout: QHBoxLayout = QHBoxLayout(tab)
 
         # Splitter
         splitter: QSplitter = QSplitter()
-        splitter.setStyleSheet("QSplitter::handle { background-color: #666666; }")
+        splitter.setStyleSheet("QSplitter::handle { width: 4px; background-color: #666666; }")
 
-        # Tree widget
+        # Tree widget --------------------------------------------------------
         document_tree: DocumentTree = DocumentTree(self, document.id)
         document_tree.setSizePolicy(
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
         )
-        document_tree.setMinimumWidth(100)
-        splitter.addWidget(document_tree)
+        document_tree.setMinimumWidth(200)
 
+        # Render widget ------------------------------------------------------
         document_render: DocumentRender = DocumentRender(self, document.id)
         document_render.setStyleSheet("background-color: #FFFFFF;")
         document_render.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
         document_render.setMinimumWidth(400)
+
+        # Add tree and render to splitter
+        splitter.addWidget(document_tree)
         splitter.addWidget(document_render)
+        # NOTE: By default the splitter is 1200px wide when the application
+        #       is launched. We set the initial sizes proportionally to the
+        #       splitter size to avoid the render component to be too small
+        splitter.setSizes([300, 900])
 
         # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)

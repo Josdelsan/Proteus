@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Proteus application")
 
         # Set the window size
-        self.resize(800, 600)
+        self.resize(1200, 800)
 
         # Create archeype tab menu
         main_menu = MainMenu("Archetype menu", self)
