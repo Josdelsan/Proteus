@@ -12,12 +12,21 @@
 # --------------------------------------------------------------------------
 
 import os
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QToolButton, QStyle, QApplication
+from PyQt6.QtWidgets import (
+    QWidget,
+    QToolButton,
+    QStyle,
+    QApplication,
+    QFrame,
+    QGridLayout,
+    QLabel,
+)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QSize
 
@@ -33,6 +42,8 @@ from proteus.model.object import Object
 # --------------------------------------------------------------------------
 
 config: Config = Config()
+ARCHETYPE_ICONS_PATH = f"{config.icons_directory}/archetypes"
+MENU_ICONS_PATH = f"{config.icons_directory}/main_menu"
 
 # --------------------------------------------------------------------------
 # Functions
@@ -45,6 +56,7 @@ def new_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     new_button = QToolButton(parent)
+    new_button.setFixedWidth(50)
 
     # Set file icon
     file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
@@ -73,6 +85,7 @@ def open_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     open_button = QToolButton(parent)
+    open_button.setFixedWidth(50)
 
     # Set file icon
     file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
@@ -101,13 +114,14 @@ def save_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     save_button = QToolButton(parent)
+    save_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(
-        QStyle.StandardPixmap.SP_DialogSaveButton
-    )
-    save_button.setIcon(QIcon(file_icon))
-    save_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/save-button.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    save_button.setIcon(button_icon)
+    save_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     save_button.setToolTip("Save project\nCtrl+S")
@@ -134,11 +148,14 @@ def undo_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     undo_button = QToolButton(parent)
+    undo_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ArrowBack)
-    undo_button.setIcon(QIcon(file_icon))
-    undo_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/undo.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    undo_button.setIcon(button_icon)
+    undo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     undo_button.setToolTip("Undo last action\nCtrl+Z")
@@ -163,11 +180,14 @@ def redo_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     redo_button = QToolButton(parent)
+    redo_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ArrowForward)
-    redo_button.setIcon(QIcon(file_icon))
-    redo_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/redo.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    redo_button.setIcon(button_icon)
+    redo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     redo_button.setToolTip("Redo last action\nCtrl+Y")
@@ -192,13 +212,14 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     properties_button = QToolButton(parent)
+    properties_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(
-        QStyle.StandardPixmap.SP_FileDialogDetailedView
-    )
-    properties_button.setIcon(QIcon(file_icon))
-    properties_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/edit-button.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    properties_button.setIcon(button_icon)
+    properties_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     properties_button.setToolTip("Project properties\nCtrl+P")
@@ -206,7 +227,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
 
     # Set text
     properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    properties_button.setText("Project properties")
+    properties_button.setText("Edit")
 
     # Set shorcut
     properties_button.setShortcut("Ctrl+P")
@@ -223,11 +244,14 @@ def add_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     add_button = QToolButton(parent)
+    add_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
-    add_button.setIcon(QIcon(file_icon))
-    add_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/new-file-button.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    add_button.setIcon(button_icon)
+    add_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     add_button.setToolTip("Add document\nCtrl+D")
@@ -235,7 +259,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
 
     # Set text
     add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    add_button.setText("Add document")
+    add_button.setText("Add")
 
     # Set shorcut
     add_button.setShortcut("Ctrl+D")
@@ -252,24 +276,58 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     delete_button = QToolButton(parent)
+    delete_button.setFixedWidth(50)
 
     # Set file icon
-    file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
-    delete_button.setIcon(QIcon(file_icon))
-    delete_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path = f"{MENU_ICONS_PATH}/delete-file-button.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    delete_button.setIcon(button_icon)
+    delete_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    delete_button.setToolTip("Delete document")
+    delete_button.setToolTip("Delete current document")
     delete_button.setStatusTip("Delete document from project.")
 
     # Set text
     delete_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    delete_button.setText("Delete document")
+    delete_button.setText("Delete")
 
     # Set enabled initial value
     delete_button.setEnabled(False)
 
     return delete_button
+
+
+def button_group(section_name: str, buttons: List[QToolButton]) -> QWidget:
+    # Create the main widget
+    widget = QWidget()
+    widget.setContentsMargins(0, 0, 5, 0)
+
+    # Create the grid layout
+    layout = QGridLayout(widget)
+
+    # Add the buttons in the first row of the layout
+    for column, button in enumerate(buttons):
+        layout.addWidget(button, 0, column)
+
+    # Add a separator line in the second row of the layout
+    separator = QFrame()
+    separator.setFrameShape(QFrame.Shape.HLine)
+    separator.setFrameShadow(QFrame.Shadow.Sunken)
+    layout.addWidget(separator, 1, 0, 1, len(buttons))
+
+    # Add a centered label with the text "section" in the third row of the layout
+    section_label = QLabel(section_name)
+    section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(section_label, 2, 0, 1, len(buttons))
+
+    # Set layout margins and spacing
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(0)
+
+    return widget
+
 
 # --------------------------------------------------------------------------
 # Classes
@@ -284,16 +342,16 @@ class ArchetypeMenuButton(QToolButton):
     def __init__(self, parent: QWidget, archetype: Object) -> None:
         super().__init__(parent)
 
+        # Button settings
+        self.setFixedWidth(80)
+
         # Set icon
         archetype_icon = QIcon()
 
-        # Get icon path
-        icon_directory_path = f"{config.icons_directory}/archetypes"
-        icon_path = f"{icon_directory_path}/{archetype.id}.svg"
-
-        # Check if icon exists
+        # Build icon path from archetype id or use default icon
+        icon_path = f"{ARCHETYPE_ICONS_PATH}/{archetype.id}.svg"
         if not os.path.isfile(icon_path):
-            icon_path = f"{icon_directory_path}/default.svg"
+            icon_path = f"{ARCHETYPE_ICONS_PATH}/default.svg"
 
         # Add icon
         archetype_icon.addFile(icon_path, QSize(32, 32))

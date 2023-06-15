@@ -8,7 +8,7 @@
 	<stringProperty name="author">Amador Durán Toro</stringProperty>
     <markdownProperty name="description">None</markdownProperty>
 	
-    <stringProperty name="name"><![CDATA[University of Seville logo]]></stringProperty>
+    <stringProperty name="name"><![CDATA[US Logo]]></stringProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
 	<dateProperty name="date">2022-10-10</dateProperty>
 		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>

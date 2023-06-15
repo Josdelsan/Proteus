@@ -23,7 +23,6 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QDockWidget,
     QToolButton,
-    QSizePolicy,
     QFileDialog,
     QMessageBox,
 )
@@ -124,10 +123,9 @@ class MainMenu(QDockWidget):
         # Set tittle
         self.setWindowTitle("Top menu")
 
-        # Remove the tittle bar and set the size policy
+        # Remove the tittle bar and set fixed height to prevent resizing
         self.setTitleBarWidget(QWidget())
-        self.sizePolicy().setHorizontalPolicy(QSizePolicy.Policy.Fixed)
-        self.sizePolicy().setVerticalPolicy(QSizePolicy.Policy.Fixed)
+        self.setFixedHeight(125)
 
         # --------------------
         # Create the component
@@ -165,22 +163,19 @@ class MainMenu(QDockWidget):
         tab_layout: QHBoxLayout = QHBoxLayout()
 
         # ---------
-        # File menu
+        # Project menu
         # ---------
         # New action
         new_button: QToolButton = buttons.new_project_button(self)
         new_button.clicked.connect(NewProjectDialog.create_dialog)
-        tab_layout.addWidget(new_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Open action
         open_button: QToolButton = buttons.open_project_button(self)
         open_button.clicked.connect(self.open_project)
-        tab_layout.addWidget(open_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
         self.save_button.clicked.connect(Controller.save_project)
-        tab_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Project properties action
         self.project_properties_button: QToolButton = buttons.project_properties_button(
@@ -189,38 +184,52 @@ class MainMenu(QDockWidget):
         self.project_properties_button.clicked.connect(
             PropertyDialog.project_property_dialog
         )
-        tab_layout.addWidget(
-            self.project_properties_button, alignment=Qt.AlignmentFlag.AlignLeft
-        )
 
+        # Add the buttons to the project menu widget
+        project_menu: QWidget = buttons.button_group(
+            "Project",
+            [new_button, open_button, self.save_button, self.project_properties_button],
+        )
+        tab_layout.addWidget(project_menu)
+
+        # ---------
+        # Document menu
+        # ---------
         # Add document action
         self.add_document_button: QToolButton = buttons.add_document_button(self)
         self.add_document_button.clicked.connect(NewDocumentDialog.create_dialog)
-        tab_layout.addWidget(
-            self.add_document_button, alignment=Qt.AlignmentFlag.AlignLeft
-        )
 
         # Delete document action
         self.delete_document_button: QToolButton = buttons.delete_document_button(self)
         self.delete_document_button.clicked.connect(self.delete_current_document)
-        tab_layout.addWidget(
-            self.delete_document_button, alignment=Qt.AlignmentFlag.AlignLeft
+
+        # Add the buttons to the document menu widget
+        document_menu: QWidget = buttons.button_group(
+            "Document", [self.add_document_button, self.delete_document_button]
         )
+        tab_layout.addWidget(document_menu)
 
         # ---------
-        # Edit menu
+        # Action menu
         # ---------
         # Undo action
         self.undo_button: QToolButton = buttons.undo_button(self)
         self.undo_button.clicked.connect(Controller.undo)
-        tab_layout.addWidget(self.undo_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Redo action
         self.redo_button: QToolButton = buttons.redo_button(self)
         self.redo_button.clicked.connect(Controller.redo)
-        tab_layout.addWidget(self.redo_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        # Add the buttons to the action menu widget
+        action_menu: QWidget = buttons.button_group(
+            "Action", [self.undo_button, self.redo_button]
+        )
+        tab_layout.addWidget(action_menu)
 
         # ---------------------------------------------
+
+        # Spacer to justify content left
+        tab_layout.addStretch()
 
         # Add the main tab widget to the tab widget
         main_tab.setLayout(tab_layout)
@@ -240,17 +249,18 @@ class MainMenu(QDockWidget):
         """
         Add a tab to the tab widget for a given class of object archetypes.
         """
-        # Create the archetype tab widget with a horizontal layout
-        archetypes_widget: QWidget = QWidget()
-        archetypes_layout: QHBoxLayout = QHBoxLayout()
+        # Create the tab widget with a horizontal layout
+        tab_widget: QWidget = QWidget()
+        tab_layout: QHBoxLayout = QHBoxLayout()
+
+        # Create a list to store archetype buttons to create the group
+        buttons_list: List[ArchetypeMenuButton] = []
 
         # Add the archetype widgets to the tab widget
         archetype: Object = None
         for archetype in object_archetypes:
             # Create the archetype button
-            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
-                archetypes_widget, archetype
-            )
+            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(self, archetype)
 
             # Add the archetype button to the archetype buttons dictionary
             self.archetype_buttons[archetype.id] = archetype_button
@@ -262,12 +272,20 @@ class MainMenu(QDockWidget):
                 )
             )
 
-            # Add the archetype widget to the tab widget layout
-            archetypes_layout.addWidget(archetype_button)
+            # Add the archetype button to the buttons list
+            buttons_list.append(archetype_button)
+
+        # Create the archetype button group
+        group_str: str = f"{class_name} archetypes"
+        archetype_menu: QWidget = buttons.button_group(group_str, buttons_list)
+        tab_layout.addWidget(archetype_menu)
+
+        # Spacer to justify content left
+        tab_layout.addStretch()
 
         # Set the tab widget layout as the main widget of the tab widget
-        archetypes_widget.setLayout(archetypes_layout)
-        self.tab_widget.addTab(archetypes_widget, class_name)
+        tab_widget.setLayout(tab_layout)
+        self.tab_widget.addTab(tab_widget, class_name)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -421,18 +439,18 @@ class MainMenu(QDockWidget):
 
         # Load the project from the selected directory
         if directory_path:
-            # try:
+            try:
                 Controller.load_project(project_path=directory_path)
-            # except Exception as e:
-            #     proteus.logger.error(e)
+            except Exception as e:
+                proteus.logger.error(e)
 
-            #     # Show an error message dialog
-            #     error_dialog = QMessageBox()
-            #     error_dialog.setIcon(QMessageBox.Icon.Critical)
-            #     error_dialog.setWindowTitle("Error")
-            #     error_dialog.setText("Error loading the project.")
-            #     error_dialog.setInformativeText(str(e))
-            #     error_dialog.exec()
+                # Show an error message dialog
+                error_dialog = QMessageBox()
+                error_dialog.setIcon(QMessageBox.Icon.Critical)
+                error_dialog.setWindowTitle("Error")
+                error_dialog.setText("Error loading the project.")
+                error_dialog.setInformativeText(str(e))
+                error_dialog.exec()
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document
@@ -455,7 +473,9 @@ class MainMenu(QDockWidget):
         confirmation_dialog = QMessageBox()
         confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
         confirmation_dialog.setWindowTitle("Delete document")
-        confirmation_dialog.setText(f"Are you sure you want to delete the document {document_name}?")
+        confirmation_dialog.setText(
+            f"Are you sure you want to delete the document {document_name}?"
+        )
         confirmation_dialog.setStandardButtons(
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
