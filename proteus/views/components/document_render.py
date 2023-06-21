@@ -145,11 +145,11 @@ class DocumentRender(QWidget):
         Event.CURRENT_DOCUMENT_CHANGED
         """
 
-        current_document_id: ProteusID = Controller.get_current_document_id()
+        current_document_id: ProteusID = Controller.get_current_document_id()   
 
-        # If the current document is not the same as the document render
+        # If the current document is the same as the document render
         # element id, do not update the component
-        if current_document_id != self.element_id:
+        if current_document_id == self.element_id:
             html: str = Controller().get_document_html(self.element_id)
             self.browser.setHtml(html)
             self.html_textedit.setPlainText(html)
