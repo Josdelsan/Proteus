@@ -16,7 +16,6 @@ from typing import List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -40,6 +39,7 @@ from proteus.views.components.dialogs.new_document_dialog import NewDocumentDial
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
 
@@ -96,7 +96,6 @@ class MainMenu(QDockWidget):
         # Subscribe to events
         EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
-        EventManager.attach(Event.DESELECT_OBJECT, self.udpate_on_deselect_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
         EventManager.attach(
             Event.CURRENT_DOCUMENT_CHANGED,
@@ -268,7 +267,7 @@ class MainMenu(QDockWidget):
             # Connect the clicked signal to the clone archetype method
             archetype_button.clicked.connect(
                 lambda checked, arg=archetype.id: Controller.create_object(
-                    archetype_id=arg
+                    archetype_id=arg, parent_id=StateManager.get_current_object()
                 )
             )
 
@@ -330,48 +329,41 @@ class MainMenu(QDockWidget):
 
         Triggered by: Event.SELECT_OBJECT
         """
-        # Get the selected object and its accepted children
-        selected_object: Object = Controller.get_selected_object()
-        accepted_children: str = selected_object.acceptedChildren.split()
+        # Get the selected object id and check if it is None
+        selected_object_id: ProteusID = StateManager.get_current_object()
 
-        # Iterate over the archetype buttons
-        for archetype_id in self.archetype_buttons.keys():
-            # Get the archetype button
-            archetype_button: ArchetypeMenuButton = self.archetype_buttons[archetype_id]
+        # If the selected object is None, disable all the archetype buttons
+        if selected_object_id is None:
+            button: ArchetypeMenuButton = None
+            for button in self.archetype_buttons.values():
+                button.setEnabled(False)
 
-            # Get the archetype
-            archetype: Object = Controller.get_archetype_by_id(archetype_id)
+        # If the selected object is not None, enable the archetype buttons
+        # that are accepted children of the selected object
+        else:
+            # Get the selected object and its accepted children
+            selected_object: Object = Controller.get_element(selected_object_id)
+            accepted_children: str = selected_object.acceptedChildren.split()
 
-            assert (
-                type(archetype) is Object
-            ), f"Archetype {archetype_id} is not an object"
+            # Iterate over the archetype buttons
+            for archetype_id in self.archetype_buttons.keys():
+                # Get the archetype button
+                archetype_button: ArchetypeMenuButton = self.archetype_buttons[archetype_id]
 
-            # Get the archetype class (last class in the class hierarchy)
-            archetype_class: str = archetype.classes.split()[-1]
+                # Get the archetype
+                archetype: Object = Controller.get_archetype_by_id(archetype_id)
 
-            # Enable or disable the archetype button
-            archetype_button.setEnabled(
-                archetype_class in accepted_children or PROTEUS_ANY in accepted_children
-            )
+                assert (
+                    type(archetype) is Object
+                ), f"Archetype {archetype_id} is not an object"
 
-    # ----------------------------------------------------------------------
-    # Method     : udpate_on_deselect_object
-    # Description: Disable all the archetype buttons when there is not
-    #              selected object.
-    # Date       : 06/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    # NOTE: Deselecting is important to avoid errors when deleting objects
-    def udpate_on_deselect_object(self, *args, **kwargs) -> None:
-        """
-        Disable all the archetype buttons when there is not selected object.
+                # Get the archetype class (last class in the class hierarchy)
+                archetype_class: str = archetype.classes.split()[-1]
 
-        Triggered by: Event.DESELECT_OBJECT
-        """
-        button: ArchetypeMenuButton = None
-        for button in self.archetype_buttons.values():
-            button.setEnabled(False)
+                # Enable or disable the archetype button
+                archetype_button.setEnabled(
+                    archetype_class in accepted_children or PROTEUS_ANY in accepted_children
+                )
 
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
@@ -466,7 +458,8 @@ class MainMenu(QDockWidget):
         document. Use a confirmation dialog to confirm the action.
         """
         # Get the current document
-        document: Object = Controller.get_current_document()
+        document_id: ProteusID = StateManager.get_current_document()
+        document: Object = Controller.get_element(document_id)
         document_name: str = document.get_property("name").value
 
         # Show a confirmation dialog

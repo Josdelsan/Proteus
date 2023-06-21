@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
 
@@ -145,7 +146,7 @@ class DocumentRender(QWidget):
         Event.CURRENT_DOCUMENT_CHANGED
         """
 
-        current_document_id: ProteusID = Controller.get_current_document_id()   
+        current_document_id: ProteusID = StateManager.get_current_document()
 
         # If the current document is the same as the document render
         # element id, do not update the component

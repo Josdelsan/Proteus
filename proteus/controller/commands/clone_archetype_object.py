@@ -27,6 +27,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.views.utils.event_manager import EventManager, Event
+from proteus.views.utils.state_manager import StateManager
 
 
 # --------------------------------------------------------------------------
@@ -128,6 +129,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         # Set the parent state to the old state
         parent = ProjectService._get_element_by_id(self.parent_id)
         parent.state = self.before_clone_parent_state
+
+        # Deselect the object in case it was selected to avoid errors
+        StateManager.deselect_object(self.cloned_object.id)
 
         # Emit the event to update the view
         EventManager.notify(Event.DELETE_OBJECT, element_id=self.cloned_object.id)

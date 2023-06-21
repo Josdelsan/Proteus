@@ -40,6 +40,7 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.state_manager import StateManager
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
 
@@ -119,7 +120,6 @@ class DocumentTree(QWidget):
         EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
         EventManager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
         EventManager.attach(Event.DELETE_OBJECT, self.update_on_delete_object, self)
-        EventManager.attach(Event.DESELECT_OBJECT, self.update_on_deselect_object, self)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -161,8 +161,12 @@ class DocumentTree(QWidget):
         self.tree_widget.itemDoubleClicked.connect(
             lambda item: PropertyDialog.object_property_dialog(item.data(1, 0))
         )
+
+        # Connect click to object selection
         self.tree_widget.itemClicked.connect(
-            lambda item: Controller.select_object(item.data(1, 0))
+            lambda item: StateManager.set_current_object(
+                object_id=item.data(1, 0), document_id=self.element_id
+            )
         )
 
         # Set context menu policy
@@ -412,41 +416,6 @@ class DocumentTree(QWidget):
         # Remove the item from the tree including its children
         delete_item(tree_item)
 
-    # ----------------------------------------------------------------------
-    # Method     : update_on_deselect_object
-    # Description: Update the document tree when an object is deselected.
-    # Date       : 06/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_on_deselect_object(self, *args, **kwargs) -> None:
-        """
-        Update the document tree when an object is deselected. Look for the
-        object in the tree items dictionary and set the selected property to
-        false.
-
-        This method is necessary when handling the selection of objects when
-        the application has multiple document tree widgets.
-
-        Triggered by: Event.DESELECT_OBJECT
-        """
-        # Get the deselected object id
-        element_id: ProteusID = kwargs.get("element_id")
-
-        # NOTE: It is not necessary to check the element id is not None
-        #       because the event might be triggered and no object is
-        #       selected.
-
-        # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
-            return
-
-        # Get the tree item
-        tree_item: QTreeWidgetItem = self.tree_items[element_id]
-
-        # Set selected to false
-        tree_item.setSelected(False)
-
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
@@ -582,11 +551,6 @@ class DocumentTree(QWidget):
         # Delete the object
         Controller.delete_object(element_id)
 
-        # NOTE: Deselect the last object selected because last object selected
-        #       might be the deleted object. This is a workaround to avoid
-        #       selecting an object marked as DEAD.
-        Controller.deselect_object()
-
     # ----------------------------------------------------------------------
     # Method     : drop_event
     # Description: Manage the drop event. Move the dropped object to the
@@ -608,9 +572,7 @@ class DocumentTree(QWidget):
         try:
             target_element_id: ProteusID = target_item.data(1, 0)
         except AttributeError:
-            proteus.logger.warning(
-                f"Target item not found at position {point}."
-            )
+            proteus.logger.warning(f"Target item not found at position {point}.")
             return
 
         # Check if dropped item and target item are not None
@@ -636,7 +598,6 @@ class DocumentTree(QWidget):
                     "Failed to get the parent id of the target item. The target item is a root item."
                 )
                 return
-        
 
             # If in the 25% of the bottom of the target item, then add the
             # dropped item as a sibling above the target item

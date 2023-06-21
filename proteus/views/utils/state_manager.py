@@ -25,6 +25,7 @@ from typing import List, Dict, Tuple
 # Project specific imports
 # --------------------------------------------------------------------------
 
+import proteus
 from proteus.model import ProteusID
 from proteus.views.utils.event_manager import EventManager, Event
 
@@ -58,10 +59,20 @@ class StateManager:
         """
         Sets the current document id.
         """
+        proteus.logger.info(f"Setting current document {document_id}")
         cls.current_document = document_id
+
+        # If the current document is not in the current object dictionary,
+        # add it.
+        if document_id not in cls.current_object:
+            cls.current_object[document_id] = None
+
+        # Notify the event manager that the current document has changed
+        # and that the current object must be updated.
         EventManager.notify(
             Event.CURRENT_DOCUMENT_CHANGED, document_id=cls.current_document
         )
+        EventManager.notify(Event.SELECT_OBJECT)
 
     # --------------------------------------------------------------------------
     # Method: get_current_document
@@ -73,7 +84,8 @@ class StateManager:
     @classmethod
     def get_current_document(cls) -> ProteusID:
         """
-        Returns the current document id.
+        Returns the current document id. If no document is selected, it returns
+        None.
         """
         return cls.current_document
 
@@ -89,6 +101,7 @@ class StateManager:
         """
         Sets the current object id for the current document.
         """
+        proteus.logger.info(f"Selecting object {object_id} in document {document_id}")
         cls.current_object[document_id] = object_id
         EventManager.notify(Event.SELECT_OBJECT)
 
@@ -102,17 +115,41 @@ class StateManager:
     @classmethod
     def get_current_object(cls) -> ProteusID:
         """
-        Returns the current object id for the current document.
+        Returns the current object id for the current document. If no object
+        is selected, it returns None.
         """
-
         document_id = cls.get_current_document()
 
-        assert (
-            document_id is not None
-        ), "A document must be selected before getting the current object."
+        # If no document is selected, return None.
+        if document_id is None:
+            return None
 
         assert (
             document_id in cls.current_object
         ), f"Document id {document_id} not found in current application state dictionary."
 
         return cls.current_object[document_id]
+
+    # --------------------------------------------------------------------------
+    # Method: deselect_object
+    # Description: Deselects the current object if found selected in the state
+    #              manager dictionary.
+    # Date: 21/06/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    # NOTE: This method is primarily used when objects are marked as deleted
+    #       (DEAD) when controller commands are executed.
+    @classmethod
+    def deselect_object(cls, object_id: ProteusID) -> None:
+        """
+        Deselects the current object if found selected in the state manager
+        dictionary.
+
+        This method is primarily used when objects are marked as deleted (DEAD)
+        when controller commands are executed.
+        """
+        for document_id in cls.current_object:
+            if cls.current_object[document_id] == object_id:
+                cls.current_object[document_id] = None
+                EventManager.notify(Event.SELECT_OBJECT)

@@ -43,7 +43,6 @@ class Event(Enum):
 
     # Selection events
     SELECT_OBJECT = "select_object"
-    DESELECT_OBJECT = "deselect_object"
     CURRENT_DOCUMENT_CHANGED = "current_document_changed"
 
     # Document events

@@ -64,10 +64,6 @@ class Controller:
     # Class attributes
     _stack: QUndoStack = None
 
-    # TODO: Consider moving this logic to a frontend class
-    _last_selected_item: ProteusID = None
-    _current_document: ProteusID = None
-
     # TODO: This is a temporary solution to access the xslt files
     config = Config()
 
@@ -153,133 +149,6 @@ class Controller:
             f"Redoing last command [ {cls._get_instance().redoText()} ]"
         )
         cls._get_instance().redo()
-
-    # ======================================================================
-    # Selected elements methods
-    # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : select_object
-    # Description: Store last selected object id by the user.
-    # Date       : 01/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def select_object(cls, object_id: ProteusID) -> None:
-        """
-        Store last selected object id by the user.
-
-        :param object_id: The id of the object selected by the user.
-        """
-        assert object_id is not None, "Object id cannot be None"
-
-        # Deselect the last selected object if it exists
-        if cls._last_selected_item is not None:
-            cls.deselect_object()
-
-        proteus.logger.info(f"Selecting object {object_id}")
-        # Select the new object
-        cls._last_selected_item: ProteusID = object_id
-        EventManager().notify(event=Event.SELECT_OBJECT)
-
-    # ----------------------------------------------------------------------
-    # Method     : deselect_object
-    # Description: Deselect the last selected object id by the user.
-    # Date       : 05/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def deselect_object(cls) -> None:
-        """
-        Deselect the last selected object id by the user.
-        """
-        deselected_object_id = cls._last_selected_item
-        cls._last_selected_item: ProteusID = None
-        EventManager().notify(
-            event=Event.DESELECT_OBJECT, element_id=deselected_object_id
-        )
-
-    # ----------------------------------------------------------------------
-    # Method     : get_selected_object
-    # Description: Get last selected object id by the user.
-    # Date       : 02/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def get_selected_object_id(cls) -> ProteusID:
-        """
-        Get last selected object id by the user.
-        """
-        assert cls._last_selected_item is not None, "No object selected"
-
-        return cls._last_selected_item
-
-    # ----------------------------------------------------------------------
-    # Method     : get_selected_object
-    # Description: Get last selected object by the user.
-    # Date       : 02/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def get_selected_object(cls) -> Object:
-        """
-        Get last selected object by the user.
-        """
-        return ProjectService._get_element_by_id(cls.get_selected_object_id())
-
-    # ----------------------------------------------------------------------
-    # Method     : current_document
-    # Description: Store the current document id.
-    # Date       : 06/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def current_document(cls, document_id: ProteusID) -> None:
-        """
-        Store the current document id. Store None if no document is open.
-
-        :param document_id: The id of the current document.
-        """
-        proteus.logger.info(f"Setting current document {document_id}")
-        cls._current_document_id = document_id
-        EventManager().notify(
-            event=Event.CURRENT_DOCUMENT_CHANGED, document_id=cls._current_document_id
-        )
-
-    # ----------------------------------------------------------------------
-    # Method     : get_current_document_id
-    # Description: Get the current document id.
-    # Date       : 06/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def get_current_document_id(cls) -> Union[ProteusID, None]:
-        """
-        Get the current document id. Return None if no document is open.
-        """
-        return cls._current_document_id
-
-    # ----------------------------------------------------------------------
-    # Method     : get_current_document
-    # Description: Get the current document.
-    # Date       : 06/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def get_current_document(cls) -> Object:
-        """
-        Get the current document. Throw an exception if no document is open.
-        """
-        assert cls.get_current_document_id() is not None, "No document opened"
-
-        return ProjectService._get_element_by_id(cls.get_current_document_id())
 
     # ======================================================================
     # Project methods
@@ -591,17 +460,17 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def create_object(cls, archetype_id) -> None:
+    def create_object(cls, archetype_id: ProteusID, parent_id: ProteusID) -> None:
         """
         Create a new object with the given archetype id and parent id.
 
         :param archetype_id: The id of the archetype to create the object.
         """
         proteus.logger.info(
-            f"Creating object from archetype: {archetype_id} and parent id: {cls.get_selected_object_id()}"
+            f"Creating object from archetype: {archetype_id} and parent id: {parent_id}"
         )
         cls._push(
-            CloneArchetypeObjectCommand(archetype_id, cls.get_selected_object_id())
+            CloneArchetypeObjectCommand(archetype_id, parent_id)
         )
 
     # ----------------------------------------------------------------------

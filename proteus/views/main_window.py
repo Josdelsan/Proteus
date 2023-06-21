@@ -15,7 +15,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox, QLabel
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -28,6 +28,7 @@ from proteus.model.object import Object
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
 
@@ -143,14 +144,27 @@ class MainWindow(QMainWindow):
 
         Triggered by: Event.SELECT_OBJECT
         """
-        # Get the selected object
-        selected_object: Object = Controller.get_selected_object()
+        # NOTE: Adding a permanent message to the status bar is discouraged
+        #       due to the fact that it is not possible to remove it just
+        #       hide it using removeWidget() method.
+        # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qstatusbar.html#qstatusbar-permanent-message
 
-        # Update the status bar
+        # Get the selected object id
+        selected_object_id: ProteusID = StateManager.get_current_object()
+
+        # If there is no selected object, return
+        if selected_object_id is None:
+            return
+        
+        # Get the selected object and its name
+        selected_object: Object = Controller.get_element(selected_object_id)
         object_name = selected_object.properties["name"].value
-        self.statusBar().showMessage(
-            f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
-        )
+
+        # Message to show in the status bar
+        message: str = f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
+
+        # Update the status bar with the temporary message
+        self.statusBar().showMessage(message)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_modify_object
@@ -197,6 +211,7 @@ class MainWindow(QMainWindow):
         Handle the close event for the main window. Check if the project
         has unsaved changes and show a confirmation dialog to the user.
         """
+
         def close_without_saving():
             # Clean the command stack
             Controller._get_instance().clear()
@@ -227,3 +242,5 @@ class MainWindow(QMainWindow):
             confirmation_dialog.accepted.connect(close_with_saving)
             confirmation_dialog.rejected.connect(close_without_saving)
             confirmation_dialog.exec()
+        else:
+            close_without_saving()

@@ -27,6 +27,7 @@ import proteus
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.utils.event_manager import Event, EventManager
+from proteus.views.utils.state_manager import StateManager
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.document_render import DocumentRender
 from proteus.controller.command_stack import Controller
@@ -280,7 +281,7 @@ class DocumentList(QTabWidget):
     def current_document_changed(self, index: int) -> None:
         """
         Slot triggered when the current document tab is changed. It updates
-        the current document id in the controller.
+        the current document id in the state manager.
         """
         # Get document id
         document_id: ProteusID = None
@@ -291,5 +292,5 @@ class DocumentList(QTabWidget):
                 list(self.tabs.values()).index(document_tab)
             ]
 
-        # Update current document id in the controller
-        Controller.current_document(document_id)
+        # Update current document in the state manager
+        StateManager.set_current_document(document_id)
