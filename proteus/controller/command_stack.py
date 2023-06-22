@@ -64,9 +64,6 @@ class Controller:
     # Class attributes
     _stack: QUndoStack = None
 
-    # TODO: This is a temporary solution to access the xslt files
-    config = Config()
-
     # ======================================================================
     # Command stack methods
     # ======================================================================
@@ -401,7 +398,7 @@ class Controller:
         proteus.logger.info(f"Getting xml of document with id: {document_id}")
 
         # NOTE: This is a temporary solution to access xls templates
-        XSL_TEMPLATE = cls.config.resources_directory / "xslt/PROTEUS_main.xsl"
+        XSL_TEMPLATE = Config().xslt_main_file
 
         # Get the document xml
         xml: ET.Element = ProjectService.generate_document_xml(document_id)

@@ -30,6 +30,7 @@ BASE_DIRECTORY       : str = 'base_directory'
 ARCHETYPES_DIRECTORY : str = 'archetypes_directory'
 RESOURCES_DIRECTORY  : str = 'resources_directory'
 ICONS_DIRECTORY      : str = 'icons_directory'
+XSLT_MAIN_FILE       : str = 'xslt_main_file'
 
 # --------------------------------------------------------------------------
 # Class: Config
@@ -43,10 +44,27 @@ ICONS_DIRECTORY      : str = 'icons_directory'
 # --------------------------------------------------------------------------
 
 class Config:
+
+    # Singleton instance
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """
+        It creates a singleton instance for Config class.
+        """
+        if not cls._instance:
+            cls._instance = super(Config, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
         """
         It initializes the config paths for PROTEUS application.
         """
+        # Check if the instance has been initialized
+        if self._initialized:
+            return
+        self._initialized = True
 
         # Application configuration
         self.config : ConfigParser = self._create_config_parser()
@@ -57,6 +75,7 @@ class Config:
         self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
         self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
         self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
+        self.xslt_main_file       : Path = self.resources_directory / self.directories[XSLT_MAIN_FILE]
 
         # Check application directories
         self.check_application_directories()
