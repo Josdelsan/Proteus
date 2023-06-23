@@ -36,6 +36,10 @@ class Event(Enum):
     OPEN_PROJECT = "open_project"
     SAVE_PROJECT = "save_project"
 
+    # Document events
+    ADD_DOCUMENT = "add_document"
+    DELETE_DOCUMENT = "delete_document"
+
     # Object events
     MODIFY_OBJECT = "modify_object"
     ADD_OBJECT = "add_object"
@@ -45,12 +49,12 @@ class Event(Enum):
     SELECT_OBJECT = "select_object"
     CURRENT_DOCUMENT_CHANGED = "current_document_changed"
 
-    # Document events
-    ADD_DOCUMENT = "add_document"
-    DELETE_DOCUMENT = "delete_document"
-
     # Stack related events
     STACK_CHANGED = "stack_changed"
+
+    # Render view events
+    ADD_VIEW = "add_view"
+    DELETE_VIEW = "delete_view"
 
 
 # --------------------------------------------------------------------------

@@ -11,4 +11,7 @@
   <documents>
     <document id="empty-document-01" />
   </documents>
+  <xsl-templates>
+    <xsl-template name="default" />
+  </xsl-templates>
 </project>

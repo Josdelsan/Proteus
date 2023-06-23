@@ -89,6 +89,9 @@ class NewProjectDialog(QDialog):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
+        # Set the dialog title
+        self.setWindowTitle("Create new Project")
+
         # Create a separator widget
         separator: QFrame = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)

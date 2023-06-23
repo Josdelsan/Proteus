@@ -16,6 +16,7 @@
 # --------------------------------------------------------------------------
 
 from typing import Union, List, Dict
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,7 +28,8 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, CHILDREN_TAG, CHILD_TAG
+from proteus.config import Config
+from proteus.model import ProteusID, CHILD_TAG
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
@@ -457,3 +459,49 @@ class ProjectService:
                     parent_element.replace(child_element, child_xml)
 
         return root
+
+    # ----------------------------------------------------------------------
+    # Method     : add_project_template
+    # Description: Add a new project template to the project.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_project_template(cls, template_name: str) -> None:
+        """
+        Add a new project template to the project.
+
+        Triggers: Event.ADD_VIEW
+
+        :param template_name: The name of the template to add.
+        """
+        # Check if the template exists in the app installation
+        xslt_routes: Dict[str, Path] = Config().xslt_routes
+        assert (
+            template_name in xslt_routes
+        ), f"XSLT file {template_name} not found in config file"
+
+        cls.project: Project = ProjectService.project
+        cls.project.xsl_templates.append(template_name)
+        cls.project.state = ProteusState.DIRTY
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_project_template
+    # Description: Delete a project template from the project.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def delete_project_template(cls, template_name: str) -> None:
+        """
+        Remove a project template from the project.
+
+        Triggers: Event.DELETE_VIEW
+
+        :param template_name: The name of the template to remove.
+        """
+        cls.project: Project = ProjectService.project
+        cls.project.xsl_templates.remove(template_name)
+        cls.project.state = ProteusState.DIRTY

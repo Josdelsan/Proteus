@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: new_document_dialog.py
-# Description: PyQT6 new document component for the PROTEUS application
-# Date: 28/05/2023
+# File: new_view_dialog.py
+# Description: PyQT6 new view dialog component for the PROTEUS application
+# Date: 23/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -21,8 +21,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QComboBox,
-    QFrame,
-    QSizePolicy,
     QDialogButtonBox,
 )
 
@@ -31,29 +29,27 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
-from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
-# Class: Newdocument
-# Description: PyQT6 new document component for the PROTEUS application
-# Date: 28/05/2023
+# Class: NewViewDialog
+# Description: PyQT6 new view dialog component for the PROTEUS application
+# Date: 23/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewDocumentDialog(QDialog):
+class NewViewDialog(QDialog):
     """
-    New document component class for the PROTEUS application. It provides a
-    dialog form to create new documents from document archetypes.
+    New view dialog component class for the PROTEUS application. It provides a
+    dialog form to create new views from xsl templates.
     """
 
     # ----------------------------------------------------------------------
     # Method     : __init__
     # Description: Class constructor, invoke the parents class constructors
     #              and create the component.
-    # Date       : 28/05/2023
+    # Date       : 23/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -63,9 +59,6 @@ class NewDocumentDialog(QDialog):
         the component. Create properties to store the new document data.
         """
         super().__init__(parent, *args, **kwargs)
-
-        # Properties for creating a new document
-        self._archetype_id: ProteusID = None
 
         # Create the component
         self.create_component()
@@ -81,34 +74,34 @@ class NewDocumentDialog(QDialog):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Set the window title
-        self.setWindowTitle("Add new Document")
+        # Set the dialog title
+        self.setWindowTitle("Add new view")
 
-        # Create a separator widget
-        separator: QFrame = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Shadow.Sunken)
+        # Get available xls templates to create a new view
+        xls_templates: List[str] = Controller.get_available_xslt()
 
-        # Get document archetypes
-        document_archetypes: List[Object] = Controller.get_document_archetypes()
-        # Create a combo box with the document archetypes
-        archetype_label: QLabel = QLabel("Select document Archetype:")
-        archetype_combo: QComboBox = QComboBox()
+        # Create a combo box with the available views
+        view_label: QLabel = QLabel("Select view:")
+        view_combo: QComboBox = QComboBox()
 
-        archetype: Object = None
-        for archetype in document_archetypes:
-            archetype_combo.addItem(archetype.properties["name"].value)
+        # Add the view names to the combo box
+        view_combo.addItems(xls_templates)
 
-        # Show the archetype description
-        description_label: QLabel = QLabel("Document Description:")
-        description_output: QLabel = QLabel()
+        # Create view message label
+        info_label: QLabel = QLabel(
+            "If you want to create a new view, contact with the administrator."
+        )
 
         # Create Save and Cancel buttons
         button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
-        button_box.accepted.connect(self.save_button_clicked)
+
+        # Connect the buttons to the slots, combo current text is the view name
+        button_box.accepted.connect(
+            lambda: self.save_button_clicked(view_combo.currentText())
+        )
         button_box.rejected.connect(self.cancel_button_clicked)
 
         # Error message label
@@ -116,38 +109,12 @@ class NewDocumentDialog(QDialog):
         self.error_label.setStyleSheet("color: red")
 
         # Add the widgets to the layout
-        layout.addWidget(archetype_label)
-        layout.addWidget(archetype_combo)
-        layout.addWidget(separator)
-        layout.addWidget(description_label)
-        layout.addWidget(description_output)
+        layout.addWidget(view_label)
+        layout.addWidget(view_combo)
+        layout.addWidget(info_label)
         layout.addWidget(self.error_label)
 
         layout.addWidget(button_box)
-
-        # Set fixed width for the window
-        self.setFixedWidth(400)
-        # Allow vertical expansion for the description
-        description_output.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
-
-        # ---------------------------------------------
-        # Actions
-        # ---------------------------------------------
-
-        # Update the description when the user selects an archetype
-        def update_description():
-            index = archetype_combo.currentIndex()
-            if index >= 0:
-                archetype: Object = document_archetypes[index]
-                self._archetype_id = archetype.id
-                description_output.setText(archetype.properties["description"].value)
-
-        # Update the description when the user selects an archetype
-        archetype_combo.currentIndexChanged.connect(update_description)
-        # Update the description for the first archetype
-        update_description()
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
@@ -160,17 +127,24 @@ class NewDocumentDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def save_button_clicked(self):
+    def save_button_clicked(self, combo_text: str) -> None:
         """
-        Manage the save button clicked event. It creates a new document from
-        the selected archetype.
+        Manage the save button clicked event. It creates a new view from the
+        selected xslt template.
+
+        Triggers ADD_VIEW event to handle the new view creation for every
+        document in the render component.
         """
-        if self._archetype_id is None:
-            self.error_label.setText("Please select a valid document archetype")
+        if combo_text is None:
+            self.error_label.setText("Please select a valid view.")
+            return
+        
+        if combo_text in Controller.get_project_templates():
+            self.error_label.setText("The view already exists.")
             return
 
-        # Create the document
-        Controller.create_document(self._archetype_id)
+        # Add the new template to the project and call the event
+        Controller.add_project_template(combo_text)
 
         # Close the form window
         self.close()
@@ -183,7 +157,7 @@ class NewDocumentDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
+    def cancel_button_clicked(self) -> None:
         """
         Manage the cancel button clicked event. It closes the form window
         without creating any document.
@@ -208,5 +182,5 @@ class NewDocumentDialog(QDialog):
         """
         Create a new document dialog and show it
         """
-        dialog = NewDocumentDialog()
+        dialog = NewViewDialog()
         dialog.exec()

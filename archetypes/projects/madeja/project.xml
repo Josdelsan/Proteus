@@ -13,4 +13,7 @@
     <document id="3fKhMAkcEe2C"/>
     <document id="3fKhMAkcEe2D"/>
   </documents>
+  <xsl-templates>
+    <xsl-template name="default" />
+  </xsl-templates>
 </project>

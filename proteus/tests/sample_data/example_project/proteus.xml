@@ -19,4 +19,7 @@
     <document id="3fKhMAkcEe2D"/>
     <document id="3fKhMAkcEe2E"/>
   </documents>
+  <xsl-templates>
+    <xsl-template name="default" />
+  </xsl-templates>
 </project>

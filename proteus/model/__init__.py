@@ -30,6 +30,8 @@ DOCUMENT_TAG       = str('document')
 DOCUMENTS_TAG      = str('documents')
 CHILD_TAG          = str('child')
 CHILDREN_TAG       = str('children')
+XSL_TEMPLATES_TAG = str('xsl-templates')
+XLS_TEMPLATE_TAG  = str('xsl-template')
 
 # Type for Class tags in Proteus
 ProteusClassTag = NewType('ProteusClassTag', str)

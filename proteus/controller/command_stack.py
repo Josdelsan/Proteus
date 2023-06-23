@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List, Dict, Union
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -383,22 +384,39 @@ class Controller:
 
         return ProjectService.project
 
+    # ======================================================================
+    # Document views methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
-    # Method     : get_document_xml
+    # Method     : get_document_default_view
     # Description: Get the xml of a document given its id.
-    # Date       : 04/06/2023
+    # Date       : 23/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @classmethod
-    def get_document_html(cls, document_id: ProteusID) -> str:
+    def get_document_view(
+        cls, document_id: ProteusID, xslt_name: str = "default"
+    ) -> str:
         """
-        Get the html of a document given its id.
-        """
-        proteus.logger.info(f"Getting xml of document with id: {document_id}")
+        Get the string representation of the document view given its id. The
+        view is generated using the xslt file specified in the xslt_name. If
+        the xslt_name is not specified, the default xslt is used.
 
-        # NOTE: This is a temporary solution to access xls templates
-        XSL_TEMPLATE = Config().xslt_main_file
+        XSLT files are located in the xslt folder, defined in the config file.
+
+        :param document_id: The id of the document to get the view.
+        :param xslt_name: The name of the xslt file to use.
+        """
+        proteus.logger.info(f"Getting {xslt_name} view of document with id: {document_id}")
+
+        # Get the xslt file path and check if it exists in the app config
+        xslt_routes: Dict[str, Path] = Config().xslt_routes
+        assert (
+            xslt_name in xslt_routes
+        ), f"XSLT file {xslt_name} not found in config file"
+        XSL_TEMPLATE = Config().xslt_routes[xslt_name]
 
         # Get the document xml
         xml: ET.Element = ProjectService.generate_document_xml(document_id)
@@ -408,17 +426,88 @@ class Controller:
         result_tree: ET._XSLTResultTree = transform(xml)
 
         # Serialize the HTML root to a string
-        html_string = ET.tostring(result_tree, encoding="unicode")
+        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True)
 
-        # TODO: This is a temporary solution because the xslt transformation
-        #       is not working properly. result_tree cast to string is not
-        #       valid html. ET.tostring is not working properly on the result
-        #       tree.
-        return str(result_tree)
+        return html_string
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_available_xslt
+    # Description: Get the available xslt templates in the xslt folder.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_available_xslt(cls) -> List[str]:
+        """
+        Get the available xslt templates in the xslt folder.
+        """
+        xslt_routes: Dict[str, Path] = Config().xslt_routes
+        return list(xslt_routes.keys())
 
-        # return ET.tostring(
-        #     document_xml, xml_declaration=True, encoding="utf-8", pretty_print=True
-        # ).decode()
+    # ----------------------------------------------------------------------
+    # Method     : get_project_templates
+    # Description: Get the available project templates in the templates folder.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_project_templates(cls) -> List[str]:
+        """
+        Get the project templates in the proteus.xml project file. Note that
+        templates that are not in the app installation are ignored and not
+        saved when the project is saved.
+        """
+        project: Project = ProjectService.project
+        return project.xsl_templates
+    
+    # ----------------------------------------------------------------------
+    # Method     : add_project_template
+    # Description: Add a new project template to the project.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_project_template(cls, template_name: str) -> None:
+        """
+        Add a new project template to the project.
+
+        Triggers: Event.ADD_VIEW
+
+        :param template_name: The name of the template to add.
+        """
+        proteus.logger.info(f"Adding '{template_name}' template to the project")
+
+        ProjectService.add_project_template(template_name)
+
+        # Trigger ADD_VIEW event notifying the new template
+        EventManager.notify(Event.ADD_VIEW, xslt_name=template_name)
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_project_template
+    # Description: Delete a project template from the project.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def delete_project_template(cls, template_name: str) -> None:
+        """
+        Remove a project template from the project.
+
+        Triggers: Event.DELETE_VIEW
+
+        :param template_name: The name of the template to remove.
+        """
+        proteus.logger.info(f"Removing '{template_name}' template from the project")
+
+        ProjectService.delete_project_template(template_name)
+
+        # Trigger REMOVE_VIEW event
+        EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
+
 
     # ======================================================================
     # Archetype methods
@@ -466,9 +555,7 @@ class Controller:
         proteus.logger.info(
             f"Creating object from archetype: {archetype_id} and parent id: {parent_id}"
         )
-        cls._push(
-            CloneArchetypeObjectCommand(archetype_id, parent_id)
-        )
+        cls._push(CloneArchetypeObjectCommand(archetype_id, parent_id))
 
     # ----------------------------------------------------------------------
     # Method     : create_document

@@ -156,7 +156,7 @@ def test_get_object_archetypes_by_class(archetype_service: ArchetypeService):
     It tests the get_object_archetypes_by_class method.
     """
     # Fixture
-    OBJECT_CLASS = "general"
+    OBJECT_CLASS = "General"
 
     # Load the object archetypes list
     object_archetypes_by_class : List[Object] = archetype_service.get_object_archetypes_by_class(OBJECT_CLASS)

@@ -2,15 +2,21 @@
 # File: config.py
 # Description: the config paths for PROTEUS application
 # Date: 11/10/2022
-# Version: 0.1
+# Version: 0.2
 # Author: Amador Durán Toro
 #         Pablo Rivera Jiménez
+#         José María Delgado Sánchez
+# ==========================================================================
+# Update: 22/06/2023 (José María Delgado Sánchez)
+# Description:
+# - Convert the Config class into a singleton class.
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Dict
 from pathlib import Path
 from configparser import ConfigParser
 
@@ -26,21 +32,22 @@ import proteus
 
 CONFIG_FILE          : str = 'proteus.ini'
 DIRECTORIES          : str = 'directories'
+XSL_TEMPLATES        : str = 'xsl_templates'
+
 BASE_DIRECTORY       : str = 'base_directory'
 ARCHETYPES_DIRECTORY : str = 'archetypes_directory'
 RESOURCES_DIRECTORY  : str = 'resources_directory'
 ICONS_DIRECTORY      : str = 'icons_directory'
-XSLT_MAIN_FILE       : str = 'xslt_main_file'
+XSLT_DIRECTORY       : str = 'xslt_directory'
 
 # --------------------------------------------------------------------------
 # Class: Config
 # Description: Class for the Configuration PROTEUS application
 # Date: 11/10/2022
-# Version: 0.1
+# Version: 0.2
 # Author: Amador Durán Toro
 #         Pablo Rivera Jiménez
-# --------------------------------------------------------------------------
-# TODO: this should be a Qt application in the future
+#         José María Delgado Sánchez
 # --------------------------------------------------------------------------
 
 class Config:
@@ -75,10 +82,30 @@ class Config:
         self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
         self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
         self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
-        self.xslt_main_file       : Path = self.resources_directory / self.directories[XSLT_MAIN_FILE]
+        self.xslt_directory       : Path = self.resources_directory / self.directories[XSLT_DIRECTORY]
+
+        # XSL template routes
+        self.xslt_routes : Dict[str, Path] = self._create_xslt_routes()
 
         # Check application directories
         self.check_application_directories()
+
+    def _create_xslt_routes(self) -> Dict[str, Path]:
+        """
+        Private method that creates a dictionary with the XSLT routes.
+        """
+        # Initialize dictionary
+        xslt_routes : Dict[str, Path] = {}
+
+        # Get XSLT templates from config file
+        templates = self.config[XSL_TEMPLATES]
+
+        # Create XSLT route for each template, and add it to the dictionary
+        # with the template name as key
+        for template in templates:
+            xslt_routes[template] = self.xslt_directory / templates[template]
+
+        return xslt_routes
 
     def _create_config_parser(self) -> ConfigParser:
         """
@@ -141,4 +168,23 @@ class Config:
             f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
 
         proteus.logger.info("  Archetypes objects directory OK")
+
+        # Check if xslt directory exists
+        assert self.xslt_directory.is_dir(), \
+            f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
         
+        proteus.logger.info("  XSLT directory OK")
+        
+        # Check if default xsl templates exists in xslt dictionary
+        assert "default" in self.xslt_routes, \
+            f"PROTEUS xslt default template does not exist!"
+        
+        proteus.logger.info("  XSLT default template OK")
+        
+
+        # Check xsl templates loaded
+        for template in self.xslt_routes:
+            assert self.xslt_routes[template].exists(), \
+                f"PROTEUS xslt template '{self.xslt_routes[template]}' does not exist!"
+        
+        proteus.logger.info("  XSLT templates directories OK")
