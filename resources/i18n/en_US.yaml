@@ -1,0 +1,144 @@
+# ==========================================================================
+# File: en_US.yaml
+# Description: English translation file for the application. Translations
+#              are grouped by categories corresponding to different parts
+#              of the application.
+# Date: 26/06/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+#---------------------------------------------------------------------------
+# Main menu
+#---------------------------------------------------------------------------
+# Menu tabs
+main_menu.tab.home.name: "Home"
+main_menu.tab.general.name: "General"
+main_menu.tab.software_requirements.name: "Software requirements"
+
+# Fixed button groups
+main_menu.button_group.project: "Project"
+main_menu.button_group.document: "Document"
+main_menu.button_group.action: "Action"
+main_menu.button_group.settings: "Settings"
+
+# Archetype button groups
+main_menu.button_group.archetypes.general: "General arquetypes"
+main_menu.button_group.archetypes.software_requirements: "Software requirements arquetypes"
+
+# Fixed buttons
+new_project_button.statustip: "Create new project from a project template. Shortcut: Ctrl+N"
+new_project_button.tooltip: "Create new project\nCtrl+N"
+new_project_button.text: "New"
+
+open_project_button.statustip: "Open existing project from a project template. Shortcut: Ctrl+O"
+open_project_button.tooltip: "Open existing project\nCtrl+O"
+open_project_button.text: "Open"
+
+save_project_button.statustip: "Save all project changes. Saved actions cannot be reverted. Shortcut: Ctrl+S"
+save_project_button.tooltip: "Save project\nCtrl+S"
+save_project_button.text: "Save"
+
+undo_button.statustip: "Undo last action. Shortcut: Ctrl+Z"
+undo_button.tooltip: "Undo last action\nCtrl+Z"
+undo_button.text: "Undo"
+
+redo_button.statustip: "Redo last action. Shortcut: Ctrl+Y"
+redo_button.tooltip: "Redo last action\nCtrl+Y"
+redo_button.text: "Redo"
+
+project_properties_button.statustip: "Show project properties. Shortcut: Ctrl+P"
+project_properties_button.tooltip: "Project properties\nCtrl+P"
+project_properties_button.text: "Edit"
+
+add_document_button.statustip: "Add document to the project. Shortcut: Ctrl+D"
+add_document_button.tooltip: "Add document\nCtrl+D"
+add_document_button.text: "Add"
+
+delete_document_button.statustip: "Delete document from project."
+delete_document_button.tooltip: "Delete current document"
+delete_document_button.text: "Delete"
+
+settings_button.statustip: "Edit application settings"
+settings_button.tooltip: "Edit application settings"
+settings_button.text: "Edit"
+
+# Archetype buttons
+archetype_menu_button.paragraph: "Paragraph"
+archetype_menu_button.section: "Section"
+archetype_menu_button.us_logo: "US logo"
+archetype_menu_button.use_case: "Use case"
+archetype_menu_button.system_actor: "System actor"
+
+# Open project dialog
+main_menu.open_project.caption: "Open project"
+main_menu.open_project.error.title: "Error opening project"
+main_menu.open_project.error.text: "The project could not be opened"
+
+# Delete document dialog
+main_menu.delete_document.title: "Delete document"
+main_menu.delete_document.text: "Are you sure you want to delete the document {}?"
+
+
+# ---------------------------------------------------------------------------
+# Main window
+# ---------------------------------------------------------------------------
+main_window.title: "Proteus application"
+main_window.exit_dialog.title: "Exit Proteus without saving"
+main_window.exit_dialog.text: "Do you want to save changes before exiting Proteus?"
+main_window.statusbar.text.selected_object: "Current selected object: {} | Accepted archetypes by the object: {}"
+
+
+# ---------------------------------------------------------------------------
+# Document render
+# ---------------------------------------------------------------------------
+document_render.view.default: "Main"
+document_render.view.simple: "Simple"
+
+# ---------------------------------------------------------------------------
+# Document tree
+# ---------------------------------------------------------------------------
+document_tree.menu.action.edit: "Edit"
+document_tree.menu.action.delete: "Delete"
+document_tree.menu.action.clone: "Clone"
+document_tree.menu.action.move_up: "Move up"
+document_tree.menu.action.move_down: "Move down"
+
+# ---------------------------------------------------------------------------
+# New document dialog
+# ---------------------------------------------------------------------------
+new_document_dialog.title: "Add new Document"
+new_document_dialog.combobox.label: "Select document Archetype:"
+new_document_dialog.archetype.description: "Document Description:"
+new_document_dialog.error.no_archetype_selected: "Please select a valid document archetype"
+
+# ---------------------------------------------------------------------------
+# New project dialog
+# ---------------------------------------------------------------------------
+new_project_dialog.title: "Create new project"
+new_project_dialog.combobox.label: "Select Project Archetype:"
+new_project_dialog.archetype.description: "Project Description:"
+new_project_dialog.input.name: "Enter project name:"
+new_project_dialog.input.path: "Select project path:"
+new_project_dialog.error.no_archetype_selected: "Please select a valid project archetype"
+new_project_dialog.error.invalid_path: "Please select a valid project path"
+new_project_dialog.error.invalid_name: "Please enter a valid project name"
+
+# ---------------------------------------------------------------------------
+# New view dialog
+# ---------------------------------------------------------------------------
+new_view_dialog.title: "Add new view"
+new_view_dialog.combobox.label: "Select view:"
+new_view_dialog.info_text: "If you want to create a new view, contact with the administrator."
+new_view_dialog.error.no_view_selected: "Please select a valid view"
+new_view_dialog.error.duplicated_view: "The view already exists"
+
+# ---------------------------------------------------------------------------
+# Settings dialog
+# ---------------------------------------------------------------------------
+settings_dialog.title: "Proteus - settings"
+settings_dialog.language.label: "Select language:"
+settings_dialog.error.invalid_language: "Please select a valid language"
+settings_dialog.info.label: "The changes will be applied when you restart the application"
+es_es: "Spanish (Spain)"
+en_us: "English (United States)"

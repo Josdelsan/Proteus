@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
@@ -60,6 +61,8 @@ class NewViewDialog(QDialog):
         """
         super().__init__(parent, *args, **kwargs)
 
+        self.translator = Translator()
+
         # Create the component
         self.create_component()
 
@@ -75,26 +78,26 @@ class NewViewDialog(QDialog):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle("Add new view")
+        self.setWindowTitle(self.translator.text("new_view_dialog.title"))
 
         # Get available xls templates to create a new view
         xls_templates: List[str] = Controller.get_available_xslt()
 
         # Create a combo box with the available views
-        view_label: QLabel = QLabel("Select view:")
+        view_label: QLabel = QLabel(
+            self.translator.text("new_view_dialog.combobox.label")
+        )
         view_combo: QComboBox = QComboBox()
 
         # Add the view names to the combo box
         view_combo.addItems(xls_templates)
 
         # Create view message label
-        info_label: QLabel = QLabel(
-            "If you want to create a new view, contact with the administrator."
-        )
+        info_label: QLabel = QLabel(self.translator.text("new_view_dialog.info_text"))
 
         # Create Save and Cancel buttons
         button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
+            QDialogButtonBox.StandardButton.Open
             | QDialogButtonBox.StandardButton.Cancel
         )
 
@@ -131,16 +134,17 @@ class NewViewDialog(QDialog):
         """
         Manage the save button clicked event. It creates a new view from the
         selected xslt template.
-
-        Triggers ADD_VIEW event to handle the new view creation for every
-        document in the render component.
         """
         if combo_text is None:
-            self.error_label.setText("Please select a valid view.")
+            self.error_label.setText(
+                self.translator.text("new_view_dialog.error.no_view_selected")
+            )
             return
-        
+
         if combo_text in Controller.get_project_templates():
-            self.error_label.setText("The view already exists.")
+            self.error_label.setText(
+                self.translator.text("new_view_dialog.error.duplicated_view")
+            )
             return
 
         # Add the new template to the project and call the event

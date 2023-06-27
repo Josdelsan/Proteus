@@ -36,10 +36,12 @@ from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
+from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
@@ -75,6 +77,9 @@ class MainMenu(QDockWidget):
         different menus.
         """
         super().__init__(parent, *args, **kwargs)
+
+        # Get translator instance
+        self.translator = Translator()
 
         # Main menu buttons that are updated
         self.save_button: QToolButton = None
@@ -119,9 +124,6 @@ class MainMenu(QDockWidget):
         # ------------------
         # Component settings
         # ------------------
-        # Set tittle
-        self.setWindowTitle("Top menu")
-
         # Remove the tittle bar and set fixed height to prevent resizing
         self.setTitleBarWidget(QWidget())
         self.setFixedHeight(125)
@@ -130,7 +132,7 @@ class MainMenu(QDockWidget):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab("Project")
+        self.add_main_tab(self.translator.text("main_menu.tab.home.name"))
 
         # Get the object archetypes
         object_archetypes_dict: Dict[
@@ -186,7 +188,7 @@ class MainMenu(QDockWidget):
 
         # Add the buttons to the project menu widget
         project_menu: QWidget = buttons.button_group(
-            "Project",
+            "main_menu.button_group.project",
             [new_button, open_button, self.save_button, self.project_properties_button],
         )
         tab_layout.addWidget(project_menu)
@@ -204,7 +206,8 @@ class MainMenu(QDockWidget):
 
         # Add the buttons to the document menu widget
         document_menu: QWidget = buttons.button_group(
-            "Document", [self.add_document_button, self.delete_document_button]
+            "main_menu.button_group.document",
+            [self.add_document_button, self.delete_document_button],
         )
         tab_layout.addWidget(document_menu)
 
@@ -221,9 +224,25 @@ class MainMenu(QDockWidget):
 
         # Add the buttons to the action menu widget
         action_menu: QWidget = buttons.button_group(
-            "Action", [self.undo_button, self.redo_button]
+            "main_menu.button_group.action",
+            [self.undo_button, self.redo_button],
         )
         tab_layout.addWidget(action_menu)
+
+        # ---------
+        # Settings
+        # ---------
+        # Settings action
+        self.settings_button: QToolButton = buttons.settings_button(self)
+        self.settings_button.clicked.connect(SettingsDialog.create_dialog)
+
+        # Add the buttons to the settings menu widget
+        settings_menu: QWidget = buttons.button_group(
+            "main_menu.button_group.settings",
+            [self.settings_button],
+        )
+
+        tab_layout.addWidget(settings_menu)
 
         # ---------------------------------------------
 
@@ -274,9 +293,16 @@ class MainMenu(QDockWidget):
             # Add the archetype button to the buttons list
             buttons_list.append(archetype_button)
 
+        # Create text code for button group and bar names
+        # NOTE: This is part of the internationalization system. The text
+        #       code is used to retrieve the text from the translation files.
+        #       This has to be dynamic because archetype tabs are created
+        #       dynamically.
+        tab_name_code: str = f"main_menu.tab.{class_name}.name"
+        group_name_code: str = f"main_menu.button_group.archetypes.{class_name}"
+
         # Create the archetype button group
-        group_str: str = f"{class_name} archetypes"
-        archetype_menu: QWidget = buttons.button_group(group_str, buttons_list)
+        archetype_menu: QWidget = buttons.button_group(group_name_code, buttons_list)
         tab_layout.addWidget(archetype_menu)
 
         # Spacer to justify content left
@@ -284,7 +310,7 @@ class MainMenu(QDockWidget):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, class_name)
+        self.tab_widget.addTab(tab_widget, self.translator.text(tab_name_code))
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -348,7 +374,9 @@ class MainMenu(QDockWidget):
             # Iterate over the archetype buttons
             for archetype_id in self.archetype_buttons.keys():
                 # Get the archetype button
-                archetype_button: ArchetypeMenuButton = self.archetype_buttons[archetype_id]
+                archetype_button: ArchetypeMenuButton = self.archetype_buttons[
+                    archetype_id
+                ]
 
                 # Get the archetype
                 archetype: Object = Controller.get_archetype_by_id(archetype_id)
@@ -362,7 +390,8 @@ class MainMenu(QDockWidget):
 
                 # Enable or disable the archetype button
                 archetype_button.setEnabled(
-                    archetype_class in accepted_children or PROTEUS_ANY in accepted_children
+                    archetype_class in accepted_children
+                    or PROTEUS_ANY in accepted_children
                 )
 
     # ----------------------------------------------------------------------
@@ -426,7 +455,7 @@ class MainMenu(QDockWidget):
         # Open the file dialog
         directory_dialog: QFileDialog = QFileDialog(self)
         directory_path: str = directory_dialog.getExistingDirectory(
-            None, "Open Directory", ""
+            None, self.translator.text("main_menu.open_project.caption"), ""
         )
 
         # Load the project from the selected directory
@@ -439,8 +468,12 @@ class MainMenu(QDockWidget):
                 # Show an error message dialog
                 error_dialog = QMessageBox()
                 error_dialog.setIcon(QMessageBox.Icon.Critical)
-                error_dialog.setWindowTitle("Error")
-                error_dialog.setText("Error loading the project.")
+                error_dialog.setWindowTitle(
+                    self.translator.text("main_menu.open_project.error.title")
+                )
+                error_dialog.setText(
+                    self.translator.text("main_menu.open_project.error.text")
+                )
                 error_dialog.setInformativeText(str(e))
                 error_dialog.exec()
 
@@ -465,9 +498,11 @@ class MainMenu(QDockWidget):
         # Show a confirmation dialog
         confirmation_dialog = QMessageBox()
         confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-        confirmation_dialog.setWindowTitle("Delete document")
+        confirmation_dialog.setWindowTitle(
+            self.translator.text("main_menu.delete_document.title")
+        )
         confirmation_dialog.setText(
-            f"Are you sure you want to delete the document {document_name}?"
+            self.translator.text("main_menu.delete_document.text", document_name)
         )
         confirmation_dialog.setStandardButtons(
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No

@@ -36,6 +36,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID
 from proteus.model.project import Project
+from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
@@ -67,6 +68,8 @@ class NewProjectDialog(QDialog):
         """
         super().__init__(parent, *args, **kwargs)
 
+        self.translator = Translator()
+
         # Properties for creating a new project
         self._name: str = None
         self._path: str = None
@@ -90,7 +93,7 @@ class NewProjectDialog(QDialog):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle("Create new Project")
+        self.setWindowTitle(self.translator.text("new_project_dialog.title"))
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -100,7 +103,9 @@ class NewProjectDialog(QDialog):
         # Get project archetypes
         project_archetypes: List[Project] = Controller.get_project_archetypes()
         # Create a combo box with the project archetypes
-        archetype_label: QLabel = QLabel("Select Project Archetype:")
+        archetype_label: QLabel = QLabel(
+            self.translator.text("new_project_dialog.combobox.label")
+        )
         archetype_combo: QComboBox = QComboBox()
 
         archetype: Project = None
@@ -108,17 +113,21 @@ class NewProjectDialog(QDialog):
             archetype_combo.addItem(archetype.properties["name"].value)
 
         # Show the archetype description
-        description_label: QLabel = QLabel("Project Description:")
+        description_label: QLabel = QLabel(
+            self.translator.text("new_project_dialog.archetype.description")
+        )
         description_output: QLabel = QLabel()
 
         # Create the name input widget
-        name_label = QLabel("Enter Project Name:")
+        name_label = QLabel(self.translator.text("new_project_dialog.input.name"))
         # NOTE: Temporary solution to get the name of the project
         #       in save_button_clicked method
         self.name_input: QLineEdit = QLineEdit()
 
         # Create the path input widget
-        path_label: QLabel = QLabel("Select Project Path:")
+        path_label: QLabel = QLabel(
+            self.translator.text("new_project_dialog.input.path")
+        )
         path_input: QLabel = QLabel()
         browse_button = QPushButton("Browse")
 
@@ -204,15 +213,21 @@ class NewProjectDialog(QDialog):
         # TODO: This is a temporal solution for testing purposes.
         #       Create a proper validator and
         if self._name is None or self._name == "":
-            self.error_label.setText("Please enter a valid project name")
+            self.error_label.setText(
+                self.translator.text("new_project_dialog.error.invalid_name")
+            )
             return
 
         if self._path is None or self._path == "":
-            self.error_label.setText("Please select a valid project path")
+            self.error_label.setText(
+                self.translator.text("new_project_dialog.error.invalid_path")
+            )
             return
 
         if self._archetype_id is None:
-            self.error_label.setText("Please select a valid project archetype")
+            self.error_label.setText(
+                self.translator.text("new_project_dialog.error.no_archetype_selected")
+            )
             return
 
         # Create the project

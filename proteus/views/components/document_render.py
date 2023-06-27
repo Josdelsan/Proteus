@@ -33,6 +33,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 from proteus.controller.command_stack import Controller
 
@@ -67,8 +68,7 @@ class DocumentRender(QTabWidget):
         """
         super().__init__(parent, *args, **kwargs)
 
-        # Allow to close tabs
-        self.setTabsClosable(True)
+        self.translator = Translator()
 
         # Store the document id reference
         self.element_id: ProteusID = element_id
@@ -110,6 +110,9 @@ class DocumentRender(QTabWidget):
         """
         Create the document render component.
         """
+        # Allow to close tabs
+        self.setTabsClosable(True)
+
         xsl_templates: list[str] = Controller().get_project_templates()
         for xsl_template in xsl_templates:
             self.add_view(xsl_template)
@@ -125,7 +128,7 @@ class DocumentRender(QTabWidget):
         # Connect to new view dialog
         add_view_button.clicked.connect(NewViewDialog.create_dialog)
 
-        self.setCornerWidget(add_view_button, Qt.Corner.BottomRightCorner)
+        self.setCornerWidget(add_view_button, Qt.Corner.TopRightCorner)
 
     # ----------------------------------------------------------------------
     # Method     : add_view
@@ -154,11 +157,15 @@ class DocumentRender(QTabWidget):
         html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
         browser.setContent(html_array, "text/html")
 
+        # Build the tab code name
+        # NOTE: The tab code name is used to access the tab name internationalized
+        tab_code_name: str = f"document_render.view.{xslt_name}"
+
         # Set layout, add tab and store browser
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
         main_tab.setLayout(layout)
-        self.addTab(main_tab, xslt_name)
+        self.addTab(main_tab, self.translator.text(tab_code_name))
         self.browsers[xslt_name] = browser
 
     # ----------------------------------------------------------------------

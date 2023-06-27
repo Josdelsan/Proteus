@@ -31,14 +31,22 @@ import proteus
 # --------------------------------------------------------------------------
 
 CONFIG_FILE          : str = 'proteus.ini'
-DIRECTORIES          : str = 'directories'
+
+# Settings
+SETTINGS             : str = 'settings'
+LANGUAGE             : str = 'language'
+
+# XSL templates
 XSL_TEMPLATES        : str = 'xsl_templates'
 
+# Directories
+DIRECTORIES          : str = 'directories'
 BASE_DIRECTORY       : str = 'base_directory'
 ARCHETYPES_DIRECTORY : str = 'archetypes_directory'
 RESOURCES_DIRECTORY  : str = 'resources_directory'
 ICONS_DIRECTORY      : str = 'icons_directory'
 XSLT_DIRECTORY       : str = 'xslt_directory'
+I18N_DIRECTORY       : str = 'i18n_directory'
 
 # --------------------------------------------------------------------------
 # Class: Config
@@ -75,20 +83,41 @@ class Config:
 
         # Application configuration
         self.config : ConfigParser = self._create_config_parser()
-        self.directories = self.config[DIRECTORIES]
 
         # Application directories
+        self.directories = self.config[DIRECTORIES]
+
         self.base_directory       : Path = proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
         self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
-        self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
         self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
+        self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
         self.xslt_directory       : Path = self.resources_directory / self.directories[XSLT_DIRECTORY]
+        self.i18n_directory       : Path = self.resources_directory / self.directories[I18N_DIRECTORY]
 
         # XSL template routes
         self.xslt_routes : Dict[str, Path] = self._create_xslt_routes()
 
+        # Application settings
+        self.settings = self.config[SETTINGS]
+        self.language : str = self.settings[LANGUAGE]
+
         # Check application directories
         self.check_application_directories()
+
+    def save_user_settings(self, settings: Dict[str, str]) -> None:
+        """
+        It saves the user settings in the configuration file. The settings
+        will apply the next time the application is started.
+        """
+        # Update settings
+        for setting in settings:
+            proteus.logger.info(f"Setting {setting} updated to {settings[setting]}")
+            self.config.set(SETTINGS, setting, settings[setting])
+
+        # Save settings
+        with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, 'w') as configfile:
+            self.config.write(configfile)
+
 
     def _create_xslt_routes(self) -> Dict[str, Path]:
         """

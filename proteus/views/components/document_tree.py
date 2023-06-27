@@ -41,6 +41,7 @@ from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
 
@@ -48,6 +49,7 @@ from proteus.controller.command_stack import Controller
 # Global variables and constants
 # --------------------------------------------------------------------------
 
+# TODO: Avoid hardcoding paths
 config: Config = Config()
 TREE_ICONS_PATH = f"{config.icons_directory}/tree_icons"
 
@@ -101,6 +103,8 @@ class DocumentTree(QWidget):
         on update events using the element id.
         """
         super().__init__(parent, *args, **kwargs)
+
+        self.translator = Translator()
 
         # Set tree document id
         self.element_id: ProteusID = element_id
@@ -460,7 +464,9 @@ class DocumentTree(QWidget):
         context_menu: QMenu = QMenu(self)
 
         # Create the edit action --------------------------------------------
-        action_edit_object: QAction = QAction("Edit", self)
+        action_edit_object: QAction = QAction(
+            self.translator.text("document_tree.menu.action.edit"), self
+        )
         action_edit_object.triggered.connect(
             lambda: PropertyDialog.object_property_dialog(selected_item_id)
         )
@@ -470,7 +476,9 @@ class DocumentTree(QWidget):
         action_edit_object.setIcon(edit_icon)
 
         # Create the delete action ------------------------------------------
-        action_delete_object: QAction = QAction("Delete", self)
+        action_delete_object: QAction = QAction(
+            self.translator.text("document_tree.menu.action.delete"), self
+        )
         action_delete_object.triggered.connect(
             lambda: self.delete_object(selected_item_id)
         )
@@ -480,7 +488,9 @@ class DocumentTree(QWidget):
         action_delete_object.setIcon(delete_icon)
 
         # Create clone action -----------------------------------------------
-        action_clone_object: QAction = QAction("Clone", self)
+        action_clone_object: QAction = QAction(
+            self.translator.text("document_tree.menu.action.clone"), self
+        )
         action_clone_object.triggered.connect(
             lambda: Controller.clone_object(selected_item_id)
         )
@@ -490,7 +500,9 @@ class DocumentTree(QWidget):
         action_clone_object.setIcon(clone_icon)
 
         # Create move up action ---------------------------------------------
-        action_move_up_object: QAction = QAction("Move up", self)
+        action_move_up_object: QAction = QAction(
+            self.translator.text("document_tree.menu.action.move_up"), self
+        )
         action_move_up_object.triggered.connect(
             lambda: Controller.change_object_position(
                 selected_item_id, position_index - 1, parent_id
@@ -502,7 +514,9 @@ class DocumentTree(QWidget):
         action_move_up_object.setIcon(move_up_icon)
 
         # Create move down action -------------------------------------------
-        action_move_down_object: QAction = QAction("Move down", self)
+        action_move_down_object: QAction = QAction(
+            self.translator.text("document_tree.menu.action.move_down"), self
+        )
         # TODO: Fix change position method to avoid using +2
         action_move_down_object.triggered.connect(
             lambda: Controller.change_object_position(

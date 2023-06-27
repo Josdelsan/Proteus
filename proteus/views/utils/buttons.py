@@ -36,12 +36,15 @@ from PyQt6.QtCore import Qt, QSize
 
 from proteus.config import Config
 from proteus.model.object import Object
+from proteus.views.utils.translator import Translator
 
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
 
+translator: Translator = Translator()
 config: Config = Config()
+# TODO: Avoid hardcoding paths, this should be configurable
 ARCHETYPE_ICONS_PATH = f"{config.icons_directory}/archetypes"
 MENU_ICONS_PATH = f"{config.icons_directory}/main_menu"
 
@@ -56,7 +59,7 @@ def new_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     new_button = QToolButton(parent)
-    new_button.setFixedWidth(50)
+    new_button.setFixedWidth(55)
 
     # Set file icon
     file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
@@ -64,16 +67,14 @@ def new_project_button(parent: QWidget) -> QToolButton:
     new_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    new_button.setToolTip("Create new project\nCtrl+N")
-    new_button.setStatusTip(
-        "Create new project from a project template. Shortcut: Ctrl+N"
-    )
+    new_button.setToolTip(translator.text("new_project_button.tooltip"))
+    new_button.setStatusTip(translator.text("new_project_button.statustip"))
 
     # Set text
     new_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    new_button.setText("New")
+    new_button.setText(translator.text("new_project_button.text"))
 
-    # Set shorcut
+    # Set shortcut
     new_button.setShortcut("Ctrl+N")
 
     return new_button
@@ -81,11 +82,11 @@ def new_project_button(parent: QWidget) -> QToolButton:
 
 def open_project_button(parent: QWidget) -> QToolButton:
     """
-    Creates a open project button adapted to the PROTEUS application style.
+    Creates an open project button adapted to the PROTEUS application style.
     """
     # Create button with parent
     open_button = QToolButton(parent)
-    open_button.setFixedWidth(50)
+    open_button.setFixedWidth(55)
 
     # Set file icon
     file_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
@@ -93,16 +94,14 @@ def open_project_button(parent: QWidget) -> QToolButton:
     open_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    open_button.setToolTip("Open existing project\nCtrl+O")
-    open_button.setStatusTip(
-        "Open existing project from a project template. Shortcut: Ctrl+O"
-    )
+    open_button.setToolTip(translator.text("open_project_button.tooltip"))
+    open_button.setStatusTip(translator.text("open_project_button.statustip"))
 
     # Set text
     open_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    open_button.setText("Open")
+    open_button.setText(translator.text("open_project_button.text"))
 
-    # Set shorcut
+    # Set shortcut
     open_button.setShortcut("Ctrl+O")
 
     return open_button
@@ -114,7 +113,7 @@ def save_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     save_button = QToolButton(parent)
-    save_button.setFixedWidth(50)
+    save_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/save-button.svg"
@@ -124,16 +123,14 @@ def save_project_button(parent: QWidget) -> QToolButton:
     save_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    save_button.setToolTip("Save project\nCtrl+S")
-    save_button.setStatusTip(
-        "Save all project changes. Saved actions cannot be reverted. Shortcut: Ctrl+S"
-    )
+    save_button.setToolTip(translator.text("save_project_button.tooltip"))
+    save_button.setStatusTip(translator.text("save_project_button.statustip"))
 
     # Set text
     save_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    save_button.setText("Save")
+    save_button.setText(translator.text("save_project_button.text"))
 
-    # Set shorcut
+    # Set shortcut
     save_button.setShortcut("Ctrl+S")
 
     # Set enabled initial value
@@ -144,11 +141,11 @@ def save_project_button(parent: QWidget) -> QToolButton:
 
 def undo_button(parent: QWidget) -> QToolButton:
     """
-    Creates a undo button adapted to the PROTEUS application style.
+    Creates an undo button adapted to the PROTEUS application style.
     """
     # Create button with parent
     undo_button = QToolButton(parent)
-    undo_button.setFixedWidth(50)
+    undo_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/undo.svg"
@@ -158,14 +155,14 @@ def undo_button(parent: QWidget) -> QToolButton:
     undo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    undo_button.setToolTip("Undo last action\nCtrl+Z")
-    undo_button.setStatusTip("Undo last action. Shortcut: Ctrl+Z")
+    undo_button.setToolTip(translator.text("undo_button.tooltip"))
+    undo_button.setStatusTip(translator.text("undo_button.statustip"))
 
     # Set text
     undo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    undo_button.setText("Undo")
+    undo_button.setText(translator.text("undo_button.text"))
 
-    # Set shorcut
+    # Set shortcut
     undo_button.setShortcut("Ctrl+Z")
 
     # Set enabled initial value
@@ -180,7 +177,7 @@ def redo_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     redo_button = QToolButton(parent)
-    redo_button.setFixedWidth(50)
+    redo_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/redo.svg"
@@ -190,14 +187,14 @@ def redo_button(parent: QWidget) -> QToolButton:
     redo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    redo_button.setToolTip("Redo last action\nCtrl+Y")
-    redo_button.setStatusTip("Redo last action. Shortcut: Ctrl+Y")
+    redo_button.setToolTip(translator.text("redo_button.tooltip"))
+    redo_button.setStatusTip(translator.text("redo_button.statustip"))
 
     # Set text
     redo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    redo_button.setText("Redo")
+    redo_button.setText(translator.text("redo_button.text"))
 
-    # Set shorcut
+    # Set shortcut
     redo_button.setShortcut("Ctrl+Y")
 
     # Set enabled initial value
@@ -212,7 +209,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     properties_button = QToolButton(parent)
-    properties_button.setFixedWidth(50)
+    properties_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/edit-button.svg"
@@ -222,12 +219,14 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     properties_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    properties_button.setToolTip("Project properties\nCtrl+P")
-    properties_button.setStatusTip("Show project properties. Shortcut: Ctrl+P")
+    properties_button.setToolTip(translator.text("project_properties_button.tooltip"))
+    properties_button.setStatusTip(
+        translator.text("project_properties_button.statustip")
+    )
 
     # Set text
     properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    properties_button.setText("Edit")
+    properties_button.setText(translator.text("project_properties_button.text"))
 
     # Set shorcut
     properties_button.setShortcut("Ctrl+P")
@@ -244,7 +243,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     add_button = QToolButton(parent)
-    add_button.setFixedWidth(50)
+    add_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/new-file-button.svg"
@@ -254,12 +253,12 @@ def add_document_button(parent: QWidget) -> QToolButton:
     add_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    add_button.setToolTip("Add document\nCtrl+D")
-    add_button.setStatusTip("Add document to the project. Shortcut: Ctrl+D")
+    add_button.setToolTip(translator.text("add_document_button.tooltip"))
+    add_button.setStatusTip(translator.text("add_document_button.statustip"))
 
     # Set text
     add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    add_button.setText("Add")
+    add_button.setText(translator.text("add_document_button.text"))
 
     # Set shorcut
     add_button.setShortcut("Ctrl+D")
@@ -276,7 +275,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     delete_button = QToolButton(parent)
-    delete_button.setFixedWidth(50)
+    delete_button.setFixedWidth(55)
 
     # Set file icon
     icon_path = f"{MENU_ICONS_PATH}/delete-file-button.svg"
@@ -286,20 +285,45 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     delete_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    delete_button.setToolTip("Delete current document")
-    delete_button.setStatusTip("Delete document from project.")
+    delete_button.setToolTip(translator.text("delete_document_button.tooltip"))
+    delete_button.setStatusTip(translator.text("delete_document_button.statustip"))
 
     # Set text
     delete_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    delete_button.setText("Delete")
+    delete_button.setText(translator.text("delete_document_button.text"))
 
     # Set enabled initial value
     delete_button.setEnabled(False)
 
     return delete_button
 
+def settings_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a settings button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    settings_button = QToolButton(parent)
+    settings_button.setFixedWidth(55)
 
-def button_group(section_name: str, buttons: List[QToolButton]) -> QWidget:
+    # Set file icon
+    icon_path = f"{MENU_ICONS_PATH}/settings-button.svg"
+    button_icon = QIcon()
+    button_icon.addFile(icon_path, QSize(32, 32))
+    settings_button.setIcon(button_icon)
+    settings_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    settings_button.setToolTip(translator.text("settings_button.tooltip"))
+    settings_button.setStatusTip(translator.text("settings_button.statustip"))
+
+    # Set text
+    settings_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    settings_button.setText(translator.text("settings_button.text"))
+
+    return settings_button
+
+
+def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
     # Create the main widget
     widget = QWidget()
     widget.setContentsMargins(0, 0, 5, 0)
@@ -318,7 +342,7 @@ def button_group(section_name: str, buttons: List[QToolButton]) -> QWidget:
     layout.addWidget(separator, 1, 0, 1, len(buttons))
 
     # Add a centered label with the text "section" in the third row of the layout
-    section_label = QLabel(section_name)
+    section_label = QLabel(translator.text(section_name_code))
     section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     layout.addWidget(section_label, 2, 0, 1, len(buttons))
 
@@ -360,12 +384,13 @@ class ArchetypeMenuButton(QToolButton):
 
         # Set tooltip
         arch_name = archetype.properties["name"].value
+        arch_name_code = f"archetype_menu_button.{arch_name}"
         self.setToolTip(f"{arch_name}")
-        self.setStatusTip(f"Archetype {arch_name}, class {archetype.classes}")
+        self.setStatusTip(f"Archetype {translator.text(arch_name_code)}, class {archetype.classes}")
 
         # Set text
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.setText(arch_name)
+        self.setText(translator.text(arch_name_code))
 
         # Set enabled initial value
         self.setEnabled(False)

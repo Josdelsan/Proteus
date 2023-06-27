@@ -29,6 +29,7 @@ from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.document_list import DocumentList
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
@@ -61,6 +62,9 @@ class MainWindow(QMainWindow):
         """
         super().__init__(*args, **kwargs)
 
+        # Get the translator instance
+        self.translator = Translator()
+
         # Create the component
         self.create_component()
 
@@ -81,7 +85,7 @@ class MainWindow(QMainWindow):
         Create the main window for the PROTEUS application.
         """
         # Set the window title
-        self.setWindowTitle("Proteus application")
+        self.setWindowTitle(self.translator.text("main_window.title"))
 
         # Set the window size
         self.resize(1200, 800)
@@ -127,7 +131,7 @@ class MainWindow(QMainWindow):
 
         project = Controller.get_current_project()
         self.setWindowTitle(
-            f"Proteus application - {project.get_property('name').value}"
+            f"{self.translator.text('main_window.title')} - {project.get_property('name').value}"
         )
 
     # ----------------------------------------------------------------------
@@ -155,13 +159,17 @@ class MainWindow(QMainWindow):
         # If there is no selected object, return
         if selected_object_id is None:
             return
-        
+
         # Get the selected object and its name
         selected_object: Object = Controller.get_element(selected_object_id)
         object_name = selected_object.properties["name"].value
 
         # Message to show in the status bar
-        message: str = f"Current selected object: {object_name} | Accepted archetypes by the object: {selected_object.acceptedChildren}"
+        message: str = self.translator.text(
+            "main_window.statusbar.text.selected_object",
+            object_name,
+            selected_object.acceptedChildren,
+        )
 
         # Update the status bar with the temporary message
         self.statusBar().showMessage(message)
@@ -192,7 +200,7 @@ class MainWindow(QMainWindow):
         # Check if element id is project id
         if element_id == project.id:
             self.setWindowTitle(
-                f"Proteus application - {project.get_property('name').value}"
+                f"{self.translator.text('main_window.title')} - {project.get_property('name').value}"
             )
 
     # ======================================================================
@@ -206,6 +214,10 @@ class MainWindow(QMainWindow):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # NOTE: This method overrides the default closeEvent method for the
+    #       QMainWindow class. Close window dialog may be moved to its
+    #       own class in the dialog package but closeEvent method must
+    #       be overriden anyway.
     def closeEvent(self, event):
         """
         Handle the close event for the main window. Check if the project
@@ -231,9 +243,11 @@ class MainWindow(QMainWindow):
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-            confirmation_dialog.setWindowTitle("Exit Proteus without saving")
+            confirmation_dialog.setWindowTitle(
+                self.translator.text("main_window.exit_dialog.title")
+            )
             confirmation_dialog.setText(
-                "Do you want to save changes before exiting Proteus?"
+                self.translator.text("main_window.exit_dialog.text")
             )
             confirmation_dialog.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No

@@ -1,0 +1,144 @@
+# ==========================================================================
+# File: es_ES.yaml
+# Description: Archivo de traducción al español para la aplicación. Las traducciones
+#              están agrupadas por categorías correspondientes a diferentes partes
+#              de la aplicación.
+# Date: 26/06/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+#---------------------------------------------------------------------------
+# Menú principal
+#---------------------------------------------------------------------------
+# Pestañas del menú
+main_menu.tab.home.name: "Inicio"
+main_menu.tab.general.name: "General"
+main_menu.tab.software_requirements.name: "Requisitos del software"
+
+# Grupos de botones fijos
+main_menu.button_group.project: "Proyecto"
+main_menu.button_group.document: "Documento"
+main_menu.button_group.action: "Acción"
+main_menu.button_group.settings: "Configuración"
+
+# Grupos de botones de arquetipos
+main_menu.button_group.archetypes.general: "Arquetipos generales"
+main_menu.button_group.archetypes.software_requirements: "Arquetipos de requisitos de software"
+
+# Botones fijos
+new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"
+new_project_button.tooltip: "Crear nuevo proyecto\nCtrl+N"
+new_project_button.text: "Nuevo"
+
+open_project_button.statustip: "Abrir proyecto existente desde una plantilla de proyecto. Atajo: Ctrl+O"
+open_project_button.tooltip: "Abrir proyecto existente\nCtrl+O"
+open_project_button.text: "Abrir"
+
+save_project_button.statustip: "Guardar todos los cambios del proyecto. Las acciones guardadas no se pueden deshacer. Atajo: Ctrl+S"
+save_project_button.tooltip: "Guardar proyecto\nCtrl+S"
+save_project_button.text: "Guardar"
+
+undo_button.statustip: "Deshacer última acción. Atajo: Ctrl+Z"
+undo_button.tooltip: "Deshacer última acción\nCtrl+Z"
+undo_button.text: "Deshacer"
+
+redo_button.statustip: "Rehacer última acción. Atajo: Ctrl+Y"
+redo_button.tooltip: "Rehacer última acción\nCtrl+Y"
+redo_button.text: "Rehacer"
+
+project_properties_button.statustip: "Mostrar propiedades del proyecto. Atajo: Ctrl+P"
+project_properties_button.tooltip: "Propiedades del proyecto\nCtrl+P"
+project_properties_button.text: "Editar"
+
+add_document_button.statustip: "Agregar documento al proyecto. Atajo: Ctrl+D"
+add_document_button.tooltip: "Agregar documento\nCtrl+D"
+add_document_button.text: "Agregar"
+
+delete_document_button.statustip: "Eliminar documento del proyecto."
+delete_document_button.tooltip: "Eliminar documento actual"
+delete_document_button.text: "Eliminar"
+
+settings_button.statustip: "Editar configuración de la aplicación"
+settings_button.tooltip: "Editar configuración de la aplicación"
+settings_button.text: "Editar"
+
+# Archetype buttons
+archetype_menu_button.paragraph: "Párrafo"
+archetype_menu_button.section: "Sección"
+archetype_menu_button.us_logo: "US Logo"
+archetype_menu_button.use_case: "Caso de uso"
+archetype_menu_button.system_actor: "Actor del sistema"
+
+# Diálogo de abrir proyecto
+main_menu.open_project.caption: "Abrir proyecto"
+main_menu.open_project.error.title: "Error al abrir el proyecto"
+main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+
+# Diálogo de eliminar documento
+main_menu.delete_document.title: "Eliminar documento"
+main_menu.delete_document.text: "¿Está seguro de que desea eliminar el documento {}?"
+
+
+# ---------------------------------------------------------------------------
+# Ventana principal
+# ---------------------------------------------------------------------------
+main_window.title: "Aplicación Proteus"
+main_window.exit_dialog.title: "Salir de Proteus sin guardar"
+main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
+main_window.statusbar.text.selected_object: "Objeto seleccionado: {} | Arquetipos aceptados por el objeto: {}"
+
+
+# ---------------------------------------------------------------------------
+# Document render
+# ---------------------------------------------------------------------------
+document_render.view.default: "Principal"
+document_render.view.simple: "Simple"
+
+# ---------------------------------------------------------------------------
+# Document tree
+# ---------------------------------------------------------------------------
+document_tree.menu.action.edit: "Editar"
+document_tree.menu.action.delete: "Eliminar"
+document_tree.menu.action.clone: "Clonar"
+document_tree.menu.action.move_up: "Mover arriba"
+document_tree.menu.action.move_down: "Mover abajo"
+
+# ---------------------------------------------------------------------------
+# New document dialog
+# ---------------------------------------------------------------------------
+new_document_dialog.title: "Nuevo documento"
+new_document_dialog.combobox.label: "Seleccione un arquetipo de documento:"
+new_document_dialog.archetype.description: "Descripción:"
+new_document_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de documento"
+
+# ---------------------------------------------------------------------------
+# New project dialog
+# ---------------------------------------------------------------------------
+new_project_dialog.title: "Nuevo proyecto"
+new_project_dialog.combobox.label: "Seleccione un arquetipo de proyecto:"
+new_project_dialog.archetype.description: "Descripción:"
+new_project_dialog.input.name: "Nombre del proyecto:"
+new_project_dialog.input.path: "Ruta del proyecto:"
+new_project_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de proyecto"
+new_project_dialog.error.invalid_path: "Por favor, introduzca una ruta válida"
+new_project_dialog.error.invalid_name: "Por favor, introduzca un nombre válido"
+
+# ---------------------------------------------------------------------------
+# New view dialog
+# ---------------------------------------------------------------------------
+new_view_dialog.title: "Nueva vista"
+new_view_dialog.combobox.label: "Seleccione una vista:"
+new_view_dialog.info_text: "Si desea añadir una nueva vista, por favor contacte con el administrador del sistema."
+new_view_dialog.error.no_view_selected: "Debe seleccionar una vista"
+new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
+
+# ---------------------------------------------------------------------------
+# Settings dialog
+# ---------------------------------------------------------------------------
+settings_dialog.title: "Proteus - Configuración"
+settings_dialog.language.label: "Seleccione un idioma:"
+settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido"
+settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
+es_es: "Español (España)"
+en_us: "Inglés (Estados Unidos)"
