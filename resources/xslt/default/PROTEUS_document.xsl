@@ -2,29 +2,37 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_document.xsl                           -->
-<!-- Content : PROTEUS XSLT for subjects at US - main file    -->
+<!-- Content : PROTEUS XSLT for subjects at US - document     -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 
+<!-- ======================================================== -->
+<!-- exclude-result-prefixes="proteus" must be set in all     -->
+<!-- files to avoid xmlsn:proteus="." to appear in HTML tags. -->
+<!-- ======================================================== -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:proteus="http://proteus.us.es"
+    exclude-result-prefixes="proteus"
+>
     <!-- Match the root object of the document -->
-    <xsl:output method="html" doctype-public="XSLT-compat" omit-xml-declaration="yes" encoding="UTF-8" indent="yes" />
     <xsl:template match="object[@classes=':Proteus-document']">
         <!-- <!doctype html> -->
         <html>
             <head>
-                <meta charset="iso-8859-1"/>
+                <meta charset="utf-8"/>
                 <meta name="generatedBy" content="PROTEUS"/>
                 
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/remus.css"/>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/madeja.css"/>
                 
                 <title>
-                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                    <xsl:value-of select="$proteus:lang_project"/>
                     <xsl:text> </xsl:text>
+                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
                  </title>
             </head>
             <body>
@@ -35,7 +43,7 @@
                 
                 <!-- Table of contents -->
                 <nav id="toc" role="navigation">
-                    <h1>Index</h1>
+                    <h1><xsl:value-of select="$proteus:lang_TOC"/></h1>
                     <ul class="toc_list toc_list_level_1">
                         <xsl:apply-templates select="children/object[@classes='section']" mode="toc"/>
                     </ul>

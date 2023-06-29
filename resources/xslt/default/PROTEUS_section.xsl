@@ -2,17 +2,25 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_document.xsl                           -->
-<!-- Content : PROTEUS XSLT for subjects at US - main file    -->
+<!-- Content : PROTEUS XSLT for subjects at US - section      -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 
+<!-- ======================================================== -->
+<!-- exclude-result-prefixes="proteus" must be set in all     -->
+<!-- files to avoid xmlsn:proteus="." to appear in HTML tags. -->
+<!-- ======================================================== -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:proteus="http://proteus.us.es"
+    exclude-result-prefixes="proteus"
+>
     
     <!-- ============================================= -->
-    <!-- section template                          -->
+    <!-- section template                              -->
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='section']">
@@ -24,8 +32,10 @@
         <!-- Calculate the normalized header level -->
         <xsl:variable name="header_level">
             <xsl:choose>
-            <xsl:when test="$nest_level > 6">6</xsl:when>
-            <xsl:otherwise><xsl:value-of select="$nest_level"/></xsl:otherwise>
+                <xsl:when test="$nest_level > 6">6</xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$nest_level"/>
+                </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
 
@@ -49,7 +59,7 @@
     </xsl:template>
 
     <!-- ============================================= -->
-    <!-- section template in "toc" mode            -->
+    <!-- section template in "toc" mode                -->
     <!-- ============================================= -->
 
     <!-- A <ul> parent element is assumed              -->

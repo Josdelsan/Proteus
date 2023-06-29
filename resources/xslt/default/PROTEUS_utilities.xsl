@@ -2,21 +2,42 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_document.xsl                           -->
-<!-- Content : PROTEUS XSLT for subjects at US - main file    -->
+<!-- Content : PROTEUS XSLT for subjects at US - utilities    -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 
+<!-- ======================================================== -->
+<!-- exclude-result-prefixes="proteus" must be set in all     -->
+<!-- files to avoid xmlsn:proteus="." to appear in HTML tags. -->
+<!-- ======================================================== -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:proteus="http://proteus.us.es"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus"
+>
 
     <!-- Base URL for icons -->
     <xsl:variable name="base_url_icons">https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/images/icons/</xsl:variable>
 
-    <!-- Pagebreak -->
+    <!-- ============================================= -->
+    <!-- pagebreak template                            -->
+    <!-- ============================================= -->
+
     <xsl:template name="pagebreak">
         <div class="pagebreak"></div>
+    </xsl:template>
+
+    <!-- ============================================= -->
+    <!-- generate_markdown template                    -->
+    <!-- ============================================= -->
+
+    <xsl:template name="generate_markdown">
+        <xsl:param name="content" select="string(.)"/>
+        <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
     </xsl:template>
 
     <!-- ============================================= -->
@@ -74,16 +95,9 @@
                 <xsl:value-of select="$label"/>
             </th>
             <td colspan="{$span}">
-                <!-- <xsl:call-template name="generate_markdown">
-                    <xsl:with-param name="prefix"  select="$prefix"/>
-                    <xsl:with-param name="space_after_prefix" select="$space_after_prefix"/>
-                    <xsl:with-param name="node_class" select="$content_class"/>
-                    <xsl:with-param name="node"    select="$content"/>
-                    <xsl:with-param name="postfix" select="$postfix"/>
-                    <xsl:with-param name="space_before_postfix" select="$space_before_postfix"/>
-                    <xsl:with-param name="mode"    select="$mode"/>
-                </xsl:call-template> -->
-                <xsl:value-of select="$content"/>
+                <xsl:call-template name="generate_markdown">
+                    <xsl:with-param name="content" select="$content"/>
+                </xsl:call-template>
             </td>
         </tr>
     </xsl:template>
@@ -124,7 +138,7 @@
                 <td colspan="{$span}">
                     <xsl:choose>
                         <xsl:when test="not($content)">
-                            <span class="tbd"><xsl:text>TBD</xsl:text></span>
+                            <span class="tbd"><xsl:value-of select="$proteus:lang_TBD"/></span>
                         </xsl:when>
                         <xsl:otherwise>
                             <ul class="stakeholders">
@@ -146,20 +160,20 @@
     <xsl:template name="generate_directly_affected_objects">
         <tr>
             <th>
-                <xsl:value-of select="$rem:lang_directly_affected_objects"/>
+                <xsl:value-of select="$proteus:lang_directly_affected_objects"/>
             </th>
 
             <td>
                 <xsl:choose>
-                    <xsl:when test="not(rem:directlyAffects)">
-                        <span class="tbd"><xsl:value-of select="$rem:lang_TBD"/></span>
+                    <xsl:when test="not(proteus:directlyAffects)">
+                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD"/></span>
                     </xsl:when>
                     <xsl:otherwise>
                         <ul class="affected_objects">
-                            <xsl:for-each select="id(rem:directlyAffects/@affected)">
+                            <xsl:for-each select="id(proteus:directlyAffects/@affected)">
                                 <li>
                                     <a href="#{@oid}">
-                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="rem:name"/>
+                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name='name']"/>
                                     </a>
                                 </li>
                             </xsl:for-each>
@@ -177,20 +191,20 @@
     <xsl:template name="generate_indirectly_affected_objects">
         <tr>
             <th>
-                <xsl:value-of select="$rem:lang_indirectly_affected_objects"/>
+                <xsl:value-of select="$proteus:lang_indirectly_affected_objects"/>
             </th>
 
             <td>
                 <xsl:choose>
-                    <xsl:when test="not(rem:indirectlyAffects)">
-                        <span class="tbd"><xsl:value-of select="$rem:lang_TBD"/></span>
+                    <xsl:when test="not(proteus:indirectlyAffects)">
+                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD"/></span>
                     </xsl:when>
                     <xsl:otherwise>
                         <ul class="affected_objects">
-                            <xsl:for-each select="id(rem:indirectlyAffects/@affected)">
+                            <xsl:for-each select="id(proteus:indirectlyAffects/@affected)">
                                 <li>
                                     <a href="#{@oid}">
-                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="rem:name"/>
+                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name='name']"/>
                                     </a>
                                 </li>
                             </xsl:for-each>
@@ -206,15 +220,15 @@
     <!-- ============================== -->
 
     <xsl:template name="generate_alternatives">
-        <xsl:if test="rem:alternative">
+        <xsl:if test="proteus:alternative">
             <tr>
                 <th>
-                    <xsl:value-of select="$rem:lang_alternatives"/>
+                    <xsl:value-of select="$proteus:lang_alternatives"/>
                 </th>
 
                 <td>
                     <ol class="alternatives">
-                        <xsl:apply-templates select="rem:alternative"/>
+                        <xsl:apply-templates select="proteus:alternative"/>
                     </ol>
                 </td>
             </tr>
@@ -229,9 +243,9 @@
         <xsl:param name="span" select="1"/>
 
         <xsl:call-template name="generate_markdown_row">
-            <xsl:with-param name="label"   select="'Comments'"/>
+            <xsl:with-param name="label"   select="$proteus:lang_comments"/>
             <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-            <xsl:with-param name="content_class" select="'remus_comments'"/>
+            <xsl:with-param name="content_class" select="'proteus_comments'"/>
             <xsl:with-param name="mode"    select="'paragraph'"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
@@ -253,20 +267,20 @@
         </xsl:call-template>
 
         <xsl:call-template name="generate_simple_row">
-            <xsl:with-param name="label"   select="'Version'"/>
+            <xsl:with-param name="label"   select="$proteus:lang_version"/>
             <xsl:with-param name="content" select="properties/stringProperty[@name='version']"/>
-            <xsl:with-param name="content_class" select="'remus_version'"/>
+            <xsl:with-param name="content_class" select="'proteus_version'"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_stakeholders">
-            <xsl:with-param name="label"   select="'Author'"/>
+            <xsl:with-param name="label"   select="$proteus:lang_authors"/>
             <xsl:with-param name="content" select="properties/stringProperty[@name='createdBy']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_stakeholders">
-            <xsl:with-param name="label"   select="'Source'"/>
+            <xsl:with-param name="label"   select="$proteus:lang_sources"/>
             <xsl:with-param name="content" select="properties/stringProperty[@name='sources']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
@@ -281,26 +295,26 @@
         <xsl:param name="span" select="1"/>
 
         <xsl:call-template name="generate_simple_row">
-            <xsl:with-param name="label"   select="$rem:lang_importance"/>
-            <xsl:with-param name="content" select="id(rem:importance/@value)/rem:name"/>
+            <xsl:with-param name="label"   select="$proteus:lang_importance"/>
+            <xsl:with-param name="content" select="id(proteus:importance/@value)/proteus:name"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_simple_row">
-            <xsl:with-param name="label"   select="$rem:lang_urgency"/>
-            <xsl:with-param name="content" select="id(rem:urgency/@value)/rem:name"/>
+            <xsl:with-param name="label"   select="$proteus:lang_urgency"/>
+            <xsl:with-param name="content" select="id(proteus:urgency/@value)/proteus:name"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_simple_row">
-            <xsl:with-param name="label"   select="$rem:lang_status"/>
-            <xsl:with-param name="content" select="id(rem:status/@value)/rem:name"/>
+            <xsl:with-param name="label"   select="$proteus:lang_status"/>
+            <xsl:with-param name="content" select="id(proteus:status/@value)/proteus:name"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_simple_row">
-            <xsl:with-param name="label"   select="$rem:lang_stability"/>
-            <xsl:with-param name="content" select="id(rem:stability/@value)/rem:name"/>
+            <xsl:with-param name="label"   select="$proteus:lang_stability"/>
+            <xsl:with-param name="content" select="id(proteus:stability/@value)/proteus:name"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 

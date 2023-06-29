@@ -25,7 +25,6 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
@@ -42,10 +41,12 @@ from proteus.controller.commands.change_object_position import (
 )
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
+from proteus.services.render_service import RenderService
 from proteus.views.utils.event_manager import EventManager, Event
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
+
 
 
 # --------------------------------------------------------------------------
@@ -411,22 +412,10 @@ class Controller:
         """
         proteus.logger.info(f"Getting {xslt_name} view of document with id: {document_id}")
 
-        # Get the xslt file path and check if it exists in the app config
-        xslt_routes: Dict[str, Path] = Config().xslt_routes
-        assert (
-            xslt_name in xslt_routes
-        ), f"XSLT file {xslt_name} not found in config file"
-        XSL_TEMPLATE = Config().xslt_routes[xslt_name]
-
         # Get the document xml
         xml: ET.Element = ProjectService.generate_document_xml(document_id)
 
-        # Create the transformer from the xsl file
-        transform = ET.XSLT(ET.parse(XSL_TEMPLATE))
-        result_tree: ET._XSLTResultTree = transform(xml)
-
-        # Serialize the HTML root to a string
-        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True)
+        html_string: str = RenderService().render(xml, xslt_name)
 
         return html_string
     
@@ -442,8 +431,7 @@ class Controller:
         """
         Get the available xslt templates in the xslt folder.
         """
-        xslt_routes: Dict[str, Path] = Config().xslt_routes
-        return list(xslt_routes.keys())
+        return RenderService().get_available_xslt()
 
     # ----------------------------------------------------------------------
     # Method     : get_project_templates

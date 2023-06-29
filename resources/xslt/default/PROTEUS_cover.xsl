@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- PROTEUS_cover.xsl -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
+<!-- ======================================================== -->
+<!-- File    : PROTEUS_cover.xsl                              -->
+<!-- Content : PROTEUS XSLT for subjects at US - cover        -->
+<!-- Author  : José María Delgado Sánchez                     -->
+<!-- Date    : 2023/06/09                                     -->
+<!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+
+<!-- ======================================================== -->
+<!-- exclude-result-prefixes="proteus" must be set in all     -->
+<!-- files to avoid xmlsn:proteus="." to appear in HTML tags. -->
+<!-- ======================================================== -->
+
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:proteus="http://proteus.us.es"
+    exclude-result-prefixes="proteus"
+>
     <xsl:template name="document_cover">
 
         <div id="document_cover">
             <a id="{@id}"></a>
     
             <div id="project_name">
+                <xsl:value-of select="$proteus:lang_project"/>
+                <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name='name']"/>
             </div>
     
@@ -20,20 +38,20 @@
             </div>
     
             <div id="document_version">
-                <xsl:text>Version</xsl:text>
+                <xsl:value-of select="$proteus:lang_version"/>
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name='version']"/>
             </div>
     
             <div id="document_date">
-                <xsl:text>Date</xsl:text>
+                <xsl:value-of select="$proteus:lang_date"/>
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/dateProperty[@name='date']"/>
             </div>
     
     
             <div id="document_prepared_by">
-                <xsl:text>Author</xsl:text>
+                <xsl:value-of select="$proteus:lang_prepared_by"/>
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name='author']"/>
             </div>
