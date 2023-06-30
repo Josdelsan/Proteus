@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List, Dict
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -43,6 +44,9 @@ from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------
@@ -145,7 +149,7 @@ class MainMenu(QDockWidget):
         # Set the tab widget as the main widget of the component
         self.setWidget(self.tab_widget)
 
-        proteus.logger.info("Main menu component created")
+        log.info("Main menu component created")
 
     # ----------------------------------------------------------------------
     # Method     : add_main_tab
@@ -463,7 +467,7 @@ class MainMenu(QDockWidget):
             try:
                 Controller.load_project(project_path=directory_path)
             except Exception as e:
-                proteus.logger.error(e)
+                log.error(e)
 
                 # Show an error message dialog
                 error_dialog = QMessageBox()

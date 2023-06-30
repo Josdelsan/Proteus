@@ -94,6 +94,8 @@ main_window.statusbar.text.selected_object: "Objeto seleccionado: {} | Arquetipo
 # ---------------------------------------------------------------------------
 document_render.view.default: "Principal"
 document_render.view.simple: "Simple"
+document_render.external_link: "Enlace externo"
+document_render.external_link.text: "¿Desea abrir el enlace externo al documento en su navegador web? {}"
 
 # ---------------------------------------------------------------------------
 # Document tree

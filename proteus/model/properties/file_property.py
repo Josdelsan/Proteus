@@ -15,6 +15,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 from pathlib import Path
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -26,10 +27,11 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import FILE_PROPERTY_TAG
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: FileProperty
@@ -59,7 +61,7 @@ class FileProperty(Property):
             if not (Path(self.value).exists()):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"File property '{self.name}': file '{self.value}' does not exist. Please check.")
+            log.warning(f"File property '{self.name}': file '{self.value}' does not exist. Please check.")
 
         # TODO: how to access project path and make relative file path from it?
 

@@ -13,6 +13,7 @@
 from typing import Dict
 from pathlib import Path
 import yaml
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,9 +24,10 @@ import yaml
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.config import Config
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: Translator
@@ -59,7 +61,7 @@ class Translator:
         It creates a singleton instance for Translator class.
         """
         if not cls.__instance:
-            proteus.logger.info("Creating Translator instance")
+            log.info("Creating Translator instance")
             cls.__instance = super(Translator, cls).__new__(cls)
             cls.__instance._initialized = False
         return cls.__instance
@@ -95,7 +97,7 @@ class Translator:
         Loads the translations for the current language. Reads the yaml file
         for the given language and returns a dictionary with the translations.
         """
-        proteus.logger.info(f"Loading translations for {self.current_language}")
+        log.info(f"Loading translations for {self.current_language}")
 
         # Build the path to the translations file
         translation_file: Path = (
@@ -141,7 +143,7 @@ class Translator:
         except KeyError:
             # If translation not found return the key itself
             translation = key
-            proteus.logger.warning(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
+            log.warning(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
 
         # Check if there are arguments to format the translation
         if args:

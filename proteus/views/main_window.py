@@ -10,6 +10,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import logging
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -32,6 +34,8 @@ from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: MainWindow
@@ -101,7 +105,7 @@ class MainWindow(QMainWindow):
         # Create the status bar
         self.statusBar().showNormal()
 
-        proteus.logger.info("Main window component created")
+        log.info("Main window component created")
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)

@@ -14,6 +14,7 @@
 
 from dataclasses import dataclass
 from typing import ClassVar
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -29,6 +30,8 @@ import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import INTEGER_PROPERTY_TAG
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: IntegerProperty
@@ -61,7 +64,7 @@ class IntegerProperty(Property):
             object.__setattr__(self, 'value', int(self.value))
             
         except ValueError:
-            proteus.logger.warning(f"Integer property '{self.name}': Wrong format ({self.value}) -> assigning 0 value")
+            log.warning(f"Integer property '{self.name}': Wrong format ({self.value}) -> assigning 0 value")
             # self.value = int(0) cannot be used when frozen=True
             object.__setattr__(self, 'value', int(0))
 

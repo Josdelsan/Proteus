@@ -14,6 +14,7 @@
 
 from dataclasses import dataclass
 from typing import ClassVar
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -29,6 +30,16 @@ import proteus
 from proteus.model.properties import Property
 from proteus.model.properties import ENUM_PROPERTY_TAG, CHOICES_TAG
 
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
+import datetime
+from dataclasses import dataclass
+from typing import ClassVar
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class EnumProperty(Property):
@@ -57,7 +68,7 @@ class EnumProperty(Property):
             if (not bool(self.value)) and (not bool(_choices)):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': empty set of choices and no value, please check.")
+            log.warning(f"Enum property '{self.name}': empty set of choices and no value, please check.")
             return
 
         # Validate value (spaces into underscores)
@@ -65,7 +76,7 @@ class EnumProperty(Property):
             if (' ' in self.value):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': values cannot contain spaces -> replaced by underscores")
+            log.warning(f"Enum property '{self.name}': values cannot contain spaces -> replaced by underscores")
             # self.value = self.value.replace(' ', '_') cannot be used when frozen=True
             object.__setattr__(self, 'value', self.value.replace(' ', '_'))
 
@@ -74,7 +85,7 @@ class EnumProperty(Property):
             if not bool(_choices):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': Empty set of choices -> using value '{self.value}' as the only choice")
+            log.warning(f"Enum property '{self.name}': Empty set of choices -> using value '{self.value}' as the only choice")
             # self.choices = self.value cannot be used when frozen=True
             object.__setattr__(self, 'choices', self.value)
             return
@@ -84,7 +95,7 @@ class EnumProperty(Property):
             if self.value not in self.get_choices_as_set():
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"Enum property '{self.name}': invalid value -> assigning first choice '{_choices[0]}'")
+            log.warning(f"Enum property '{self.name}': invalid value -> assigning first choice '{_choices[0]}'")
             # self.value = random.choice(list(_choices)) if bool(_choices) else str() cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', _choices[0])

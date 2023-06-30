@@ -16,14 +16,17 @@ from typing import Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QByteArray
+from PyQt6.QtCore import Qt, QByteArray, QUrl, QPoint
+from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QPushButton,
     QTabWidget,
     QStyle,
+    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
@@ -78,6 +81,9 @@ class DocumentRender(QTabWidget):
         # NOTE: Dictionaries are ordered since Python 3.7. We can parse the
         #       dict to a list to get the browsers in the same order as the
         #       tabs.
+        # NOTE: QWebEngineView is used instead QTextBrowser because it supports
+        #       javascript, external resources and other features that are
+        #       needed to render the document.
         # TODO: Find an alternative to avoid using multiple browsers. It
         #       has an impact on memory usage but is faster than setHtml.
         #       Multiple browsers are a solution to QTabWidget since a
@@ -146,8 +152,12 @@ class DocumentRender(QTabWidget):
 
         # Create browser
         browser: QWebEngineView = QWebEngineView(self)
+        browser.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         layout.addWidget(browser)
 
+        # Create document page using subclass
+        document_page: DocumentPage = DocumentPage(parent=browser, translator=self.translator)
+        
         # Get html from controller
         html_str: str = Controller().get_document_view(self.element_id, xslt_name)
 
@@ -155,7 +165,8 @@ class DocumentRender(QTabWidget):
         # NOTE: This is done to avoid 2mb limit on setHtml method
         # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
         html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-        browser.setContent(html_array, "text/html")
+        document_page.setContent(html_array, "text/html")
+        browser.setPage(document_page)
 
         # Build the tab code name
         # NOTE: The tab code name is used to access the tab name internationalized
@@ -228,6 +239,7 @@ class DocumentRender(QTabWidget):
                 # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
                 html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
                 browser.setContent(html_array, "text/html")
+
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -342,3 +354,71 @@ class DocumentRender(QTabWidget):
 
         # Delete the view
         Controller().delete_project_template(xslt_name)
+
+
+# --------------------------------------------------------------------------
+# Class: DocumentPage
+# Description: Document Page class. Subclass of QWebEnginePage.
+# Date: 30/06/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class DocumentPage(QWebEnginePage):
+    """
+    Subclass of QWebEnginePage. Used to override the acceptNavigationRequest
+    method to avoid opening external links in the browser.
+    """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Initialize the class.
+    # Date       : 30/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(self, parent, translator: Translator, *args, **kargs) -> None:
+        """
+        Initialize the class.
+        """
+        super().__init__(parent, *args, **kargs)
+        self.translator: Translator = translator
+
+    # ----------------------------------------------------------------------
+    # Method     : acceptNavigationRequest
+    # Description: Override the acceptNavigationRequest method to avoid
+    #              opening external links in the browser.
+    # Date       : 30/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def acceptNavigationRequest(
+        self, url: QUrl, _type: QWebEnginePage.NavigationType, isMainFrame: bool
+    ) -> bool:
+        """
+        Override the acceptNavigationRequest method to avoid opening
+        external links in the browser. If the link is a link to an
+        external page, ask the user if he wants to open it in system
+        default browser.
+        """
+        # If the link is a link to an external page, ask the user if he
+        # wants to open it in system default browser.
+        if _type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked and not url.isLocalFile():
+            # Ask the user if he wants to open the link in the system
+            # default browser
+            reply: QMessageBox.StandardButton = QMessageBox.question(
+                None,
+                self.translator.text("document_render.external_link"),
+                self.translator.text("document_render.external_link.text", url.toString()),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+
+            # If the user wants to open the link in the system default
+            # browser, open it
+            if reply == QMessageBox.StandardButton.Yes:
+                QDesktopServices.openUrl(url)
+                return False
+            else:
+                return False
+
+        return super().acceptNavigationRequest(url, _type, isMainFrame)

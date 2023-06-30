@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List, Dict, Union
-from pathlib import Path
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -47,7 +47,8 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
 
-
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: CommandStack
@@ -126,7 +127,7 @@ class Controller:
         """
         Undo the last command. Only works if the command is undoable.
         """
-        proteus.logger.info(
+        log.info(
             f"Undoing last command [ {cls._get_instance().undoText()} ]"
         )
         cls._get_instance().undo()
@@ -144,7 +145,7 @@ class Controller:
         Redo the last command. Only works if the command is
         undoable/redoable.
         """
-        proteus.logger.info(
+        log.info(
             f"Redoing last command [ {cls._get_instance().redoText()} ]"
         )
         cls._get_instance().redo()
@@ -176,7 +177,7 @@ class Controller:
         :param new_properties: The new properties of the element.
         """
         # Push the command to the command stack
-        proteus.logger.info(
+        log.info(
             f"Updating properties of element with id: {element_id}. New properties: {new_properties}"
         )
         cls._push(UpdatePropertiesCommand(element_id, new_properties))
@@ -204,7 +205,7 @@ class Controller:
         assert object_id is not None, "Object id can not be None"
 
         # Push the command to the command stack
-        proteus.logger.info(f"Cloning object with id: {object_id}")
+        log.info(f"Cloning object with id: {object_id}")
         cls._push(CloneObjectCommand(object_id))
 
     # ----------------------------------------------------------------------
@@ -227,7 +228,7 @@ class Controller:
         :param object_id: The id of the object to delete.
         """
         # Push the command to the command stack
-        proteus.logger.info(f"Deleting object with id: {object_id}")
+        log.info(f"Deleting object with id: {object_id}")
         cls._push(DeleteObjectCommand(object_id))
 
     # ----------------------------------------------------------------------
@@ -255,7 +256,7 @@ class Controller:
         :param new_parent_id: The new parent of the object.
         """
         # Push the command to the command stack
-        proteus.logger.info(
+        log.info(
             f"Changing position of object with id: {object_id} to {new_position}"
         )
         cls._push(ChangeObjectPositionCommand(object_id, new_position, new_parent_id))
@@ -280,7 +281,7 @@ class Controller:
         :param document_id: The id of the document to delete.
         """
         # Push the command to the command stack
-        proteus.logger.info(f"Deleting document with id: {document_id}")
+        log.info(f"Deleting document with id: {document_id}")
         cls._push(DeleteDocumentCommand(document_id))
 
     # ----------------------------------------------------------------------
@@ -300,7 +301,7 @@ class Controller:
 
         :param project_path: The path of the project to load.
         """
-        proteus.logger.info(f"Loading project from path: {project_path}")
+        log.info(f"Loading project from path: {project_path}")
         ProjectService.load_project(project_path)
         EventManager().notify(event=Event.OPEN_PROJECT)
 
@@ -316,7 +317,7 @@ class Controller:
         """
         Get the structure of an object given its id.
         """
-        proteus.logger.info(f"Getting structure of object with id: {object_id}")
+        log.info(f"Getting structure of object with id: {object_id}")
         return ProjectService.get_object_structure(object_id)
 
     # ----------------------------------------------------------------------
@@ -331,7 +332,7 @@ class Controller:
         """
         Get the structure of the current project.
         """
-        proteus.logger.info("Getting structure of current project")
+        log.info("Getting structure of current project")
         return ProjectService.get_project_structure()
 
     # ----------------------------------------------------------------------
@@ -348,7 +349,7 @@ class Controller:
         Save the current project state including all the children objects
         and documents.
         """
-        proteus.logger.info("Saving current project")
+        log.info("Saving current project")
         ProjectService.save_project()
         cls._get_instance().clear()
         EventManager().notify(event=Event.SAVE_PROJECT)
@@ -410,7 +411,7 @@ class Controller:
         :param document_id: The id of the document to get the view.
         :param xslt_name: The name of the xslt file to use.
         """
-        proteus.logger.info(f"Getting {xslt_name} view of document with id: {document_id}")
+        log.info(f"Getting {xslt_name} view of document with id: {document_id}")
 
         # Get the document xml
         xml: ET.Element = ProjectService.generate_document_xml(document_id)
@@ -466,7 +467,7 @@ class Controller:
 
         :param template_name: The name of the template to add.
         """
-        proteus.logger.info(f"Adding '{template_name}' template to the project")
+        log.info(f"Adding '{template_name}' template to the project")
 
         ProjectService.add_project_template(template_name)
 
@@ -489,7 +490,7 @@ class Controller:
 
         :param template_name: The name of the template to remove.
         """
-        proteus.logger.info(f"Removing '{template_name}' template from the project")
+        log.info(f"Removing '{template_name}' template from the project")
 
         ProjectService.delete_project_template(template_name)
 
@@ -518,7 +519,7 @@ class Controller:
         :param name: The name of the project.
         :param path: The path of the project.
         """
-        proteus.logger.info(
+        log.info(
             f"Creating project with archetype id: {archetype_id}, name: {name} and path: {path}"
         )
         ArchetypeService.create_project(archetype_id, name, path)
@@ -540,7 +541,7 @@ class Controller:
 
         :param archetype_id: The id of the archetype to create the object.
         """
-        proteus.logger.info(
+        log.info(
             f"Creating object from archetype: {archetype_id} and parent id: {parent_id}"
         )
         cls._push(CloneArchetypeObjectCommand(archetype_id, parent_id))
@@ -559,7 +560,7 @@ class Controller:
 
         :param archetype_id: The id of the archetype to create the document.
         """
-        proteus.logger.info(f"Creating document from archetype: {archetype_id}")
+        log.info(f"Creating document from archetype: {archetype_id}")
         cls._push(CloneArchetypeDocumentCommand(archetype_id))
 
     # ----------------------------------------------------------------------
@@ -574,7 +575,7 @@ class Controller:
         """
         Get project archetypes.
         """
-        proteus.logger.info("Getting project archetypes")
+        log.info("Getting project archetypes")
         return ArchetypeService.get_project_archetypes()
 
     # ----------------------------------------------------------------------
@@ -589,7 +590,7 @@ class Controller:
         """
         Get object archetypes.
         """
-        proteus.logger.info("Getting object archetypes")
+        log.info("Getting object archetypes")
         return ArchetypeService.get_object_archetypes()
 
     # ----------------------------------------------------------------------
@@ -604,7 +605,7 @@ class Controller:
         """
         Get document archetypes.
         """
-        proteus.logger.info("Getting document archetypes")
+        log.info("Getting document archetypes")
         return ArchetypeService.get_document_archetypes()
 
     # ----------------------------------------------------------------------

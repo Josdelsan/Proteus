@@ -19,12 +19,20 @@
 from typing import Dict
 from pathlib import Path
 from configparser import ConfigParser
+import logging
+
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 import proteus
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Constant declarations for PROTEUS configuration file keys
@@ -111,7 +119,7 @@ class Config:
         """
         # Update settings
         for setting in settings:
-            proteus.logger.info(f"Setting {setting} updated to {settings[setting]}")
+            log.info(f"Setting {setting} updated to {settings[setting]}")
             self.config.set(SETTINGS, setting, settings[setting])
 
         # Save settings
@@ -155,60 +163,60 @@ class Config:
         """
         It checks that essential PROTEUS directories exist.
         """
-        proteus.logger.info("Checking PROTEUS directories...")
+        log.info("Checking PROTEUS directories...")
 
         # Check if resources directory exists
         assert self.resources_directory.is_dir(), \
             f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
 
-        proteus.logger.info("  Resources directory OK")
+        log.info("  Resources directory OK")
 
 
         # Check if icons directory exists
         assert self.icons_directory.is_dir(), \
             f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
 
-        proteus.logger.info("  Icons directory OK")
+        log.info("  Icons directory OK")
 
 
         # Check if archetypes directory exists
         assert self.archetypes_directory.is_dir(), \
             f"PROTEUS archetypes directory '{self.archetypes_directory}' does not exist!"
 
-        proteus.logger.info("  Archetypes directory OK")
+        log.info("  Archetypes directory OK")
 
         
         # Check if projects archetypes exists
         assert (self.archetypes_directory / "projects").is_dir(), \
             f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
 
-        proteus.logger.info("  Archetypes projects directory OK")
+        log.info("  Archetypes projects directory OK")
 
 
         # Check if documents archetypes exists
         assert (self.archetypes_directory / "documents").is_dir(), \
             f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
 
-        proteus.logger.info("  Archetypes documents directory OK")
+        log.info("  Archetypes documents directory OK")
 
 
         # Check if objects archetypes exists
         assert (self.archetypes_directory / "objects").is_dir(), \
             f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
 
-        proteus.logger.info("  Archetypes objects directory OK")
+        log.info("  Archetypes objects directory OK")
 
         # Check if xslt directory exists
         assert self.xslt_directory.is_dir(), \
             f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
         
-        proteus.logger.info("  XSLT directory OK")
+        log.info("  XSLT directory OK")
         
         # Check if default xsl templates exists in xslt dictionary
         assert "default" in self.xslt_routes, \
             f"PROTEUS xslt default template does not exist!"
         
-        proteus.logger.info("  XSLT default template OK")
+        log.info("  XSLT default template OK")
         
 
         # Check xsl templates loaded
@@ -216,4 +224,4 @@ class Config:
             assert self.xslt_routes[template].exists(), \
                 f"PROTEUS xslt template '{self.xslt_routes[template]}' does not exist!"
         
-        proteus.logger.info("  XSLT templates directories OK")
+        log.info("  XSLT templates directories OK")

@@ -15,6 +15,7 @@
 import datetime
 from dataclasses import dataclass
 from typing import ClassVar
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -30,6 +31,9 @@ import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import TIME_PROPERTY_TAG, TIME_FORMAT
 
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: TimeProperty
@@ -61,7 +65,7 @@ class TimeProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', datetime.datetime.strptime(self.value, TIME_FORMAT).time())
         except ValueError:
-            proteus.logger.warning(f"Time property '{self.name}': Wrong format ({self.value}). Please use HH:MM:SS -> assigning now's time")
+            log.warning(f"Time property '{self.name}': Wrong format ({self.value}). Please use HH:MM:SS -> assigning now's time")
             # self.value = datetime.datetime.now().time() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.datetime.now().time())
 

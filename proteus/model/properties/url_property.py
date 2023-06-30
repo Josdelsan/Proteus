@@ -14,6 +14,7 @@
 
 from dataclasses import dataclass
 from typing import ClassVar
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -30,7 +31,8 @@ import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import URL_PROPERTY_TAG
 
-
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: UrlProperty
@@ -61,7 +63,7 @@ class UrlProperty(Property):
             if not validators.url(self.value):
                 raise ValueError
         except ValueError:
-            proteus.logger.warning(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
+            log.warning(f"URL property '{self.name}': Wrong format ({self.value}). Please check.")
 
     @property
     def is_valid(self) -> bool:

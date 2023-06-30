@@ -1,10 +1,3 @@
-# --------------------------------------------------------------------------
-# Standard library imports
-# --------------------------------------------------------------------------
-
-import datetime
-from dataclasses import dataclass
-from typing import ClassVar
 # ==========================================================================
 # File: date_property.py
 # Description: PROTEUS date property
@@ -14,6 +7,15 @@ from typing import ClassVar
 #         Pablo Rivera Jiménez
 #         José María Delgado Sánchez    
 # ==========================================================================
+
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
+import datetime
+from dataclasses import dataclass
+from typing import ClassVar
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -29,6 +31,8 @@ import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import DATE_PROPERTY_TAG, DATE_FORMAT
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: DateProperty
@@ -59,7 +63,7 @@ class DateProperty(Property):
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'value', datetime.datetime.strptime(self.value, DATE_FORMAT).date())
         except ValueError:
-            proteus.logger.warning(f"Date property '{self.name}': Wrong format ({self.value}). Please use YYYY-MM-DD -> assigning today's date")
+            log.warning(f"Date property '{self.name}': Wrong format ({self.value}). Please use YYYY-MM-DD -> assigning today's date")
             # self.value = datetime.date.today() cannot be used when frozen=True
             object.__setattr__(self, 'value', datetime.date.today())
 

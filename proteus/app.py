@@ -12,6 +12,7 @@
 
 from pathlib import Path
 import sys
+import logging
 
 # --------------------------------------------------------------------------
 # Third party imports
@@ -23,7 +24,6 @@ from PyQt6.QtWidgets import QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 import lxml.etree as ET
 from proteus.config import Config
 from proteus.model.abstract_object import ProteusState
@@ -33,14 +33,15 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.properties import EnumProperty, Property, StringProperty
 from proteus.views.main_window import MainWindow
 
+# logging configuration
+log = logging.getLogger(__name__)
+
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
 # Description: Class for the PROTEUS application
 # Date: 09/10/2022
 # Version: 0.1
 # Author: Amador Durán Toro
-# --------------------------------------------------------------------------
-# TODO: this should be a Qt application in the future
 # --------------------------------------------------------------------------
 
 class ProteusApplication:
@@ -55,13 +56,13 @@ class ProteusApplication:
         PROTEUS application main method.
         """
 
-        proteus.logger.info(f"Current working directory: {Path.cwd()}")
-        proteus.logger.info(f"Home directory: {Path.home()}")
-        proteus.logger.info(f"{Path(__file__) = }")
+        log.info(f"Current working directory: {Path.cwd()}")
+        log.info(f"Home directory: {Path.home()}")
+        log.info(f"{Path(__file__) = }")
 
-        proteus.logger.info(f"{self.config.resources_directory = }")
-        proteus.logger.info(f"{self.config.icons_directory = }")
-        proteus.logger.info(f"{self.config.archetypes_directory = }")
+        log.info(f"{self.config.resources_directory = }")
+        log.info(f"{self.config.icons_directory = }")
+        log.info(f"{self.config.archetypes_directory = }")
 
         # self._old_main_tests()
 

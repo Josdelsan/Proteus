@@ -15,6 +15,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Any
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -30,6 +31,8 @@ import proteus
 from proteus.model import NAME_TAG, CATEGORY_TAG
 from proteus.model.properties import DEFAULT_NAME, DEFAULT_CATEGORY
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: Property (abstract)
@@ -62,7 +65,7 @@ class Property(ABC):
         """      
         # Name validation
         if not self.name:
-            proteus.logger.warning(f"PROTEUS properties must have a '{NAME_TAG}' attribute -> assigning '{DEFAULT_NAME}' as name")
+            log.warning(f"PROTEUS properties must have a '{NAME_TAG}' attribute -> assigning '{DEFAULT_NAME}' as name")
             # self.name = DEFAULT_NAME cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'name', DEFAULT_NAME)

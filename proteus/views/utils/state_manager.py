@@ -13,8 +13,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from enum import Enum
-from typing import List, Dict, Tuple
+from typing import Dict
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -29,6 +29,8 @@ import proteus
 from proteus.model import ProteusID
 from proteus.views.utils.event_manager import EventManager, Event
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: StateManager
@@ -59,7 +61,7 @@ class StateManager:
         """
         Sets the current document id.
         """
-        proteus.logger.info(f"Setting current document {document_id}")
+        log.info(f"Setting current document {document_id}")
         cls.current_document = document_id
 
         # If the current document is not in the current object dictionary,
@@ -101,7 +103,7 @@ class StateManager:
         """
         Sets the current object id for the current document.
         """
-        proteus.logger.info(f"Selecting object {object_id} in document {document_id}")
+        log.info(f"Selecting object {object_id} in document {document_id}")
         cls.current_object[document_id] = object_id
         EventManager.notify(Event.SELECT_OBJECT)
 

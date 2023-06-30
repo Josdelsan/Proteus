@@ -13,6 +13,7 @@
 # --------------------------------------------------------------------------
 
 from functools import reduce
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -45,6 +46,8 @@ from proteus.model.properties import \
     DEFAULT_CATEGORY,                \
     CHOICES_TAG
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: PropertyFactory
@@ -87,7 +90,7 @@ class PropertyFactory:
         try:
             property_class = cls.propertyFactory[element.tag]
         except KeyError:
-            proteus.logger.warning(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
+            log.warning(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
             return None
 
         # Get name (checked in property constructors)

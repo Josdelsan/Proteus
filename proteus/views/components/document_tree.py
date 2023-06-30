@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------
 
 from typing import Dict, List
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -44,6 +45,9 @@ from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.controller.command_stack import Controller
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Global variables and constants
@@ -586,7 +590,7 @@ class DocumentTree(QWidget):
         try:
             target_element_id: ProteusID = target_item.data(1, 0)
         except AttributeError:
-            proteus.logger.warning(f"Target item not found at position {point}.")
+            log.warning(f"Target item not found at position {point}.")
             return
 
         # Check if dropped item and target item are not None
@@ -608,7 +612,7 @@ class DocumentTree(QWidget):
             try:
                 parent_id: ProteusID = target_item.parent().data(1, 0)
             except AttributeError:
-                proteus.logger.warning(
+                log.warning(
                     "Failed to get the parent id of the target item. The target item is a root item."
                 )
                 return
@@ -616,7 +620,7 @@ class DocumentTree(QWidget):
             # If in the 25% of the bottom of the target item, then add the
             # dropped item as a sibling above the target item
             if event.position().y() > rect_center.y() + rect_height / 4:
-                proteus.logger.info(
+                log.info(
                     f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
                 )
                 Controller.change_object_position(
@@ -626,7 +630,7 @@ class DocumentTree(QWidget):
             # If in the 25% of the top of the target item, then add the
             # dropped item as a sibling below the target item
             elif event.position().y() < rect_center.y() - rect_height / 4:
-                proteus.logger.info(
+                log.info(
                     f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
                 )
                 Controller.change_object_position(
@@ -637,7 +641,7 @@ class DocumentTree(QWidget):
             # as a child of the target item. Position as None means that the
             # dropped item will be added as the last child of the target item.
             else:
-                proteus.logger.info(
+                log.info(
                     f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
                 )
                 Controller.change_object_position(

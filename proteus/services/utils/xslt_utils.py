@@ -40,4 +40,13 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
     for element in markdown_element:
         markdown_text += element.text
 
-    return markdown.markdown(markdown_text)
+    result: str = markdown.markdown(
+        markdown_text,
+        extensions=[
+            "markdown.extensions.fenced_code",
+            "markdown.extensions.codehilite",
+            "markdown.extensions.tables",
+            "markdown.extensions.toc",
+        ],
+    )
+    return result

@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------
 
 from typing import Dict, List, Union
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -32,6 +33,8 @@ from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.document_render import DocumentRender
 from proteus.controller.command_stack import Controller
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: DocumentList
@@ -110,7 +113,7 @@ class DocumentList(QTabWidget):
         # first time
         self.current_document_changed(index=0)
 
-        proteus.logger.info("Document list tabs component created")
+        log.info("Document list tabs component created")
 
     # ----------------------------------------------------------------------
     # Method     : add_document

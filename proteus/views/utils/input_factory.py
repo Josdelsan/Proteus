@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------
 
 from typing import Dict, Callable, Tuple
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -38,7 +39,8 @@ from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 
-
+# logging configuration
+log = logging.getLogger(__name__)
 
 def _string_property_input(property: StringProperty) -> Tuple[QWidget, QLineEdit]:
     string_input = QLineEdit()
@@ -117,7 +119,7 @@ class PropertyInputFactory():
         try:
             return PropertyInputFactory.property_input_map[type(property)](property)
         except KeyError:
-            proteus.logger.error(f"Property input widget for {type(property)} was not found")
+            log.error(f"Property input widget for {type(property)} was not found")
             return None
     
     # ----------------------------------------------------------------------
@@ -135,5 +137,5 @@ class PropertyInputFactory():
             conversion_func = PropertyInputFactory.widget_conversion_map[widget_type]
             return conversion_func(widget)
         else:
-            proteus.logger.error(f"Unsupported widget type {widget_type} when converting to string")
+            log.error(f"Unsupported widget type {widget_type} when converting to string")
             return None
