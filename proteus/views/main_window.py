@@ -17,7 +17,7 @@ import logging
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox, QLabel
+from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -28,7 +28,7 @@ from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.views.components.main_menu import MainMenu
-from proteus.views.components.document_list import DocumentList
+from proteus.views.components.project_container import ProjectContainer
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, main_menu)
 
         # Create document list menu
-        self.document_list = QWidget(self)
-        self.setCentralWidget(self.document_list)
+        self.project_container = QWidget(self)
+        self.setCentralWidget(self.project_container)
 
         # Create the status bar
         self.statusBar().showNormal()
@@ -126,12 +126,12 @@ class MainWindow(QMainWindow):
         Triggered by: Event.OPEN_PROJECT
         """
         # Delete the existing document list widget
-        if self.document_list is not None:
-            self.document_list.setParent(None)
+        if self.project_container is not None:
+            self.project_container.setParent(None)
 
         # Create document list menu
-        self.document_list = DocumentList(self)
-        self.setCentralWidget(self.document_list)
+        self.project_container = ProjectContainer(self)
+        self.setCentralWidget(self.project_container)
 
         project = Controller.get_current_project()
         self.setWindowTitle(

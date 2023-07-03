@@ -48,6 +48,7 @@ class Event(Enum):
     # Selection events
     SELECT_OBJECT = "select_object"
     CURRENT_DOCUMENT_CHANGED = "current_document_changed"
+    CURRENT_VIEW_CHANGED = "current_view_changed"
 
     # Stack related events
     STACK_CHANGED = "stack_changed"

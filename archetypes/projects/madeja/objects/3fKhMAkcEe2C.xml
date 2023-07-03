@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <object id="3fKhMAkcEe2C" classes=":Proteus-document" acceptedChildren=":Proteus-any">
   <properties>
+    <stringProperty name="acronym"><![CDATA[DRS]]></stringProperty>
     <stringProperty name="name" category="general"><![CDATA[Documento de Requisitos del sistema]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
     <dateProperty name="created" category="general">2013-03-01</dateProperty>

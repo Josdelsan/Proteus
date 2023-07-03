@@ -25,7 +25,6 @@ import logging
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model import ProteusID
 from proteus.views.utils.event_manager import EventManager, Event
 
@@ -48,6 +47,7 @@ class StateManager:
     # Class attributes
     current_document: ProteusID = None
     current_object: Dict[ProteusID, ProteusID] = {}
+    current_view: str = None
 
     # --------------------------------------------------------------------------
     # Method: set_current_document
@@ -155,3 +155,35 @@ class StateManager:
             if cls.current_object[document_id] == object_id:
                 cls.current_object[document_id] = None
                 EventManager.notify(Event.SELECT_OBJECT)
+
+    # --------------------------------------------------------------------------
+    # Method: set_current_view
+    # Description: Sets the current view id.
+    # Date: 03/07/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    @classmethod
+    def set_current_view(cls, view_name: str) -> None:
+        """
+        Sets the current view id.
+        """
+        log.info(f"Setting current view {view_name}")
+        cls.current_view = view_name
+
+        # Notify the event manager that the current view has changed.
+        EventManager.notify(Event.CURRENT_VIEW_CHANGED, view_name=view_name)
+
+    # --------------------------------------------------------------------------
+    # Method: get_current_view
+    # Description: Returns the current view id.
+    # Date: 03/07/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    @classmethod
+    def get_current_view(cls) -> str:
+        """
+        Returns the current view id. If no view is selected, it returns None.
+        """
+        return cls.current_view

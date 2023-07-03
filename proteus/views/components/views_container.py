@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: document_render.py
-# Description: PyQT6 document render for the PROTEUS application
+# File: views_container.py
+# Description: PyQT6 views container component for the PROTEUS application
 # Date: 04/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -11,12 +11,13 @@
 # --------------------------------------------------------------------------
 
 from typing import Dict
+import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QByteArray, QUrl, QPoint
+from PyQt6.QtCore import Qt, QByteArray, QUrl
 from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEnginePage
@@ -27,6 +28,7 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QStyle,
     QMessageBox,
+    QTabBar,
 )
 
 # --------------------------------------------------------------------------
@@ -40,18 +42,22 @@ from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 from proteus.controller.command_stack import Controller
 
+# logging configuration
+log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
-# Class: DocumentRender
-# Description: PyQT6 document render for the PROTEUS application
+# Class: ViewsContainer
+# Description: PyQT6 views container class for the PROTEUS application
 # Date: 04/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentRender(QTabWidget):
+class ViewsContainer(QTabWidget):
     """
-    Document render component for the PROTEUS application. It is used to
-    display the document render.
+    Views container component for the PROTEUS application. It contains
+    a browser for each project view. Displays the current document
+    representation for each view.
     """
 
     # ----------------------------------------------------------------------
@@ -62,19 +68,14 @@ class DocumentRender(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
+    def __init__(self, parent=None, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
-
-        Store the document id reference.
         """
         super().__init__(parent, *args, **kwargs)
 
         self.translator = Translator()
-
-        # Store the document id reference
-        self.element_id: ProteusID = element_id
 
         # Dict of stored browsers for each view. The way the dict is updated
         # the index of the browser is the same as the index of the tab.
@@ -89,6 +90,7 @@ class DocumentRender(QTabWidget):
         #       Multiple browsers are a solution to QTabWidget since a
         #       QWebEngineView cannot be added to multiple parents.
         self.browsers: Dict[str, QWebEngineView] = {}
+        self.tabs: Dict[str, QWidget] = {}
 
         # Create the component
         self.create_component()
@@ -101,20 +103,26 @@ class DocumentRender(QTabWidget):
         EventManager.attach(Event.ADD_OBJECT, self.update_component, self)
         EventManager.attach(Event.DELETE_OBJECT, self.update_component, self)
         EventManager.attach(Event.CURRENT_DOCUMENT_CHANGED, self.update_component, self)
+        EventManager.attach(Event.CURRENT_VIEW_CHANGED, self.update_component, self)
         EventManager.attach(Event.ADD_VIEW, self.update_on_add_view, self)
         EventManager.attach(Event.DELETE_VIEW, self.update_on_delete_view, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
 
+        # Call the current view changed method to update the document for the
+        # first time if there are views
+        if len(self.tabs) > 0:
+            self.current_view_changed(index=0)
+
     # ----------------------------------------------------------------------
     # Method     : create_component
-    # Description: Create the document render component.
+    # Description: Create the views container component.
     # Date       : 04/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the document render component.
+        Create the views container component.
         """
         # Allow to close tabs
         self.setTabsClosable(True)
@@ -133,19 +141,26 @@ class DocumentRender(QTabWidget):
 
         # Connect to new view dialog
         add_view_button.clicked.connect(NewViewDialog.create_dialog)
-
         self.setCornerWidget(add_view_button, Qt.Corner.TopRightCorner)
+
+        # Hide the close button on the main view tab
+        tabbutton: QWidget = self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
+
+        # Connect singal to handle view tab change
+        self.currentChanged.connect(self.current_view_changed)
+
+        log.info("Views container component created")
 
     # ----------------------------------------------------------------------
     # Method     : add_view
-    # Description: Add a new view to the document render component.
+    # Description: Add a new view to the views container component.
     # Date       : 23/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def add_view(self, xslt_name: str) -> None:
         """
-        Add a new view to the document render component.
+        Add a new view to the views container component.
         """
         main_tab: QWidget = QWidget()
         layout = QVBoxLayout()
@@ -156,50 +171,26 @@ class DocumentRender(QTabWidget):
         layout.addWidget(browser)
 
         # Create document page using subclass
-        document_page: DocumentPage = DocumentPage(parent=browser, translator=self.translator)
-        
-        # Get html from controller
-        html_str: str = Controller().get_document_view(self.element_id, xslt_name)
+        # NOTE: This subclass is needed for external links handling
+        document_page: DocumentPage = DocumentPage(
+            parent=browser, translator=self.translator
+        )
 
-        # Convert html to QByteArray
-        # NOTE: This is done to avoid 2mb limit on setHtml method
-        # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-        html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-        document_page.setContent(html_array, "text/html")
         browser.setPage(document_page)
 
         # Build the tab code name
-        # NOTE: The tab code name is used to access the tab name internationalized
+        # NOTE: The tab code name is used to access the tab name internationalization
         tab_code_name: str = f"document_render.view.{xslt_name}"
 
-        # Set layout, add tab and store browser
+        # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
         main_tab.setLayout(layout)
         self.addTab(main_tab, self.translator.text(tab_code_name))
+
+        # Store the browser and the tab
         self.browsers[xslt_name] = browser
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the document render component.
-    # Date       : 05/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_component(self, *args, **kwargs) -> None:
-        """
-        Manage the deletion of the document render component. Detach from
-        events and delete the component.
-
-        This method must be called by the parent component in order to
-        delete the document render before deleting the parent (document tab)
-        """
-        # Detach the component from the event manager
-        EventManager.detach(self)
-
-        # Delete the component
-        self.parent = None
-        self.deleteLater()
+        self.tabs[xslt_name] = main_tab
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -207,39 +198,56 @@ class DocumentRender(QTabWidget):
 
     # ----------------------------------------------------------------------
     # Method     : update_component
-    # Description: Update the document render component.
+    # Description: Update the views container component.
     # Date       : 04/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def update_component(self, *args, **kwargs) -> None:
         """
-        Update the document render component when there is by an event. Just
-        update the component if it is the current document displayed.
+        Update the views container component. Update the current view browser
+        with the content of the current document. If the current view is not
+        in the browsers dict, ignore the update.
 
         Triggered by: Event.MODIFY_OBJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT
-        Event.CURRENT_DOCUMENT_CHANGED
+        Event.CURRENT_DOCUMENT_CHANGED, Event.CURRENT_VIEW_CHANGED
         """
 
         current_document_id: ProteusID = StateManager.get_current_document()
+        current_view: str = StateManager.get_current_view()
 
-        # If the current document is the same as the document render
-        # element id, do not update the component
-        if current_document_id == self.element_id:
-            # Iterate over the browsers and update them with the corresponding
-            # html
-            for xslt_name, browser in self.browsers.items():
-                # Get html from controller
-                html_str: str = Controller().get_document_view(
-                    self.element_id, xslt_name
-                )
+        # If the current view is not in the browsers dict, ignore the update
+        if current_view not in self.browsers:
+            log.warning(
+                f"View {current_view} not found in the views container component"
+            )
+            return
 
-                # Convert html to QByteArray
-                # NOTE: This is done to avoid 2mb limit on setHtml method
-                # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-                html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-                browser.setContent(html_array, "text/html")
+        # If there is no current document, clear the browser
+        if current_document_id is None:
+            browser: QWebEngineView = self.browsers[current_view]
+            browser.page().setContent(QByteArray(), "text/html")
+            return
 
+        # Update the current view browser with the content of the current document
+        if current_view in self.browsers and current_document_id is not None:
+            browser: QWebEngineView = self.browsers[current_view]
+
+            # Get html from controller
+            html_str: str = Controller().get_document_view(
+                document_id=current_document_id, xslt_name=current_view
+            )
+
+            # Convert html to QByteArray
+            # NOTE: This is done to avoid 2mb limit on setHtml method
+            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
+            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
+            browser.page().setContent(html_array, "text/html")
+
+            # Connect to load finished signal to update the object list
+            # NOTE: This is necessary to run the script after the page is loaded
+            # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
+            browser.page().loadFinished.connect(lambda: self.update_on_select_object())
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -275,20 +283,18 @@ class DocumentRender(QTabWidget):
     # ----------------------------------------------------------------------
     def update_on_select_object(self, *args, **kwargs) -> None:
         """
-        Update the document render component when an object is selected.
+        Update the views container component when an object is selected.
         Navigate to the object in the document given the object id.
 
         Triggered by: Event.SELECT_OBJECT
         """
         # Get the selected object id
         selected_object_id: ProteusID = StateManager.get_current_object()
-
-        # Get document id
-        document_id: ProteusID = StateManager.get_current_document()
+        current_view: str = StateManager.get_current_view()
 
         # If there is no selected object or the document is not the current
         # document, do nothing
-        if selected_object_id is None or document_id != self.element_id:
+        if selected_object_id is None:
             return
 
         # Create the javascript code to navigate to the object
@@ -300,12 +306,12 @@ class DocumentRender(QTabWidget):
         )
 
         # Iterate over the browsers and navigate to the url
-        for browser in self.browsers.values():
-            browser.page().runJavaScript(script)
+        browser: QWebEngineView = self.browsers[current_view]
+        browser.page().runJavaScript(script)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_view
-    # Description: Update the document render component when a view is
+    # Description: Update the views container component when a view is
     #              deleted from the document.
     # Date       : 23/06/2023
     # Version    : 0.1
@@ -313,7 +319,7 @@ class DocumentRender(QTabWidget):
     # ----------------------------------------------------------------------
     def update_on_delete_view(self, *args, **kwargs) -> None:
         """
-        Update the document render component when a view is deleted from
+        Update the views container component when a view is deleted from
         the project documents. Delete the tab from each document.
 
         Triggered by: Event.DELETE_VIEW
@@ -321,11 +327,14 @@ class DocumentRender(QTabWidget):
         xslt_name: str = kwargs["xslt_name"]
 
         # Get the index of the tab to delete
-        tab_index: int = self.indexOf(self.browsers[xslt_name].parentWidget())
+        tab: int = self.tabs[xslt_name]
+        tab_index: int = self.indexOf(tab)
 
         # Delete the tab
         self.removeTab(tab_index)
         self.update()
+
+        self.tabs.pop(xslt_name)
 
         # Delete the browser
         browser: QWebEngineView = self.browsers.pop(xslt_name)
@@ -354,6 +363,29 @@ class DocumentRender(QTabWidget):
 
         # Delete the view
         Controller().delete_project_template(xslt_name)
+
+    # ----------------------------------------------------------------------
+    # Method     : current_view_changed
+    # Description: Slot triggered when the current view tab is changed.
+    #              It updates the current view in the state manager.
+    # Date       : 06/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def current_view_changed(self, index: int) -> None:
+        """
+        Slot triggered when the current document tab is changed. It updates
+        the current view in the state manager.
+        """
+        # Get view name from the tab index
+        view_name: str = None
+        if index >= 0:
+            view_tab: QWidget = self.widget(index)
+            # Get the document id (key) from the tab (value)
+            view_name = list(self.tabs.keys())[list(self.tabs.values()).index(view_tab)]
+
+        # Update current document in the state manager
+        StateManager.set_current_view(view_name)
 
 
 # --------------------------------------------------------------------------
@@ -402,13 +434,18 @@ class DocumentPage(QWebEnginePage):
         """
         # If the link is a link to an external page, ask the user if he
         # wants to open it in system default browser.
-        if _type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked and not url.isLocalFile():
+        if (
+            _type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked
+            and not url.isLocalFile()
+        ):
             # Ask the user if he wants to open the link in the system
             # default browser
             reply: QMessageBox.StandardButton = QMessageBox.question(
                 None,
                 self.translator.text("document_render.external_link"),
-                self.translator.text("document_render.external_link.text", url.toString()),
+                self.translator.text(
+                    "document_render.external_link.text", url.toString()
+                ),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )

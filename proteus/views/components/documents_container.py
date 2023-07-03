@@ -1,7 +1,6 @@
 # ==========================================================================
-# File: document_list.py
-# Description: PyQT6 documents tab menu component for the PROTEUS
-#              application
+# File: project_container.py
+# Description: PyQT6 documents container component for the PROTEUS application
 # Date: 25/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -11,44 +10,43 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, List, Union
+from typing import Dict, List
 import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.components.document_tree import DocumentTree
-from proteus.views.components.document_render import DocumentRender
 from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
 
+
 # --------------------------------------------------------------------------
-# Class: DocumentList
-# Description: PyQT6 documents tab menu component for the PROTEUS
+# Class: DocumentsContainer
+# Description: PyQT6 documents container class for the PROTEUS
 #              application
 # Date: 25/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentList(QTabWidget):
+class DocumentsContainer(QTabWidget):
     """
     Documents tab menu component for the PROTEUS application. It is used to
-    display the documents of the project in a tab menu. It also manages the
-    creation of the document tree component and render for each document.
+    display the documents of the project in a tab menu. It manages the
+    creation of the document tree component for each document.
     """
 
     # ----------------------------------------------------------------------
@@ -76,7 +74,7 @@ class DocumentList(QTabWidget):
         # Tab children
         # NOTE: Store children components of each tab in a dictionary to
         #       delete them later
-        self.tab_children: Dict[ProteusID, List] = {}
+        self.tab_children: Dict[ProteusID, DocumentTree] = {}
 
         # Create the component
         self.create_component()
@@ -86,6 +84,10 @@ class DocumentList(QTabWidget):
         EventManager.attach(Event.DELETE_DOCUMENT, self.update_on_delete_document, self)
         EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
 
+        # Call the current document changed method to update the document for the
+        # first time
+        if len(self.tabs) > 0:
+            self.current_document_changed(index=0)
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -109,11 +111,8 @@ class DocumentList(QTabWidget):
 
         # Connect singal to handle document tab change
         self.currentChanged.connect(self.current_document_changed)
-        # Call the current document changed method to update the document for the
-        # first time
-        self.current_document_changed(index=0)
 
-        log.info("Document list tabs component created")
+        log.info("Documents container tab component created")
 
     # ----------------------------------------------------------------------
     # Method     : add_document
@@ -125,50 +124,26 @@ class DocumentList(QTabWidget):
     # ----------------------------------------------------------------------
     def add_document(self, document: Object):
         """
-        Add a document to the tab menu creating its child components (tree and
-        render). Document tab consists of a widget that contains the document
-        tree and render components separated by a splitter.
+        Add a document to the tab menu creating its child component (document
+        tree).
         """
         # Create document tab widget
         tab: QWidget = QWidget()
         tab_layout: QHBoxLayout = QHBoxLayout(tab)
 
-        # Splitter
-        splitter: QSplitter = QSplitter()
-        splitter.setStyleSheet("QSplitter::handle { width: 4px; background-color: #666666; }")
-
         # Tree widget --------------------------------------------------------
         document_tree: DocumentTree = DocumentTree(self, document.id)
-        document_tree.setSizePolicy(
-            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
-        )
-        document_tree.setMinimumWidth(200)
+        document_tree.setStyleSheet("background-color: #FFFFFF;")
 
-        # Render widget ------------------------------------------------------
-        document_render: DocumentRender = DocumentRender(self, document.id)
-        document_render.setStyleSheet("background-color: #FFFFFF;")
-        document_render.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
-        document_render.setMinimumWidth(400)
-
-        # Add tree and render to splitter
-        splitter.addWidget(document_tree)
-        splitter.addWidget(document_render)
-        # NOTE: By default the splitter is 1200px wide when the application
-        #       is launched. We set the initial sizes proportionally to the
-        #       splitter size to avoid the render component to be too small
-        splitter.setSizes([300, 900])
-
-        # Add splitter with tree and render to tab layout
-        tab_layout.addWidget(splitter)
+        tab_layout.addWidget(document_tree)
         tab.setLayout(tab_layout)
 
-        # Add tab to the dictionary
+        # Add tab to the dictionary with the document id as key
         self.tabs[document.id] = tab
-        self.tab_children[document.id] = [document_tree, document_render]
+        self.tab_children[document.id] = document_tree
 
-        document_name: str = document.get_property("name").value
+        # Add tab to the tab menu
+        document_name: str = document.get_property("acronym").value
         self.addTab(tab, document_name)
 
     # ======================================================================
@@ -232,9 +207,8 @@ class DocumentList(QTabWidget):
         self.removeTab(self.indexOf(document_tab))
 
         # Delete child components
-        child_component: Union[DocumentTree, DocumentRender] = None
-        for child_component in self.tab_children.get(document_id):
-            child_component.delete_component()
+        child_component: DocumentTree = self.tab_children.get(document_id)
+        child_component.delete_component()
 
         # Delete tab object
         document_tab.parent = None
@@ -253,6 +227,8 @@ class DocumentList(QTabWidget):
         Update the documents tab menu component when an object is modified.
         It changes the tab name with the new document name if the object
         modified is a document.
+
+        Triggered by: Event.MODIFY_OBJECT
         """
         element_id: ProteusID = kwargs.get("element_id")
 
@@ -266,7 +242,7 @@ class DocumentList(QTabWidget):
 
             # Change tab name
             element: Object = Controller.get_element(element_id)
-            document_name: str = element.get_property("name").value
+            document_name: str = element.get_property("acronym").value
             self.setTabText(self.indexOf(document_tab), document_name)
 
     # ======================================================================
@@ -276,7 +252,7 @@ class DocumentList(QTabWidget):
     # ----------------------------------------------------------------------
     # Method     : current_document_changed
     # Description: Slot triggered when the current document tab is changed.
-    #              It updates the current document id in the controller.
+    #              It updates the current document id in the state manager.
     # Date       : 06/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
@@ -291,7 +267,7 @@ class DocumentList(QTabWidget):
         if index >= 0:
             document_tab: QWidget = self.widget(index)
             # Get the document id (key) from the tab (value)
-            document_id: ProteusID = list(self.tabs.keys())[
+            document_id = list(self.tabs.keys())[
                 list(self.tabs.values()).index(document_tab)
             ]
 
