@@ -25,6 +25,7 @@
 import logging
 from os import listdir
 from os.path import join, isdir, isfile
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -38,18 +39,12 @@ from strenum import StrEnum
 # --------------------------------------------------------------------------
 
 from proteus.model import OBJECTS_REPOSITORY, ASSETS_REPOSITORY
-import proteus.config as config
+from proteus.config import Config
 from proteus.model.project import Project
 from proteus.model.object import Object
 
 # logging configuration
 log = logging.getLogger(__name__)
-
-# TODO: estos directorios habrá que establecerlos por configuración o como
-# parámetros pasados al comienzo de la aplicación.
-
-
-ARCHETYPES_FOLDER = config.Config().archetypes_directory
 
 DOCUMENT_FILE = "document.xml"
 OBJECTS_FILE = "objects.xml"
@@ -103,15 +98,16 @@ class ArchetypeManager:
     #         José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    @classmethod
-    def load_object_archetypes( cls ) -> dict[str, list[Object]]:
+    @staticmethod
+    def load_object_archetypes() -> dict[str, list[Object]]:
         """
         Method that loads the object archetypes.
         :return: A dict with key archetype class and value list of objects.
         """
         log.info('ArchetypeManager - load object archetypes')
         # Build archetypes directory name from archetype type
-        archetypes_dir : str = join(ARCHETYPES_FOLDER, ArchetypesType.OBJECTS)
+        archetypes_folder: Path = Config().archetypes_directory
+        archetypes_dir : str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
         # TODO: this means that ALL archetypes must be in one subdirectory, i.e., that
@@ -182,15 +178,16 @@ class ArchetypeManager:
     #         José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    @classmethod
-    def load_document_archetypes( cls ) -> list[Object]:
+    @staticmethod
+    def load_document_archetypes() -> list[Object]:
         """
         Method that loads the document archetypes.
         :return: A list of documents (Objects) objects.
         """
         log.info('ArchetypeManager - load document archetypes')
         # Build archetypes directory name from archetype type
-        archetypes_dir : str = join(ARCHETYPES_FOLDER, ArchetypesType.DOCUMENTS)
+        archetypes_folder: Path = Config().archetypes_directory
+        archetypes_dir : str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
         # TODO: this means that ALL archetypes must be in one subdirectory, i.e., that
@@ -255,15 +252,16 @@ class ArchetypeManager:
     #         José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    @classmethod
-    def load_project_archetypes( cls ) -> list[Project]:
+    @staticmethod
+    def load_project_archetypes() -> list[Project]:
         """
         Method that loads the project archetypes in a list.
         :return: A list of Project objects.
         """
         log.info('ArchetypeManager - load project archetypes')
         # Build archetypes directory name from archetype type (project)
-        archetypes_dir : str = join(ARCHETYPES_FOLDER, ArchetypesType.PROJECTS)
+        archetypes_folder: Path = Config().archetypes_directory
+        archetypes_dir : str = join(archetypes_folder, ArchetypesType.PROJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
         # TODO: this means that ALL archetypes must be in one subdirectory, i.e., that

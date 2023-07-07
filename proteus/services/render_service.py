@@ -10,8 +10,10 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import logging
 from typing import List, Dict
 from pathlib import Path
+import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,8 +25,12 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
+from proteus.model import ASSETS_REPOSITORY
 from proteus.config import Config
 from proteus.services.utils import xslt_utils
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: RenderService
@@ -39,24 +45,6 @@ class RenderService:
     objects.
     """
 
-    _instance = None
-
-    # ----------------------------------------------------------------------
-    # Method     : __new__
-    # Description: Handle the singleton pattern
-    # Date       : 29/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __new__(cls) -> "RenderService":
-        """
-        Singleton pattern
-        """
-        if cls._instance is None:
-            cls._instance = super(RenderService, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
     # ----------------------------------------------------------------------
     # Method     : __init__
     # Description: Initialize the RenderService object. Load the XSLT
@@ -65,18 +53,23 @@ class RenderService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self) -> None:
+    def __init__(self, config: Config = None) -> None:
         """
         Initialize the RenderService object. Load the XSLT templates.
         """
-        if self._initialized:
-            return
-        self._initialized = True
+        # Dependency injection
+        if config is None:
+            config = Config()
+        self.config = config
 
-        self._config = Config()
+        # Namespace configuration for the XSLT functions
         self._namespace_configuration()
+
+        # Store the XSLT transformation objects
         self._transformations: List[ET.XSLT] = {}
-    
+
+        log.info("RenderService initialized")
+
     # ----------------------------------------------------------------------
     # Method     : _namespace_configuration
     # Description: Configuration setup for the XSLT functions. This allows
@@ -94,8 +87,15 @@ class RenderService:
         ns = ET.FunctionNamespace("http://proteus.us.es/utils")
         ns.prefix = "proteus-utils"
 
+        # Current working directory for the open project
+        cwd: Path = Path(os.getcwd())
+        assets_repo: Path = cwd / ASSETS_REPOSITORY
+
         # Register the function with the FunctionNamespace
-        ns['generate_markdown'] = xslt_utils.generate_markdown
+        ns["generate_markdown"] = xslt_utils.generate_markdown
+        ns["build_path"] = lambda context, file_name: xslt_utils.build_path(
+            context, file_name, assets_repo
+        )
 
     # ----------------------------------------------------------------------
     # Method     : get_xslt
@@ -127,9 +127,9 @@ class RenderService:
 
             # Store the transformation object for future use
             self._transformations[xslt_name] = transform
-        
+
         return transform
-    
+
     # ----------------------------------------------------------------------
     # Method     : render
     # Description: Render the given xml using the xslt_name template.
@@ -145,7 +145,7 @@ class RenderService:
         result_tree = transform(xml)
         html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True)
         return html_string
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_available_xslt
     # Description: Get the available xslt templates in the xslt folder.
@@ -157,5 +157,5 @@ class RenderService:
         """
         Get the available xslt templates in the xslt folder.
         """
-        xslt_routes: Dict[str, Path] = self._config.xslt_routes
+        xslt_routes: Dict[str, Path] = self.config.xslt_routes
         return list(xslt_routes.keys())

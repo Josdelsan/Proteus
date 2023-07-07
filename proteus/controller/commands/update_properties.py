@@ -48,18 +48,29 @@ class UpdatePropertiesCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, element_id: ProteusID, new_properties: List[Property]):
+    def __init__(
+        self,
+        element_id: ProteusID,
+        new_properties: List[Property],
+        project_service: ProjectService,
+    ):
         super(UpdatePropertiesCommand, self).__init__()
 
+        # Dependency injection
+        assert isinstance(
+            project_service, ProjectService
+        ), "Must provide a project service instance to the command"
+        self.project_service = project_service
+
         # Get the old properties before updating the properties
-        old_properties_dict: Dict[str, Property] = ProjectService.get_properties(
+        old_properties_dict: Dict[str, Property] = self.project_service.get_properties(
             element_id
         )
         old_properties = [old_properties_dict[prop.name] for prop in new_properties]
 
         self.element_id: ProteusID = element_id
         self.old_properties: List = old_properties
-        self.old_state: ProteusState = ProjectService._get_element_by_id(
+        self.old_state: ProteusState = self.project_service._get_element_by_id(
             element_id
         ).state
         self.new_properties: List = new_properties
@@ -80,7 +91,7 @@ class UpdatePropertiesCommand(QUndoCommand):
         self.setText(f"Update properties of {self.element_id}")
 
         # Update the properties of the element and change its state
-        ProjectService.update_properties(self.element_id, self.new_properties)
+        self.project_service.update_properties(self.element_id, self.new_properties)
 
         # Notify the frontend components
         EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
@@ -102,10 +113,10 @@ class UpdatePropertiesCommand(QUndoCommand):
         self.setText(f"Undo update properties of {self.element_id}")
 
         # Update the properties of the element
-        ProjectService.update_properties(self.element_id, self.old_properties)
+        self.project_service.update_properties(self.element_id, self.old_properties)
 
         # Change the state of the element to the previous state
-        ProjectService._get_element_by_id(self.element_id).state = self.old_state
+        self.project_service._get_element_by_id(self.element_id).state = self.old_state
 
         # Notify the frontend components
         EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)

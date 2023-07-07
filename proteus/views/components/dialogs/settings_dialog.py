@@ -32,7 +32,6 @@ from PyQt6.QtWidgets import (
 
 from proteus.config import Config, LANGUAGE
 from proteus.views.utils.translator import Translator
-from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------

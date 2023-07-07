@@ -65,13 +65,20 @@ class PropertyDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, element_id=None, *args, **kwargs) -> None:
+    def __init__(
+        self, element_id=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the element id, reference to the element whose
         properties will be displayed.
         """
         super().__init__(*args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the properties form dialog"
+        self._controller: Controller = controller
 
         # Set the element id, reference to the element whose properties
         # will be displayed
@@ -98,7 +105,9 @@ class PropertyDialog(QDialog):
         """
         Create the component.
         """
-        self.object: Union[Project, Object] = Controller.get_element(self.element_id)
+        self.object: Union[Project, Object] = self._controller.get_element(
+            self.element_id
+        )
 
         # Set the window name
         window_name: str = self.object.get_property("name").value
@@ -205,7 +214,7 @@ class PropertyDialog(QDialog):
 
         # Update the properties of the element if there are changes
         if len(update_list) > 0:
-            Controller.update_properties(self.element_id, update_list)
+            self._controller.update_properties(self.element_id, update_list)
 
         # Close the form window
         self.close()
@@ -240,34 +249,14 @@ class PropertyDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def object_property_dialog(element_id: ProteusID):
+    def create_dialog(element_id: ProteusID, controller: Controller):
         """
         Handle the creation and display of the form window.
 
         :param element_id: The id of the element to edit.
         """
         # Create the form window
-        form_window = PropertyDialog(element_id)
-
-        # Show the form window
-        form_window.exec()
-
-    # ----------------------------------------------------------------------
-    # Method     : project_property_dialog (static)
-    # Description: Handle the creation and display of the form window.
-    # Date       : 05/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @staticmethod
-    def project_property_dialog():
-        """
-        Handle the creation and display of the form window.
-        """
-        current_project_id: ProteusID = Controller.get_current_project().id
-
-        # Create the form window
-        form_window = PropertyDialog(current_project_id)
+        form_window = PropertyDialog(element_id=element_id, controller=controller)
 
         # Show the form window
         form_window.exec()

@@ -65,6 +65,8 @@ class MainWindow(QMainWindow):
         the component and connect update methods to the events.
         """
         super().__init__(*args, **kwargs)
+        # Create Controller instance
+        self._controller: Controller = Controller()
 
         # Get the translator instance
         self.translator = Translator()
@@ -94,8 +96,8 @@ class MainWindow(QMainWindow):
         # Set the window size
         self.resize(1200, 800)
 
-        # Create archeype tab menu
-        main_menu = MainMenu("Archetype menu", self)
+        # Create main menu
+        main_menu = MainMenu(self, self._controller)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, main_menu)
 
         # Create document list menu
@@ -130,10 +132,10 @@ class MainWindow(QMainWindow):
             self.project_container.setParent(None)
 
         # Create document list menu
-        self.project_container = ProjectContainer(self)
+        self.project_container = ProjectContainer(self, self._controller)
         self.setCentralWidget(self.project_container)
 
-        project = Controller.get_current_project()
+        project = self._controller.get_current_project()
         self.setWindowTitle(
             f"{self.translator.text('main_window.title')} - {project.get_property('name').value}"
         )
@@ -165,7 +167,7 @@ class MainWindow(QMainWindow):
             return
 
         # Get the selected object and its name
-        selected_object: Object = Controller.get_element(selected_object_id)
+        selected_object: Object = self._controller.get_element(selected_object_id)
         object_name = selected_object.properties["name"].value
 
         # Message to show in the status bar
@@ -199,7 +201,7 @@ class MainWindow(QMainWindow):
         assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
 
         # Get project
-        project: Project = Controller.get_current_project()
+        project: Project = self._controller.get_current_project()
 
         # Check if element id is project id
         if element_id == project.id:
@@ -230,18 +232,18 @@ class MainWindow(QMainWindow):
 
         def close_without_saving():
             # Clean the command stack
-            Controller._get_instance().clear()
+            self._controller.stack.clear()
             # Close the application
             event.accept()
 
         def close_with_saving():
             # Save the project
-            Controller.save_project()
+            self._controller.save_project()
             # Close the application
             event.accept()
 
         # Check if the project has unsaved changes
-        unsaved_changes: bool = not Controller._get_instance().isClean()
+        unsaved_changes: bool = not self._controller.stack.isClean()
 
         if unsaved_changes:
             # Show a confirmation dialog

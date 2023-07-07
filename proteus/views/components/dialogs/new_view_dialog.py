@@ -54,12 +54,19 @@ class NewViewDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the new view dialog"
+        self._controller: Controller = controller
 
         self.translator = Translator()
 
@@ -81,7 +88,7 @@ class NewViewDialog(QDialog):
         self.setWindowTitle(self.translator.text("new_view_dialog.title"))
 
         # Get available xls templates to create a new view
-        xls_templates: List[str] = Controller.get_available_xslt()
+        xls_templates: List[str] = self._controller.get_available_xslt()
 
         # Create a combo box with the available views
         view_label: QLabel = QLabel(
@@ -141,14 +148,14 @@ class NewViewDialog(QDialog):
             )
             return
 
-        if combo_text in Controller.get_project_templates():
+        if combo_text in self._controller.get_project_templates():
             self.error_label.setText(
                 self.translator.text("new_view_dialog.error.duplicated_view")
             )
             return
 
         # Add the new template to the project and call the event
-        Controller.add_project_template(combo_text)
+        self._controller.add_project_template(combo_text)
 
         # Close the form window
         self.close()
@@ -182,9 +189,9 @@ class NewViewDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog() -> None:
+    def create_dialog(controller: Controller) -> None:
         """
         Create a new document dialog and show it
         """
-        dialog = NewViewDialog()
+        dialog = NewViewDialog(controller=controller)
         dialog.exec()

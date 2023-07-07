@@ -49,9 +49,26 @@ class CloneArchetypeObjectCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, archetype_id: ProteusID, parent_id: ProteusID):
+    def __init__(
+        self,
+        archetype_id: ProteusID,
+        parent_id: ProteusID,
+        project_service: ProjectService,
+        archetype_service: ArchetypeService,
+    ):
         super(CloneArchetypeObjectCommand, self).__init__()
 
+        # Dependency injection
+        assert isinstance(
+            project_service, ProjectService
+        ), "Must provide a project service instance to the command"
+        assert isinstance(
+            archetype_service, ArchetypeService
+        ), "Must provide a archetype service instance to the command"
+        self.project_service = project_service
+        self.archetype_service = archetype_service
+
+        # Command attributes
         self.archetype_id: ProteusID = archetype_id
         self.parent_id: ProteusID = parent_id
         self.before_clone_parent_state: ProteusState = None
@@ -82,14 +99,14 @@ class CloneArchetypeObjectCommand(QUndoCommand):
             )
 
             # Get the parent and project object
-            parent = ProjectService._get_element_by_id(self.parent_id)
-            project = ProjectService.project
+            parent = self.project_service._get_element_by_id(self.parent_id)
+            project = self.project_service.project
 
             # Save the parent state before clone
             self.before_clone_parent_state = parent.state
 
             # Clone the archetype object
-            self.cloned_object = ArchetypeService.create_object(
+            self.cloned_object = self.archetype_service.create_object(
                 self.archetype_id, parent, project
             )
 
@@ -100,10 +117,10 @@ class CloneArchetypeObjectCommand(QUndoCommand):
             self.setText(f"Mark as ALIVE cloned object {self.cloned_object.id}")
 
             # Change the state of the cloned object and his children to FRESH
-            ProjectService.change_state(self.cloned_object.id, ProteusState.FRESH)
+            self.project_service.change_state(self.cloned_object.id, ProteusState.FRESH)
 
             # Set the parent state to the state after clone stored in the first redo
-            parent = ProjectService._get_element_by_id(self.parent_id)
+            parent = self.project_service._get_element_by_id(self.parent_id)
             parent.state = self.after_clone_parent_state
 
         # Emit the event to update the view
@@ -124,10 +141,10 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         self.setText(f"Mark as DEAD cloned object {self.cloned_object.id}")
 
         # Change the state of the cloned object and his children to DEAD
-        ProjectService.change_state(self.cloned_object.id, ProteusState.DEAD)
+        self.project_service.change_state(self.cloned_object.id, ProteusState.DEAD)
 
         # Set the parent state to the old state
-        parent = ProjectService._get_element_by_id(self.parent_id)
+        parent = self.project_service._get_element_by_id(self.parent_id)
         parent.state = self.before_clone_parent_state
 
         # Deselect the object in case it was selected to avoid errors

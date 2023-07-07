@@ -50,12 +50,21 @@ class ChangeObjectPositionCommand(QUndoCommand):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
+        self,
+        object_id: ProteusID,
+        new_position: int,
+        new_parent_id: ProteusID,
+        project_service: ProjectService,
     ):
         super(ChangeObjectPositionCommand, self).__init__()
+        # Dependency injection
+        assert isinstance(
+            project_service, ProjectService
+        ), "Must provide a project service instance to the command"
+        self.project_service = project_service
 
         # Object to apply position change
-        self.object: Object = ProjectService._get_element_by_id(object_id)
+        self.object: Object = self.project_service._get_element_by_id(object_id)
 
         # Old parent information
         self.old_parent: Union[Project, Object] = self.object.parent
@@ -65,9 +74,9 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.old_parent_state: ProteusState = self.old_parent.state
 
         # New parent information
-        self.new_parent: Union[Project, Object] = ProjectService._get_element_by_id(
-            new_parent_id
-        )
+        self.new_parent: Union[
+            Project, Object
+        ] = self.project_service._get_element_by_id(new_parent_id)
         self.new_position: int = new_position
         self.new_parent_state: ProteusState = self.new_parent.state
 
@@ -89,7 +98,7 @@ class ChangeObjectPositionCommand(QUndoCommand):
         )
 
         # Call ProjectService method
-        ProjectService.change_object_position(
+        self.project_service.change_object_position(
             self.object.id, self.new_position, self.new_parent
         )
 

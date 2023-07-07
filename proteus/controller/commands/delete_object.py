@@ -47,11 +47,18 @@ class DeleteObjectCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, object_id: ProteusID):
+    def __init__(self, object_id: ProteusID, project_service: ProjectService):
         super(DeleteObjectCommand, self).__init__()
 
+        # Dependency injection
+        assert isinstance(
+            project_service, ProjectService
+        ), "Must provide a project service instance to the command"
+        self.project_service = project_service
+
+        # Command attributes
         self.before_clone_parent_state: ProteusState = None
-        self.object: Object = ProjectService._get_element_by_id(object_id)
+        self.object: Object = self.project_service._get_element_by_id(object_id)
         self.old_object_state: ProteusState = self.object.state
 
     # ----------------------------------------------------------------------
@@ -69,7 +76,7 @@ class DeleteObjectCommand(QUndoCommand):
         self.setText(f"Mark as DEAD object {self.object.id}")
 
         # Change the state of the cloned object and his children to FRESH
-        ProjectService.change_state(self.object.id, ProteusState.DEAD)
+        self.project_service.change_state(self.object.id, ProteusState.DEAD)
 
         # Modify the parent state depending on its current state
         self.before_clone_parent_state = self.object.parent.state
@@ -103,7 +110,7 @@ class DeleteObjectCommand(QUndoCommand):
         self.setText(f"Revert delete object {self.object.id}")
 
         # Change the state of the cloned object and his children to the old state
-        ProjectService.change_state(self.object.id, self.old_object_state)
+        self.project_service.change_state(self.object.id, self.old_object_state)
 
         # Set the parent state to the old state
         self.object.parent.state = self.before_clone_parent_state

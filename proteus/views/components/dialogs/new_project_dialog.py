@@ -61,12 +61,19 @@ class NewProjectDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new project data.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the new project dialog"
+        self._controller: Controller = controller
 
         self.translator = Translator()
 
@@ -101,7 +108,7 @@ class NewProjectDialog(QDialog):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get project archetypes
-        project_archetypes: List[Project] = Controller.get_project_archetypes()
+        project_archetypes: List[Project] = self._controller.get_project_archetypes()
         # Create a combo box with the project archetypes
         archetype_label: QLabel = QLabel(
             self.translator.text("new_project_dialog.combobox.label")
@@ -231,7 +238,7 @@ class NewProjectDialog(QDialog):
             return
 
         # Create the project
-        Controller.create_project(self._archetype_id, self._name, self._path)
+        self._controller.create_project(self._archetype_id, self._name, self._path)
 
         # Close the form window
         self.close()
@@ -265,9 +272,9 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog() -> None:
+    def create_dialog(controller: Controller) -> None:
         """
         Create a new project dialog and show it
         """
-        dialog = NewProjectDialog()
+        dialog = NewProjectDialog(controller=controller)
         dialog.exec()

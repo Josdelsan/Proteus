@@ -22,12 +22,13 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QSplitter
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.event_manager import Event, EventManager
+from proteus.controller.command_stack import Controller
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.views_container import ViewsContainer
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: ProjectContainer
@@ -50,7 +51,9 @@ class ProjectContainer(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -60,6 +63,11 @@ class ProjectContainer(QWidget):
         dictionary to delete when the tab is closed.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the project container component"
+        self._controller: Controller = controller
 
         # Children components
         self.documents_container: DocumentsContainer = None
@@ -67,8 +75,6 @@ class ProjectContainer(QWidget):
 
         # Create the component
         self.create_component()
-
-
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -88,17 +94,19 @@ class ProjectContainer(QWidget):
 
         # Splitter
         splitter: QSplitter = QSplitter()
-        splitter.setStyleSheet("QSplitter::handle { width: 4px; background-color: #666666; }")
+        splitter.setStyleSheet(
+            "QSplitter::handle { width: 4px; background-color: #666666; }"
+        )
 
         # DocumentsContainer -------------------------------------------------
-        self.documents_container: DocumentsContainer = DocumentsContainer(self)
+        self.documents_container: DocumentsContainer = DocumentsContainer(self, self._controller)
         self.documents_container.setSizePolicy(
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
         )
         self.documents_container.setMinimumWidth(200)
 
         # ViewsContainer -----------------------------------------------------
-        self.views_container: ViewsContainer = ViewsContainer(self)
+        self.views_container: ViewsContainer = ViewsContainer(self, self._controller)
         self.views_container.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
@@ -118,13 +126,10 @@ class ProjectContainer(QWidget):
 
         log.info("Project container component created")
 
-
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
 
-
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
-

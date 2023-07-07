@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -50,3 +51,16 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
         ],
     )
     return result
+
+# --------------------------------------------------------------------------
+# Function: build_path
+# Description: Build a path from a list of strings
+# Date: 03/07/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+def build_path(context, file_name: str, assets_path: Path) -> str:
+    """
+    Build a path from a list of strings
+    """
+    return str(assets_path / file_name)

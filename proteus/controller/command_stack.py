@@ -24,7 +24,6 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
@@ -50,6 +49,7 @@ from proteus.model.properties import Property
 # logging configuration
 log = logging.getLogger(__name__)
 
+
 # --------------------------------------------------------------------------
 # Class: CommandStack
 # Description: Controller stack class to manage undo and redo operations.
@@ -64,40 +64,52 @@ class Controller:
     Notifies the frontend components when the command is executed.
     """
 
-    # Class attributes
-    _stack: QUndoStack = None
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Initialize the Controller object.
+    # Date       : 07/07/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(
+        self,
+        project_service: ProjectService = None,
+        archetype_service: ArchetypeService = None,
+        render_service: RenderService = None,
+    ) -> None:
+        """
+        Initialize the Controller object.
+        """
+        # Dependency injection ------------------
+        if project_service is None:
+            project_service = ProjectService()
+        if archetype_service is None:
+            archetype_service = ArchetypeService()
+        if render_service is None:
+            render_service = RenderService()
+
+        # Set the services
+        self._project_service = project_service
+        self._archetype_service = archetype_service
+        self._render_service = render_service
+
+        # Command stack ------------------------
+        self.stack: QUndoStack = QUndoStack()
+
+        # Connect the signals to the event manager to notify the frontend
+        self.stack.canRedoChanged.connect(
+            lambda: EventManager().notify(event=Event.STACK_CHANGED)
+        )
+        self.stack.canUndoChanged.connect(
+            lambda: EventManager().notify(event=Event.STACK_CHANGED)
+        )
+        self.stack.cleanChanged.connect(
+            lambda: EventManager().notify(event=Event.STACK_CHANGED)
+        )
 
     # ======================================================================
     # Command stack methods
     # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : get_instance
-    # Description: Get the command stack instance
-    # Date       : 27/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    @classmethod
-    def _get_instance(cls) -> QUndoStack:
-        """
-        Get the command stack instance, creating it if it does not exist.
-        """
-        if cls._stack is None:
-            # Create the command stack
-            cls._stack = QUndoStack()
-
-            # Connect the signals to the event manager to notify the frontend
-            cls._stack.canRedoChanged.connect(
-                lambda: EventManager().notify(event=Event.STACK_CHANGED)
-            )
-            cls._stack.canUndoChanged.connect(
-                lambda: EventManager().notify(event=Event.STACK_CHANGED)
-            )
-            cls._stack.cleanChanged.connect(
-                lambda: EventManager().notify(event=Event.STACK_CHANGED)
-            )
-        return cls._stack
 
     # ----------------------------------------------------------------------
     # Method     : push
@@ -106,14 +118,13 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def _push(cls, command: QUndoCommand) -> None:
+    def _push(self, command: QUndoCommand) -> None:
         """
         Push a command to the command stack.
 
         :param command: The command to push to the command stack.
         """
-        cls._get_instance().push(command)
+        self.stack.push(command)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -122,15 +133,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def undo(cls) -> None:
+    def undo(self) -> None:
         """
         Undo the last command. Only works if the command is undoable.
         """
-        log.info(
-            f"Undoing last command [ {cls._get_instance().undoText()} ]"
-        )
-        cls._get_instance().undo()
+        log.info(f"Undoing last command [ {self.stack.undoText()} ]")
+        self.stack.undo()
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -139,16 +147,13 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def redo(cls) -> None:
+    def redo(self) -> None:
         """
         Redo the last command. Only works if the command is
         undoable/redoable.
         """
-        log.info(
-            f"Redoing last command [ {cls._get_instance().redoText()} ]"
-        )
-        cls._get_instance().redo()
+        log.info(f"Redoing last command [ {self.stack.redoText()} ]")
+        self.stack.redo()
 
     # ======================================================================
     # Project methods
@@ -162,9 +167,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def update_properties(
-        cls, element_id: ProteusID, new_properties: List[Property]
+        self, element_id: ProteusID, new_properties: List[Property]
     ) -> None:
         """
         Update the properties of an element given its id. It pushes the
@@ -180,7 +184,13 @@ class Controller:
         log.info(
             f"Updating properties of element with id: {element_id}. New properties: {new_properties}"
         )
-        cls._push(UpdatePropertiesCommand(element_id, new_properties))
+        self._push(
+            UpdatePropertiesCommand(
+                element_id=element_id,
+                new_properties=new_properties,
+                project_service=self._project_service,
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : clone_object
@@ -190,8 +200,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def clone_object(cls, object_id: ProteusID) -> None:
+    def clone_object(self, object_id: ProteusID) -> None:
         """
         Clone an object given its id. It pushes the command to the command
         stack.
@@ -206,7 +215,11 @@ class Controller:
 
         # Push the command to the command stack
         log.info(f"Cloning object with id: {object_id}")
-        cls._push(CloneObjectCommand(object_id))
+        self._push(
+            CloneObjectCommand(
+                object_id=object_id, project_service=self._project_service
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : delete_object
@@ -216,8 +229,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def delete_object(cls, object_id: ProteusID) -> None:
+    def delete_object(self, object_id: ProteusID) -> None:
         """
         Delete an object given its id. It pushes the command to the command
         stack.
@@ -229,7 +241,11 @@ class Controller:
         """
         # Push the command to the command stack
         log.info(f"Deleting object with id: {object_id}")
-        cls._push(DeleteObjectCommand(object_id))
+        self._push(
+            DeleteObjectCommand(
+                object_id=object_id, project_service=self._project_service
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : change_object_position
@@ -239,9 +255,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def change_object_position(
-        cls, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
+        self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
     ) -> None:
         """
         Change the position of an object given its id. It pushes the command
@@ -256,10 +271,15 @@ class Controller:
         :param new_parent_id: The new parent of the object.
         """
         # Push the command to the command stack
-        log.info(
-            f"Changing position of object with id: {object_id} to {new_position}"
+        log.info(f"Changing position of object with id: {object_id} to {new_position}")
+        self._push(
+            ChangeObjectPositionCommand(
+                object_id=object_id,
+                new_position=new_position,
+                new_parent_id=new_parent_id,
+                project_service=self._project_service,
+            )
         )
-        cls._push(ChangeObjectPositionCommand(object_id, new_position, new_parent_id))
 
     # ----------------------------------------------------------------------
     # Method     : delete_document
@@ -269,8 +289,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def delete_document(cls, document_id: ProteusID) -> None:
+    def delete_document(self, document_id: ProteusID) -> None:
         """
         Delete a document given its id. It pushes the command to the command
         stack.
@@ -282,7 +301,11 @@ class Controller:
         """
         # Push the command to the command stack
         log.info(f"Deleting document with id: {document_id}")
-        cls._push(DeleteDocumentCommand(document_id))
+        self._push(
+            DeleteDocumentCommand(
+                document_id=document_id, project_service=self._project_service
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : load_project
@@ -291,8 +314,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def load_project(cls, project_path: str) -> None:
+    def load_project(self, project_path: str) -> None:
         """
         Load a project from a given path.
 
@@ -302,7 +324,7 @@ class Controller:
         :param project_path: The path of the project to load.
         """
         log.info(f"Loading project from path: {project_path}")
-        ProjectService.load_project(project_path)
+        self._project_service.load_project(project_path)
         EventManager().notify(event=Event.OPEN_PROJECT)
 
     # ----------------------------------------------------------------------
@@ -312,13 +334,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_object_structure(cls, object_id: ProteusID) -> Dict[Object, List]:
+    def get_object_structure(self, object_id: ProteusID) -> Dict[Object, List]:
         """
         Get the structure of an object given its id.
         """
         log.info(f"Getting structure of object with id: {object_id}")
-        return ProjectService.get_object_structure(object_id)
+        return self._project_service.get_object_structure(object_id)
 
     # ----------------------------------------------------------------------
     # Method     : get_project_structure
@@ -327,13 +348,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_project_structure(cls) -> List[Object]:
+    def get_project_structure(self) -> List[Object]:
         """
         Get the structure of the current project.
         """
         log.info("Getting structure of current project")
-        return ProjectService.get_project_structure()
+        return self._project_service.get_project_structure()
 
     # ----------------------------------------------------------------------
     # Method     : save_project
@@ -343,15 +363,14 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def save_project(cls) -> None:
+    def save_project(self) -> None:
         """
         Save the current project state including all the children objects
         and documents.
         """
         log.info("Saving current project")
-        ProjectService.save_project()
-        cls._get_instance().clear()
+        self._project_service.save_project()
+        self.stack.clear()
         EventManager().notify(event=Event.SAVE_PROJECT)
 
     # ----------------------------------------------------------------------
@@ -361,12 +380,11 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_element(cls, element_id: ProteusID) -> Union[Object, Project]:
+    def get_element(self, element_id: ProteusID) -> Union[Object, Project]:
         """
         Get the element given its id.
         """
-        return ProjectService._get_element_by_id(element_id)
+        return self._project_service._get_element_by_id(element_id)
 
     # ----------------------------------------------------------------------
     # Method     : get_current_project_id
@@ -375,16 +393,15 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_current_project(cls) -> Project:
+    def get_current_project(self) -> Project:
         """
         Get the id of the current project.
         """
-        current_project: Project = ProjectService.project
+        current_project: Project = self._project_service.project
 
         assert current_project is not None, "Project is not loaded"
 
-        return ProjectService.project
+        return self._project_service.project
 
     # ======================================================================
     # Document views methods
@@ -397,9 +414,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def get_document_view(
-        cls, document_id: ProteusID, xslt_name: str = "default"
+        self, document_id: ProteusID, xslt_name: str = "default"
     ) -> str:
         """
         Get the string representation of the document view given its id. The
@@ -414,12 +430,12 @@ class Controller:
         log.info(f"Getting {xslt_name} view of document with id: {document_id}")
 
         # Get the document xml
-        xml: ET.Element = ProjectService.generate_document_xml(document_id)
+        xml: ET.Element = self._project_service.generate_document_xml(document_id)
 
-        html_string: str = RenderService().render(xml, xslt_name)
+        html_string: str = self._render_service.render(xml, xslt_name)
 
         return html_string
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_available_xslt
     # Description: Get the available xslt templates in the xslt folder.
@@ -427,12 +443,11 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_available_xslt(cls) -> List[str]:
+    def get_available_xslt(self) -> List[str]:
         """
         Get the available xslt templates in the xslt folder.
         """
-        return RenderService().get_available_xslt()
+        return self._render_service.get_available_xslt()
 
     # ----------------------------------------------------------------------
     # Method     : get_project_templates
@@ -441,16 +456,15 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_project_templates(cls) -> List[str]:
+    def get_project_templates(self) -> List[str]:
         """
         Get the project templates in the proteus.xml project file. Note that
         templates that are not in the app installation are ignored and not
         saved when the project is saved.
         """
-        project: Project = ProjectService.project
+        project: Project = self._project_service.project
         return project.xsl_templates
-    
+
     # ----------------------------------------------------------------------
     # Method     : add_project_template
     # Description: Add a new project template to the project.
@@ -458,8 +472,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def add_project_template(cls, template_name: str) -> None:
+    def add_project_template(self, template_name: str) -> None:
         """
         Add a new project template to the project.
 
@@ -469,7 +482,7 @@ class Controller:
         """
         log.info(f"Adding '{template_name}' template to the project")
 
-        ProjectService.add_project_template(template_name)
+        self._project_service.add_project_template(template_name)
 
         # Trigger ADD_VIEW event notifying the new template
         EventManager.notify(Event.ADD_VIEW, xslt_name=template_name)
@@ -481,8 +494,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def delete_project_template(cls, template_name: str) -> None:
+    def delete_project_template(self, template_name: str) -> None:
         """
         Remove a project template from the project.
 
@@ -492,11 +504,10 @@ class Controller:
         """
         log.info(f"Removing '{template_name}' template from the project")
 
-        ProjectService.delete_project_template(template_name)
+        self._project_service.delete_project_template(template_name)
 
         # Trigger REMOVE_VIEW event
         EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
-
 
     # ======================================================================
     # Archetype methods
@@ -510,8 +521,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def create_project(cls, archetype_id, name, path) -> None:
+    def create_project(self, archetype_id, name, path) -> None:
         """
         Create a new project with the given archetype id, name and path.
 
@@ -522,9 +532,9 @@ class Controller:
         log.info(
             f"Creating project with archetype id: {archetype_id}, name: {name} and path: {path}"
         )
-        ArchetypeService.create_project(archetype_id, name, path)
+        self._archetype_service.create_project(archetype_id, name, path)
         project_path: str = f"{path}/{name}"
-        cls.load_project(project_path)
+        self.load_project(project_path)
 
     # ----------------------------------------------------------------------
     # Method     : create_object
@@ -534,8 +544,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def create_object(cls, archetype_id: ProteusID, parent_id: ProteusID) -> None:
+    def create_object(self, archetype_id: ProteusID, parent_id: ProteusID) -> None:
         """
         Create a new object with the given archetype id and parent id.
 
@@ -544,7 +553,14 @@ class Controller:
         log.info(
             f"Creating object from archetype: {archetype_id} and parent id: {parent_id}"
         )
-        cls._push(CloneArchetypeObjectCommand(archetype_id, parent_id))
+        self._push(
+            CloneArchetypeObjectCommand(
+                archetype_id=archetype_id,
+                parent_id=parent_id,
+                project_service=self._project_service,
+                archetype_service=self._archetype_service,
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : create_document
@@ -553,15 +569,20 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def create_document(cls, archetype_id: ProteusID) -> None:
+    def create_document(self, archetype_id: ProteusID) -> None:
         """
         Create a new document with the given archetype id.
 
         :param archetype_id: The id of the archetype to create the document.
         """
         log.info(f"Creating document from archetype: {archetype_id}")
-        cls._push(CloneArchetypeDocumentCommand(archetype_id))
+        self._push(
+            CloneArchetypeDocumentCommand(
+                archetype_id=archetype_id,
+                project_service=self._project_service,
+                archetype_service=self._archetype_service,
+            )
+        )
 
     # ----------------------------------------------------------------------
     # Method     : get_project_archetypes
@@ -570,13 +591,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_project_archetypes(cls) -> List[Project]:
+    def get_project_archetypes(self) -> List[Project]:
         """
         Get project archetypes.
         """
         log.info("Getting project archetypes")
-        return ArchetypeService.get_project_archetypes()
+        return self._archetype_service.get_project_archetypes()
 
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes
@@ -585,13 +605,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_object_archetypes(cls) -> Dict[str, List[Object]]:
+    def get_object_archetypes(self) -> Dict[str, List[Object]]:
         """
         Get object archetypes.
         """
         log.info("Getting object archetypes")
-        return ArchetypeService.get_object_archetypes()
+        return self._archetype_service.get_object_archetypes()
 
     # ----------------------------------------------------------------------
     # Method     : get_document_archetypes
@@ -600,13 +619,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_document_archetypes(cls) -> List[Object]:
+    def get_document_archetypes(self) -> List[Object]:
         """
         Get document archetypes.
         """
         log.info("Getting document archetypes")
-        return ArchetypeService.get_document_archetypes()
+        return self._archetype_service.get_document_archetypes()
 
     # ----------------------------------------------------------------------
     # Method     : get_archetype_by_id
@@ -615,9 +633,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
-    def get_archetype_by_id(cls, archetype_id) -> Union[Object, Project]:
+    def get_archetype_by_id(self, archetype_id) -> Union[Object, Project]:
         """
         Get archetype by id.
         """
-        return ArchetypeService._get_archetype_by_id(archetype_id)
+        return self._archetype_service._get_archetype_by_id(archetype_id)

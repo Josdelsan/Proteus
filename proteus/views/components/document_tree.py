@@ -34,7 +34,6 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.object import Object
@@ -97,7 +96,14 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, element_id=None, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        parent=None,
+        element_id=None,
+        controller: Controller = None,
+        *args,
+        **kwargs,
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -107,7 +113,13 @@ class DocumentTree(QWidget):
         on update events using the element id.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the document tree component"
+        self._controller: Controller = controller
 
+        # Translator instance
         self.translator = Translator()
 
         # Set tree document id
@@ -160,14 +172,16 @@ class DocumentTree(QWidget):
         self.tree_widget.dropEvent = self.drop_event
 
         # Get document structure and top level items
-        top_level_object: Object = Controller.get_element(self.element_id)
+        top_level_object: Object = self._controller.get_element(self.element_id)
 
         # Populate tree widget
         self.populate_tree(self.tree_widget, top_level_object)
 
         # Connect double click to object properties form
         self.tree_widget.itemDoubleClicked.connect(
-            lambda item: PropertyDialog.object_property_dialog(item.data(1, 0))
+            lambda item: PropertyDialog.create_dialog(
+                element_id=item.data(1, 0), controller=self._controller
+            )
         )
 
         # Connect click to object selection
@@ -291,7 +305,7 @@ class DocumentTree(QWidget):
         tree_item: QTreeWidgetItem = self.tree_items[element_id]
 
         # Get the object
-        object: Object = Controller.get_element(element_id)
+        object: Object = self._controller.get_element(element_id)
 
         # Update the tree item
         tree_item.setText(0, object.get_property("name").value)
@@ -350,7 +364,7 @@ class DocumentTree(QWidget):
         # NOTE: Parent will always be an Object. Project cannot be selected
         #       as parent to trigger ADD_OBJECT event. When adding an object
         #       with Project as parent ADD_DOCUMENT event is triggered.
-        parent: Object = Controller.get_element(new_object.parent.id)
+        parent: Object = self._controller.get_element(new_object.parent.id)
         parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
 
         # Calculate item position relative to its siblings omits DEAD objects
@@ -418,7 +432,7 @@ class DocumentTree(QWidget):
         #       as parent to trigger DELETE_OBJECT event. When deleting object
         #       with Project parent DELETE_DOCUMENT event is triggered.
         parent_id: ProteusID = tree_item.parent().data(1, 0)
-        parent_object: Object = Controller.get_element(parent_id)
+        parent_object: Object = self._controller.get_element(parent_id)
         tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
         # Remove the item from the tree including its children
@@ -454,7 +468,7 @@ class DocumentTree(QWidget):
         # Do not show context menu for document root item
         # NOTE: Elements stored in the tree items dictionary are always
         #       Objects.
-        element: Object = Controller.get_element(selected_item_id)
+        element: Object = self._controller.get_element(selected_item_id)
         is_document: bool = isinstance(element.parent, Project)
         if is_document:
             return
@@ -472,7 +486,9 @@ class DocumentTree(QWidget):
             self.translator.text("document_tree.menu.action.edit"), self
         )
         action_edit_object.triggered.connect(
-            lambda: PropertyDialog.object_property_dialog(selected_item_id)
+            lambda: PropertyDialog.create_dialog(
+                element_id=selected_item_id, controller=self._controller
+            )
         )
         edit_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_FileDialogDetailedView
@@ -496,7 +512,7 @@ class DocumentTree(QWidget):
             self.translator.text("document_tree.menu.action.clone"), self
         )
         action_clone_object.triggered.connect(
-            lambda: Controller.clone_object(selected_item_id)
+            lambda: self._controller.clone_object(selected_item_id)
         )
         clone_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_DialogApplyButton
@@ -508,7 +524,7 @@ class DocumentTree(QWidget):
             self.translator.text("document_tree.menu.action.move_up"), self
         )
         action_move_up_object.triggered.connect(
-            lambda: Controller.change_object_position(
+            lambda: self._controller.change_object_position(
                 selected_item_id, position_index - 1, parent_id
             )
         )
@@ -523,7 +539,7 @@ class DocumentTree(QWidget):
         )
         # TODO: Fix change position method to avoid using +2
         action_move_down_object.triggered.connect(
-            lambda: Controller.change_object_position(
+            lambda: self._controller.change_object_position(
                 selected_item_id, position_index + 2, parent_id
             )
         )
@@ -567,7 +583,7 @@ class DocumentTree(QWidget):
         Manage the delete key pressed event. Delete the selected object.
         """
         # Delete the object
-        Controller.delete_object(element_id)
+        self._controller.delete_object(element_id)
 
     # ----------------------------------------------------------------------
     # Method     : drop_event
@@ -623,7 +639,7 @@ class DocumentTree(QWidget):
                 log.info(
                     f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
                 )
-                Controller.change_object_position(
+                self._controller.change_object_position(
                     dropped_element_id, target_index + 1, parent_id
                 )
 
@@ -633,7 +649,7 @@ class DocumentTree(QWidget):
                 log.info(
                     f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
                 )
-                Controller.change_object_position(
+                self._controller.change_object_position(
                     dropped_element_id, target_index, parent_id
                 )
 
@@ -644,6 +660,6 @@ class DocumentTree(QWidget):
                 log.info(
                     f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
                 )
-                Controller.change_object_position(
+                self._controller.change_object_position(
                     dropped_element_id, None, target_element_id
                 )

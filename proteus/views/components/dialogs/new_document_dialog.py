@@ -58,12 +58,19 @@ class NewDocumentDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the new document dialog"
+        self._controller: Controller = controller
 
         self.translator = Translator()
 
@@ -93,7 +100,7 @@ class NewDocumentDialog(QDialog):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
 
         # Get document archetypes
-        document_archetypes: List[Object] = Controller.get_document_archetypes()
+        document_archetypes: List[Object] = self._controller.get_document_archetypes()
         # Create a combo box with the document archetypes
         archetype_label: QLabel = QLabel(
             self.translator.text("new_document_dialog.combobox.label")
@@ -179,7 +186,7 @@ class NewDocumentDialog(QDialog):
             return
 
         # Create the document
-        Controller.create_document(self._archetype_id)
+        self._controller.create_document(self._archetype_id)
 
         # Close the form window
         self.close()
@@ -213,9 +220,9 @@ class NewDocumentDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog() -> None:
+    def create_dialog(controller: Controller) -> None:
         """
         Create a new document dialog and show it
         """
-        dialog = NewDocumentDialog()
+        dialog = NewDocumentDialog(controller=controller)
         dialog.exec()

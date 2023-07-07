@@ -57,7 +57,9 @@ class DocumentsContainer(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -67,6 +69,11 @@ class DocumentsContainer(QTabWidget):
         dictionary to delete when the tab is closed.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the documents container component"
+        self._controller: Controller = controller
 
         # Tabs dictionary
         self.tabs: Dict[ProteusID, QWidget] = {}
@@ -103,7 +110,7 @@ class DocumentsContainer(QTabWidget):
         document.
         """
         # Get project structure from project service
-        project_structure: List[Object] = Controller.get_project_structure()
+        project_structure: List[Object] = self._controller.get_project_structure()
 
         # Add a document tab for each document in the project
         for document in project_structure:
@@ -132,7 +139,7 @@ class DocumentsContainer(QTabWidget):
         tab_layout: QHBoxLayout = QHBoxLayout(tab)
 
         # Tree widget --------------------------------------------------------
-        document_tree: DocumentTree = DocumentTree(self, document.id)
+        document_tree: DocumentTree = DocumentTree(self, document.id, self._controller)
         document_tree.setStyleSheet("background-color: #FFFFFF;")
 
         tab_layout.addWidget(document_tree)
@@ -241,7 +248,7 @@ class DocumentsContainer(QTabWidget):
             document_tab: QWidget = self.tabs.get(element_id)
 
             # Change tab name
-            element: Object = Controller.get_element(element_id)
+            element: Object = self._controller.get_element(element_id)
             document_name: str = element.get_property("acronym").value
             self.setTabText(self.indexOf(document_tab), document_name)
 

@@ -71,7 +71,9 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -81,6 +83,11 @@ class MainMenu(QDockWidget):
         different menus.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the main menu component"
+        self._controller: Controller = controller
 
         # Get translator instance
         self.translator = Translator()
@@ -141,7 +148,7 @@ class MainMenu(QDockWidget):
         # Get the object archetypes
         object_archetypes_dict: Dict[
             str, List[Object]
-        ] = Controller.get_object_archetypes()
+        ] = self._controller.get_object_archetypes()
         # Create a tab for each class of object archetypes
         for class_name in object_archetypes_dict.keys():
             self.add_archetype_tab(class_name, object_archetypes_dict[class_name])
@@ -172,7 +179,9 @@ class MainMenu(QDockWidget):
         # ---------
         # New action
         new_button: QToolButton = buttons.new_project_button(self)
-        new_button.clicked.connect(NewProjectDialog.create_dialog)
+        new_button.clicked.connect(
+            lambda: NewProjectDialog.create_dialog(self._controller)
+        )
 
         # Open action
         open_button: QToolButton = buttons.open_project_button(self)
@@ -180,14 +189,17 @@ class MainMenu(QDockWidget):
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
-        self.save_button.clicked.connect(Controller.save_project)
+        self.save_button.clicked.connect(self._controller.save_project)
 
         # Project properties action
         self.project_properties_button: QToolButton = buttons.project_properties_button(
             self
         )
         self.project_properties_button.clicked.connect(
-            PropertyDialog.project_property_dialog
+            lambda: PropertyDialog.create_dialog(
+                element_id=self._controller.get_current_project().id,
+                controller=self._controller,
+            )
         )
 
         # Add the buttons to the project menu widget
@@ -202,7 +214,9 @@ class MainMenu(QDockWidget):
         # ---------
         # Add document action
         self.add_document_button: QToolButton = buttons.add_document_button(self)
-        self.add_document_button.clicked.connect(NewDocumentDialog.create_dialog)
+        self.add_document_button.clicked.connect(
+            lambda: NewDocumentDialog.create_dialog(self._controller)
+        )
 
         # Delete document action
         self.delete_document_button: QToolButton = buttons.delete_document_button(self)
@@ -220,11 +234,11 @@ class MainMenu(QDockWidget):
         # ---------
         # Undo action
         self.undo_button: QToolButton = buttons.undo_button(self)
-        self.undo_button.clicked.connect(Controller.undo)
+        self.undo_button.clicked.connect(self._controller.undo)
 
         # Redo action
         self.redo_button: QToolButton = buttons.redo_button(self)
-        self.redo_button.clicked.connect(Controller.redo)
+        self.redo_button.clicked.connect(self._controller.redo)
 
         # Add the buttons to the action menu widget
         action_menu: QWidget = buttons.button_group(
@@ -289,7 +303,7 @@ class MainMenu(QDockWidget):
 
             # Connect the clicked signal to the clone archetype method
             archetype_button.clicked.connect(
-                lambda checked, arg=archetype.id: Controller.create_object(
+                lambda checked, arg=archetype.id: self._controller.create_object(
                     archetype_id=arg, parent_id=StateManager.get_current_object()
                 )
             )
@@ -335,9 +349,9 @@ class MainMenu(QDockWidget):
 
         Triggered by: Event.STACK_CHANGED
         """
-        can_undo: bool = Controller._get_instance().canUndo()
-        can_redo: bool = Controller._get_instance().canRedo()
-        unsaved_changes: bool = not Controller._get_instance().isClean()
+        can_undo: bool = self._controller.stack.canUndo()
+        can_redo: bool = self._controller.stack.canRedo()
+        unsaved_changes: bool = not self._controller.stack.isClean()
 
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
@@ -372,7 +386,7 @@ class MainMenu(QDockWidget):
         # that are accepted children of the selected object
         else:
             # Get the selected object and its accepted children
-            selected_object: Object = Controller.get_element(selected_object_id)
+            selected_object: Object = self._controller.get_element(selected_object_id)
             accepted_children: str = selected_object.acceptedChildren.split()
 
             # Iterate over the archetype buttons
@@ -383,7 +397,7 @@ class MainMenu(QDockWidget):
                 ]
 
                 # Get the archetype
-                archetype: Object = Controller.get_archetype_by_id(archetype_id)
+                archetype: Object = self._controller.get_archetype_by_id(archetype_id)
 
                 assert (
                     type(archetype) is Object
@@ -465,7 +479,7 @@ class MainMenu(QDockWidget):
         # Load the project from the selected directory
         if directory_path:
             try:
-                Controller.load_project(project_path=directory_path)
+                self._controller.load_project(project_path=directory_path)
             except Exception as e:
                 log.error(e)
 
@@ -496,7 +510,7 @@ class MainMenu(QDockWidget):
         """
         # Get the current document
         document_id: ProteusID = StateManager.get_current_document()
-        document: Object = Controller.get_element(document_id)
+        document: Object = self._controller.get_element(document_id)
         document_name: str = document.get_property("name").value
 
         # Show a confirmation dialog
@@ -514,6 +528,6 @@ class MainMenu(QDockWidget):
         confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
         confirmation_dialog.accepted.connect(
             # Delete the document
-            lambda arg=document.id: Controller.delete_document(arg)
+            lambda arg=document.id: self._controller.delete_document(arg)
         )
         confirmation_dialog.exec()

@@ -68,13 +68,21 @@ class ViewsContainer(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(
+        self, parent=None, controller: Controller = None, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
         """
         super().__init__(parent, *args, **kwargs)
+        # Controller instance
+        assert isinstance(
+            controller, Controller
+        ), "Must provide a controller instance to the views container component"
+        self._controller: Controller = controller
 
+        # Translator instance
         self.translator = Translator()
 
         # Dict of stored browsers for each view. The way the dict is updated
@@ -127,7 +135,7 @@ class ViewsContainer(QTabWidget):
         # Allow to close tabs
         self.setTabsClosable(True)
 
-        xsl_templates: list[str] = Controller().get_project_templates()
+        xsl_templates: list[str] = self._controller.get_project_templates()
         for xsl_template in xsl_templates:
             self.add_view(xsl_template)
 
@@ -140,11 +148,15 @@ class ViewsContainer(QTabWidget):
         )
 
         # Connect to new view dialog
-        add_view_button.clicked.connect(NewViewDialog.create_dialog)
+        add_view_button.clicked.connect(
+            lambda: NewViewDialog.create_dialog(self._controller)
+        )
         self.setCornerWidget(add_view_button, Qt.Corner.TopRightCorner)
 
         # Hide the close button on the main view tab
-        tabbutton: QWidget = self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
+        tabbutton: QWidget = (
+            self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
+        )
 
         # Connect singal to handle view tab change
         self.currentChanged.connect(self.current_view_changed)
@@ -234,7 +246,7 @@ class ViewsContainer(QTabWidget):
             browser: QWebEngineView = self.browsers[current_view]
 
             # Get html from controller
-            html_str: str = Controller().get_document_view(
+            html_str: str = self._controller.get_document_view(
                 document_id=current_document_id, xslt_name=current_view
             )
 
@@ -362,7 +374,7 @@ class ViewsContainer(QTabWidget):
         xslt_name: str = list(self.browsers.keys())[index]
 
         # Delete the view
-        Controller().delete_project_template(xslt_name)
+        self._controller.delete_project_template(xslt_name)
 
     # ----------------------------------------------------------------------
     # Method     : current_view_changed
