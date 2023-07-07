@@ -78,6 +78,11 @@ class Translator:
         It initializes the Translator class. It loads the translations for the
         current language.
         """
+        # Check if the instance has been initialized
+        if self._initialized:
+            return
+        self._initialized = True
+        
         # Proteus configuration
         self.config: Config = Config()
         self.current_language: str = self.config.language

@@ -11,8 +11,9 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, List
 import logging
+from typing import Dict, List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -53,15 +54,12 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 
 # TODO: Avoid hardcoding paths
-config: Config = Config()
-TREE_ICONS_PATH = f"{config.icons_directory}/tree_icons"
-
 # Tree icons
 TREE_ICONS = {
-    "section": f"{TREE_ICONS_PATH}/section.svg",
-    "paragraph": f"{TREE_ICONS_PATH}/paragraph.svg",
-    ":Proteus-document": f"{TREE_ICONS_PATH}/document.svg",
-    "actor": f"{TREE_ICONS_PATH}/actor.svg",
+    "section": "tree_icons/section.svg",
+    "paragraph": "tree_icons/paragraph.svg",
+    ":Proteus-document": "tree_icons/document.svg",
+    "actor": "tree_icons/actor.svg",
 }
 
 # Tree item color
@@ -259,9 +257,11 @@ class DocumentTree(QWidget):
         # Set the icon based on the object last class
         object_class: str = object.classes.split()[-1]
         try:
-            new_item.setIcon(0, QIcon(TREE_ICONS[object_class]))
+            icon_path: Path = Config().icons_directory / TREE_ICONS[object_class]
+            new_item.setIcon(0, QIcon(icon_path.as_posix()))
         except KeyError:
-            new_item.setIcon(0, QIcon(TREE_ICONS["paragraph"]))
+            icon_path: Path = Config().icons_directory / TREE_ICONS["paragraph"]
+            new_item.setIcon(0, QIcon(icon_path.as_posix()))
 
         # Set the item data to store the object id
         new_item.setData(1, 0, object.id)
