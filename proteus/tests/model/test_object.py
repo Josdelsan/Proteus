@@ -279,3 +279,5 @@ def test_set_property(sample_object: Object):
 
 
 # NOTE save method is tested with the save_project method in test_project.py
+
+# TODO: Test add_descendant

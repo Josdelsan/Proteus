@@ -408,3 +408,6 @@ def test_save_project_document_delete(cloned_project: Project):
         f"Number of documents did not decrease by 1. \
         Expected: {num_documents_before_delete - 1} \
         Actual: {num_documents_after_delete}"
+    
+    # TODO: Test load_xsl_templates
+    # TODO: Test add_descendant

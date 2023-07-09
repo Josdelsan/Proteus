@@ -28,10 +28,10 @@ from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.services.archetype_service import ArchetypeService
 
+
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
-
 @pytest.fixture
 def archetype_service():
     """
@@ -39,9 +39,11 @@ def archetype_service():
     """
     return ArchetypeService()
 
+
 # --------------------------------------------------------------------------
 # Integration tests
 # --------------------------------------------------------------------------
+
 
 # test_project_archetypes_lazy_load ----------------------------------------
 def test_project_archetypes_lazy_load(archetype_service: ArchetypeService):
@@ -54,7 +56,7 @@ def test_project_archetypes_lazy_load(archetype_service: ArchetypeService):
     # Check that the project archetypes are not loaded
     assert (
         archetype_service._project_archetypes is None
-    ), "ArchetypeService._project_archetypes should be None"
+    ), "_project_archetypes instance attribute should be None"
 
     # Act -----------------------------
     # Load the project archetypes calling the property
@@ -64,10 +66,10 @@ def test_project_archetypes_lazy_load(archetype_service: ArchetypeService):
     # Check that the project archetypes are loaded
     assert isinstance(
         project_archetypes, list
-    ), f"ArchetypeService.project_archetypes should be a list, not {type(project_archetypes)}"
+    ), f"project_archetypes should be a list, not {type(project_archetypes)}"
     assert (
         archetype_service._project_archetypes == project_archetypes
-    ), "ArchetypeService._project_archetypes should be equal to ArchetypeService.project_archetypes"
+    ), "_project_archetypes should be equal to ArchetypeService.project_archetypes"
 
 
 # test_document_archetypes_lazy_load ---------------------------------------
@@ -81,7 +83,7 @@ def test_document_archetypes_lazy_load(archetype_service: ArchetypeService):
     # Arrange -------------------------
     assert (
         archetype_service._document_archetypes is None
-    ), "ArchetypeService._document_archetypes should be None"
+    ), "._document_archetypes instance attribute should be None"
 
     # Act -----------------------------
     # Load the document archetypes calling the property
@@ -91,10 +93,10 @@ def test_document_archetypes_lazy_load(archetype_service: ArchetypeService):
     # Check that the document archetypes are loaded
     assert isinstance(
         document_archetypes, list
-    ), f"ArchetypeService.document_archetypes should be a list, not {type(document_archetypes)}"
+    ), f"document_archetypes should be a list, not {type(document_archetypes)}"
     assert (
         archetype_service._document_archetypes == document_archetypes
-    ), "ArchetypeService._document_archetypes should be equal to ArchetypeService.document_archetypes"
+    ), "_document_archetypes should be equal to ArchetypeService.document_archetypes"
 
 
 # test_object_arquetypes_lazy_load -----------------------------------------
@@ -108,7 +110,7 @@ def test_object_arquetypes_lazy_load(archetype_service: ArchetypeService):
     # Check that the object archetypes are not loaded
     assert (
         archetype_service._object_archetypes is None
-    ), "ArchetypeService._object_archetypes should be None"
+    ), "_object_archetypes instance attribute should be None"
 
     # Act -----------------------------
     # Load the object archetypes calling the property
@@ -120,10 +122,10 @@ def test_object_arquetypes_lazy_load(archetype_service: ArchetypeService):
     # Check that the object archetypes are loaded
     assert isinstance(
         object_archetypes, dict
-    ), f"ArchetypeService.object_archetypes should be a dict, not {type(object_archetypes)}"
+    ), f"object_archetypes should be a dict, not {type(object_archetypes)}"
     assert (
         archetype_service._object_archetypes == object_archetypes
-    ), "ArchetypeService._object_archetypes should be equal to ArchetypeService.object_archetypes"
+    ), "_object_archetypes should be equal to ArchetypeService.object_archetypes"
 
 
 # test_archetype_index_load ------------------------------------------------
@@ -165,86 +167,8 @@ def test_archetype_index_load(archetype_service: ArchetypeService):
     # Check that the archetype_index is updated
     assert (
         archetypes_ids == archetype_index_keys
-    ), "ArchetypeService.archetype_index should contain the all archetypes"
+    ), "archetype_index should contain the all archetypes"
 
-
-# test_get_project_archetypes ----------------------------------------------
-def test_get_project_archetypes(archetype_service: ArchetypeService):
-    """
-    It tests the get_project_archetypes method.
-
-    Depends on the archetypes folder content.
-    """
-    # Act -----------------------------
-    # Load the project archetypes list
-    project_archetypes: List[Project] = archetype_service.get_project_archetypes()
-
-    # Assert --------------------------
-    # Check that the project archetypes are loaded
-    assert isinstance(
-        project_archetypes, list
-    ), f"ArchetypeService.project_archetypes should be a list, not {type(project_archetypes)}"
-
-
-# test_get_document_archetypes ---------------------------------------------
-def test_get_document_archetypes(archetype_service: ArchetypeService):
-    """
-    It tests the get_document_archetypes method.
-
-    Depends on the archetypes folder content.
-    """
-    # Act -----------------------------
-    # Load the document archetypes list
-    document_archetypes: List[Object] = archetype_service.get_document_archetypes()
-
-    # Assert --------------------------
-    # Check that the document archetypes are loaded
-    assert isinstance(
-        document_archetypes, list
-    ), f"ArchetypeService.document_archetypes should be a list, not {type(document_archetypes)}"
-
-
-# test_get_object_archetypes_classes ---------------------------------------
-def test_get_object_archetypes_classes(archetype_service: ArchetypeService):
-    """
-    It tests the get_object_archetypes_classes method.
-
-    Depends on the archetypes folder content.
-    """
-    # Act -----------------------------
-    # Load the object archetypes classes list
-    object_archetypes_classes: List[
-        str
-    ] = archetype_service.get_object_archetypes_classes()
-
-    # Assert --------------------------
-    # Check that the object archetypes are loaded
-    assert isinstance(
-        object_archetypes_classes, list
-    ), f"ArchetypeService.object_archetypes should be a list, not {type(object_archetypes_classes)}"
-
-
-# test_get_object_archetypes_by_class --------------------------------------
-def test_get_object_archetypes_by_class(archetype_service: ArchetypeService):
-    """
-    It tests the get_object_archetypes_by_class method.
-
-    Depends on the archetypes folder content.
-    """
-    # Arrange -------------------------
-    OBJECT_CLASS = "General"
-
-    # Act -----------------------------
-    # Load the object archetypes list
-    object_archetypes_by_class: List[
-        Object
-    ] = archetype_service.get_object_archetypes_by_class(OBJECT_CLASS)
-
-    # Assert --------------------------
-    # Check that the object archetypes are loaded
-    assert isinstance(
-        object_archetypes_by_class, list
-    ), f"ArchetypeService.object_archetypes should be a list, not {type(object_archetypes_by_class)}"
 
 # test_get_archetype_by_id -------------------------------------------------
 @pytest.mark.parametrize(
@@ -281,7 +205,38 @@ def test_get_archetype_by_id(id: str, archetype_service: ArchetypeService):
 # Unit tests
 # --------------------------------------------------------------------------
 
+
 # test_get_project_archetypes ----------------------------------------------
+def test_get_project_archetypes(mocker, archetype_service: ArchetypeService):
+    """
+    It tests the get_project_archetypes method.
+    """
+    # Arrange -------------------------
+    # Mock ArchetypeManager.load_project_archetypes static method
+    mock_project = mocker.MagicMock(spec=Project)
+    mock_project.id = "mock_project_1"
+
+    mock_project_archetypes = [mock_project]
+    mocker.patch.object(
+        ArchetypeManager,
+        "load_project_archetypes",
+        return_value=mock_project_archetypes,
+    )
+
+    # Act -----------------------------
+    # Load the project archetypes list
+    project_archetypes: List[Project] = archetype_service.get_project_archetypes()
+
+    # Assert --------------------------
+    # Check that the project archetypes are loaded
+    assert isinstance(
+        project_archetypes, list
+    ), f"project_archetypes should be a list, not {type(project_archetypes)}"
+
+    # Check that ArchetypeManager.load_project_archetypes static method is called
+    ArchetypeManager.load_project_archetypes.assert_called_once()
+
+
 def test_get_project_archetypes_invalid_archetypes(
     mocker, archetype_service: ArchetypeService
 ):
@@ -289,9 +244,6 @@ def test_get_project_archetypes_invalid_archetypes(
     Test that an assertion error is raised when the archetypes are not a list.
     """
     # Arrange -------------------------
-    # Set the project archetypes to None to ensure that the archetypes are loaded
-    ArchetypeService._project_archetypes = None
-
     # Mock the load_project_archetypes function to return an invalid value (not a list)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
@@ -303,7 +255,10 @@ def test_get_project_archetypes_invalid_archetypes(
     with pytest.raises(AssertionError):
         archetype_service.get_project_archetypes()
 
-def test_get_project_archetypes_duplicate_id(mocker, archetype_service: ArchetypeService):
+
+def test_get_project_archetypes_duplicate_id(
+    mocker, archetype_service: ArchetypeService
+):
     # Arrange -------------------------
     # Mock the load_project_archetypes function to return a list with duplicate project IDs
     project_mock = mocker.Mock(spec=Project)
@@ -312,9 +267,6 @@ def test_get_project_archetypes_duplicate_id(mocker, archetype_service: Archetyp
     mocker.patch.object(
         ArchetypeManager, "load_project_archetypes", return_value=mock_archetypes
     )
-    # Set _project_archetypes to None to force the reload
-    # NOTE: This might not be necessary in future versions of the ArchetypeService
-    ArchetypeService._project_archetypes = None
 
     # Act & Assert --------------------
     # Check that an assertion error is raised when duplicate project IDs are found
@@ -323,6 +275,37 @@ def test_get_project_archetypes_duplicate_id(mocker, archetype_service: Archetyp
 
 
 # test_get_document_archetypes ---------------------------------------------
+def test_get_document_archetypes(mocker, archetype_service: ArchetypeService):
+    """
+    It tests the get_document_archetypes method.
+    """
+    # Arrange -------------------------
+    # Mock ArchetypeManager.load_document_archetypes static method
+    mock_document = mocker.MagicMock(spec=Object)
+    mock_document.id = "mock_document_1"
+
+    mock_document_archetypes = [mock_document]
+
+    mocker.patch.object(
+        ArchetypeManager,
+        "load_document_archetypes",
+        return_value=mock_document_archetypes,
+    )
+
+    # Act -----------------------------
+    # Load the document archetypes list
+    document_archetypes: List[Object] = archetype_service.get_document_archetypes()
+
+    # Assert --------------------------
+    # Check that the document archetypes are loaded
+    assert isinstance(
+        document_archetypes, list
+    ), f"document_archetypes should be a list, not {type(document_archetypes)}"
+
+    # Check that ArchetypeManager.load_document_archetypes static method is called
+    ArchetypeManager.load_document_archetypes.assert_called_once()
+
+
 def test_get_document_archetypes_invalid_archetypes(
     mocker, archetype_service: ArchetypeService
 ):
@@ -330,9 +313,6 @@ def test_get_document_archetypes_invalid_archetypes(
     Test that an assertion error is raised when the archetypes are not a list.
     """
     # Arrange -------------------------
-    # Set the document archetypes to None to ensure that the archetypes are loaded
-    ArchetypeService._document_archetypes = None
-
     # Mock the load_document_archetypes function to return an invalid value (not a list)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
@@ -344,7 +324,10 @@ def test_get_document_archetypes_invalid_archetypes(
     with pytest.raises(AssertionError):
         archetype_service.get_document_archetypes()
 
-def test_get_document_archetypes_duplicate_id(mocker, archetype_service: ArchetypeService):
+
+def test_get_document_archetypes_duplicate_id(
+    mocker, archetype_service: ArchetypeService
+):
     """
     Test that an assertion error is raised when there are documents with duplicate IDs.
     """
@@ -356,9 +339,6 @@ def test_get_document_archetypes_duplicate_id(mocker, archetype_service: Archety
     mocker.patch.object(
         ArchetypeManager, "load_document_archetypes", return_value=mock_archetypes
     )
-    # Set _document_archetypes to None to force the reload
-    # NOTE: This might not be necessary in future versions of the ArchetypeService
-    ArchetypeService._document_archetypes = None
 
     # Act & Assert --------------------
     # Check that an assertion error is raised when duplicate document IDs are found
@@ -367,6 +347,69 @@ def test_get_document_archetypes_duplicate_id(mocker, archetype_service: Archety
 
 
 # test_get_object_archetypes -----------------------------------------------
+def test_get_object_archetypes_classes(mocker, archetype_service: ArchetypeService):
+    """
+    It tests the get_object_archetypes_classes method.
+    """
+    # Arrange -------------------------
+    mock_object = mocker.MagicMock(spec=Object)
+    mock_object.id = "mock_object_1"
+
+    mock_object_archetypes = {"mock_object_class_1": [mock_object]}
+    mocker.patch.object(
+        ArchetypeManager,
+        "load_object_archetypes",
+        return_value=mock_object_archetypes,
+    )
+
+    # Act -----------------------------
+    # Load the object archetypes classes list
+    object_archetypes_classes: List[
+        str
+    ] = archetype_service.get_object_archetypes_classes()
+
+    # Assert --------------------------
+    # Check that the object archetypes are loaded
+    assert isinstance(
+        object_archetypes_classes, list
+    ), f"object_archetypes should be a list, not {type(object_archetypes_classes)}"
+
+    # Check that ArchetypeManager.load_object_archetypes static method is called
+    ArchetypeManager.load_object_archetypes.assert_called_once()
+
+
+def test_get_object_archetypes_by_class(mocker, archetype_service: ArchetypeService):
+    """
+    It tests the get_object_archetypes_by_class method.
+    """
+    # Arrange -------------------------
+    OBJECT_CLASS = "mock_object_class_1"
+    mock_object = mocker.MagicMock(spec=Object)
+    mock_object.id = "mock_object_1"
+
+    mock_object_archetypes = {OBJECT_CLASS: [mock_object]}
+    mocker.patch.object(
+        ArchetypeManager,
+        "load_object_archetypes",
+        return_value=mock_object_archetypes,
+    )
+
+    # Act -----------------------------
+    # Load the object archetypes list
+    object_archetypes_by_class: List[
+        Object
+    ] = archetype_service.get_object_archetypes_by_class(OBJECT_CLASS)
+
+    # Assert --------------------------
+    # Check that the object archetypes are loaded
+    assert isinstance(
+        object_archetypes_by_class, list
+    ), f"object_archetypes should be a list, not {type(object_archetypes_by_class)}"
+
+    # Check that ArchetypeManager.load_object_archetypes static method is called
+    ArchetypeManager.load_object_archetypes.assert_called_once()
+
+
 def test_get_object_archetypes_invalid_archetypes(
     mocker, archetype_service: ArchetypeService
 ):
@@ -374,9 +417,6 @@ def test_get_object_archetypes_invalid_archetypes(
     Test that an assertion error is raised when the archetypes are not a dict.
     """
     # Arrange -------------------------
-    # Set the object archetypes to None to ensure that the archetypes are loaded
-    ArchetypeService._object_archetypes = None
-
     # Mock the load_object_archetypes function to return an invalid value (not a dict)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
@@ -388,7 +428,10 @@ def test_get_object_archetypes_invalid_archetypes(
     with pytest.raises(AssertionError):
         archetype_service.get_object_archetypes()
 
-def test_get_object_archetypes_duplicate_id(mocker, archetype_service: ArchetypeService):
+
+def test_get_object_archetypes_duplicate_id(
+    mocker, archetype_service: ArchetypeService
+):
     """
     Test that an assertion error is raised when there are objects with duplicate IDs.
     """
@@ -400,14 +443,12 @@ def test_get_object_archetypes_duplicate_id(mocker, archetype_service: Archetype
     mocker.patch.object(
         ArchetypeManager, "load_object_archetypes", return_value=mock_archetypes
     )
-    # Set _object_archetypes to None to force the reload
-    # NOTE: This might not be necessary in future versions of the ArchetypeService
-    ArchetypeService._object_archetypes = None
 
     # Act & Assert --------------------
     # Check that an assertion error is raised when duplicate object IDs are found
     with pytest.raises(AssertionError):
         archetype_service.get_object_archetypes()
+
 
 # test_get_archetype_by_id -------------------------------------------------
 @pytest.mark.parametrize("id", ["", None, "non-existent-id"])
@@ -429,7 +470,9 @@ def test_get_archetype_by_id_negative(id: str, archetype_service: ArchetypeServi
     "archetype_id, project_name, save_path",
     [("archetype_id_1", "project_name_1", "/path/to/save_1")],
 )
-def test_create_project(mocker, archetype_id, project_name, save_path):
+def test_create_project(
+    mocker, archetype_id, project_name, save_path, archetype_service: ArchetypeService
+):
     """
     Test the create_project method. Positive case. Test that the _get_archetype_by_id
     and clone_project methods are called once with the correct parameters.
@@ -439,19 +482,19 @@ def test_create_project(mocker, archetype_id, project_name, save_path):
     # return a mock project
     mock_project = mocker.Mock(spec=Project)
     mocker.patch.object(
-        ArchetypeService, "_get_archetype_by_id", return_value=mock_project
+        archetype_service, "_get_archetype_by_id", return_value=mock_project
     )
     # Mock the clone_project method of the mock project to do nothing
     mocker.patch.object(mock_project, "clone_project", return_value=None)
 
     # Act -----------------------------
     # Call the create_project method
-    ArchetypeService.create_project(archetype_id, project_name, save_path)
+    archetype_service.create_project(archetype_id, project_name, save_path)
 
     # Assert --------------------------
     # Assert that _get_archetype_by_id and mock_project.clone_project are called
     # once with the correct parameters
-    ArchetypeService._get_archetype_by_id.assert_called_once_with(archetype_id)
+    archetype_service._get_archetype_by_id.assert_called_once_with(archetype_id)
     mock_project.clone_project.assert_called_once_with(save_path, project_name)
 
 
@@ -465,7 +508,9 @@ def test_create_project(mocker, archetype_id, project_name, save_path):
         (None, None),  # Invalid parameters
     ],
 )
-def test_create_project_negative(mocker, project_name, archetype_type):
+def test_create_project_negative(
+    mocker, project_name, archetype_type, archetype_service: ArchetypeService
+):
     """
     Test the create_project method. Negative case. Test that assert is raised
     when passing incorrect parameters.
@@ -474,7 +519,7 @@ def test_create_project_negative(mocker, project_name, archetype_type):
     # Mock the _get_archetype_by_id method so we can
     mock_project = mocker.Mock(spec=archetype_type)
     mocker.patch.object(
-        ArchetypeService, "_get_archetype_by_id", return_value=mock_project
+        archetype_service, "_get_archetype_by_id", return_value=mock_project
     )
     archetype_id: str = "archetype_id_dummy"
     save_path: str = "/path/to/save/dummy"
@@ -482,7 +527,7 @@ def test_create_project_negative(mocker, project_name, archetype_type):
     # Act | Assert --------------------
     # Call the create_project method
     with pytest.raises(AssertionError):
-        ArchetypeService.create_project(archetype_id, project_name, save_path)
+        archetype_service.create_project(archetype_id, project_name, save_path)
 
 
 # test_create_object -------------------------------------------------------
@@ -490,7 +535,9 @@ def test_create_project_negative(mocker, project_name, archetype_type):
     "archetype_id, parent, project",
     [("dummy_id", "dummy_parent", "dummy_project")],
 )
-def test_create_object(mocker, archetype_id, parent, project):
+def test_create_object(
+    mocker, archetype_id, parent, project, archetype_service: ArchetypeService
+):
     """
     Test the create_object method. Positive case. Test that the _get_archetype_by_id
     and clone_project methods are called once with the correct parameters.
@@ -500,19 +547,19 @@ def test_create_object(mocker, archetype_id, parent, project):
     # return a mock object
     mock_object = mocker.Mock(spec=Object)
     mocker.patch.object(
-        ArchetypeService, "_get_archetype_by_id", return_value=mock_object
+        archetype_service, "_get_archetype_by_id", return_value=mock_object
     )
     # Mock the clone_object method of the mock project to do nothing
     mocker.patch.object(mock_object, "clone_object", return_value=None)
 
     # Act -----------------------------
     # Call the create_project method
-    ArchetypeService.create_object(archetype_id, parent, project)
+    archetype_service.create_object(archetype_id, parent, project)
 
     # Assert --------------------------
     # Assert that _get_archetype_by_id and mock_project.clone_project are called
     # once with the correct parameters
-    ArchetypeService._get_archetype_by_id.assert_called_once_with(archetype_id)
+    archetype_service._get_archetype_by_id.assert_called_once_with(archetype_id)
     mock_object.clone_object.assert_called_once_with(parent, project)
 
 
@@ -520,7 +567,9 @@ def test_create_object(mocker, archetype_id, parent, project):
     "archetype_type",
     [(Project), (None)],
 )
-def test_create_object_negative(mocker, archetype_type):
+def test_create_object_negative(
+    mocker, archetype_type, archetype_service: ArchetypeService
+):
     """
     Test the create_object method. Negative case. Test that assert is raised
     when passing incorrect parameters.
@@ -529,7 +578,7 @@ def test_create_object_negative(mocker, archetype_type):
     # Mock the _get_archetype_by_id method so we can
     mock_object = mocker.Mock(spec=archetype_type)
     mocker.patch.object(
-        ArchetypeService, "_get_archetype_by_id", return_value=mock_object
+        archetype_service, "_get_archetype_by_id", return_value=mock_object
     )
     archetype_id: str = "archetype_id_dummy"
     parent: str = "parent_dummy"
@@ -538,4 +587,4 @@ def test_create_object_negative(mocker, archetype_type):
     # Act | Assert --------------------
     # Call the create_project method
     with pytest.raises(AssertionError):
-        ArchetypeService.create_object(archetype_id, parent, project)
+        archetype_service.create_object(archetype_id, parent, project)
