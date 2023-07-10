@@ -34,6 +34,7 @@ from proteus.model.properties import Property
 # logging configuration
 log = logging.getLogger(__name__)
 
+
 # --------------------------------------------------------------------------
 # Class: ProjectService
 # Description: Class for project operations interface
@@ -189,6 +190,15 @@ class ProjectService:
         :param element_id: Id of the project or object.
         :param properties: List of properties to update.
         """
+        # Check properties is a list
+        assert isinstance(properties, list), "Properties must be a list."
+
+        # Check properties are Property objects
+        assert all(
+            isinstance(property, Property) for property in properties
+        ), "Properties must be Property objects."
+
+        # Get element by id
         element = self._get_element_by_id(element_id)
 
         for property in properties:
