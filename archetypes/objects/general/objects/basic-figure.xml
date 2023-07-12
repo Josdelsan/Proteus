@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="basic-figure" classes="graphic-file" acceptedChildren=":Proteus-none">
+  <properties>
+    <stringProperty name="name"><![CDATA[Basic figure]]></stringProperty>
+    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
+	  <dateProperty name="date">2023-05-05</dateProperty>
+	  <fileProperty name="file"><![CDATA[basic-figure.jpg]]></fileProperty>
+	  <stringProperty name="author"><![CDATA[José María Delgado Sánchez]]></stringProperty>	
+    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+  </properties>
+  <children />
+  <traces />
+</object>

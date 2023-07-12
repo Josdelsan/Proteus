@@ -509,6 +509,25 @@ class Controller:
         # Trigger REMOVE_VIEW event
         EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
 
+    # ----------------------------------------------------------------------
+    # Method     : delete_unused_assets
+    # Description: Delete the assets that are not used in the project.
+    # Date       : 12/07/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_unused_assets(self) -> None:
+        """
+        Delete the assets that are not used in the project.
+
+        This operation may be performed when the project is saved or close.
+        It can be costly in terms of performance due to the way fileProperties
+        are accessed in the objects.
+        """
+        log.info("Deleting unused assets from the project")
+
+        self._project_service.delete_unused_assets()
+
     # ======================================================================
     # Archetype methods
     # ======================================================================

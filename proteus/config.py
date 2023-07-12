@@ -92,9 +92,8 @@ class Config:
         # Application configuration
         self.config : ConfigParser = self._create_config_parser()
 
-        # Application directories
+        # Application directories ------------------------------------------
         self.directories = self.config[DIRECTORIES]
-
         self.base_directory       : Path = proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
         self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
         self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
@@ -102,12 +101,18 @@ class Config:
         self.xslt_directory       : Path = self.resources_directory / self.directories[XSLT_DIRECTORY]
         self.i18n_directory       : Path = self.resources_directory / self.directories[I18N_DIRECTORY]
 
-        # XSL template routes
+        # XSL template routes ----------------------------------------------
         self.xslt_routes : Dict[str, Path] = self._create_xslt_routes()
 
-        # Application settings
+        # Application settings ---------------------------------------------
         self.settings = self.config[SETTINGS]
         self.language : str = self.settings[LANGUAGE]
+
+        # Current project --------------------------------------------------
+        # TODO: This is set in the project service. Current project information
+        # may be stored in a separate class. This is a workarround to access
+        # assets folder.
+        self.current_project_path: str = None
 
         # Check application directories
         self.check_application_directories()
@@ -125,7 +130,6 @@ class Config:
         # Save settings
         with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, 'w') as configfile:
             self.config.write(configfile)
-
 
     def _create_xslt_routes(self) -> Dict[str, Path]:
         """

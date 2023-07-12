@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 from typing import List
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -19,10 +18,15 @@ from pathlib import Path
 
 import markdown
 import lxml.etree as ET
+from PyQt6.QtGui import QImage
+from PyQt6.QtCore import QByteArray, QBuffer, QIODevice
 
 # --------------------------------------------------------------------------
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
+
+from proteus.config import Config
+from proteus.model import ASSETS_REPOSITORY
 
 
 # --------------------------------------------------------------------------
@@ -41,6 +45,9 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
     for element in markdown_element:
         markdown_text += element.text
 
+    # TODO: Loading markdown extensions generate tons of innecesary logs.
+    # This is caused by markdown library using logging module. Check
+    # alternatives to avoid this.
     result: str = markdown.markdown(
         markdown_text,
         extensions=[
@@ -52,15 +59,29 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
     )
     return result
 
+
 # --------------------------------------------------------------------------
 # Function: build_path
-# Description: Build a path from a list of strings
-# Date: 03/07/2023
+# Description: Creates the base64 representation of the image.
+# Date: 11/07/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-def build_path(context, file_name: str, assets_path: Path) -> str:
+def image_to_base64(context, asset_file: List[ET.Element]) -> str:
     """
-    Build a path from a list of strings
+    Given an asset file path, return the base64 representation of the image.
+    Build the absolute path using the current project path and the assets
+    repository name.
     """
-    return str(assets_path / file_name)
+
+    assets_path: str = f"{Config().current_project_path}/{ASSETS_REPOSITORY}/{asset_file[0].text}"
+
+    # Load the image using QImage
+    image = QImage(assets_path)
+
+    ba = QByteArray()
+    buffer = QBuffer(ba)
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+    image.save(buffer, 'PNG')
+    base64_data = ba.toBase64().data().decode()
+    return base64_data

@@ -11,21 +11,24 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import shutil
 from typing import Dict, Callable, Tuple
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QLineEdit, QDateEdit, QTextEdit, QCheckBox
+from PyQt6.QtWidgets import QWidget, QLineEdit, QDateEdit, QTextEdit, QCheckBox, QFileDialog, QPushButton
 from PyQt6.QtCore import Qt
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
+from proteus.model import ASSETS_REPOSITORY
+from proteus.config import Config
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -80,6 +83,44 @@ def _enum_property_input(property) -> QLineEdit:
     enum_input.setText(property.value)
     return enum_input
 
+def _file_property_input(property) -> QLineEdit:
+    
+    def _open_file_dialog(*args, **kwargs):
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setNameFilter("Images (*.png *.jpeg *.jpg, *.gif, *.svg)")
+        file_dialog.exec()
+
+        # Get the name of the selected file
+        selected_files = file_dialog.selectedFiles()
+        if selected_files:
+            selected_file = selected_files[0]
+
+            # Build file path
+            file_path: Path = Path(selected_file)
+            
+            # NOTE: We copy the file to the project directory
+            # so we can perform undo/redo operations. If we don't
+            # copy it now, we cannot access the file when properties
+            # are updated. Every file that is not used by any property
+            # must be deleted when the project closes.
+            assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
+            shutil.copy(file_path, assets_path)
+
+            # Get file name
+            # NOTE: It will be stored in the property value and
+            # used to create the path to the file relative to
+            # the project directory
+            file_name = file_path.name
+            file_input.setText(file_name)
+
+    file_input = QLineEdit()
+    file_input.setText(property.value)
+
+    # Connect click event to open file dialog
+    file_input.mousePressEvent = _open_file_dialog
+    return file_input    
+
 # --------------------------------------------------------------------------
 # Class: PropertyInputFactory
 # Description: Implementation of a property input factory to handle the
@@ -98,6 +139,7 @@ class PropertyInputFactory():
         FloatProperty: _float_property_input,
         IntegerProperty: _integer_property_input,
         EnumProperty: _enum_property_input,
+        FileProperty: _file_property_input,
     }
 
     widget_conversion_map: Dict[type[QWidget], Callable[[QWidget], str]] = {

@@ -11,7 +11,9 @@
 # --------------------------------------------------------------------------
 
 import logging
-from typing import Union, List, Dict
+import os
+import shutil
+from typing import Union, List, Dict, Set
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -25,11 +27,11 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, CHILD_TAG
+from proteus.model import ProteusID, CHILD_TAG, ASSETS_REPOSITORY
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import Property
+from proteus.model.properties import Property, FileProperty
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -83,6 +85,9 @@ class ProjectService:
         """
         # Load project
         self.project = Project.load(project_path)
+
+        # Set current project path in application config
+        Config().current_project_path = project_path
 
         # Initialize project index
         self.project_index = {}
@@ -518,3 +523,72 @@ class ProjectService:
         """
         self.project.xsl_templates.remove(template_name)
         self.project.state = ProteusState.DIRTY
+
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_unused_assets
+    # Description: Delete all the assets that are not used in the project.
+    # Date       : 12/07/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_unused_assets(self) -> None:
+        """
+        Delete all the assets that are not used in the project. This is
+        done by comparing all the used assets with all the assets in the
+        project directory.
+
+        This operation may be performed when the project is saved or close.
+        It can be costly in terms of performance due to the way fileProperties
+        are accessed in the objects.
+
+        An asset might be shared between several objects, so it is not
+        deleted if it is used by at least one object.
+
+        NOTE: By convention, there is maximum one asset per object. Its name
+        is always "file". This might change in the future.
+        """
+
+        # Helper function to list the assets recursively
+        def list_assets(item: Union[Object, Project]) -> None:
+            """
+            Check if the item has an asset and call the function recursively
+            """
+            # Skip if the item is dead
+            if item.state == ProteusState.DEAD:
+                return
+
+            # Look for fileProperties
+            file_properties: Set[str] = set()
+            for prop in item.properties:
+                property: Property = item.get_property(prop)
+                if type(property) == FileProperty:
+                    file_properties.add(property.value)
+
+            # Add the assets to the set
+            if file_properties:
+                assets_set.update(file_properties)
+
+            # Call the function recursively for all the children
+            children: List[Object] = item.get_descendants()
+            for child in children:
+                list_assets(child)
+
+        # Variable to store the assets used in the project
+        assets_set: Set = set()
+
+        # List the assets used in the project
+        list_assets(self.project)
+
+        # Get the assets in the project directory
+        assets_dir: str = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
+        assets_in_dir: Set = set(os.listdir(assets_dir))
+
+        # Get the assets that are not used in the project
+        unused_assets: Set = assets_in_dir.difference(assets_set)
+
+        # Delete the unused assets
+        for asset in unused_assets:
+            log.info(f"Deleting unused asset: {asset}")
+            asset_path: str = f"{assets_dir}/{asset}"
+            os.remove(asset_path)

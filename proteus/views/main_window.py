@@ -233,14 +233,23 @@ class MainWindow(QMainWindow):
         def close_without_saving():
             # Clean the command stack
             self._controller.stack.clear()
+
             # Close the application
             event.accept()
 
         def close_with_saving():
             # Save the project
             self._controller.save_project()
+
+            # Delete unused assets
+            self._controller.delete_unused_assets()
+
             # Close the application
             event.accept()
+
+        def cancel(*args, **kwargs):
+            # Do nothing
+            event.ignore()
 
         # Check if the project has unsaved changes
         unsaved_changes: bool = not self._controller.stack.isClean()
@@ -261,6 +270,7 @@ class MainWindow(QMainWindow):
             confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
             confirmation_dialog.accepted.connect(close_with_saving)
             confirmation_dialog.rejected.connect(close_without_saving)
+            confirmation_dialog.closeEvent = cancel
             confirmation_dialog.exec()
         else:
             close_without_saving()

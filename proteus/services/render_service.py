@@ -87,15 +87,9 @@ class RenderService:
         ns = ET.FunctionNamespace("http://proteus.us.es/utils")
         ns.prefix = "proteus-utils"
 
-        # Current working directory for the open project
-        cwd: Path = Path(os.getcwd())
-        assets_repo: Path = cwd / ASSETS_REPOSITORY
-
         # Register the function with the FunctionNamespace
         ns["generate_markdown"] = xslt_utils.generate_markdown
-        ns["build_path"] = lambda context, file_name: xslt_utils.build_path(
-            context, file_name, assets_repo
-        )
+        ns["image_to_base64"] = xslt_utils.image_to_base64
 
     # ----------------------------------------------------------------------
     # Method     : get_xslt
