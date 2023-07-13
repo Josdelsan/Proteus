@@ -105,6 +105,8 @@ document_tree.menu.action.delete: "Eliminar"
 document_tree.menu.action.clone: "Clonar"
 document_tree.menu.action.move_up: "Mover arriba"
 document_tree.menu.action.move_down: "Mover abajo"
+document_tree.drop_action.message_box.error.title: "Error al mover el objeto"
+document_tree.drop_action.message_box.error.text: "No se pudo mover el objeto a la posición deseada, compruebe que el objeto es acceptado por el objeto destino."
 
 # ---------------------------------------------------------------------------
 # New document dialog

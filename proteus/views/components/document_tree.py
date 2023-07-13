@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QStyle,
     QApplication,
+    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
@@ -633,33 +634,47 @@ class DocumentTree(QWidget):
                 )
                 return
 
-            # If in the 25% of the bottom of the target item, then add the
-            # dropped item as a sibling above the target item
-            if event.position().y() > rect_center.y() + rect_height / 4:
-                log.info(
-                    f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
-                )
-                self._controller.change_object_position(
-                    dropped_element_id, target_index + 1, parent_id
+            try:
+                # If in the 25% of the bottom of the target item, then add the
+                # dropped item as a sibling above the target item
+                if event.position().y() > rect_center.y() + rect_height / 4:
+                    log.info(
+                        f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
+                    )
+                    self._controller.change_object_position(
+                        dropped_element_id, target_index + 1, parent_id
+                    )
+
+                # If in the 25% of the top of the target item, then add the
+                # dropped item as a sibling below the target item
+                elif event.position().y() < rect_center.y() - rect_height / 4:
+                    log.info(
+                        f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
+                    )
+                    self._controller.change_object_position(
+                        dropped_element_id, target_index, parent_id
+                    )
+
+                # If in the middle of the target item, then add the dropped item
+                # as a child of the target item. Position as None means that the
+                # dropped item will be added as the last child of the target item.
+                else:
+                    log.info(
+                        f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
+                    )
+                    self._controller.change_object_position(
+                        dropped_element_id, None, target_element_id
+                    )
+            # Catch exception in case the operation is forbidden
+            except AssertionError as e:
+                log.warning(
+                    f"{e}"
                 )
 
-            # If in the 25% of the top of the target item, then add the
-            # dropped item as a sibling below the target item
-            elif event.position().y() < rect_center.y() - rect_height / 4:
-                log.info(
-                    f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
-                )
-                self._controller.change_object_position(
-                    dropped_element_id, target_index, parent_id
+                # Show a message box to the user
+                QMessageBox.warning(
+                    self,
+                    self.translator.text("document_tree.drop_action.message_box.error.title"),
+                    self.translator.text("document_tree.drop_action.message_box.error.text"),
                 )
 
-            # If in the middle of the target item, then add the dropped item
-            # as a child of the target item. Position as None means that the
-            # dropped item will be added as the last child of the target item.
-            else:
-                log.info(
-                    f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
-                )
-                self._controller.change_object_position(
-                    dropped_element_id, None, target_element_id
-                )
