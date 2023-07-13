@@ -12,17 +12,20 @@
 
 from typing import Dict, List
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
+from PyQt6.QtGui import QIcon
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.utils.event_manager import Event, EventManager
@@ -149,9 +152,16 @@ class DocumentsContainer(QTabWidget):
         self.tabs[document.id] = tab
         self.tab_children[document.id] = document_tree
 
-        # Add tab to the tab menu
-        document_name: str = document.get_property("acronym").value
-        self.addTab(tab, document_name)
+        # Get acronym, add the tab and store the index given by the addTab method
+        document_acronym: str = document.get_property("acronym").value
+        tab_index = self.addTab(tab, document_acronym)
+
+        # Set the tab icon
+        try:
+            icon_path: Path = Config().icons_directory / 'acronyms' / f'{document_acronym}.svg'
+            self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+        except Exception:
+            log.warning(f'No icon found for document {document_acronym}')
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -246,11 +256,22 @@ class DocumentsContainer(QTabWidget):
         if element_id in self.tabs:
             # Get document tab
             document_tab: QWidget = self.tabs.get(element_id)
+            tab_index: int = self.indexOf(document_tab)
 
-            # Change tab name
+            # Get new acronym
             element: Object = self._controller.get_element(element_id)
-            document_name: str = element.get_property("acronym").value
-            self.setTabText(self.indexOf(document_tab), document_name)
+            document_acronym: str = element.get_property("acronym").value
+            self.setTabText(tab_index, document_acronym)
+
+            # Get new icon
+            try:
+                icon_path: Path = Config().icons_directory / 'acronyms' / f'{document_acronym}.svg'
+                self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+            except Exception:
+                log.warning(f'No icon found for document {document_acronym}')
+
+            
+
 
     # ======================================================================
     # Component slots methods (connected to the component signals)

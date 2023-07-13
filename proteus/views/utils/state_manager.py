@@ -61,7 +61,7 @@ class StateManager:
         """
         Sets the current document id.
         """
-        log.info(f"Setting current document {document_id}")
+        log.debug(f"Setting current document {document_id}")
         cls.current_document = document_id
 
         # If the current document is not in the current object dictionary,
@@ -103,7 +103,7 @@ class StateManager:
         """
         Sets the current object id for the current document.
         """
-        log.info(f"Selecting object {object_id} in document {document_id}")
+        log.debug(f"Selecting object {object_id} in document {document_id}")
         cls.current_object[document_id] = object_id
         EventManager.notify(Event.SELECT_OBJECT)
 
@@ -168,7 +168,7 @@ class StateManager:
         """
         Sets the current view id.
         """
-        log.info(f"Setting current view {view_name}")
+        log.debug(f"Setting current view {view_name}")
         cls.current_view = view_name
 
         # Notify the event manager that the current view has changed.
