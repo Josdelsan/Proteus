@@ -27,7 +27,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, CHILD_TAG, ASSETS_REPOSITORY
+from proteus.model import ProteusID, CHILD_TAG, DOCUMENT_TAG, ASSETS_REPOSITORY
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
@@ -452,8 +452,17 @@ class ProjectService:
         # Get document using helper method
         document = self._get_element_by_id(document_id)
 
-        # Generate xml file
-        root: ET.element = document.generate_xml()
+        # Generate project xml file
+        root: ET.element = self.project.generate_xml()
+        # Iterate over document tag and replace the asked document
+        for document_element in root.findall(f".//{DOCUMENT_TAG}"):
+            if document_element.attrib["id"] == document_id:
+                parent_element: ET.Element = document_element.getparent()
+                document_xml: ET.Element = document.generate_xml()
+                parent_element.replace(document_element, document_xml)
+            # Delete the rest of documents
+            else:
+                document_element.getparent().remove(document_element)
 
         # Iterate until no chil tags are found
         while root.findall(f".//{CHILD_TAG}"):

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template name="default">
+    <config language="default" file="PROTEUS_lang_en_US.xsl"/>
+    <config language="en_US" file="PROTEUS_lang_en_US.xsl"/>
+    <config language="es_ES" file="PROTEUS_lang_es_ES.xsl"/>
+</template>

@@ -25,6 +25,8 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from lxml import etree as ET
+
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
@@ -38,23 +40,21 @@ log = logging.getLogger(__name__)
 # Constant declarations for PROTEUS configuration file keys
 # --------------------------------------------------------------------------
 
-CONFIG_FILE          : str = 'proteus.ini'
+CONFIG_FILE: str = "proteus.ini"
+TEMPLATE_FILE: str = "template.xml"
 
 # Settings
-SETTINGS             : str = 'settings'
-LANGUAGE             : str = 'language'
-
-# XSL templates
-XSL_TEMPLATES        : str = 'xsl_templates'
+SETTINGS: str = "settings"
+LANGUAGE: str = "language"
 
 # Directories
-DIRECTORIES          : str = 'directories'
-BASE_DIRECTORY       : str = 'base_directory'
-ARCHETYPES_DIRECTORY : str = 'archetypes_directory'
-RESOURCES_DIRECTORY  : str = 'resources_directory'
-ICONS_DIRECTORY      : str = 'icons_directory'
-XSLT_DIRECTORY       : str = 'xslt_directory'
-I18N_DIRECTORY       : str = 'i18n_directory'
+DIRECTORIES: str = "directories"
+BASE_DIRECTORY: str = "base_directory"
+ARCHETYPES_DIRECTORY: str = "archetypes_directory"
+RESOURCES_DIRECTORY: str = "resources_directory"
+ICONS_DIRECTORY: str = "icons_directory"
+XSLT_DIRECTORY: str = "xslt_directory"
+I18N_DIRECTORY: str = "i18n_directory"
 
 # --------------------------------------------------------------------------
 # Class: Config
@@ -66,8 +66,8 @@ I18N_DIRECTORY       : str = 'i18n_directory'
 #         José María Delgado Sánchez
 # --------------------------------------------------------------------------
 
-class Config:
 
+class Config:
     # Singleton instance
     _instance = None
 
@@ -90,23 +90,35 @@ class Config:
         self._initialized = True
 
         # Application configuration
-        self.config : ConfigParser = self._create_config_parser()
+        self.config: ConfigParser = self._create_config_parser()
 
         # Application directories ------------------------------------------
         self.directories = self.config[DIRECTORIES]
-        self.base_directory       : Path = proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
-        self.resources_directory  : Path = proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
-        self.archetypes_directory : Path = proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
-        self.icons_directory      : Path = self.resources_directory / self.directories[ICONS_DIRECTORY]
-        self.xslt_directory       : Path = self.resources_directory / self.directories[XSLT_DIRECTORY]
-        self.i18n_directory       : Path = self.resources_directory / self.directories[I18N_DIRECTORY]
-
-        # XSL template routes ----------------------------------------------
-        self.xslt_routes : Dict[str, Path] = self._create_xslt_routes()
+        self.base_directory: Path = (
+            proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
+        )
+        self.resources_directory: Path = (
+            proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
+        )
+        self.archetypes_directory: Path = (
+            proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
+        )
+        self.icons_directory: Path = (
+            self.resources_directory / self.directories[ICONS_DIRECTORY]
+        )
+        self.xslt_directory: Path = (
+            self.resources_directory / self.directories[XSLT_DIRECTORY]
+        )
+        self.i18n_directory: Path = (
+            self.resources_directory / self.directories[I18N_DIRECTORY]
+        )
 
         # Application settings ---------------------------------------------
         self.settings = self.config[SETTINGS]
-        self.language : str = self.settings[LANGUAGE]
+        self.language: str = self.settings[LANGUAGE]
+
+        # XSL template routes ----------------------------------------------
+        self.xslt_routes: Dict[str, Path] = self._create_xslt_routes()
 
         # Current project --------------------------------------------------
         # TODO: This is set in the project service. Current project information
@@ -128,7 +140,7 @@ class Config:
             self.config.set(SETTINGS, setting, settings[setting])
 
         # Save settings
-        with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, 'w') as configfile:
+        with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, "w") as configfile:
             self.config.write(configfile)
 
     def _create_xslt_routes(self) -> Dict[str, Path]:
@@ -136,15 +148,46 @@ class Config:
         Private method that creates a dictionary with the XSLT routes.
         """
         # Initialize dictionary
-        xslt_routes : Dict[str, Path] = {}
+        xslt_routes: Dict[str, Path] = {}
 
-        # Get XSLT templates from config file
-        templates = self.config[XSL_TEMPLATES]
+        # Iterate over XSLT directory folders
+        for xslt_folder in self.xslt_directory.iterdir():
+            # Check if folder is a directory
+            if xslt_folder.is_file():
+                log.warning(
+                    f"Unexpected item in XSLT directory: {xslt_folder}. It will be ignored."
+                )
+                continue
 
-        # Create XSLT route for each template, and add it to the dictionary
-        # with the template name as key
-        for template in templates:
-            xslt_routes[template] = self.xslt_directory / templates[template]
+            # Look for the template.xml file inside the folder
+            template_file: Path = xslt_folder / TEMPLATE_FILE
+            if not template_file.exists():
+                log.error(
+                    f"XSLT template configuration file {template_file} does not exist! Check your XSLT directory."
+                )
+                continue
+
+            # Parse template file
+            template_tree: ET.ElementTree = ET.parse(template_file)
+            template_root: ET.Element = template_tree.getroot()
+
+            # Get the template name
+            template_name: str = template_root.attrib["name"]
+
+            # Iterate over templates tag children to get the item with attribute language = self.language
+            for template in template_root:
+                # Add the template file to the dictionary if the language is the same as the application language
+                # Otherwise, add the default template file
+                if template.attrib["language"] == self.language or (
+                    template.attrib["language"] == "default"
+                    and template_name not in xslt_routes
+                ):
+                    # Get the template xsl file path
+                    xsl_file_path: Path = (
+                        self.xslt_directory / xslt_folder / template.attrib["file"]
+                    )
+                    # Add the template file to the dictionary
+                    xslt_routes[template_name] = xsl_file_path
 
         return xslt_routes
 
@@ -153,12 +196,13 @@ class Config:
         Private method that creates configuration parser and loads config file.
         """
 
-        CONFIG_FILE_PATH : Path = proteus.PROTEUS_APP_PATH / CONFIG_FILE
-        
-        assert CONFIG_FILE_PATH.exists(), \
-            f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
+        CONFIG_FILE_PATH: Path = proteus.PROTEUS_APP_PATH / CONFIG_FILE
 
-        config_parser : ConfigParser = ConfigParser()
+        assert (
+            CONFIG_FILE_PATH.exists()
+        ), f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
+
+        config_parser: ConfigParser = ConfigParser()
         config_parser.read(CONFIG_FILE_PATH)
 
         return config_parser
@@ -170,62 +214,67 @@ class Config:
         log.info("Checking PROTEUS directories...")
 
         # Check if resources directory exists
-        assert self.resources_directory.is_dir(), \
-            f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
+        assert (
+            self.resources_directory.is_dir()
+        ), f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
 
         log.info("  Resources directory OK")
 
-
         # Check if icons directory exists
-        assert self.icons_directory.is_dir(), \
-            f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
+        assert (
+            self.icons_directory.is_dir()
+        ), f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
 
         log.info("  Icons directory OK")
 
-
         # Check if archetypes directory exists
-        assert self.archetypes_directory.is_dir(), \
-            f"PROTEUS archetypes directory '{self.archetypes_directory}' does not exist!"
+        assert (
+            self.archetypes_directory.is_dir()
+        ), f"PROTEUS archetypes directory '{self.archetypes_directory}' does not exist!"
 
         log.info("  Archetypes directory OK")
 
-        
         # Check if projects archetypes exists
-        assert (self.archetypes_directory / "projects").is_dir(), \
-            f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
+        assert (
+            self.archetypes_directory / "projects"
+        ).is_dir(), f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
 
         log.info("  Archetypes projects directory OK")
 
-
         # Check if documents archetypes exists
-        assert (self.archetypes_directory / "documents").is_dir(), \
-            f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
+        assert (
+            self.archetypes_directory / "documents"
+        ).is_dir(), f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
 
         log.info("  Archetypes documents directory OK")
 
-
         # Check if objects archetypes exists
-        assert (self.archetypes_directory / "objects").is_dir(), \
-            f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
+        assert (
+            self.archetypes_directory / "objects"
+        ).is_dir(), f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
 
         log.info("  Archetypes objects directory OK")
 
         # Check if xslt directory exists
-        assert self.xslt_directory.is_dir(), \
-            f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
-        
+        assert (
+            self.xslt_directory.is_dir()
+        ), f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
+
         log.info("  XSLT directory OK")
-        
+
         # Check if default xsl templates exists in xslt dictionary
-        assert "default" in self.xslt_routes, \
-            f"PROTEUS xslt default template does not exist!"
-        
+        assert (
+            "default" in self.xslt_routes
+        ), f"PROTEUS xslt default template does not exist!"
+
         log.info("  XSLT default template OK")
-        
 
         # Check xsl templates loaded
         for template in self.xslt_routes:
-            assert self.xslt_routes[template].exists(), \
+            assert self.xslt_routes[
+                template
+            ].exists(), (
                 f"PROTEUS xslt template '{self.xslt_routes[template]}' does not exist!"
-        
+            )
+
         log.info("  XSLT templates directories OK")
