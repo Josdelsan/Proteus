@@ -12,6 +12,7 @@
 
 from typing import Dict
 import logging
+import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -35,7 +36,9 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.config import Config
 from proteus.model import ProteusID
+from proteus.model.object import Object
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
@@ -141,8 +144,6 @@ class ViewsContainer(QTabWidget):
 
         # Create a button to add new views
         add_view_button: QPushButton = QPushButton()
-
-        # Set the button icon
         add_view_button.setIcon(
             self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation)
         )
@@ -398,7 +399,7 @@ class ViewsContainer(QTabWidget):
 
         # Update current document in the state manager
         StateManager.set_current_view(view_name)
-
+    
 
 # --------------------------------------------------------------------------
 # Class: DocumentPage

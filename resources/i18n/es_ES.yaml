@@ -59,6 +59,10 @@ delete_document_button.statustip: "Eliminar documento del proyecto."
 delete_document_button.tooltip: "Eliminar documento actual"
 delete_document_button.text: "Eliminar"
 
+export_button.statustip: "Exportar documento actual a un archivo pdf."
+export_button.tooltip: "Exportar documento actual a un archivo pdf"
+export_button.text: "Exportar"
+
 settings_button.statustip: "Editar configuración de la aplicación"
 settings_button.tooltip: "Editar configuración de la aplicación"
 settings_button.text: "Editar"
@@ -124,6 +128,7 @@ new_project_dialog.combobox.label: "Seleccione un arquetipo de proyecto:"
 new_project_dialog.archetype.description: "Descripción:"
 new_project_dialog.input.name: "Nombre del proyecto:"
 new_project_dialog.input.path: "Ruta del proyecto:"
+new_project_dialog.input.path.browser: "Examinar..."
 new_project_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de proyecto"
 new_project_dialog.error.invalid_path: "Por favor, introduzca una ruta válida"
 new_project_dialog.error.invalid_name: "Por favor, introduzca un nombre válido"
@@ -146,3 +151,15 @@ settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
 es_es: "Español (España)"
 en_us: "Inglés (Estados Unidos)"
+
+# ---------------------------------------------------------------------------
+# Print to pdf dialog
+# ---------------------------------------------------------------------------
+print_to_pdf_dialog.title: "Exportar documento actual a PDF"
+print_to_pdf_dialog.filename.label: "Nombre del archivo:"
+print_to_pdf_dialog.filename.browser: "Examinar..."
+print_to_pdf_dialog.finished.dialog.title: "Exportar a PDF"
+print_to_pdf_dialog.finished.dialog.text: "El documento se ha exportado a PDF correctamente, el archivo se encuentra en {}"
+print_to_pdf_dialog.finished.dialog.error.title: "Error al exportar a PDF"
+print_to_pdf_dialog.finished.dialog.error.text: "No se pudo exportar el documento a PDF"
+print_to_pdf_dialog.filename.error: "Por favor, introduzca un nombre de archivo válido"

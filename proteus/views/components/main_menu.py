@@ -38,6 +38,7 @@ from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
+from proteus.views.components.dialogs.print_to_pdf_dialog import PrintToPdfDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
@@ -222,10 +223,20 @@ class MainMenu(QDockWidget):
         self.delete_document_button: QToolButton = buttons.delete_document_button(self)
         self.delete_document_button.clicked.connect(self.delete_current_document)
 
+        # Export document action
+        self.export_document_button: QToolButton = buttons.export_button(self)
+        self.export_document_button.clicked.connect(
+            lambda: PrintToPdfDialog.create_dialog(self._controller)
+        )
+
         # Add the buttons to the document menu widget
         document_menu: QWidget = buttons.button_group(
             "main_menu.button_group.document",
-            [self.add_document_button, self.delete_document_button],
+            [
+                self.add_document_button,
+                self.delete_document_button,
+                self.export_document_button,
+            ],
         )
         tab_layout.addWidget(document_menu)
 
@@ -451,6 +462,7 @@ class MainMenu(QDockWidget):
         is_document_open: bool = document_id is not None
 
         self.delete_document_button.setEnabled(is_document_open)
+        self.export_document_button.setEnabled(is_document_open)
 
     # ======================================================================
     # Component slots methods (connected to the component signals)

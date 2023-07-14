@@ -331,6 +331,36 @@ def settings_button(parent: QWidget) -> QToolButton:
 
     return settings_button
 
+def export_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a export button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    export_button = QToolButton(parent)
+    export_button.setFixedWidth(55)
+
+    # Set file icon
+    icon_path: Path = (
+        Config().icons_directory / MENU_ICONS_FOLDER / "export-button.svg"
+    )
+    button_icon = QIcon()
+    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    export_button.setIcon(button_icon)
+    export_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    export_button.setToolTip(Translator().text("export_button.tooltip"))
+    export_button.setStatusTip(Translator().text("export_button.statustip"))
+
+    # Set text
+    export_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    export_button.setText(Translator().text("export_button.text"))
+
+    # Set initial disabled value
+    export_button.setEnabled(False)
+
+    return export_button
+
 
 def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
     # Create the main widget

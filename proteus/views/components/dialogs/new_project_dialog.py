@@ -136,7 +136,9 @@ class NewProjectDialog(QDialog):
             self.translator.text("new_project_dialog.input.path")
         )
         path_input: QLabel = QLabel()
-        browse_button = QPushButton("Browse")
+        browse_button = QPushButton(
+            self.translator.text("new_project_dialog.input.path.browser")
+        )
 
         # Create Save and Cancel buttons
         button_box: QDialogButtonBox = QDialogButtonBox(
