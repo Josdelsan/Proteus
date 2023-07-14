@@ -153,47 +153,47 @@ def test_load():
 
 
 @pytest.mark.parametrize(
-    "sample_project",
+    "test_project",
     [
         pytest.lazy_fixture("sample_project"),
         pytest.lazy_fixture("sample_archetype_project"),
     ],
 )
-def test_documents_lazy_load(sample_project: str):
+def test_documents_lazy_load(test_project: Project):
     """
     Test Project documents property lazy loading
     """
     # Check that documents are not loaded yet checking private
     # variable _documents
     assert (
-        sample_project._documents == None
+        test_project._documents == None
     ), "Documents should not be loaded if the 'documents' property is not accessed"
 
     # Check that documents are loaded when accessing documents
     # property for the first time
     assert (
-        type(sample_project.documents) == list
+        type(test_project.documents) == list
     ), f"Documents should have been loaded when accessing 'documents'  \
-        property but they are of type {type(sample_project.documents)}"
+        property but they are of type {type(test_project.documents)}"
     assert (
-        type(sample_project._documents) == list
+        type(test_project._documents) == list
     ), f"Documents private var should have been loaded when accessing  \
-        'documents' property but they are of type {type(sample_project._documents)}"
+        'documents' property but they are of type {type(test_project._documents)}"
 
 
 @pytest.mark.parametrize(
-    "sample_project",
+    "test_project",
     [
         pytest.lazy_fixture("sample_project"),
         pytest.lazy_fixture("sample_archetype_project"),
     ],
 )
-def test_load_documents(sample_project: str):
+def test_load_documents(test_project: Project):
     """
     Test Project load_documents method
     """
     # Get root element of the xml file
-    root: ET.Element = fixtures.get_root(sample_project.path)
+    root: ET.Element = fixtures.get_root(test_project.path)
 
     # Get documents of the xml file and store them in a list
     documents = root.find("documents")
@@ -206,15 +206,15 @@ def test_load_documents(sample_project: str):
     # for the first time and no documents are loaded yet. However,
     # we are calling it explicitly to test it in case lazy loading
     # fails.
-    sample_project.load_documents()
+    test_project.load_documents()
 
     # Check that Object contains all the documents of the xml
-    documents_ids = [document.id for document in sample_project.documents]
+    documents_ids = [document.id for document in test_project.documents]
     assert all(
         document in documents_ids for document in documents_list
     ), f"Project does not contain all the documents of the xml file.                        \
         Documents in xml file: {documents_list}                                              \
-        Documents in Project: {sample_project.documents.keys()}"
+        Documents in Project: {test_project.documents.keys()}"
 
 
 def test_generate_xml(sample_project: Project):
@@ -244,13 +244,13 @@ def test_generate_xml(sample_project: Project):
 
 
 @pytest.mark.parametrize(
-    "sample_project",
+    "test_project",
     [
         pytest.lazy_fixture("sample_project"),
         pytest.lazy_fixture("sample_archetype_project"),
     ],
 )
-def test_clone(sample_project: str):
+def test_clone(test_project: Project):
     """
     Test Project clone method
     """
@@ -264,7 +264,7 @@ def test_clone(sample_project: str):
         shutil.rmtree(cloned_project_path)
 
     # Clone project
-    new_project = sample_project.clone_project(clone_path, new_project_dir_name)
+    new_project = test_project.clone_project(clone_path, new_project_dir_name)
 
     # Check that the project has been cloned
     assert isinstance(
@@ -273,9 +273,9 @@ def test_clone(sample_project: str):
 
     # Compare project id
     assert (
-        sample_project.id == new_project.id
+        test_project.id == new_project.id
     ), f"Project id is not equal.               \
-        Expected: {sample_project.id} Actual: {new_project.id}"
+        Expected: {test_project.id} Actual: {new_project.id}"
 
     # Compare project path
     assert (

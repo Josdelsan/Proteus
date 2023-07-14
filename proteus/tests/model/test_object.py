@@ -15,6 +15,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Union
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -56,6 +58,17 @@ def sample_project() -> Project:
     """
     return Project.load(SAMPLE_PROJECT_PATH)
 
+# TODO: For rich tests we need sample archetype objects. This is a temporary
+#       based on the current archetype repository content (16/04/2023)
+#       solution. Sample archetype objects should have children to test
+#       lazy loading and loading of children completely.
+@pytest.fixture
+def sample_archetype_document() -> Object:
+    """
+    Fixture that returns a PROTEUS sample archetype document object.
+    """
+    archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
+    return archetype_list[1]
 
 @pytest.fixture
 def sample_object(sample_project) -> Object:
@@ -71,19 +84,6 @@ def sample_document(sample_project) -> Object:
     Fixture that returns a PROTEUS sample document.
     """
     return Object.load(SAMPLE_DOCUMENT_ID, sample_project)
-
-
-# TODO: For rich tests we need sample archetype objects. This is a temporary
-#       based on the current archetype repository content (16/04/2023)
-#       solution. Sample archetype objects should have children to test
-#       lazy loading and loading of children completely.
-@pytest.fixture
-def sample_archetype_document() -> Object:
-    """
-    Fixture that returns a PROTEUS sample archetype document object.
-    """
-    archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
-    return archetype_list[1]
 
 
 # --------------------------------------------------------------------------
@@ -149,47 +149,47 @@ def test_load(sample_project: Project):
 
 
 @pytest.mark.parametrize(
-    "sample_object",
+    "test_object",
     [
         pytest.lazy_fixture("sample_object"),
         pytest.lazy_fixture("sample_archetype_document"),
     ],
 )
-def test_children_lazy_load(sample_object: str):
+def test_children_lazy_load(test_object: Object):
     """
     Test Object children property lazy loading
     """
     # Check that children are not loaded yet checking private
     # variable _children
     assert (
-        sample_object._children == None
+        test_object._children == None
     ), "Children should not be loaded if the 'children' property is not accessed"
 
     # Check that children are loaded when accessing children
     # property for the first time
     assert (
-        type(sample_object.children) == list
+        type(test_object.children) == list
     ), f"Children should have been loaded when accessing 'children'  \
-        property but they are of type {type(sample_object.children)}"
+        property but they are of type {type(test_object.children)}"
     assert (
-        type(sample_object._children) == list
+        type(test_object._children) == list
     ), f"Children private var should have been loaded when accessing \
-        'Children' property but they are of type {type(sample_project._documents)}"
+        'Children' property but they are of type {type(test_object._children)}"
 
 
 @pytest.mark.parametrize(
-    "sample_object",
+    "test_object",
     [
         pytest.lazy_fixture("sample_object"),
         pytest.lazy_fixture("sample_archetype_document"),
     ],
 )
-def test_load_children(sample_object: str, request):
+def test_load_children(test_object: Object, request):
     """
     Test Object load_children method
     """
     # Get root element of the xml file
-    root: ET.Element = fixtures.get_root(sample_object.path)
+    root: ET.Element = fixtures.get_root(test_object.path)
 
     # Get children of the xml file and store them in a list
     children = root.find("children")
@@ -202,15 +202,15 @@ def test_load_children(sample_object: str, request):
     # for the first time and no children are loaded yet. However,
     # we are calling it explicitly to test it in case lazy loading
     # fails.
-    sample_object.load_children()
+    test_object.load_children()
 
     # Check that Object contains all the children of the xml
-    sample_object_children_ids = [o.id for o in sample_object.children]
+    test_object_children_ids = [o.id for o in test_object.children]
     assert all(
-        child in sample_object_children_ids for child in children_list
+        child in test_object_children_ids for child in children_list
     ), f"Object does not contain all the children of the xml file.                 \
         Children in xml file: {children_list}                                       \
-        Children in object: {sample_object_children_ids}"
+        Children in object: {test_object_children_ids}"
 
 
 def test_generate_xml(sample_object: Object):
@@ -240,7 +240,7 @@ def test_generate_xml(sample_object: Object):
 # TODO: Test clone object -> object
 #                  arch_object -> object
 @pytest.mark.parametrize(
-    "sample_object_to_clone, sample_parent",
+    "test_object_to_clone, test_parent",
     [
         (pytest.lazy_fixture("sample_object"), pytest.lazy_fixture("sample_document")),
         (pytest.lazy_fixture("sample_document"), pytest.lazy_fixture("sample_project")),
@@ -251,15 +251,15 @@ def test_generate_xml(sample_object: Object):
     ],
 )
 def test_clone_object(
-    sample_object_to_clone: str,
-    sample_parent: str,
+    test_object_to_clone: Object,
+    test_parent: Union[Object, Project],
     sample_project: Project,
 ):
     """
     Test Object clone_object method
     """
     # Clone object
-    new_object = sample_object_to_clone.clone_object(sample_parent, sample_project)
+    new_object = test_object_to_clone.clone_object(test_parent, sample_project)
 
     # Check that object was cloned
     assert isinstance(
@@ -272,7 +272,7 @@ def test_clone_object(
     ), f"Object state is not {ProteusState.FRESH} but {new_object.state}"
 
     # Check the object is in the parent children
-    parent_descendants_ids = [o.id for o in sample_parent.get_descendants()]
+    parent_descendants_ids = [o.id for o in test_parent.get_descendants()]
     assert (
         new_object.id in parent_descendants_ids
     ), f"Object {new_object.id} was not found in {parent_descendants_ids}"
@@ -281,9 +281,9 @@ def test_clone_object(
     # NOTE: This will not work if we clone an object into itself
     # however, this is not a valid use case at the moment
     assert (
-        sample_object_to_clone.children.__len__() == new_object.children.__len__()
+        test_object_to_clone.children.__len__() == new_object.children.__len__()
     ), f"Object {new_object.id} does not have the same number of children as \
-        the original object {sample_object_to_clone.id}"
+        the original object {test_object_to_clone.id}"
 
 
 def test_set_property(sample_object: Object):
