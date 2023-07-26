@@ -28,16 +28,12 @@ jobs:
           python -m pip install --upgrade pip  
           pip install -r requirements.txt
  
-      - name: Test with pytest  
+      - name: Test with pytest and generate report
         run: |  
-          coverage run -m pytest  -v -s  
-
-      - name: Generate Coverage Report  
-        run: |  
-          coverage report -m
+          pytest --cov-report xml --cov
 
       - name: Upload Coverage Report
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: .coverage
+          coverage-reports: coverage.xml
