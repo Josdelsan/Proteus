@@ -40,6 +40,18 @@
                         page-break-before: always;
                       }
                     }
+
+                    table {
+                        width: 98%;
+                        margin: 0 auto;
+                        margin-bottom: 2em;
+                        border: 1px solid black;
+                        border-collapse: collapse;
+                    }
+                    th, td {
+                        border: 1px solid black;
+                        padding: 8px;
+                    }
                   </style>
             </head>
             <body>
