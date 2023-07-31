@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Union, List, Dict
+import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -20,16 +20,10 @@ from PyQt6.QtCore import QByteArray, QMarginsF
 from PyQt6.QtGui import QPageLayout, QPageSize
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
-    QWidget,
     QVBoxLayout,
-    QTabWidget,
     QDialogButtonBox,
-    QFormLayout,
     QDialog,
     QLineEdit,
-    QDateEdit,
-    QTextEdit,
-    QCheckBox,
     QLabel,
     QFileDialog,
     QMessageBox,
@@ -103,6 +97,7 @@ class PrintToPdfDialog(QDialog):
         """
         Create the component.
         """
+
         # Helper function to select the file path
         def select_file_path():
             file_dialog: QFileDialog = QFileDialog()
@@ -114,7 +109,24 @@ class PrintToPdfDialog(QDialog):
                 path: str = file_dialog.selectedFiles()[0]
                 if not path.endswith(".pdf"):
                     path += ".pdf"
-                self.filename_input.setText(path)
+                if os.path.exists(path):
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Warning)
+                    msg_box.setText(
+                        self.translator.text(
+                            "print_to_pdf_dialog.filename.warning.text", path
+                        )
+                    )
+                    msg_box.setWindowTitle(
+                        self.translator.text(
+                            "print_to_pdf_dialog.filename.warning.title"
+                        )
+                    )
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                    if msg_box.exec() == QMessageBox.StandardButton.Yes:
+                        self.filename_input.setText(path)
+                else:
+                    self.filename_input.setText(path)
 
         # Set the dialog title and width
         self.setWindowTitle(self.translator.text("print_to_pdf_dialog.title"))
@@ -124,10 +136,14 @@ class PrintToPdfDialog(QDialog):
         current_document = StateManager().get_current_document()
         current_view = StateManager().get_current_view()
         document: Object = self._controller.get_element(current_document)
-        default_file_name: str = f"{document.get_property('name').value}-{current_view}.pdf"
+        default_file_name: str = (
+            f"{document.get_property('name').value}-{current_view}.pdf"
+        )
 
         # Ask for filename and path
-        filename_label = QLabel(self.translator.text("print_to_pdf_dialog.filename.label"))
+        filename_label = QLabel(
+            self.translator.text("print_to_pdf_dialog.filename.label")
+        )
         self.filename_input: QLineEdit = QLineEdit()
         self.filename_input.setEnabled(False)
         browse_button = QPushButton(
@@ -185,7 +201,6 @@ class PrintToPdfDialog(QDialog):
         html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
         self._page.setContent(html_array, "text/html")
 
-
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
@@ -226,7 +241,11 @@ class PrintToPdfDialog(QDialog):
         margins: QMarginsF = QMarginsF(30, 20, 30, 20)
 
         # Create a QPageLayout object from the options dictionary
-        page_layout = QPageLayout(QPageSize(QPageSize.PageSizeId.A4), QPageLayout.Orientation.Portrait, margins)
+        page_layout = QPageLayout(
+            QPageSize(QPageSize.PageSizeId.A4),
+            QPageLayout.Orientation.Portrait,
+            margins,
+        )
 
         # Print to pdf the current view with margins
         self._page.printToPdf(self.filename_input.text(), page_layout)

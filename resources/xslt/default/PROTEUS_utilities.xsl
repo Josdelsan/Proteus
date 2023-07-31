@@ -28,7 +28,7 @@
     <!-- ============================================= -->
 
     <xsl:template name="pagebreak">
-        <div class="pagebreak"></div>
+        <div class="page-break"></div>
     </xsl:template>
 
     <!-- ============================================= -->

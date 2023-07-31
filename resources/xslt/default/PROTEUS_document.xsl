@@ -34,6 +34,13 @@
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name='name']"/>
                  </title>
+                 <style>
+                    @media print {
+                      .page-break {
+                        page-break-before: always;
+                      }
+                    }
+                  </style>
             </head>
             <body>
                 <!-- Cover -->
