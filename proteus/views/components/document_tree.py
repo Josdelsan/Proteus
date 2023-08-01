@@ -61,6 +61,9 @@ TREE_ICONS = {
     "paragraph": "tree_icons/paragraph.svg",
     ":Proteus-document": "tree_icons/document.svg",
     "actor": "tree_icons/actor.svg",
+    "graphic-file": "tree_icons/graphic-file.svg",
+    "information-requirement": "tree_icons/information-requirement.svg",
+    "external-resource": "tree_icons/external-resource.svg",
 }
 
 # Tree item color

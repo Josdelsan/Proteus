@@ -33,11 +33,13 @@
                 </xsl:call-template>
 
                 <xsl:call-template name="generate_simple_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_description"/>
-                    <xsl:with-param name="prefix"  select="proteus:lang_this_actor_represents"/>
+                    <xsl:with-param name="label"   select="$proteus:lang_role"/>
                     <xsl:with-param name="content" select="properties/stringProperty[@name='role']"/>
-                    <xsl:with-param name="postfix" select="'.'"/>
-                    <xsl:with-param name="mode"    select="'paragraph'"/>
+                </xsl:call-template>
+
+                <xsl:call-template name="generate_markdown_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_description"/>
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='description']"/>
                 </xsl:call-template>
 
                 <xsl:call-template name="generate_comments_row"/>

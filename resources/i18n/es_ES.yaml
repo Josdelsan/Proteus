@@ -23,8 +23,8 @@ main_menu.button_group.action: "Acción"
 main_menu.button_group.settings: "Configuración"
 
 # Grupos de botones de arquetipos
-main_menu.button_group.archetypes.general: "Arquetipos generales"
-main_menu.button_group.archetypes.software_requirements: "Arquetipos de requisitos de software"
+main_menu.button_group.archetypes.general: "Arquetipo General"
+main_menu.button_group.archetypes.software_requirements: "Arquetipo de Requisito de Software"
 
 # Botones fijos
 new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"
@@ -72,7 +72,10 @@ archetype_menu_button.paragraph: "Párrafo"
 archetype_menu_button.section: "Sección"
 archetype_menu_button.us_logo: "US Logo"
 archetype_menu_button.use_case: "Caso de uso"
-archetype_menu_button.system_actor: "Actor del sistema"
+archetype_menu_button.system_actor: "Actor"
+archetype_menu_button.graphic_file: "Archivo gráfico"
+archetype_menu_button.external_resource: "Recurso externo"
+archetype_menu_button.information_requirement: "Información"
 
 # Diálogo de abrir proyecto
 main_menu.open_project.caption: "Abrir proyecto"

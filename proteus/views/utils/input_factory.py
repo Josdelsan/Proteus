@@ -83,6 +83,11 @@ def _enum_property_input(property) -> QLineEdit:
     enum_input.setText(property.value)
     return enum_input
 
+def _url_property_input(property) -> QLineEdit:
+    url_input = QLineEdit()
+    url_input.setText(property.value)
+    return url_input
+
 def _file_property_input(property) -> QLineEdit:
     
     def _open_file_dialog(*args, **kwargs):
@@ -140,6 +145,7 @@ class PropertyInputFactory():
         IntegerProperty: _integer_property_input,
         EnumProperty: _enum_property_input,
         FileProperty: _file_property_input,
+        UrlProperty: _url_property_input,
     }
 
     widget_conversion_map: Dict[type[QWidget], Callable[[QWidget], str]] = {

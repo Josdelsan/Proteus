@@ -23,8 +23,8 @@ main_menu.button_group.action: "Action"
 main_menu.button_group.settings: "Settings"
 
 # Archetype button groups
-main_menu.button_group.archetypes.general: "General arquetypes"
-main_menu.button_group.archetypes.software_requirements: "Software requirements arquetypes"
+main_menu.button_group.archetypes.general: "General Arquetype"
+main_menu.button_group.archetypes.software_requirements: "Software Requirement Arquetype"
 
 # Fixed buttons
 new_project_button.statustip: "Create new project from a project template. Shortcut: Ctrl+N"
@@ -73,6 +73,9 @@ archetype_menu_button.section: "Section"
 archetype_menu_button.us_logo: "US logo"
 archetype_menu_button.use_case: "Use case"
 archetype_menu_button.system_actor: "System actor"
+archetype_menu_button.graphic_file: "Graphic file"
+archetype_menu_button.external_resource: "Ext. resource"
+archetype_menu_button.information_requirement: "Information"
 
 # Open project dialog
 main_menu.open_project.caption: "Open project"

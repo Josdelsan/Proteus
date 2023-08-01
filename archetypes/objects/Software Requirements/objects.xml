@@ -2,4 +2,5 @@
 <objects>
     <object id="use-case" />
     <object id="actor" />
+    <object id="information-requirement" />
 </objects>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_graphic_file.xsl                       -->
-<!-- Content : PROTEUS XSLT for subjects at US - graphic file -->
+<!-- File    : PROTEUS_external_resource                      -->
+<!-- Content : PROTEUS XSLT for subjects at US - ext resource -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
@@ -21,35 +21,18 @@
 >
 
 <!-- ======================================================== -->
-<!-- graphic-file template                                    -->
+<!-- External resource template                               -->
 <!-- ======================================================== -->
 
-<xsl:template match="object[@classes='graphic-file']">
+<xsl:template match="object[@classes='external-resource']">
 
     <div id="{@id}" class="figure">
-        <!-- Get file name with extension -->
-        <xsl:variable name="file_name" select="properties/fileProperty[@name='file']"/>
-        <!-- Get the file extension -->
-        <xsl:variable name="image_extension" select="substring-after($file_name, '.')" />
-
-        <!-- Get the file encoded base64 -->
-        <xsl:variable name="image" select="proteus-utils:image_to_base64($file_name)"/>
-
-        <!-- Build src attribute prefix based on the extension -->
-        <xsl:variable name="src_prefix">
-            <xsl:choose>
-                <xsl:when test="$image_extension = 'png'">data:image/png;base64,</xsl:when>
-                <xsl:when test="$image_extension = 'jpg'">data:image/jpeg;base64,</xsl:when>
-                <xsl:when test="$image_extension = 'jpeg'">data:image/jpeg;base64,</xsl:when>
-                <xsl:when test="$image_extension = 'gif'">data:image/gif;base64,</xsl:when>
-                <xsl:when test="$image_extension = 'svg'">data:image/svg+xml;base64,</xsl:when>
-                <xsl:otherwise>data:image/jpeg;base64,</xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
+        <!-- Get file link -->
+        <xsl:variable name="file-link" select="properties/urlProperty[@name='url']"/>
 
         <img class="figure_image">
             <xsl:attribute name="src">
-                <xsl:value-of select="concat($src_prefix, $image)" disable-output-escaping="yes"/>
+                <xsl:value-of select="$file-link" disable-output-escaping="yes"/>
             </xsl:attribute>
         </img>
 
