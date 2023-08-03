@@ -70,12 +70,14 @@ settings_button.text: "Editar"
 # Archetype buttons
 archetype_menu_button.paragraph: "Párrafo"
 archetype_menu_button.section: "Sección"
-archetype_menu_button.us_logo: "US Logo"
-archetype_menu_button.use_case: "Caso de uso"
 archetype_menu_button.system_actor: "Actor"
 archetype_menu_button.graphic_file: "Archivo gráfico"
+
+archetype_menu_button.use_case: "Caso de uso"
 archetype_menu_button.external_resource: "Recurso externo"
 archetype_menu_button.information_requirement: "Información"
+archetype_menu_button.objective: "Objective"
+archetype_menu_button.subobjective: "Subobjective"
 
 # Diálogo de abrir proyecto
 main_menu.open_project.caption: "Abrir proyecto"

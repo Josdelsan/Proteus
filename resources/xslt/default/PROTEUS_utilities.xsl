@@ -40,30 +40,6 @@
         <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
     </xsl:template>
 
-    <!-- ============================================= -->
-    <!-- generate_header template                      -->
-    <!-- ============================================= -->
-
-    <xsl:template name="generate_header">
-        <xsl:param name="label" select="local-name()"/>
-        <xsl:param name="icon"  select="concat($label,'.png')"/>
-        <xsl:param name="postfix"/>
-        <xsl:param name="span"  select="1"/>
-
-        <thead>
-            <tr>
-                <th>
-                    <img src="{concat($base_url_icons,$icon)}"/>
-                    <xsl:text> </xsl:text>
-                    <xsl:value-of select="properties/stringProperty[@name='id']"/>
-                </th>
-                <th class="name_column" colspan="{$span}">
-                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
-                    <xsl:if test="$postfix"><xsl:text> </xsl:text><xsl:value-of select="$postfix"/></xsl:if>
-                </th>
-            </tr>
-        </thead>
-    </xsl:template>
 
     <!-- ============================================= -->
     <!-- generate_markdown_row template                -->
@@ -252,16 +228,44 @@
     </xsl:template>
 
     <!-- ============================================= -->
+    <!-- generate_header template                      -->
+    <!-- ============================================= -->
+
+    <xsl:template name="generate_header">
+        <xsl:param name="class" select="local-name()"/>
+        <xsl:param name="icon"  select="concat($class,'.png')"/>
+        <xsl:param name="postfix"/>
+        <xsl:param name="label"/>
+        <xsl:param name="span"  select="1"/>
+
+        <thead>
+            <tr>
+                <th>
+                    <img src="{concat($base_url_icons,$icon)}"/>
+                    <xsl:text> </xsl:text>
+                    <xsl:value-of select="$label"/>
+                </th>
+                <th class="name_column" colspan="{$span}">
+                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                    <xsl:if test="$postfix"><xsl:text> </xsl:text><xsl:value-of select="$postfix"/></xsl:if>
+                </th>
+            </tr>
+        </thead>
+    </xsl:template>
+
+    <!-- ============================================= -->
     <!-- generate_expanded_header template             -->
     <!-- ============================================= -->
 
     <xsl:template name="generate_expanded_header">
         <xsl:param name="class"   select="default"/>
+        <xsl:param name="label"/>
         <xsl:param name="postfix"/>
         <xsl:param name="span" select="1"/>
 
         <xsl:call-template name="generate_header">
-            <xsl:with-param name="label"   select="$class"/>
+            <xsl:with-param name="class"   select="$class"/>
+            <xsl:with-param name="label"   select="$label"/>
             <xsl:with-param name="postfix" select="$postfix"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>

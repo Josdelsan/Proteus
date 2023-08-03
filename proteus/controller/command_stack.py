@@ -274,11 +274,11 @@ class Controller:
         parent: Union[Project, Object] = self._project_service._get_element_by_id(new_parent_id)
 
         # Get the parent accepted children
-        accepted_children: List[ProteusClassTag] = parent.acceptedChildren.split()
+        accepted_children: List[ProteusClassTag] = parent.acceptedChildren
         if PROTEUS_ANY not in accepted_children and PROTEUS_ALL not in accepted_children:
             # Get object main class
             object: Object = self._project_service._get_element_by_id(object_id)
-            object_class = object.classes.split()[-1]
+            object_class = object.classes[-1]
 
             # Check the object is accepted by the parent
             assert object_class in accepted_children, f"Object {object_id} is not accepted by parent {new_parent_id}"

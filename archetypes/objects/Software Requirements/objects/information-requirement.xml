@@ -5,7 +5,6 @@
     acceptedChildren=":Proteus-none"
 >
     <properties>
-        <stringProperty name="id" category="general">IRQ-001</stringProperty>
         <stringProperty name="name" category="general">Information requirement</stringProperty>
         <stringProperty name="version" category="general">0.1</stringProperty>
         <dateProperty name="created" category="general">2023-05-16</dateProperty>

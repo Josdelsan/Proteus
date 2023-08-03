@@ -114,10 +114,10 @@ def test_init():
         root.attrib["id"] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"] == test_object.acceptedChildren
+        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"] == test_object.classes
+        root.attrib["classes"].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -141,10 +141,10 @@ def test_load(sample_project: Project):
         root.attrib["id"] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"] == test_object.acceptedChildren
+        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"] == test_object.classes
+        root.attrib["classes"].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 

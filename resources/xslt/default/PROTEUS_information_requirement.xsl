@@ -30,7 +30,14 @@
         <div id="{@id}">
             <table class="information_requirement remus_table">
 
+                <xsl:variable name="label_number">
+                    <xsl:number from="object[@classes='Proteus-document']"
+                        count="object[@classes='product-requirement information-requirement']"
+                        level="any" format="001" />
+                </xsl:variable>
+
                 <xsl:call-template name="generate_expanded_header">
+                    <xsl:with-param name="label" select="concat('IRQ-',$label_number)"/>
                     <xsl:with-param name="class"   select="'informationRequirement'"/>
                     <xsl:with-param name="span" select="$span"/>
                 </xsl:call-template>

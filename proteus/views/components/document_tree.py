@@ -64,6 +64,8 @@ TREE_ICONS = {
     "graphic-file": "tree_icons/graphic-file.svg",
     "information-requirement": "tree_icons/information-requirement.svg",
     "external-resource": "tree_icons/external-resource.svg",
+    "objective": "tree_icons/objective.svg",
+    "subobjective": "tree_icons/subobjective.svg",
 }
 
 # Tree item color
@@ -259,7 +261,7 @@ class DocumentTree(QWidget):
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
         # Set the icon based on the object last class
-        object_class: str = object.classes.split()[-1]
+        object_class: str = object.classes[-1]
         try:
             icon_path: Path = Config().icons_directory / TREE_ICONS[object_class]
             new_item.setIcon(0, QIcon(icon_path.as_posix()))

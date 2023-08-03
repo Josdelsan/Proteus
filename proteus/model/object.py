@@ -174,8 +174,15 @@ class Object(AbstractObject):
         self.parent: Union[Object, Project] = None
 
         # Get object classes and accepted children classes
-        self.classes: List[ProteusClassTag] = root.attrib["classes"]
-        self.acceptedChildren: List[ProteusClassTag] = root.attrib["acceptedChildren"]
+        self.classes: List[ProteusClassTag] = root.attrib["classes"].split()
+        self.acceptedChildren: List[ProteusClassTag] = root.attrib[
+            "acceptedChildren"
+        ].split()
+
+        # Get strict parent directive
+        # NOTE: Prevent archetypes like subobjectives being cloned into :Proteus-any
+        # accepting archetypes like section
+        self.strictParent: bool = bool(root.attrib.get("strictParent", False))
 
         # Load object's properties using superclass method
         super().load_properties(root)
@@ -301,14 +308,13 @@ class Object(AbstractObject):
             child, Object
         ), f"Child {child} is not a valid PROTEUS object."
 
-        accepted_children: List[ProteusClassTag] = self.acceptedChildren.split()
         # Check if the child is accepted
-        assert (
-            child.classes.split()[-1] in accepted_children
-            or PROTEUS_ANY in accepted_children
-        ), f"Child is not accepted by {self.id}.          \
-            Accepted children are {accepted_children}. \
-            Child is class {child.classes}."
+        assert self.accept_descendant(
+            child=child
+        ), f"Child is not accepted by {self.id}.           \
+            Accepted children are {self.acceptedChildren}. \
+            Child is class {child.classes}.                \
+            strictParent is {self.strictParent}."
 
         # Add the child to the children list and set the parent
         self.children.insert(position, child)
@@ -317,6 +323,37 @@ class Object(AbstractObject):
         # Set dirty flag
         if self.state != ProteusState.FRESH:
             self.state = ProteusState.DIRTY
+
+    # ----------------------------------------------------------------------
+    # Method     : accept_descendant
+    # Description: Checks if a child is accepted by a PROTEUS object.
+    # Date       : 03/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def accept_descendant(self, child: Object) -> bool:
+        """
+        Checks if a child is accepted by a PROTEUS object. Parent must accept
+        :Proteus-any and child must not be strictParent. StrictParent objects
+        only accept parents that where they are explicitly accepted.
+
+        :param child: Child Object to be checked.
+        """
+        # Check if the child is a valid object
+        assert isinstance(
+            child, Object
+        ), f"Child {child} is not a valid PROTEUS object."
+
+        # Check if the child is accepted
+        accepted_children: List[ProteusClassTag] = self.acceptedChildren
+
+        # If child in accepted children -> True
+        # If proteus-any and not strictParent -> True
+        # If strictParent and child in accepted children -> False
+        return child.classes[-1] in accepted_children or (
+            PROTEUS_ANY in accepted_children and not child.strictParent
+        )
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml
@@ -333,8 +370,8 @@ class Object(AbstractObject):
         # Create <object> element and set ID
         object_element = ET.Element(OBJECT_TAG)
         object_element.set("id", self.id)
-        object_element.set("classes", self.classes)
-        object_element.set("acceptedChildren", self.acceptedChildren)
+        object_element.set("classes", " ".join(self.classes))
+        object_element.set("acceptedChildren", " ".join(self.acceptedChildren))
 
         # Create <properties> element
         super().generate_xml_properties(object_element)
@@ -569,4 +606,3 @@ class Object(AbstractObject):
             if os.path.exists(self.path):
                 # Delete the file
                 os.remove(self.path)
-

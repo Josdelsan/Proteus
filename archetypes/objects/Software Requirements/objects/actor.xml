@@ -5,7 +5,6 @@
     acceptedChildren=":Proteus-none"
 >
     <properties>
-        <stringProperty name="id" category="general">ATC-001</stringProperty>
         <stringProperty name="name" category="general">System actor</stringProperty>
         <stringProperty name="version" category="general">0.1</stringProperty>
         <stringProperty name="role" category="general">Product Owner</stringProperty>

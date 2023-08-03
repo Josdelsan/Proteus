@@ -38,5 +38,6 @@
     <xsl:include href="PROTEUS_external_resource.xsl" />
     <xsl:include href="PROTEUS_default.xsl" />
     <xsl:include href="PROTEUS_information_requirement.xsl" />
+    <xsl:include href="PROTEUS_objective.xsl" />
 
 </xsl:stylesheet>

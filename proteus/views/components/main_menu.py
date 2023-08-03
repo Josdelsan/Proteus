@@ -31,8 +31,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
-from proteus.model import PROTEUS_ANY, ProteusID
+from proteus.model import PROTEUS_ANY, ProteusID, ProteusClassTag
 from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -398,7 +397,7 @@ class MainMenu(QDockWidget):
         else:
             # Get the selected object and its accepted children
             selected_object: Object = self._controller.get_element(selected_object_id)
-            accepted_children: str = selected_object.acceptedChildren.split()
+            accepted_children: List[ProteusClassTag] = selected_object.acceptedChildren
 
             # Iterate over the archetype buttons
             for archetype_id in self.archetype_buttons.keys():
@@ -414,13 +413,9 @@ class MainMenu(QDockWidget):
                     type(archetype) is Object
                 ), f"Archetype {archetype_id} is not an object"
 
-                # Get the archetype class (last class in the class hierarchy)
-                archetype_class: str = archetype.classes.split()[-1]
-
                 # Enable or disable the archetype button
                 archetype_button.setEnabled(
-                    archetype_class in accepted_children
-                    or PROTEUS_ANY in accepted_children
+                    selected_object.accept_descendant(archetype)
                 )
 
     # ----------------------------------------------------------------------

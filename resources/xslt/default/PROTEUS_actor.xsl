@@ -25,10 +25,17 @@
 
     <xsl:template match="object[@classes='product-requirement actor']">
 
+        <xsl:variable name="label_number">
+            <xsl:number from="object[@classes='Proteus-document']"
+                count="object[@classes='product-requirement actor']"
+                level="any" format="001" />
+        </xsl:variable>
+
         <div id="{@id}">
             <table class="actor remus_table">
 
                 <xsl:call-template name="generate_expanded_header">
+                    <xsl:with-param name="label"   select="concat('ACT-',$label_number)"/>
                     <xsl:with-param name="class"   select="'actor'"/>
                 </xsl:call-template>
 

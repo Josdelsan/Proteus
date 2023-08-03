@@ -3,4 +3,6 @@
     <object id="use-case" />
     <object id="actor" />
     <object id="information-requirement" />
+    <object id="objective" />
+    <object id="subobjective" />
 </objects>
