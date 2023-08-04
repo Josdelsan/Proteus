@@ -9,6 +9,28 @@
 # ==========================================================================
 
 #---------------------------------------------------------------------------
+# Property names and categories
+#---------------------------------------------------------------------------
+
+# names
+acronym: "Acronym"
+name: "Name"
+version: "Version"
+role: "Role"
+date: "Date"
+author: "Author"
+comments: "Comments"
+description: "Description"
+specificdata: "Specific data"
+text: "Text"
+url: "URL"
+file: "File"
+
+# categories
+general: "General"
+detail: "Detail"
+
+#---------------------------------------------------------------------------
 # Main menu
 #---------------------------------------------------------------------------
 # Menu tabs

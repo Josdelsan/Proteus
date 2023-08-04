@@ -18,7 +18,7 @@
     <xsl:template match="object">
         <div id="{@id}">
             <!-- Display properties in a table -->
-            <table>
+            <table class="remus_table">
                 <tr style="background-color: lightblue;">
                     <th style="width: 17.5%;">Property Name</th>
                     <th style="width: 82.5%;">Text Value</th>

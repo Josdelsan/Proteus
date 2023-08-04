@@ -4,9 +4,10 @@
     <stringProperty name="acronym"><![CDATA[DRS]]></stringProperty>
     <stringProperty name="name" category="general"><![CDATA[Documento de Requisitos del sistema]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
-    <dateProperty name="created" category="general">2013-03-01</dateProperty>
-    <stringProperty name="createdBy" category="general"><![CDATA[José María Delgado]]></stringProperty>
+    <dateProperty name="date" category="general">2013-03-01</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
     <markdownProperty name="description" category="detail"><![CDATA[En el presente documento...]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
   </properties>
   <children>
     <child id="64xM8FLyxtaE"/>

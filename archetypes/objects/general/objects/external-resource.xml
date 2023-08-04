@@ -2,7 +2,7 @@
 <object id="external-resource" classes="external-resource" acceptedChildren=":Proteus-none">
   <properties>
     <stringProperty name="name"><![CDATA[External resource]]></stringProperty>
-    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
+    <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
 	  <dateProperty name="date">2022-10-10</dateProperty>
 		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
 	  <stringProperty name="author"><![CDATA[Amador Durán Toro]]></stringProperty>	

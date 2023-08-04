@@ -27,14 +27,14 @@
     <xsl:template match="object[@classes='objective']">
         <xsl:variable name="span" select="2" />
 
+        <xsl:variable name="label_number">
+            <xsl:number from="object[@classes='Proteus-document']"
+                count="object[@classes='objective'] | object[@classes='subobjective']"
+                level="any" format="001" />
+        </xsl:variable>
+
         <div id="{@id}">
             <table class="objective remus_table">
-
-                <xsl:variable name="label_number">
-                    <xsl:number from="object[@classes='Proteus-document']"
-                        count="object[@classes='objective'] | object[@classes='subobjective']"
-                        level="any" format="001" />
-                </xsl:variable>
 
                 <xsl:call-template name="generate_expanded_header">
                     <xsl:with-param name="label" select="concat('OBJ-',$label_number)" />

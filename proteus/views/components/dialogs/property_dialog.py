@@ -38,7 +38,8 @@ from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property
-from proteus.views.utils.input_factory import PropertyInputFactory
+from proteus.views.utils.input_factory import PropertyInputFactory, PropertyInputWidget
+from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
@@ -80,6 +81,8 @@ class PropertyDialog(QDialog):
         ), "Must provide a controller instance to the properties form dialog"
         self._controller: Controller = controller
 
+        self.translator = Translator()
+
         # Set the element id, reference to the element whose properties
         # will be displayed
         self.element_id: ProteusID = element_id
@@ -87,9 +90,7 @@ class PropertyDialog(QDialog):
         # Create a dictionary to hold the input widgets for each property
         # NOTE: This is used to get the input values when the form is
         #       accepted
-        self.input_widgets: Dict[
-            str, Union[QLineEdit, QDateEdit, QTextEdit, QCheckBox]
-        ] = {}
+        self.input_widgets: Dict[str, PropertyInputWidget] = {}
 
         # Create the component
         self.create_component()
@@ -129,7 +130,7 @@ class PropertyDialog(QDialog):
         prop: Property = None
         for prop in properties_dict.values():
             # Get the category for the property
-            category: str = prop.category
+            category: str = self.translator.text(prop.category)
 
             # Create a QWidget for the category if it doesn't exist
             if category not in category_widgets:
@@ -141,10 +142,10 @@ class PropertyDialog(QDialog):
                 category_layout: QFormLayout = category_widget.layout()
 
             # Create the property input widget
-            input_field_widget: Union[
-                QLineEdit, QDateEdit, QTextEdit, QCheckBox
-            ] = PropertyInputFactory.create(prop)
-            category_layout.addRow(f"{prop.name}:", input_field_widget)
+            input_field_widget: PropertyInputWidget = PropertyInputFactory.create(prop)
+            category_layout.addRow(
+                self.translator.text(prop.name), input_field_widget
+            )
 
             # Add the input field widget to the input widgets dictionary
             # NOTE: This is used to retrieve the values of the widgets that changed
@@ -194,14 +195,23 @@ class PropertyDialog(QDialog):
         # Get the original object properties dictionary
         properties_dict = self.object.properties
 
+        # Boolean property to check if there are errors
+        form_has_errors: bool = False
+
         # Iterate over the input widgets and update the properties dictionary
         for prop_name in properties_dict.keys():
             # Get the property input value
-            input_widget: Union[
-                QLineEdit, QDateEdit, QTextEdit, QCheckBox
-            ] = self.input_widgets[prop_name]
+            input_widget: PropertyInputWidget = self.input_widgets[prop_name]
 
-            new_prop_value: str = PropertyInputFactory.widget_to_value(input_widget)
+            # Check if the widget has errors
+            widget_has_errors: bool = input_widget.has_errors()
+            form_has_errors = form_has_errors or widget_has_errors
+
+            # If the widget has errors, skip the property
+            if widget_has_errors:
+                continue
+
+            new_prop_value: str = input_widget.get_value()
 
             # Get the original property and its value
             original_prop: Property = properties_dict[prop_name]
@@ -211,6 +221,10 @@ class PropertyDialog(QDialog):
             if new_prop_value != original_prop_value:
                 cloned_property: Property = original_prop.clone(new_prop_value)
                 update_list.append(cloned_property)
+
+        # If there are errors, do not update the properties
+        if form_has_errors:
+            return
 
         # Update the properties of the element if there are changes
         if len(update_list) > 0:

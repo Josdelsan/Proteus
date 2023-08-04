@@ -27,14 +27,14 @@
     <xsl:template match="object[@classes='product-requirement information-requirement']">
         <xsl:variable name="span" select="2"/>
 
+        <xsl:variable name="label_number">
+            <xsl:number from="object[@classes='Proteus-document']"
+                count="object[@classes='product-requirement information-requirement']"
+                level="any" format="001" />
+        </xsl:variable>
+
         <div id="{@id}">
             <table class="information_requirement remus_table">
-
-                <xsl:variable name="label_number">
-                    <xsl:number from="object[@classes='Proteus-document']"
-                        count="object[@classes='product-requirement information-requirement']"
-                        level="any" format="001" />
-                </xsl:variable>
 
                 <xsl:call-template name="generate_expanded_header">
                     <xsl:with-param name="label" select="concat('IRQ-',$label_number)"/>

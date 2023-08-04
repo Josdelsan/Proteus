@@ -9,6 +9,28 @@
 # ==========================================================================
 
 #---------------------------------------------------------------------------
+# Nombres de propiedades y categorías
+#---------------------------------------------------------------------------
+
+# nombres
+acronym: "Acrónimo"
+name:  "Nombre"
+version: "Versión"
+role: "Rol"
+date: "Fecha"
+author: "Autor"
+comments: "Comentarios"
+description: "Descripción"
+specificdata: "Datos específicos"
+text: "Texto"
+url: "URL"
+file: "Archivo"
+
+# categories
+general: "General"
+detail: "Detalle"
+
+#---------------------------------------------------------------------------
 # Menú principal
 #---------------------------------------------------------------------------
 # Pestañas del menú
