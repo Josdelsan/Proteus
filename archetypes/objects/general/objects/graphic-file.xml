@@ -4,8 +4,8 @@
     <stringProperty name="name"><![CDATA[Graphic File]]></stringProperty>
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
 	  <dateProperty name="date">2023-05-05</dateProperty>
+    <stringProperty name="author"><![CDATA[José María Delgado]]></stringProperty>
 	  <fileProperty name="file"><![CDATA[basic-figure.jpg]]></fileProperty>
-	  <stringProperty name="author"><![CDATA[José María Delgado Sánchez]]></stringProperty>	
     <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
   </properties>

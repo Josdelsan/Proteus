@@ -10,8 +10,8 @@
     <markdownProperty name="comments" category="comments"><![CDATA[Este proyecto sirve como plantilla para el desarrollo de un proyecto dentro del Marco de Desarrollo de la Junta de Andalucía (MADEJA)]]></markdownProperty>
   </properties>
   <documents>
-    <document id="3fKhMAkcEe2C"/>
-    <document id="3fKhMAkcEe2D"/>
+    <document id="7SvZwfdo5gPQ"/>
+    <document id="4TtAZABTJTxm"/>
   </documents>
   <xsl-templates>
     <xsl-template name="default" />

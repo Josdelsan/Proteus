@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="4XUrY8cVvrgb" classes="section" acceptedChildren=":Proteus-any">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Organizaciones participantes]]></stringProperty>
+    <floatProperty name="version" category="general">1.0</floatProperty>
+    <dateProperty name="date" category="general">2022-10-10</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+  </properties>
+  <children/>
+</object>
