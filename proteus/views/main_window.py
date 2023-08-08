@@ -16,6 +16,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 
@@ -23,7 +24,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
+from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -71,6 +72,9 @@ class MainWindow(QMainWindow):
         # Get the translator instance
         self.translator = Translator()
 
+        # Create the configuration instance
+        self.config = Config()
+
         # Create the component
         self.create_component()
 
@@ -92,6 +96,10 @@ class MainWindow(QMainWindow):
         """
         # Set the window title
         self.setWindowTitle(self.translator.text("main_window.title"))
+
+        # Set the window icon
+        proteus_icon = self.config.icons_directory / "proteus_logo.ico"
+        self.setWindowIcon(QIcon(str(proteus_icon)))
 
         # Set the window size
         self.resize(1200, 800)

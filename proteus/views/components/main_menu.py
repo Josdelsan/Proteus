@@ -37,7 +37,7 @@ from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
-from proteus.views.components.dialogs.print_to_pdf_dialog import PrintToPdfDialog
+from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
@@ -225,7 +225,7 @@ class MainMenu(QDockWidget):
         # Export document action
         self.export_document_button: QToolButton = buttons.export_button(self)
         self.export_document_button.clicked.connect(
-            lambda: PrintToPdfDialog.create_dialog(self._controller)
+            lambda: ExportDialog.create_dialog(self._controller)
         )
 
         # Add the buttons to the document menu widget

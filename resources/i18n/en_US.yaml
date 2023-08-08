@@ -180,15 +180,17 @@ es_es: "Spanish (Spain)"
 en_us: "English (United States)"
 
 # ---------------------------------------------------------------------------
-# Print to pdf dialog
+# Export dialog
 # ---------------------------------------------------------------------------
-print_to_pdf_dialog.title: "Export current document to PDF"
-print_to_pdf_dialog.filename.label: "Select filename:"
-print_to_pdf_dialog.filename.browser: "Browse"
-print_to_pdf_dialog.filename.warning.title: "File already exists"
-print_to_pdf_dialog.filename.warning.text: "The file {} already exists. Do you want to replace it?"
-print_to_pdf_dialog.finished.dialog.title: "Print PDF"
-print_to_pdf_dialog.finished.dialog.text: "The document has been exported to PDF successfully in the path {}"
-print_to_pdf_dialog.finished.dialog.error.title: "Error exporting PDF"
-print_to_pdf_dialog.finished.dialog.error.text: "The document could not be exported to PDF"
-print_to_pdf_dialog.filename.error: "Please select a valid filename and path"
+Export.title: "Export current document"
+export_dialog.export_format.label: "Select export format:"
+export_dialog.filename.label: "Select filename:"
+export_dialog.filename.browser: "Browse"
+export_dialog.filename.warning.title: "File already exists"
+export_dialog.filename.warning.text: "The file {} already exists. Do you want to replace it?"
+export_dialog.finished.dialog.title: "Export finished"
+export_dialog.finished.dialog.text: "The document has been exported successfully in the path {}"
+export_dialog.finished.dialog.error.title: "Error exporting"
+export_dialog.finished.dialog.error.text: "The document could not be exported"
+export_dialog.error.invalid_filename: "Please select a valid filename and path"
+export_dialog.error.invalid_extension: "File extension must match with the selected format"

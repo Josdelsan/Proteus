@@ -1,5 +1,5 @@
 # ==========================================================================
-# File: print_to_pdf_dialog.py
+# File: export_dialog.py
 # Description: PyQT6 print to pdf dialog component.
 # Date: 14/07/2023
 # Version: 0.1
@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QMessageBox,
     QPushButton,
+    QComboBox,
 )
 
 
@@ -35,24 +36,20 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
-from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import Property
-from proteus.views.utils.input_factory import PropertyInputFactory
 from proteus.controller.command_stack import Controller
 from proteus.views.utils.translator import Translator
 from proteus.views.utils.state_manager import StateManager
 
 
 # --------------------------------------------------------------------------
-# Class: PrintToPdfDialog
+# Class: ExportDialog
 # Description: Class for the PROTEUS application print to pdf dialog form.
 # Date: 14/07/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PrintToPdfDialog(QDialog):
+class ExportDialog(QDialog):
     """
     Class for the PROTEUS application print to pdf dialog form. It is used
     to display a dialog form with the print to pdf options.
@@ -78,12 +75,8 @@ class PrintToPdfDialog(QDialog):
         ), "Must provide a controller instance to the properties form dialog"
         self._controller: Controller = controller
 
-        # Page object
-        self._page: QWebEnginePage = None
-
         self.translator = Translator()
 
-        self.create_page()
         self.create_component()
 
     # ----------------------------------------------------------------------
@@ -100,54 +93,68 @@ class PrintToPdfDialog(QDialog):
 
         # Helper function to select the file path
         def select_file_path():
+            # File format variable
+            file_format: str = self.export_format_selector.currentText()
+
+            # Build default file name
+            current_document = StateManager().get_current_document()
+            current_view = StateManager().get_current_view()
+            document: Object = self._controller.get_element(current_document)
+            default_file_name: str = (
+                f"{document.get_property('name').value}-{current_view}.{file_format}"
+            )
+
+            # Open the file dialog and set the default file name
             file_dialog: QFileDialog = QFileDialog()
             file_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-            file_dialog.setDefaultSuffix("pdf")
-            file_dialog.setNameFilter("PDF files (*.pdf)")
+            file_dialog.setDefaultSuffix(file_format)
+            file_dialog.setNameFilter(f"{file_format} files (*.{file_format})")
             file_dialog.selectFile(default_file_name)
+
+            # Get the selected file path and fix the extension if needed
             if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
                 path: str = file_dialog.selectedFiles()[0]
-                if not path.endswith(".pdf"):
-                    path += ".pdf"
+                if not path.endswith(f".{file_format}"):
+                    path += f".{file_format}"
+                # Check if the file already exists and ask for overwrite
                 if os.path.exists(path):
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
                     msg_box.setText(
                         self.translator.text(
-                            "print_to_pdf_dialog.filename.warning.text", path
+                            "export_dialog.filename.warning.text", path
                         )
                     )
                     msg_box.setWindowTitle(
-                        self.translator.text(
-                            "print_to_pdf_dialog.filename.warning.title"
-                        )
+                        self.translator.text("export_dialog.filename.warning.title")
                     )
-                    msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                    msg_box.setStandardButtons(
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                    )
                     if msg_box.exec() == QMessageBox.StandardButton.Yes:
                         self.filename_input.setText(path)
                 else:
                     self.filename_input.setText(path)
 
         # Set the dialog title and width
-        self.setWindowTitle(self.translator.text("print_to_pdf_dialog.title"))
+        self.setWindowTitle(self.translator.text("export_dialog.title"))
         self.setFixedWidth(400)
 
-        # Build default file name
-        current_document = StateManager().get_current_document()
-        current_view = StateManager().get_current_view()
-        document: Object = self._controller.get_element(current_document)
-        default_file_name: str = (
-            f"{document.get_property('name').value}-{current_view}.pdf"
+        # Export format selector
+        export_format_label = QLabel(
+            self.translator.text("export_dialog.export_format.label")
         )
+        self.export_format_selector = QComboBox()
+        # NOTE: This is done manually because there is no plan to support more formats
+        self.export_format_selector.addItem("pdf")
+        self.export_format_selector.addItem("html")
 
         # Ask for filename and path
-        filename_label = QLabel(
-            self.translator.text("print_to_pdf_dialog.filename.label")
-        )
+        filename_label = QLabel(self.translator.text("export_dialog.filename.label"))
         self.filename_input: QLineEdit = QLineEdit()
         self.filename_input.setEnabled(False)
         browse_button = QPushButton(
-            self.translator.text("print_to_pdf_dialog.filename.browser")
+            self.translator.text("export_dialog.filename.browser")
         )
         browse_button.clicked.connect(select_file_path)
 
@@ -166,25 +173,32 @@ class PrintToPdfDialog(QDialog):
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
+        # Add the components to the main layout
+        self.main_layout.addWidget(export_format_label)
+        self.main_layout.addWidget(self.export_format_selector)
         self.main_layout.addWidget(filename_label)
         self.main_layout.addWidget(self.filename_input)
         self.main_layout.addWidget(self.error_label)
         self.main_layout.addWidget(browse_button)
         self.main_layout.addWidget(self.button_box)
 
+    # ======================================================================
+    # Export methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
-    # Method     : create_page
-    # Description: Create the page object.
+    # Method     : export_to_pdf
+    # Description: Export the current document to pdf.
     # Date       : 14/07/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_page(self) -> None:
+    def export_to_pdf(self, file_path: str) -> None:
         """
-        Create the page object.
+        Export the current document to pdf.
         """
         # Create the page object
-        self._page = QWebEnginePage()
+        page: QWebEnginePage = QWebEnginePage()
 
         # Get current application state
         current_document = StateManager().get_current_document()
@@ -199,10 +213,57 @@ class PrintToPdfDialog(QDialog):
         # NOTE: This is done to avoid 2mb limit on setHtml method
         # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
         html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
-        self._page.setContent(html_array, "text/html")
+        page.setContent(html_array, "text/html")
+
+        # Define the margin values (in millimeters)
+        margins: QMarginsF = QMarginsF(30, 20, 30, 20)
+
+        # Create a QPageLayout object from the options dictionary
+        page_layout = QPageLayout(
+            QPageSize(QPageSize.PageSizeId.A4),
+            QPageLayout.Orientation.Portrait,
+            margins,
+        )
+
+        # Print to pdf the current view with margins
+        page.printToPdf(file_path, page_layout)
+
+        # Show a dialog when the pdf printing is finished
+        page.pdfPrintingFinished.connect(self.export_finished_dialog)
+
+    # ----------------------------------------------------------------------
+    # Method     : export_to_html
+    # Description: Export the current document to html.
+    # Date       : 08/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def export_to_html(self, file_path: str) -> None:
+        """
+        Export the current document to html.
+        """
+        # Get current application state
+        current_document = StateManager().get_current_document()
+        current_view = StateManager().get_current_view()
+
+        # Generate html view
+        html_view: str = self._controller.get_document_view(
+            document_id=current_document, xslt_name=current_view
+        )
+
+        # Write the html to a file
+        success = True
+        try:
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(html_view)
+        except Exception as e:
+            success = False
+
+        # Show a dialog when the html file is created
+        self.export_finished_dialog(file_path, success)
 
     # ======================================================================
-    # Dialog slots methods (connected to the component signals)
+    # Dialog slots methods (connected to the component signals and helpers)
     # ======================================================================
 
     # ----------------------------------------------------------------------
@@ -228,58 +289,59 @@ class PrintToPdfDialog(QDialog):
     # ----------------------------------------------------------------------
     def accept_button_clicked(self) -> None:
         """
-        Print to pdf when the accept button is clicked.
+        Export when the accept button is clicked.
         """
+        # Get the filename + path
+        file_path: str = self.filename_input.text()
+
         # Validate the filename
-        if self.filename_input.text() == "" or self.filename_input.text() is None:
+        if file_path == "" or file_path is None:
             self.error_label.setText(
-                self.translator.text("print_to_pdf_dialog.filename.error")
+                self.translator.text("export_dialog.error.invalid_filename")
             )
             return
 
-        # Define the margin values (in millimeters)
-        margins: QMarginsF = QMarginsF(30, 20, 30, 20)
+        # Get the selected export format
+        export_format: str = self.export_format_selector.currentText()
 
-        # Create a QPageLayout object from the options dictionary
-        page_layout = QPageLayout(
-            QPageSize(QPageSize.PageSizeId.A4),
-            QPageLayout.Orientation.Portrait,
-            margins,
-        )
+        # Check the export format and the filename extension match
+        if not file_path.endswith(export_format):
+            self.error_label.setText(
+                self.translator.text("export_dialog.error.invalid_extension")
+            )
+            return
 
-        # Print to pdf the current view with margins
-        self._page.printToPdf(self.filename_input.text(), page_layout)
-
-        # Show a dialog when the pdf printing is finished
-        self._page.pdfPrintingFinished.connect(self.print_pdf_finished_dialog)
+        # Export depending on the selected format
+        if export_format == "pdf":
+            self.export_to_pdf(file_path)
+        elif export_format == "html":
+            self.export_to_html(file_path)
 
         # Close the dialog
         self.close()
 
     # ----------------------------------------------------------------------
     # Method     : print_pdf_finished_dialog
-    # Description: Show a dialog when the pdf printing is finished.
+    # Description: Show a dialog when the export is finished.
     # Date       : 14/07/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def print_pdf_finished_dialog(self, filePath: str, success: bool) -> None:
+    def export_finished_dialog(self, filePath: str, success: bool) -> None:
         """
-        Show a dialog when the pdf printing is finished.
+        Show a dialog when the export is finished.
         """
         if success:
             QMessageBox.information(
                 self,
-                self.translator.text("print_to_pdf_dialog.finished.dialog.title"),
-                self.translator.text(
-                    "print_to_pdf_dialog.finished.dialog.text", filePath
-                ),
+                self.translator.text("export_dialog.finished.dialog.title"),
+                self.translator.text("export_dialog.finished.dialog.text", filePath),
             )
         else:
             QMessageBox.critical(
                 self,
-                self.translator.text("print_to_pdf_dialog.finished.dialog.error.title"),
-                self.translator.text("print_to_pdf_dialog.finished.dialog.error.text"),
+                self.translator.text("export_dialog.finished.dialog.error.title"),
+                self.translator.text("export_dialog.finished.dialog.error.text"),
             )
 
     # ======================================================================
@@ -301,7 +363,7 @@ class PrintToPdfDialog(QDialog):
         :param page: The QWebEnginePage object.
         """
         # Create the form window
-        form_window = PrintToPdfDialog(controller)
+        form_window = ExportDialog(controller)
 
         # Show the form window
         form_window.exec()
