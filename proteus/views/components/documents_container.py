@@ -28,6 +28,7 @@ from PyQt6.QtGui import QIcon
 from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.object import Object
+from proteus.views import ACRONYM_ICON_TYPE
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.components.document_tree import DocumentTree
@@ -157,11 +158,9 @@ class DocumentsContainer(QTabWidget):
         tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
-        try:
-            icon_path: Path = Config().icons_directory / 'acronyms' / f'{document_acronym}.svg'
-            self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
-        except Exception:
-            log.warning(f'No icon found for document {document_acronym}')
+        icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
+        self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+        
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -264,14 +263,9 @@ class DocumentsContainer(QTabWidget):
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
-            try:
-                icon_path: Path = Config().icons_directory / 'acronyms' / f'{document_acronym}.svg'
-                self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
-            except Exception:
-                log.warning(f'No icon found for document {document_acronym}')
-
+            icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
+            self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
             
-
 
     # ======================================================================
     # Component slots methods (connected to the component signals)

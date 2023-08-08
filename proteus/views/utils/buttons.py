@@ -37,14 +37,9 @@ from PyQt6.QtCore import Qt, QSize
 
 from proteus.config import Config
 from proteus.model.object import Object
+from proteus.views import ARCHETYPE_MENU_ICON_TYPE, MAIN_MENU_ICON_TYPE
 from proteus.views.utils.translator import Translator
 
-# --------------------------------------------------------------------------
-# Constants
-# --------------------------------------------------------------------------
-
-ARCHETYPE_ICONS_FOLDER = "archetypes"
-MENU_ICONS_FOLDER = "main_menu"
 
 # --------------------------------------------------------------------------
 # Functions
@@ -118,7 +113,7 @@ def save_project_button(parent: QWidget) -> QToolButton:
     save_button.setFixedWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().icons_directory / MENU_ICONS_FOLDER / "save-button.svg"
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "save")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     save_button.setIcon(button_icon)
@@ -150,7 +145,7 @@ def undo_button(parent: QWidget) -> QToolButton:
     undo_button.setFixedWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().icons_directory / MENU_ICONS_FOLDER / "undo.svg"
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "undo")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     undo_button.setIcon(button_icon)
@@ -182,7 +177,7 @@ def redo_button(parent: QWidget) -> QToolButton:
     redo_button.setFixedWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().icons_directory / MENU_ICONS_FOLDER / "redo.svg"
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "redo")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     redo_button.setIcon(button_icon)
@@ -214,7 +209,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     properties_button.setFixedWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().icons_directory / MENU_ICONS_FOLDER / "edit-button.svg"
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "edit")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     properties_button.setIcon(button_icon)
@@ -249,7 +244,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().icons_directory / MENU_ICONS_FOLDER / "new-file-button.svg"
+        Config().get_icon(MAIN_MENU_ICON_TYPE, "new-file")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -283,7 +278,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().icons_directory / MENU_ICONS_FOLDER / "delete-file-button.svg"
+        Config().get_icon(MAIN_MENU_ICON_TYPE, "delete-file")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -314,7 +309,7 @@ def settings_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().icons_directory / MENU_ICONS_FOLDER / "settings-button.svg"
+        Config().get_icon(MAIN_MENU_ICON_TYPE, "settings")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -341,7 +336,7 @@ def export_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().icons_directory / MENU_ICONS_FOLDER / "export-button.svg"
+        Config().get_icon(MAIN_MENU_ICON_TYPE, "export")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -413,13 +408,9 @@ class ArchetypeMenuButton(QToolButton):
 
         # Build icon path from archetype id or use default icon
         icon_path: Path = (
-            Config().icons_directory / ARCHETYPE_ICONS_FOLDER / f"{archetype.id}.svg"
+            Config().get_icon(ARCHETYPE_MENU_ICON_TYPE,archetype.id)
         )
-        if not os.path.isfile(icon_path):
-            icon_path = (
-                Config().icons_directory / ARCHETYPE_ICONS_FOLDER / "default.svg"
-            )
-
+        
         # Add icon
         archetype_icon.addFile(icon_path.as_posix(), QSize(32, 32))
         self.setIcon(archetype_icon)

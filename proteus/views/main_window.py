@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -28,6 +29,7 @@ from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
 from proteus.views.utils.event_manager import Event, EventManager
@@ -37,6 +39,7 @@ from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: MainWindow
@@ -98,8 +101,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.translator.text("main_window.title"))
 
         # Set the window icon
-        proteus_icon = self.config.icons_directory / "proteus_logo.ico"
-        self.setWindowIcon(QIcon(str(proteus_icon)))
+        proteus_icon: Path = self.config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Set the window size
         self.resize(1200, 800)

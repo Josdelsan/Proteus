@@ -12,7 +12,6 @@
 
 from typing import Dict
 import logging
-import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports

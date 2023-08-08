@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 
 CONFIG_FILE: str = "proteus.ini"
 TEMPLATE_FILE: str = "template.xml"
+ICONS_FILE: str = "icons.xml"
 
 # Settings
 SETTINGS: str = "settings"
@@ -117,6 +118,13 @@ class Config:
         self.settings = self.config[SETTINGS]
         self.language: str = self.settings[LANGUAGE]
 
+        # Icons dictionary -------------------------------------------------
+        # NOTE: Use get_icon method to access icons to ensure default icon is
+        # used if icon is not found.
+        self._icons_dictionary: Dict[
+            str, Dict[str, Path]
+        ] = self._create_icons_dictionary()
+
         # XSL template routes ----------------------------------------------
         self.xslt_routes: Dict[str, Path] = self._create_xslt_routes()
 
@@ -142,6 +150,57 @@ class Config:
         # Save settings
         with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, "w") as configfile:
             self.config.write(configfile)
+
+    def get_icon(self, type: str, name: str) -> Path:
+        """
+        It returns the icon path for the given type and name.
+        """
+        assert (
+            type in self._icons_dictionary
+        ), f"Icon type {type} not found, check icons.xml file"
+
+        # Check if name exists
+        if name not in self._icons_dictionary[type]:
+            log.warning(
+                f"Icon name {name} not found for type {type}, using default icon"
+            )
+            name = "default"
+
+        return self._icons_dictionary[type][name]
+
+    def _create_icons_dictionary(self) -> Dict[str, Dict[str, Path]]:
+        """
+        Private method that reads the icons.xml file and creates a nested
+        dictionary structure to access icons by type and name.
+        """
+        # Initialize dictionary
+        icons_dictionary: Dict[str, Dict[str, Path]] = {}
+
+        # Parse icons file
+        icons_tree: ET.ElementTree = ET.parse(self.icons_directory / ICONS_FILE)
+        icons_root: ET.Element = icons_tree.getroot()
+
+        # Iterate over icons tag children type to create each type dictionary
+        for type in icons_root:
+            # Initialize type dictionary
+            type_dictionary: Dict[str, Path] = {}
+
+            # Store default icon
+            type_dictionary["default"] = (
+                self.icons_directory / type.attrib["default"]
+            )
+
+            # Iterate over icons tag children icon
+            for icon in type:
+                # Add icon to type dictionary
+                type_dictionary[icon.attrib["key"]] = (
+                    self.icons_directory / icon.attrib["file"]
+                )
+
+            # Add type dictionary to icons dictionary
+            icons_dictionary[type.attrib["name"]] = type_dictionary
+
+        return icons_dictionary
 
     def _create_xslt_routes(self) -> Dict[str, Path]:
         """

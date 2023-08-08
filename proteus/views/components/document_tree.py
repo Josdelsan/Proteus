@@ -41,6 +41,7 @@ from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
+from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
@@ -53,20 +54,6 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 # Global variables and constants
 # --------------------------------------------------------------------------
-
-# TODO: Avoid hardcoding paths
-# Tree icons
-TREE_ICONS = {
-    "section": "tree_icons/section.svg",
-    "paragraph": "tree_icons/paragraph.svg",
-    ":Proteus-document": "tree_icons/document.svg",
-    "actor": "tree_icons/actor.svg",
-    "graphic-file": "tree_icons/graphic-file.svg",
-    "information-requirement": "tree_icons/information-requirement.svg",
-    "external-resource": "tree_icons/external-resource.svg",
-    "objective": "tree_icons/objective.svg",
-    "subobjective": "tree_icons/subobjective.svg",
-}
 
 # Tree item color
 TREE_ITEM_COLOR = {
@@ -262,12 +249,8 @@ class DocumentTree(QWidget):
 
         # Set the icon based on the object last class
         object_class: str = object.classes[-1]
-        try:
-            icon_path: Path = Config().icons_directory / TREE_ICONS[object_class]
-            new_item.setIcon(0, QIcon(icon_path.as_posix()))
-        except KeyError:
-            icon_path: Path = Config().icons_directory / TREE_ICONS["paragraph"]
-            new_item.setIcon(0, QIcon(icon_path.as_posix()))
+        icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+        new_item.setIcon(0, QIcon(icon_path.as_posix()))
 
         # Set the item data to store the object id
         new_item.setData(1, 0, object.id)
@@ -672,14 +655,15 @@ class DocumentTree(QWidget):
                     )
             # Catch exception in case the operation is forbidden
             except AssertionError as e:
-                log.warning(
-                    f"{e}"
-                )
+                log.warning(f"{e}")
 
                 # Show a message box to the user
                 QMessageBox.warning(
                     self,
-                    self.translator.text("document_tree.drop_action.message_box.error.title"),
-                    self.translator.text("document_tree.drop_action.message_box.error.text"),
+                    self.translator.text(
+                        "document_tree.drop_action.message_box.error.title"
+                    ),
+                    self.translator.text(
+                        "document_tree.drop_action.message_box.error.text"
+                    ),
                 )
-
