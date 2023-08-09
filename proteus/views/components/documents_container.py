@@ -165,6 +165,30 @@ class DocumentsContainer(QTabWidget):
         icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
         self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
         
+    # ----------------------------------------------------------------------
+    # Method     : delete_component
+    # Description: Delete the component and its children components.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_component(self) -> None:
+        """
+        Delete the component and its children components.
+        Handle the detachment from the event manager.
+        """
+        # Detach from the event manager
+        EventManager.detach(self)
+
+        # Delete its children components
+        for tab in self.tab_children.values():
+            tab.delete_component()
+
+        # Delete the component
+        self.setParent(None)
+        self.deleteLater()
+
+        log.info("Documents container tab component deleted")
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)

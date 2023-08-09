@@ -138,9 +138,12 @@ class MainWindow(QMainWindow):
 
         Triggered by: Event.OPEN_PROJECT
         """
-        # Delete the existing document list widget
-        if self.project_container is not None:
+        # Delete the existing document list widget or container
+        if self.project_container.__class__ == QWidget:
             self.project_container.setParent(None)
+        elif self.project_container.__class__ == ProjectContainer:
+            self.project_container.delete_component()
+
 
         # Create document list menu
         self.project_container = ProjectContainer(self, self._controller)

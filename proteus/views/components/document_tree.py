@@ -212,7 +212,7 @@ class DocumentTree(QWidget):
         EventManager.detach(self)
 
         # Delete the component
-        self.parent = None
+        self.setParent(None)
         self.deleteLater()
 
     # ----------------------------------------------------------------------

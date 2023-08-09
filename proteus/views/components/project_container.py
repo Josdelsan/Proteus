@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QSplitter
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
+from proteus.views.utils.event_manager import EventManager
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.views_container import ViewsContainer
 
@@ -125,6 +126,30 @@ class ProjectContainer(QWidget):
         self.setLayout(tab_layout)
 
         log.info("Project container component created")
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_component
+    # Description: Delete the project container component and its children
+    #              components.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_component(self) -> None:
+        """
+        Delete the project container component and its children components.
+        Handle the detachment from the event manager.
+        """
+        # Detach from the event manager
+        EventManager.detach(self)
+
+        # Delete children components
+        self.documents_container.delete_component()
+        self.views_container.delete_component()
+
+        # Delete component
+        self.setParent(None)
+        self.deleteLater()
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)

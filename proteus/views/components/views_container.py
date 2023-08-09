@@ -35,9 +35,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
 from proteus.model import ProteusID
-from proteus.model.object import Object
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
@@ -203,6 +201,27 @@ class ViewsContainer(QTabWidget):
         # Store the browser and the tab
         self.browsers[xslt_name] = browser
         self.tabs[xslt_name] = main_tab
+
+    # ----------------------------------------------------------------------
+    # Method     : delete_component
+    # Description: Delete the component and its children components.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_component(self) -> None:
+        """
+        Delete the component and its children components.
+        Handle the detachment from the event manager.
+        """
+        # Detach from the event manager
+        EventManager.detach(self)
+
+        # Delete the component
+        self.setParent(None)
+        self.deleteLater()
+
+        log.info("Views container component deleted")
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
