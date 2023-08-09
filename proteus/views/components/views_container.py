@@ -12,13 +12,14 @@
 
 from typing import Dict
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QByteArray, QUrl
-from PyQt6.QtGui import QDesktopServices
+from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
@@ -36,6 +37,8 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.config import Config
+from proteus.views import APP_ICON_TYPE
 from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
@@ -140,10 +143,11 @@ class ViewsContainer(QTabWidget):
             self.add_view(xsl_template)
 
         # Create a button to add new views
+        icon_path: Path = Config().get_icon(APP_ICON_TYPE, "add_view_icon")
         add_view_button: QPushButton = QPushButton()
-        add_view_button.setIcon(
-            self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation)
-        )
+        button_icon = QIcon()
+        button_icon.addFile(icon_path.as_posix())
+        add_view_button.setIcon(button_icon)
 
         # Connect to new view dialog
         add_view_button.clicked.connect(
@@ -417,7 +421,7 @@ class ViewsContainer(QTabWidget):
 
         # Update current document in the state manager
         StateManager.set_current_view(view_name)
-    
+
 
 # --------------------------------------------------------------------------
 # Class: DocumentPage
