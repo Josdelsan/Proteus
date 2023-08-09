@@ -18,8 +18,9 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QDropEvent, QDragEnterEvent, QDragMoveEvent
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -113,6 +114,11 @@ class DocumentsContainer(QTabWidget):
         structure from the controller and creates a tab for each
         document.
         """
+        # TODO: Try to override dropEvent to handle position changes in the
+        # project. It didn't work. Tried to override dragEnterEvent, dragMoveEvent
+        # and dropEvent before. Saving document order might not be prioritary.
+        self.setMovable(True)
+
         # Get project structure from project service
         project_structure: List[Object] = self._controller.get_project_structure()
 
@@ -295,3 +301,4 @@ class DocumentsContainer(QTabWidget):
 
         # Update current document in the state manager
         StateManager.set_current_document(document_id)
+

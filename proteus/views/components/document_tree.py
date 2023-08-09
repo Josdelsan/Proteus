@@ -156,7 +156,7 @@ class DocumentTree(QWidget):
         self.tree_widget.setDragEnabled(True)
         self.tree_widget.setAcceptDrops(True)
         self.tree_widget.setDropIndicatorShown(True)
-        self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.InternalMove)
+        self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
 
         # Connect drag and drop events
         # TODO: Drag must show if drop is allowed for different objects types
