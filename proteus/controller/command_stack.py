@@ -24,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, PROTEUS_ANY, PROTEUS_ALL, ProteusClassTag
+from proteus.model import ProteusID
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
     CloneArchetypeObjectCommand,
@@ -271,17 +271,17 @@ class Controller:
         :param new_parent_id: The new parent of the object.
         """
         # Check the object is accepted by the parent
-        parent: Union[Project, Object] = self._project_service._get_element_by_id(new_parent_id)
+        parent: Union[Project, Object] = self._project_service._get_element_by_id(
+            new_parent_id
+        )
 
-        # Get the parent accepted children
-        accepted_children: List[ProteusClassTag] = parent.acceptedChildren
-        if PROTEUS_ANY not in accepted_children and PROTEUS_ALL not in accepted_children:
-            # Get object main class
-            object: Object = self._project_service._get_element_by_id(object_id)
-            object_class = object.classes[-1]
+        # Get the object
+        object: Object = self._project_service._get_element_by_id(object_id)
 
-            # Check the object is accepted by the parent
-            assert object_class in accepted_children, f"Object {object_id} is not accepted by parent {new_parent_id}"
+        # Check the object is accepted by the parent
+        assert parent.accept_descendant(
+            object
+        ), f"Object {object_id} is not accepted by parent {new_parent_id}"
 
         # Push the command to the command stack
         log.info(f"Changing position of object with id: {object_id} to {new_position}")
@@ -293,6 +293,50 @@ class Controller:
                 project_service=self._project_service,
             )
         )
+
+    # ----------------------------------------------------------------------
+    # Method     : change_document_position
+    # Description: Change the position of a document given its id. It pushes
+    #              the command to the command stack.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    # NOTE: This action is not undoable. This decision was made because of
+    # the behaviour of tabMoved signal of QTabBar, which while moving tabs
+    # instead of emitting the signal once is dropped. In projects with multiple
+    # documents this might cause a lot of undo commands to be pushed to the
+    # command stack obfuscating the undo/redo history.
+    def change_document_position(
+        self, document_id: ProteusID, new_position: int
+    ) -> None:
+        """
+        Change the position of a document given its id. It pushes the command
+        to the command stack. If position is None, the document is moved to the
+        end of the project.
+        """
+        assert document_id is not None, "Document id can not be None"
+
+        # Get the document
+        document: Object = self._project_service._get_element_by_id(document_id)
+
+        # Check the document is accepted by the project
+        assert self._project_service.project.accept_descendant(
+            document
+        ), f"Object {document_id} is not accepted by project. Object classes: {document.classes}"
+
+        # Push the command to the command stack
+        log.info(
+            f"Changing position of document with id: {document_id} to {new_position}"
+        )
+        # Call ProjectService method
+        self._project_service.change_object_position(
+            document.id, new_position, self._project_service.project
+        )
+
+        # Notify that this action requires saving even if the command is not
+        # undoable
+        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
 
     # ----------------------------------------------------------------------
     # Method     : delete_document
@@ -500,6 +544,10 @@ class Controller:
         # Trigger ADD_VIEW event notifying the new template
         EventManager.notify(Event.ADD_VIEW, xslt_name=template_name)
 
+        # Notify that this action requires saving even if the command is not
+        # undoable
+        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+
     # ----------------------------------------------------------------------
     # Method     : delete_project_template
     # Description: Delete a project template from the project.
@@ -521,6 +569,10 @@ class Controller:
 
         # Trigger REMOVE_VIEW event
         EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
+
+        # Notify that this action requires saving even if the command is not
+        # undoable
+        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
 
     # ----------------------------------------------------------------------
     # Method     : delete_unused_assets

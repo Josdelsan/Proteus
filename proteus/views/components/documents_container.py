@@ -18,9 +18,8 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
-from PyQt6.QtGui import QIcon, QDropEvent, QDragEnterEvent, QDragMoveEvent
+from PyQt6.QtGui import QIcon
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -114,10 +113,9 @@ class DocumentsContainer(QTabWidget):
         structure from the controller and creates a tab for each
         document.
         """
-        # TODO: Try to override dropEvent to handle position changes in the
-        # project. It didn't work. Tried to override dragEnterEvent, dragMoveEvent
-        # and dropEvent before. Saving document order might not be prioritary.
+        # Handle tab reordering
         self.setMovable(True)
+        self.tabBar().tabMoved.connect(self.tab_moved)
 
         # Get project structure from project service
         project_structure: List[Object] = self._controller.get_project_structure()
@@ -302,3 +300,17 @@ class DocumentsContainer(QTabWidget):
         # Update current document in the state manager
         StateManager.set_current_document(document_id)
 
+    def tab_moved(self, new_index: int, old_index: int) -> None:
+        # Get the current document id
+        document_id: ProteusID = StateManager.get_current_document()
+
+        # Get the project
+        project = self._controller.get_current_project()
+
+        log.debug(f"Moving document {document_id} from {old_index} to {new_index}")
+
+        # Index adjusting to allow pop and insert without problems
+        if new_index > old_index:
+            new_index += 1
+
+        self._controller.change_document_position(document_id, new_index)

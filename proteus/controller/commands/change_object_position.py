@@ -31,8 +31,8 @@ from proteus.views.utils.event_manager import EventManager, Event
 
 
 # --------------------------------------------------------------------------
-# Class: CloneArchetypeDocumentCommand
-# Description: Controller class to clone an archetype object.
+# Class: ChangeObjectPositionCommand
+# Description: Controller class to change the position of an object.
 # Date: 13/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -67,16 +67,14 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.object: Object = self.project_service._get_element_by_id(object_id)
 
         # Old parent information
-        self.old_parent: Union[Project, Object] = self.object.parent
+        self.old_parent: Object = self.object.parent
         self.old_parent_descendants: List[
             Object
         ] = self.old_parent.get_descendants().copy()
         self.old_parent_state: ProteusState = self.old_parent.state
 
         # New parent information
-        self.new_parent: Union[
-            Project, Object
-        ] = self.project_service._get_element_by_id(new_parent_id)
+        self.new_parent: Object = self.project_service._get_element_by_id(new_parent_id)
         self.new_position: int = new_position
         self.new_parent_state: ProteusState = self.new_parent.state
 

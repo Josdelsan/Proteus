@@ -333,6 +333,29 @@ class Project(AbstractObject):
         self.state = ProteusState.DIRTY
 
     # ----------------------------------------------------------------------
+    # Method     : accept_descendant
+    # Description: Checks if a child is accepted by a PROTEUS object.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def accept_descendant(self, child: Object) -> bool:
+        """
+        Checks if a child is accepted by a PROTEUS object. Parent must accept
+        :Proteus-any and child must not be strictParent. StrictParent objects
+        only accept parents that where they are explicitly accepted.
+
+        :param child: Child Object to be checked.
+        """
+        # Check if the child is a valid object
+        assert isinstance(
+            child, Object
+        ), f"Child {child} is not a valid PROTEUS object."
+
+        # Check if the child is a document
+        return PROTEUS_DOCUMENT in child.classes
+    # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.
     # Date       : 26/08/2022

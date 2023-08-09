@@ -52,6 +52,7 @@ class Event(Enum):
 
     # Stack related events
     STACK_CHANGED = "stack_changed"
+    REQUIRED_SAVE_ACTION = "required_save_action"
 
     # Render view events
     ADD_VIEW = "add_view"

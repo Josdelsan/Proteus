@@ -355,3 +355,22 @@ class AbstractObject(ABC):
         :param position: the position where the descendant is added.
         """
         pass
+
+    # ----------------------------------------------------------------------
+    # Method     : accept_descendant
+    # Description: It checks if a descendant can be added to a PROTEUS
+    # abstract object.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @abstractmethod
+    def accept_descendant(self, child) -> bool:
+        """
+        It checks if a descendant can be added to a PROTEUS abstract object.
+
+        :param child: the descendant to be added.
+        :return: True if the descendant can be added, False otherwise.
+        """
+        pass
+

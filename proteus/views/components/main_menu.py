@@ -111,6 +111,10 @@ class MainMenu(QDockWidget):
 
         # Subscribe to events
         EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
+        EventManager.attach(
+            Event.REQUIRED_SAVE_ACTION, self.update_on_required_save_action, self
+        )
+        EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
         EventManager.attach(
@@ -366,6 +370,37 @@ class MainMenu(QDockWidget):
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
         self.save_button.setEnabled(unsaved_changes)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_required_save_action
+    # Description: Update the state of save button when a save action is
+    #              required.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_required_save_action(self, *args, **kwargs) -> None:
+        """
+        Update the state of save button when a save action is required.
+        """
+        self.save_button.setEnabled(True)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_save_project
+    # Description: Update the state of save button when a project is saved.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    # NOTE: This is neccesary because save button is only disabled/enabled when
+    # cleanChanged signal of the command stack is emitted (stack changed event)
+    # If the save button is pressed when just a non-undoable command was executed,
+    # the save button will not be disabled because stack was already clean.
+    def update_on_save_project(self, *args, **kwargs) -> None:
+        """
+        Update the state of save button when a project is saved.
+        """
+        self.save_button.setEnabled(False)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
