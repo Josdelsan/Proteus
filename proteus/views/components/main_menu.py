@@ -24,20 +24,20 @@ from PyQt6.QtWidgets import (
     QDockWidget,
     QToolButton,
     QFileDialog,
-    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import PROTEUS_ANY, ProteusID, ProteusClassTag
+from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
+from proteus.views.components.dialogs.information_dialog import InformationDialog
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
@@ -262,19 +262,23 @@ class MainMenu(QDockWidget):
         tab_layout.addWidget(action_menu)
 
         # ---------
-        # Settings
+        # aplication
         # ---------
         # Settings action
         self.settings_button: QToolButton = buttons.settings_button(self)
         self.settings_button.clicked.connect(SettingsDialog.create_dialog)
 
-        # Add the buttons to the settings menu widget
-        settings_menu: QWidget = buttons.button_group(
-            "main_menu.button_group.settings",
-            [self.settings_button],
+        # Information action
+        self.information_button: QToolButton = buttons.info_button(self)
+        self.information_button.clicked.connect(InformationDialog.create_dialog)
+
+        # Add the buttons to the aplication menu widget
+        aplication_menu: QWidget = buttons.button_group(
+            "main_menu.button_group.application",
+            [self.settings_button, self.information_button],
         )
 
-        tab_layout.addWidget(settings_menu)
+        tab_layout.addWidget(aplication_menu)
 
         # ---------------------------------------------
 

@@ -360,7 +360,7 @@ class ExportDialog(QDialog):
         """
         Handle the creation and display of the form window.
 
-        :param page: The QWebEnginePage object.
+        :param controller: The application controller.
         """
         # Create the form window
         form_window = ExportDialog(controller)

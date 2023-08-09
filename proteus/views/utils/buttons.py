@@ -356,6 +356,31 @@ def export_button(parent: QWidget) -> QToolButton:
 
     return export_button
 
+def info_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a info button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    info_button = QToolButton(parent)
+    info_button.setFixedWidth(55)
+
+    # Set file icon
+    file_icon: QIcon = QApplication.style().standardIcon(
+        QStyle.StandardPixmap.SP_MessageBoxInformation
+    )
+    info_button.setIcon(QIcon(file_icon))
+    info_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    info_button.setToolTip(Translator().text("information_button.tooltip"))
+    info_button.setStatusTip(Translator().text("information_button.statustip"))
+
+    # Set text
+    info_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    info_button.setText(Translator().text("information_button.text"))
+
+    return info_button
+
 
 def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
     # Create the main widget

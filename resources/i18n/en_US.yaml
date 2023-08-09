@@ -42,7 +42,7 @@ main_menu.tab.software_requirements.name: "Software requirements"
 main_menu.button_group.project: "Project"
 main_menu.button_group.document: "Document"
 main_menu.button_group.action: "Action"
-main_menu.button_group.settings: "Settings"
+main_menu.button_group.application: "Application"
 
 # Archetype button groups
 main_menu.button_group.archetypes.general: "General Arquetype"
@@ -87,7 +87,11 @@ export_button.text: "Export"
 
 settings_button.statustip: "Edit application settings"
 settings_button.tooltip: "Edit application settings"
-settings_button.text: "Edit"
+settings_button.text: "Settings"
+
+information_button.statustip: "Information about the PROTEUS application"
+information_button.tooltip: "Information about the PROTEUS application"
+information_button.text: "About"
 
 # Archetype buttons
 archetype_menu_button.paragraph: "Paragraph"
@@ -182,7 +186,7 @@ en_us: "English (United States)"
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------
-Export.title: "Export current document"
+export_dialog.title: "Export current document"
 export_dialog.export_format.label: "Select export format:"
 export_dialog.filename.label: "Select filename:"
 export_dialog.filename.browser: "Browse"
@@ -194,3 +198,11 @@ export_dialog.finished.dialog.error.title: "Error exporting"
 export_dialog.finished.dialog.error.text: "The document could not be exported"
 export_dialog.error.invalid_filename: "Please select a valid filename and path"
 export_dialog.error.invalid_extension: "File extension must match with the selected format"
+
+# ---------------------------------------------------------------------------
+# Information dialog
+# ---------------------------------------------------------------------------
+information_dialog.title: "PROTEUS - Information"
+information_dialog.description.text: "PROTEUS is a tool for general purpose projects management. It is based on the concept of Archetypes. The user create elements cloning existing objects called archetypes to create new objects. The archetypes are defined by the administrator of the application. The application was developed by the University of Seville."
+information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
+information_dialog.terms_of_use.text: "This software do not collect any personal information. The software is provided 'as is', without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software."

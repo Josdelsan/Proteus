@@ -42,7 +42,8 @@ main_menu.tab.software_requirements.name: "Requisitos del software"
 main_menu.button_group.project: "Proyecto"
 main_menu.button_group.document: "Documento"
 main_menu.button_group.action: "Acción"
-main_menu.button_group.settings: "Configuración"
+main_menu.button_group.application: "Aplicación"
+
 
 # Grupos de botones de arquetipos
 main_menu.button_group.archetypes.general: "Arquetipo General"
@@ -87,7 +88,11 @@ export_button.text: "Exportar"
 
 settings_button.statustip: "Editar configuración de la aplicación"
 settings_button.tooltip: "Editar configuración de la aplicación"
-settings_button.text: "Editar"
+settings_button.text: "Configuración"
+
+information_button.statustip: "Información sobre la aplicación PROTEUS"
+information_button.tooltip: "Información sobre la aplicación PROTEUS"
+information_button.text: "Acerca de"
 
 # Archetype buttons
 archetype_menu_button.paragraph: "Párrafo"
@@ -182,7 +187,7 @@ en_us: "Inglés (Estados Unidos)"
 # ---------------------------------------------------------------------------
 # Print to pdf dialog
 # ---------------------------------------------------------------------------
-Export.title: "Exportar documento"
+export_dialog.title: "Exportar documento"
 export_dialog.export_format.label: "Formato de exportación:"
 export_dialog.filename.label: "Nombre del archivo:"
 export_dialog.filename.browser: "Examinar..."
@@ -194,3 +199,11 @@ export_dialog.finished.dialog.error.title: "Error al exportar el documento"
 export_dialog.finished.dialog.error.text: "No se pudo exportar el documento"
 export_dialog.error.invalid_filename: "Por favor, introduzca un nombre de archivo válido"
 export_dialog.error.invalid_extension: "La extensión del archivo debe coincidir con el formato seleccionado"
+
+# ---------------------------------------------------------------------------
+# Information dialog
+# ---------------------------------------------------------------------------
+information_dialog.title: "PROTEUS - Información"
+information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
+information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
+information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."
