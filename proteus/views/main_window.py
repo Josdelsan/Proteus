@@ -108,8 +108,8 @@ class MainWindow(QMainWindow):
         self.resize(1200, 800)
 
         # Create main menu
-        main_menu = MainMenu(self, self._controller)
-        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, main_menu)
+        self.main_menu = MainMenu(self, self._controller)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.main_menu)
 
         # Create document list menu
         self.project_container = QWidget(self)
@@ -265,7 +265,14 @@ class MainWindow(QMainWindow):
         # Check if the project has unsaved changes
         unsaved_changes: bool = not self._controller.stack.isClean()
 
-        if unsaved_changes:
+        # Workaround to prevent closing when non undoable actions were not saved
+        save_button_enabled: bool = False
+        try:
+            save_button_enabled = self.main_menu.save_button.isEnabled()
+        except AttributeError:
+            pass
+
+        if unsaved_changes or save_button_enabled:
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
