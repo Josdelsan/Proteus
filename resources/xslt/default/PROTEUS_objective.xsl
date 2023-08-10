@@ -58,7 +58,7 @@
                             <xsl:value-of select="$proteus:lang_subobjectives" />
                         </th>
                         <td colspan="{$span}">
-                            <ul>
+                            <ul class="subobjectives">
                                 <xsl:apply-templates select="children/object" />
                             </ul>
                         </td>

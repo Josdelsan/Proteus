@@ -19,7 +19,7 @@
         <div id="{@id}">
             <!-- Display properties in a table -->
             <table class="remus_table">
-                <tr style="background-color: lightblue;">
+                <tr style="background-color: powderblue;">
                     <th style="width: 17.5%;">Property Name</th>
                     <th style="width: 82.5%;">Text Value</th>
                 </tr>

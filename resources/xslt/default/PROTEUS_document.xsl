@@ -34,14 +34,18 @@
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name='name']"/>
                  </title>
-                 <style>
-                    @media print {
-                      .page-break {
-                        page-break-before: always;
-                      }
-                    }
+                 
+                <!-- <xsl:call-template name="style"/> -->
 
-                    table {
+                <style>
+                    @media print {
+                        .page-break {
+                          clear: both;
+                          page-break-before: always;
+                        }
+                      }
+        
+                      table {
                         width: 98%;
                         margin: 0 auto;
                         margin-bottom: 2em;
@@ -52,7 +56,7 @@
                         border: 1px solid black;
                         padding: 8px;
                     }
-                  </style>
+                </style>
             </head>
             <body>
                 <!-- Cover -->

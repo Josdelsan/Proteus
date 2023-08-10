@@ -197,39 +197,52 @@ class ExportDialog(QDialog):
         """
         Export the current document to pdf.
         """
-        # Create the page object
-        page: QWebEnginePage = QWebEnginePage()
+        # NOTE: Page loading and pdf printing are asynchronous, so we need to
+        # wait until the page is loaded to print the pdf and the variable page 
+        # must be a class attribute to avoid garbage collection.
+        # To solve this problem, helper functions are used to ensure that they
+        # are executed in the correct order.
 
-        # Get current application state
-        current_document = StateManager().get_current_document()
-        current_view = StateManager().get_current_view()
+        def create_page() -> None:
+            # Create the page object
+            self.page: QWebEnginePage = QWebEnginePage()
 
-        # Generate html view
-        html_view: str = self._controller.get_document_view(
-            document_id=current_document, xslt_name=current_view
-        )
+            # Get current application state
+            current_document = StateManager().get_current_document()
+            current_view = StateManager().get_current_view()
 
-        # Convert html to QByteArray
-        # NOTE: This is done to avoid 2mb limit on setHtml method
-        # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-        html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
-        page.setContent(html_array, "text/html")
+            # Generate html view
+            html_view: str = self._controller.get_document_view(
+                document_id=current_document, xslt_name=current_view
+            )
 
-        # Define the margin values (in millimeters)
-        margins: QMarginsF = QMarginsF(30, 20, 30, 20)
+            # Convert html to QByteArray
+            # NOTE: This is done to avoid 2mb limit on setHtml method
+            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
+            html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
+            self.page.setContent(html_array, "text/html")
 
-        # Create a QPageLayout object from the options dictionary
-        page_layout = QPageLayout(
-            QPageSize(QPageSize.PageSizeId.A4),
-            QPageLayout.Orientation.Portrait,
-            margins,
-        )
+        def print_page() -> None:
+            # Define the margin values (in millimeters)
+            margins: QMarginsF = QMarginsF(30, 20, 30, 20)
 
-        # Print to pdf the current view with margins
-        page.printToPdf(file_path, page_layout)
+            # Create a QPageLayout object from the options dictionary
+            page_layout = QPageLayout(
+                QPageSize(QPageSize.PageSizeId.A4),
+                QPageLayout.Orientation.Portrait,
+                margins,
+            )
 
-        # Show a dialog when the pdf printing is finished
-        page.pdfPrintingFinished.connect(self.export_finished_dialog)
+            # Print to pdf the current view with margins
+            self.page.printToPdf(file_path, page_layout)
+
+            # Show a dialog when the pdf printing is finished
+            self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
+
+        # Create the page and print it to pdf
+        create_page()
+        self.page.loadFinished.connect(print_page)
+        
 
     # ----------------------------------------------------------------------
     # Method     : export_to_html
