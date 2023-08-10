@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects>
-    <object id="use-case" />
     <object id="actor" />
+    <object id="use-case" />
+    <object id="use-case-step" />
     <object id="information-requirement" />
     <object id="objective" />
     <object id="subobjective" />

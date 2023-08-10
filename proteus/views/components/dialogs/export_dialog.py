@@ -236,12 +236,11 @@ class ExportDialog(QDialog):
             # Print to pdf the current view with margins
             self.page.printToPdf(file_path, page_layout)
 
-            # Show a dialog when the pdf printing is finished
-            self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
-
         # Create the page and print it to pdf
         create_page()
         self.page.loadFinished.connect(print_page)
+        # Show a dialog when the pdf printing is finished
+        self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
         
 
     # ----------------------------------------------------------------------
@@ -330,8 +329,7 @@ class ExportDialog(QDialog):
         elif export_format == "html":
             self.export_to_html(file_path)
 
-        # Close the dialog
-        self.close()
+        # Close the dialog when the export is finished in export_finished_dialog method
 
     # ----------------------------------------------------------------------
     # Method     : print_pdf_finished_dialog
@@ -350,12 +348,14 @@ class ExportDialog(QDialog):
                 self.translator.text("export_dialog.finished.dialog.title"),
                 self.translator.text("export_dialog.finished.dialog.text", filePath),
             )
+            self.close()
         else:
             QMessageBox.critical(
                 self,
                 self.translator.text("export_dialog.finished.dialog.error.title"),
                 self.translator.text("export_dialog.finished.dialog.error.text"),
             )
+            self.close()
 
     # ======================================================================
     # Dialog static methods (create and show the form window)

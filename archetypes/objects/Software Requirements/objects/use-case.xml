@@ -7,14 +7,15 @@
     <properties>
         <stringProperty name="name">Use case</stringProperty>
         <floatProperty name="version">0.1</floatProperty>
-        <dateProperty name="date">2015-05-16</dateProperty>
-        <stringProperty name="author">Amador Durán</stringProperty>
-        <markdownProperty name="description" category="detail">System...</markdownProperty>
-        <markdownProperty name="comments" category="comments">**Proteus**</markdownProperty>
+        <dateProperty name="date">2020-05-16</dateProperty>
+        <stringProperty name="author">José María Delgado</stringProperty>
+        <markdownProperty name="description" category="detail">The system shall behave as described in the following use case when</markdownProperty>
+        <markdownProperty name="precondition" category="conditions">System...</markdownProperty>
+        <markdownProperty name="postcondition" category="conditions">System...</markdownProperty>
+        <markdownProperty name="comments" category="comments">No comments</markdownProperty>
     </properties>
 
     <children>
-        <child id="use-case-step"/>
     </children>
 
     <traces>
