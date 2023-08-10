@@ -24,13 +24,14 @@ from PyQt6.QtWidgets import (
     QDockWidget,
     QToolButton,
     QFileDialog,
+    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, ProteusClassTag
 from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
