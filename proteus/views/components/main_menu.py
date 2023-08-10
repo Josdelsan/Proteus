@@ -183,14 +183,14 @@ class MainMenu(QDockWidget):
         # Project menu
         # ---------
         # New action
-        new_button: QToolButton = buttons.new_project_button(self)
-        new_button.clicked.connect(
+        self.new_button: QToolButton = buttons.new_project_button(self)
+        self.new_button.clicked.connect(
             lambda: NewProjectDialog.create_dialog(self._controller)
         )
 
         # Open action
-        open_button: QToolButton = buttons.open_project_button(self)
-        open_button.clicked.connect(self.open_project)
+        self.open_button: QToolButton = buttons.open_project_button(self)
+        self.open_button.clicked.connect(self.open_project)
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
@@ -210,7 +210,7 @@ class MainMenu(QDockWidget):
         # Add the buttons to the project menu widget
         project_menu: QWidget = buttons.button_group(
             "main_menu.button_group.project",
-            [new_button, open_button, self.save_button, self.project_properties_button],
+            [self.new_button, self.open_button, self.save_button, self.project_properties_button],
         )
         tab_layout.addWidget(project_menu)
 
@@ -518,8 +518,8 @@ class MainMenu(QDockWidget):
         and loads it.
         """
         # Open the file dialog
-        directory_dialog: QFileDialog = QFileDialog(self)
-        directory_path: str = directory_dialog.getExistingDirectory(
+        self.directory_dialog: QFileDialog = QFileDialog(self)
+        directory_path: str = self.directory_dialog.getExistingDirectory(
             None, self.translator.text("main_menu.open_project.caption"), ""
         )
 

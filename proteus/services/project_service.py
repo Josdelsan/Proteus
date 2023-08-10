@@ -95,6 +95,8 @@ class ProjectService:
         # Populate project index
         self._populate_index()
 
+        log.info(f"Project '{self.project.get_property('name').value}' loaded.")
+
     # ----------------------------------------------------------------------
     # Method     : _get_element
     # Description: Helper method that returns the project or object with

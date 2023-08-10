@@ -10,25 +10,14 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import os
-
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QByteArray, QMarginsF
-from PyQt6.QtGui import QPageLayout, QPageSize
-from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QVBoxLayout,
-    QDialogButtonBox,
     QDialog,
-    QLineEdit,
     QLabel,
-    QFileDialog,
-    QMessageBox,
-    QPushButton,
-    QComboBox,
 )
 
 
@@ -36,11 +25,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.object import Object
-from proteus.controller.command_stack import Controller
 from proteus.views.utils.translator import Translator
-from proteus.views.utils.state_manager import StateManager
-
 
 # --------------------------------------------------------------------------
 # Class: InformationDialog
@@ -116,6 +101,15 @@ class InformationDialog(QDialog):
         terms_of_use.setWordWrap(True)
         terms_of_use.setContentsMargins(0, 0, 0, 20)
 
+        # Important notes
+        important_notes = QLabel(
+            self.translator.text("information_dialog.important_notes.text")
+        )
+        important_notes.setStyleSheet("font-weight: bold;")
+        important_notes.setWordWrap(True)
+        important_notes.setContentsMargins(0, 0, 0, 20)
+
+
         # layout
         layout = QVBoxLayout()
         layout.addWidget(app_name)
@@ -123,6 +117,7 @@ class InformationDialog(QDialog):
         layout.addWidget(app_description)
         layout.addWidget(license)
         layout.addWidget(terms_of_use)
+        layout.addWidget(important_notes)
 
         # Set the layout
         self.setLayout(layout)

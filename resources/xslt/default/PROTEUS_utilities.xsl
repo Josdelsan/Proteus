@@ -46,7 +46,7 @@
     <!-- ============================================= -->
 
     <xsl:template name="generate_markdown_row">
-        <xsl:param name="oid" />
+        <xsl:param name="id" />
         <xsl:param name="label_class" />
         <xsl:param name="label" select="local-name()"/>
         <xsl:param name="prefix" />
@@ -59,7 +59,7 @@
         <xsl:param name="mode" select="'inline'"/>
 
         <tr>
-            <xsl:if test="$oid">
+            <xsl:if test="$id">
                 <xsl:attribute name="id"><xsl:value-of select="$id"/></xsl:attribute>
             </xsl:if>
             <th>
@@ -119,7 +119,7 @@
                         <xsl:otherwise>
                             <ul class="stakeholders">
                                 <li>
-                                    <xsl:value-of select="properties/stringProperty[@name='createdBy']"/>
+                                    <xsl:value-of select="properties/stringProperty[@name='author']"/>
                                 </li>
                             </ul>
                         </xsl:otherwise>
@@ -272,14 +272,14 @@
 
         <xsl:call-template name="generate_simple_row">
             <xsl:with-param name="label"   select="$proteus:lang_version"/>
-            <xsl:with-param name="content" select="properties/stringProperty[@name='version']"/>
+            <xsl:with-param name="content" select="properties/floatProperty[@name='version']"/>
             <xsl:with-param name="content_class" select="'proteus_version'"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_stakeholders">
             <xsl:with-param name="label"   select="$proteus:lang_authors"/>
-            <xsl:with-param name="content" select="properties/stringProperty[@name='createdBy']"/>
+            <xsl:with-param name="content" select="properties/stringProperty[@name='author']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 

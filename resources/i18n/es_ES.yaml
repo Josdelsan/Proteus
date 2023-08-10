@@ -22,6 +22,8 @@ author: "Autor"
 comments: "Comentarios"
 description: "Descripción"
 specificdata: "Datos específicos"
+precondition: "Precondición"
+postcondition: "Postcondición"
 text: "Texto"
 url: "URL"
 file: "Archivo"
@@ -29,6 +31,7 @@ file: "Archivo"
 # categories
 general: "General"
 detail: "Detalle"
+conditions: "Condiciones"
 
 #---------------------------------------------------------------------------
 # Menú principal
@@ -101,6 +104,7 @@ archetype_menu_button.system_actor: "Actor"
 archetype_menu_button.graphic_file: "Archivo gráfico"
 
 archetype_menu_button.use_case: "Caso de uso"
+archetype_menu_button.use_case_step: "Paso caso de uso"
 archetype_menu_button.external_resource: "Recurso externo"
 archetype_menu_button.information_requirement: "Información"
 archetype_menu_button.objective: "Objective"
@@ -207,3 +211,5 @@ information_dialog.title: "PROTEUS - Información"
 information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
 information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."
+information_dialog.important_notes.text: "Esta versión requiere de conexión a internet para mostrar y exportar el renderizado de la plantilla por defecto correctamente."
+

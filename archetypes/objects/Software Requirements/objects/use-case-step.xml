@@ -3,10 +3,12 @@
     id="use-case-step"
     classes="product-requirement use-case use-case-step"
     acceptedChildren=":Proteus-none"
+    strictParent="True"
 >
     <properties>
         <stringProperty name="name">Use case step</stringProperty>
         <markdownProperty name="description">The user ask...</markdownProperty>
+        <markdownProperty name="comments" category="comments">No comments</markdownProperty>
     </properties>
 
     <children>
