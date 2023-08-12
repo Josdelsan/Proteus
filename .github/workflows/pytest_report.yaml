@@ -23,9 +23,14 @@ jobs:
         with:  
           python-version: ${{ matrix.python-version }}  
 
-      - name: Install dependencies  
+      - name: Package installation  
         run: |  
-          apt-get update && apt-get install libgl1
+          sudo apt-get update
+          sudo apt-get install ffmpeg libsm6 libxext6
+          sudo apt-get install -y libgl1-mesa-dev
+
+      - name: Python dependencies installation  
+        run: |  
           python -m pip install --upgrade pip  
           pip install -r requirements.txt
  
