@@ -7,9 +7,13 @@
 # ==========================================================================
 
 # NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This causes subsequent tests
-# to fail. It also occurs with the main window instance. Due to the
-# nature of the end2end tests, they will be executed manually.
+# QApplication instace cannot be deleted. This might cause tests failures.
+
+# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
+# Dialog handling can interfere with running tests together. Workaround
+# listed in the issue with 5ms delay in QTimer seems to work. Since
+# dialogs are an important part of the app, this might be a problem
+# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -21,8 +25,6 @@
 
 import pytest
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QFileDialog, QPushButton
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -43,10 +45,6 @@ SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
 # End to end "open project" tests
 # --------------------------------------------------------------------------
 
-
-# NOTE: This test is skipped because it must be executed manually
-# (see the note at the top of this file)
-@pytest.mark.skip
 def test_open_project(qtbot, mocker, app):
     """
     Test the open project use case. Opens a project with documents and objects.
@@ -69,8 +67,11 @@ def test_open_project(qtbot, mocker, app):
     )
 
     def handle_dialog():
-        main_window.main_menu.directory_dialog.close()
-        main_window.main_menu.directory_dialog.deleteLater()
+        dialog = main_window.main_menu.directory_dialog
+        while not dialog:
+            dialog = main_window.main_menu.directory_dialog
+        dialog.close()
+        dialog.deleteLater()
 
     # Store previous information
     old_window_title = main_window.windowTitle()
@@ -81,7 +82,7 @@ def test_open_project(qtbot, mocker, app):
     # --------------------------------------------
     # Open project button click
     open_project_button = main_window.main_menu.open_button
-    QTimer.singleShot(1000, handle_dialog)  # Wait for the dialog to be created
+    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
     qtbot.mouseClick(open_project_button, Qt.MouseButton.LeftButton)
 
     # --------------------------------------------

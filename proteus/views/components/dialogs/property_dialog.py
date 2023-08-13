@@ -23,10 +23,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QDialog,
-    QLineEdit,
-    QDateEdit,
-    QTextEdit,
-    QCheckBox,
+    QApplication
 )
 
 
@@ -161,13 +158,13 @@ class PropertyDialog(QDialog):
         form_layout.addWidget(tab_widget)
 
         # Create Save and Cancel buttons
-        button_box: QDialogButtonBox = QDialogButtonBox(
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
-        button_box.accepted.connect(self.save_button_clicked)
-        button_box.rejected.connect(self.cancel_button_clicked)
-        form_layout.addWidget(button_box)
+        self.button_box.accepted.connect(self.save_button_clicked)
+        self.button_box.rejected.connect(self.cancel_button_clicked)
+        form_layout.addWidget(self.button_box)
 
         self.setLayout(form_layout)
 
@@ -269,8 +266,13 @@ class PropertyDialog(QDialog):
 
         :param element_id: The id of the element to edit.
         """
+        # Get main window instance
+        app: QApplication = QApplication.instance()
+        main_window = app.activeWindow()
+
         # Create the form window
         form_window = PropertyDialog(element_id=element_id, controller=controller)
+        main_window.current_dialog = form_window
 
         # Show the form window
         form_window.exec()

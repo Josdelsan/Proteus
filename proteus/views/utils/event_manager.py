@@ -146,3 +146,22 @@ class EventManager:
             # Notify the components
             for method, component in cls._events[event]:
                 method(component, *args, **kwargs)
+
+    # ----------------------------------------------------------------------
+    # Method     : clear
+    # Description: Clear the event manager
+    # Date       : 14/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @classmethod
+    def clear(cls):
+        """
+        Clear the event manager.
+
+        NOTE: This method is used for testing purposes.
+        """
+
+        cls._events = {}
+        cls._subscribed_components = {}
+

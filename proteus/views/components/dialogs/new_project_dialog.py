@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,6 +28,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QSizePolicy,
     QDialogButtonBox,
+    QApplication
 )
 
 
@@ -113,11 +115,11 @@ class NewProjectDialog(QDialog):
         archetype_label: QLabel = QLabel(
             self.translator.text("new_project_dialog.combobox.label")
         )
-        archetype_combo: QComboBox = QComboBox()
+        self.archetype_combo: QComboBox = QComboBox()
 
         archetype: Project = None
         for archetype in project_archetypes:
-            archetype_combo.addItem(archetype.properties["name"].value)
+            self.archetype_combo.addItem(archetype.properties["name"].value)
 
         # Show the archetype description
         description_label: QLabel = QLabel(
@@ -135,18 +137,18 @@ class NewProjectDialog(QDialog):
         path_label: QLabel = QLabel(
             self.translator.text("new_project_dialog.input.path")
         )
-        path_input: QLabel = QLabel()
+        self.path_input: QLabel = QLabel()
         browse_button = QPushButton(
             self.translator.text("new_project_dialog.input.path.browser")
         )
 
         # Create Save and Cancel buttons
-        button_box: QDialogButtonBox = QDialogButtonBox(
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
-        button_box.accepted.connect(self.save_button_clicked)
-        button_box.rejected.connect(self.cancel_button_clicked)
+        self.button_box.accepted.connect(self.save_button_clicked)
+        self.button_box.rejected.connect(self.cancel_button_clicked)
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -154,18 +156,18 @@ class NewProjectDialog(QDialog):
 
         # Add the widgets to the layout
         layout.addWidget(archetype_label)
-        layout.addWidget(archetype_combo)
+        layout.addWidget(self.archetype_combo)
         layout.addWidget(description_label)
         layout.addWidget(description_output)
         layout.addWidget(separator)
         layout.addWidget(name_label)
         layout.addWidget(self.name_input)
         layout.addWidget(path_label)
-        layout.addWidget(path_input)
+        layout.addWidget(self.path_input)
         layout.addWidget(browse_button)
         layout.addWidget(self.error_label)
 
-        layout.addWidget(button_box)
+        layout.addWidget(self.button_box)
 
         # Set fixed width for the window
         self.setFixedWidth(400)
@@ -180,14 +182,14 @@ class NewProjectDialog(QDialog):
 
         # Update the description when the user selects an archetype
         def update_description():
-            index = archetype_combo.currentIndex()
+            index = self.archetype_combo.currentIndex()
             if index >= 0:
                 archetype: Project = project_archetypes[index]
                 self._archetype_id = archetype.id
                 description_output.setText(archetype.properties["description"].value)
 
         # Update the description when the user selects an archetype
-        archetype_combo.currentIndexChanged.connect(update_description)
+        self.archetype_combo.currentIndexChanged.connect(update_description)
         # Update the description for the first archetype
         update_description()
 
@@ -197,8 +199,7 @@ class NewProjectDialog(QDialog):
             file_dialog.setFileMode(QFileDialog.FileMode.Directory)
             if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
                 path: str = file_dialog.selectedFiles()[0]
-                path_input.setText(path)
-                self._path: str = path
+                self.path_input.setText(path)
 
         # Open a file dialog when the user clicks on the browse button
         browse_button.clicked.connect(select_project_path)
@@ -214,20 +215,20 @@ class NewProjectDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    # TODO: Validate if path exists before creating the project
     def save_button_clicked(self):
         # Get the project name
-        self._name: str = self.name_input.text()
+        name: str = self.name_input.text()
+        path: str = self.path_input.text()
 
         # TODO: This is a temporal solution for testing purposes.
         #       Create a proper validator and
-        if self._name is None or self._name == "":
+        if name is None or name == "":
             self.error_label.setText(
                 self.translator.text("new_project_dialog.error.invalid_name")
             )
             return
 
-        if self._path is None or self._path == "":
+        if path is None or path == "" or not os.path.exists(path):
             self.error_label.setText(
                 self.translator.text("new_project_dialog.error.invalid_path")
             )
@@ -238,9 +239,15 @@ class NewProjectDialog(QDialog):
                 self.translator.text("new_project_dialog.error.no_archetype_selected")
             )
             return
+        
+        if os.path.exists(f"{path}/{name}"):
+            self.error_label.setText(
+                self.translator.text("new_project_dialog.error.folder_already_exists")
+            )
+            return
 
         # Create the project
-        self._controller.create_project(self._archetype_id, self._name, self._path)
+        self._controller.create_project(self._archetype_id, name, path)
 
         # Close the form window
         self.close()
@@ -278,5 +285,11 @@ class NewProjectDialog(QDialog):
         """
         Create a new project dialog and show it
         """
+        # Get main window instance
+        app: QApplication = QApplication.instance()
+        main_window = app.activeWindow()
+
+        # Create the dialog
         dialog = NewProjectDialog(controller=controller)
+        main_window.current_dialog = dialog
         dialog.exec()

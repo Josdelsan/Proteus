@@ -168,6 +168,7 @@ new_project_dialog.input.path.browser: "Examinar..."
 new_project_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de proyecto"
 new_project_dialog.error.invalid_path: "Por favor, introduzca una ruta válida"
 new_project_dialog.error.invalid_name: "Por favor, introduzca un nombre válido"
+new_project_dialog.error.folder_already_exists: "Ya existe una carpeta con ese nombre en la ruta seleccionada, por favor, seleccione otra ruta o cambie el nombre del proyecto"
 
 # ---------------------------------------------------------------------------
 # New view dialog
