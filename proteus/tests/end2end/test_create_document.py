@@ -1,0 +1,139 @@
+# ==========================================================================
+# File: test_create_document.py
+# Description: pytest file for the PROTEUS pyqt create document use case
+# Date: 15/08/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
+# QApplication instace cannot be deleted. This might cause tests failures.
+
+# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
+# Dialog handling can interfere with running tests together. Workaround
+# listed in the issue with 5ms delay in QTimer seems to work. Since
+# dialogs are an important part of the app, this might be a problem
+# in the future. No complete solution found yet.
+
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Third party imports
+# --------------------------------------------------------------------------
+
+import pytest
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QDialogButtonBox
+
+# --------------------------------------------------------------------------
+# Project specific imports
+# --------------------------------------------------------------------------
+
+from proteus.views.main_window import MainWindow
+from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
+from proteus.tests.end2end.fixtures import app, load_project
+
+# --------------------------------------------------------------------------
+# Fixtures
+# --------------------------------------------------------------------------
+
+
+# --------------------------------------------------------------------------
+# End to end "create document" tests
+# --------------------------------------------------------------------------
+
+
+def test_create_document(qtbot, app):
+    """
+    Test the create document use case. Create a document in an existing
+    project. It tests the following steps:
+        - Open the create document dialog
+        - Create a new document
+        - Check the document was created
+    """
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+    main_window: MainWindow = app.activeWindow()
+
+    load_project(main_window=main_window, project_name="empty_project")
+
+    # Buttons that should change state when document is created in an empty project
+    save_button_state = main_window.main_menu.save_button.isEnabled()
+    delete_doc_button_state = main_window.main_menu.delete_document_button.isEnabled()
+    export_doc_button_state = main_window.main_menu.export_document_button.isEnabled()
+    undo_button_state = main_window.main_menu.undo_button.isEnabled()
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+    # Handle form filling
+    def handle_dialog():
+        dialog: NewDocumentDialog = main_window.current_dialog
+        while not dialog:
+            dialog = main_window.current_dialog
+
+        # No need to select archetype. We use the default one
+        # TODO: Check archetypes are loaded correctly
+
+        # Accept dialog
+        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+
+    # Add document button click
+    add_document_button = main_window.main_menu.add_document_button
+    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
+    qtbot.mouseClick(add_document_button, Qt.MouseButton.LeftButton)
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    # Check buttons state changed
+    assert save_button_state != main_window.main_menu.save_button.isEnabled(), (
+        "Save button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        f"Current state: {main_window.main_menu.save_button.isEnabled()}"
+    )
+    assert (
+        delete_doc_button_state
+        != main_window.main_menu.delete_document_button.isEnabled()
+    ), (
+        "Delete document button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        f"Current state: {main_window.main_menu.delete_document_button.isEnabled()}"
+    )
+    assert (
+        export_doc_button_state
+        != main_window.main_menu.export_document_button.isEnabled()
+    ), (
+        "Export document button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        f"Current state: {main_window.main_menu.export_document_button.isEnabled()}"
+    )
+    assert (
+        undo_button_state != main_window.main_menu.undo_button.isEnabled()
+    ), (
+        "Undo button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
+    )
+
+     # Check documents container includes the new document
+    documents_container = main_window.project_container.documents_container
+    assert (
+        documents_container.tabs.keys().__len__() == 1
+    ), f"Documents container has not only one tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
+    assert documents_container.tabs.keys() == documents_container.tab_children.keys(), (
+        f"Documents container tabs and tree children do not correspond"
+        f"tabs: '{documents_container.tabs.keys()}'"
+        f"tree children: '{documents_container.tab_children.keys()}'"
+    )
+
+    # Check each document tree has at least one tree item
+    for document_tree in documents_container.tab_children.values():
+        assert (
+            document_tree.__class__.__name__ == "DocumentTree"
+        ), f"Document tree is not a DocumentTree, '{document_tree.__class__.__name__}'"
+        assert (
+            document_tree.tree_items.keys().__len__() >= 1
+        ), f"Document tree has not at least one tree item, number of tree items: '{document_tree.tree_items.keys().__len__()}'"
+
+

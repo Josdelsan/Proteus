@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QSizePolicy,
     QDialogButtonBox,
+    QApplication,
 )
 
 
@@ -118,12 +119,12 @@ class NewDocumentDialog(QDialog):
         description_output: QLabel = QLabel()
 
         # Create Save and Cancel buttons
-        button_box: QDialogButtonBox = QDialogButtonBox(
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
-        button_box.accepted.connect(self.save_button_clicked)
-        button_box.rejected.connect(self.cancel_button_clicked)
+        self.button_box.accepted.connect(self.save_button_clicked)
+        self.button_box.rejected.connect(self.cancel_button_clicked)
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -137,7 +138,7 @@ class NewDocumentDialog(QDialog):
         layout.addWidget(description_output)
         layout.addWidget(self.error_label)
 
-        layout.addWidget(button_box)
+        layout.addWidget(self.button_box)
 
         # Set fixed width for the window
         self.setFixedWidth(400)
@@ -224,5 +225,10 @@ class NewDocumentDialog(QDialog):
         """
         Create a new document dialog and show it
         """
+        # Get main window instance
+        app: QApplication = QApplication.instance()
+        main_window = app.activeWindow()
+
         dialog = NewDocumentDialog(controller=controller)
+        main_window.current_dialog = dialog
         dialog.exec()

@@ -50,6 +50,7 @@ PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH
 # End to end "create project" tests
 # --------------------------------------------------------------------------
 
+
 def test_create_project(qtbot, app):
     """
     Test the create project use case. Create a project from an archetype and open it
@@ -68,7 +69,6 @@ def test_create_project(qtbot, app):
     if os.path.exists(PROJECT_PATH / PROJECT_NAME):
         shutil.rmtree(PROJECT_PATH / PROJECT_NAME)
 
-
     # Store previous information to check project opening
     old_window_title = main_window.windowTitle()
     old_central_widget = main_window.centralWidget()
@@ -81,12 +81,11 @@ def test_create_project(qtbot, app):
         dialog: NewProjectDialog = main_window.current_dialog
         while not dialog:
             dialog = main_window.current_dialog
-        
-        dialog.archetype_combo.setCurrentIndex(0) # Select "empty project" archetype
+
+        dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(PROJECT_NAME)
         dialog.path_input.setText(str(PROJECT_PATH))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
-
 
     # Open project button click
     create_project_button = main_window.main_menu.new_button
@@ -98,34 +97,64 @@ def test_create_project(qtbot, app):
     # --------------------------------------------
 
     # Check project folder creation
-    assert os.path.exists(PROJECT_PATH / PROJECT_NAME)
+    assert os.path.exists(
+        PROJECT_PATH / PROJECT_NAME
+    ), f"Project folder {PROJECT_PATH / PROJECT_NAME} does not exist"
 
     # Check title changed to include project name
-    assert main_window.windowTitle() != old_window_title
-    assert old_window_title in main_window.windowTitle()
+    assert (
+        main_window.windowTitle() != old_window_title
+    ), "Window title has not changed after project creation"
+    assert (
+        old_window_title in main_window.windowTitle()
+    ), f"Window title does not include project name after project creation, '{main_window.windowTitle()}'"
 
     # Check central widget change to project container
-    assert main_window.centralWidget() != old_central_widget
-    assert main_window.centralWidget().__class__.__name__ == "ProjectContainer"
+    assert (
+        main_window.centralWidget() != old_central_widget
+    ), "Central widget has not changed after project creation"
+    assert (
+        main_window.centralWidget().__class__.__name__ == "ProjectContainer"
+    ), f"Central widget is not a project container after project creation, '{main_window.centralWidget().__class__.__name__}'"
 
     # Check main menu buttons new state
-    assert main_window.main_menu.project_properties_button.isEnabled()
-    assert main_window.main_menu.add_document_button.isEnabled()
-    assert main_window.main_menu.delete_document_button.isEnabled()
-    assert main_window.main_menu.export_document_button.isEnabled()
+    assert (
+        main_window.main_menu.project_properties_button.isEnabled()
+    ), "Project edit properties button is not enabled after project creation"
+    assert (
+        main_window.main_menu.add_document_button.isEnabled()
+    ), "Add document button is not enabled after project creation"
+    assert (
+        main_window.main_menu.delete_document_button.isEnabled()
+    ), "Delete document button is not enabled after project creation"
+    assert (
+        main_window.main_menu.export_document_button.isEnabled()
+    ), "Export document button is not enabled after project creation"
 
     # Check documents container
     documents_container = main_window.project_container.documents_container
-    assert documents_container.__class__.__name__ == "DocumentsContainer"
+    assert (
+        documents_container.__class__.__name__ == "DocumentsContainer"
+    ), f"Documents container is not a DocumentsContainer, '{documents_container.__class__.__name__}'"
 
     # Check documents container tabs and tree chidlren correspond
-    assert documents_container.tabs.keys().__len__() == 1
-    assert documents_container.tabs.keys() == documents_container.tab_children.keys()
+    assert (
+        documents_container.tabs.keys().__len__() == 1
+    ), f"Documents container has not only one tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
+    assert documents_container.tabs.keys() == documents_container.tab_children.keys(), (
+        f"Documents container tabs and tree children do not correspond"
+        f"tabs: '{documents_container.tabs.keys()}'"
+        f"tree children: '{documents_container.tab_children.keys()}'"
+    )
 
     # Check each document tree has at least one tree item
     for document_tree in documents_container.tab_children.values():
-        assert document_tree.__class__.__name__ == "DocumentTree"
-        assert document_tree.tree_items.keys().__len__() >= 1
+        assert (
+            document_tree.__class__.__name__ == "DocumentTree"
+        ), f"Document tree is not a DocumentTree, '{document_tree.__class__.__name__}'"
+        assert (
+            document_tree.tree_items.keys().__len__() >= 1
+        ), f"Document tree has not at least one tree item, number of tree items: '{document_tree.tree_items.keys().__len__()}'"
 
     # --------------------------------------------
     # Teardown
@@ -144,10 +173,16 @@ def test_create_project(qtbot, app):
         (None, "Project name", "new_project_dialog.error.invalid_path"),
         (PROJECT_PATH, "", "new_project_dialog.error.invalid_name"),
         (PROJECT_PATH, None, "new_project_dialog.error.invalid_name"),
-        (PROJECT_PATH, "example_project", "new_project_dialog.error.folder_already_exists"), # Existing project
+        (
+            PROJECT_PATH,
+            "example_project",
+            "new_project_dialog.error.folder_already_exists",
+        ),  # Existing project
     ],
 )
-def test_create_project_negative(qtbot, app, project_path, project_name, expected_error):
+def test_create_project_negative(
+    qtbot, app, project_path, project_name, expected_error
+):
     """
     Test the ocreate project use case. Create a project from an archetype and open it
     automatically. It tests the following steps:
@@ -170,7 +205,7 @@ def test_create_project_negative(qtbot, app, project_path, project_name, expecte
     # NOTE: Assertions cannot be done inside nested functions
     dialog: NewProjectDialog = None
     error_label_text = None
-    
+
     # --------------------------------------------
     # Act
     # --------------------------------------------
@@ -180,7 +215,7 @@ def test_create_project_negative(qtbot, app, project_path, project_name, expecte
         while not dialog:
             dialog = main_window.current_dialog
 
-        dialog.archetype_combo.setCurrentIndex(0) # Select "empty project" archetype
+        dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(project_name)
         dialog.path_input.setText(str(project_path))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
@@ -199,5 +234,11 @@ def test_create_project_negative(qtbot, app, project_path, project_name, expecte
     # --------------------------------------------
     # Assert
     # --------------------------------------------
-    assert isinstance(dialog, NewProjectDialog)
-    assert dialog.error_label.text() == translator.text(expected_error)
+    assert isinstance(
+        dialog, NewProjectDialog
+    ), f"Dialog is not a NewProjectDialog, '{dialog.__class__.__name__}'"
+    assert dialog.error_label.text() == translator.text(expected_error), (
+        f"Error label text is not the expected"
+        f"current: '{dialog.error_label.text()}'"
+        f"expected: '{translator.text(expected_error)}'"
+    )

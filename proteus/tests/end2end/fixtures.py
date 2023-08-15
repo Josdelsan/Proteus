@@ -38,14 +38,14 @@ from proteus.controller.command_stack import Controller
 # --------------------------------------------------------------------------
 
 TEST_PROJECT_NAME = "example_project"
-TEST_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / TEST_PROJECT_NAME
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="function")
-def app(mocker):
+def app(qtbot, mocker):
     """
     Handle the creation of the QApplication instance and the main window.
     """
@@ -65,34 +65,41 @@ def app(mocker):
     # screw up the tests
     restore_app_singleton_instances()
 
+    # Call the mock_views_container function to mock the ViewsContainer methods
+    mock_views_container(mocker)
+
     # Create the main window
     main_window = MainWindow(parent=None)
+    
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
     main_window.show()
 
-    # Call the mock_views_container function to mock the ViewsContainer methods
-    mock_views_container(mocker)
-
-    # Return the main window
-    yield test_app
+    # Return the main window when it is exposed
+    with qtbot.waitExposed(main_window, timeout=5000):
+        yield test_app
 
     # Teardown
     test_app.quit()
 
 
-def load_project(main_window: MainWindow, project_path: str = TEST_PROJECT_PATH):
+def load_project(
+    main_window: MainWindow,
+    project_path: str = PROTEUS_TEST_SAMPLE_DATA_PATH,
+    project_name: str = TEST_PROJECT_NAME,
+):
     """
     Handle the creation of the app and example project opening.
-    
+
     NOTE: Avoids opening the project using the dialog. Instead, uses
     the controller method directly.
     """
     controller: Controller = main_window._controller
 
     # Open the example project
-    controller.load_project(project_path)
-    
+    controller.load_project(f"{project_path}/{project_name}")
+
+
 def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
@@ -102,6 +109,7 @@ def restore_app_singleton_instances():
     StateManager.current_object = {}
     StateManager.current_view = None
 
+
 def mock_views_container(mocker):
     """
     Mocks ViewsContainer methods to avoid the creation of the QWebEngineView
@@ -110,31 +118,31 @@ def mock_views_container(mocker):
     """
 
     mocker.patch(
-        "proteus.views.components.views_container.ViewsContainer.create_component", 
-        lambda *args, **kwargs: None
+        "proteus.views.components.views_container.ViewsContainer.create_component",
+        lambda *args, **kwargs: None,
     )
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.update_component",
-        lambda *args, **kwargs: None
+        lambda *args, **kwargs: None,
     )
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.delete_component",
-        lambda *args, **kwargs: None
+        lambda *args, **kwargs: None,
     )
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.update_on_add_view",
-        lambda *args, **kwargs: None
+        lambda *args, **kwargs: None,
     )
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.update_on_select_object",
-        lambda *args, **kwargs: None
+        lambda *args, **kwargs: None,
     )
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.update_on_delete_view",
-        lambda *args, **kwargs: None
+        lambda *args, **kwargs: None,
     )

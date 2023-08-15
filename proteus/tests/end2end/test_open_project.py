@@ -23,7 +23,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-import pytest
 from PyQt6.QtCore import Qt, QTimer
 
 # --------------------------------------------------------------------------
@@ -44,6 +43,7 @@ SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
 # --------------------------------------------------------------------------
 # End to end "open project" tests
 # --------------------------------------------------------------------------
+
 
 def test_open_project(qtbot, mocker, app):
     """
@@ -90,28 +90,57 @@ def test_open_project(qtbot, mocker, app):
     # --------------------------------------------
 
     # Check title changed to include project name
-    assert main_window.windowTitle() != old_window_title
-    assert old_window_title in main_window.windowTitle()
+    assert (
+        main_window.windowTitle() != old_window_title
+    ), f"Expected window title to change from {old_window_title}"
+    assert old_window_title in main_window.windowTitle(), (
+        f"Expected window title to include {old_window_title} as prefix"
+        f"current title {main_window.windowTitle()}"
+    )
 
     # Check central widget change to project container
-    assert main_window.centralWidget() != old_central_widget
-    assert main_window.centralWidget().__class__.__name__ == "ProjectContainer"
+    assert (
+        main_window.centralWidget() != old_central_widget
+    ), "Central widget should have been deleted and replaced by a new one"
+    assert (
+        main_window.centralWidget().__class__.__name__ == "ProjectContainer"
+    ), f"Expected central widget to be a ProjectContainer, got {main_window.centralWidget().__class__.__name__}"
 
     # Check main menu buttons new state
-    assert main_window.main_menu.project_properties_button.isEnabled()
-    assert main_window.main_menu.add_document_button.isEnabled()
-    assert main_window.main_menu.delete_document_button.isEnabled()
-    assert main_window.main_menu.export_document_button.isEnabled()
+    assert (
+        main_window.main_menu.project_properties_button.isEnabled()
+    ), "Expected edit project properties button to be enabled"
+    assert (
+        main_window.main_menu.add_document_button.isEnabled()
+    ), "Expected add document button to be enabled"
+    assert (
+        main_window.main_menu.delete_document_button.isEnabled()
+    ), "Expected delete document button to be enabled"
+    assert (
+        main_window.main_menu.export_document_button.isEnabled()
+    ), "Expected export document button to be enabled"
 
     # Check documents container
     documents_container = main_window.project_container.documents_container
-    assert documents_container.__class__.__name__ == "DocumentsContainer"
+    assert (
+        documents_container.__class__.__name__ == "DocumentsContainer"
+    ), f"Expected documents container to be a DocumentsContainer, got {documents_container.__class__.__name__}"
 
     # Check documents container tabs and tree chidlren correspond
-    assert documents_container.tabs.keys().__len__() == 3
-    assert documents_container.tabs.keys() == documents_container.tab_children.keys()
+    assert (
+        documents_container.tabs.keys().__len__() == 3
+    ), f"Expected 3 tabs, got {documents_container.tabs.keys().__len__()}"
+    assert (
+        documents_container.tabs.keys() == documents_container.tab_children.keys()
+    ), f"Expected DocumentTree children to match tabs number but got {documents_container.tab_children.keys().__len__()}"
 
     # Check each document tree has at least one tree item
     for document_tree in documents_container.tab_children.values():
-        assert document_tree.__class__.__name__ == "DocumentTree"
-        assert document_tree.tree_items.keys().__len__() >= 1
+        assert (
+            document_tree.__class__.__name__ == "DocumentTree"
+        ), f"Expected document tree to be a DocumentTree, got {document_tree.__class__.__name__}"
+        assert (
+            document_tree.tree_items.keys().__len__() >= 1
+        ), f"Expected at least one tree item, got {document_tree.tree_items.keys().__len__()}"
+
+

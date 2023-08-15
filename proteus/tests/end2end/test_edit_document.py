@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_edit_project.py
-# Description: pytest file for the PROTEUS pyqt edit project use case
-# Date: 13/08/2023
+# File: test_edit_document.py
+# Description: pytest file for the PROTEUS pyqt edit document use case
+# Date: 15/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -25,13 +25,15 @@
 
 import pytest
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 from proteus.views.main_window import MainWindow
+from proteus.views.components.documents_container import DocumentsContainer
+from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -39,19 +41,22 @@ from proteus.tests.end2end.fixtures import app, load_project
 # Fixtures
 # --------------------------------------------------------------------------
 
+PROJECT_NAME = "one_doc_project"
+DOCUMENT_ID = "3fKhMAkcEe2C"  # Known document id from one_doc_project
 
 # --------------------------------------------------------------------------
-# End to end "edit project" tests
+# End to end "edit document" tests
 # --------------------------------------------------------------------------
 
 
-def test_edit_project(qtbot, app):
+# @pytest.mark.skip
+def test_edit_document(qtbot, app):
     """
-    Test the edit project use case. Edit an existing project changing its
-    name and other properties. It tests the following steps:
-        - Open the edit project dialog
-        - Fill the form (name change)
-        - Check project name change
+    Test the edit document use case. Edit an existing document changing its
+    name and acronym. It tests the following steps:
+        - Open the edit document dialog
+        - Fill the form (acronym change)
+        - Check the acronym changed in the tab
         - Check dialog properties change
     """
     # --------------------------------------------
@@ -59,24 +64,16 @@ def test_edit_project(qtbot, app):
     # --------------------------------------------
     main_window: MainWindow = app.activeWindow()
 
-    load_project(main_window=main_window)
-
-    # Store previous title
-    old_window_title = main_window.windowTitle()
+    load_project(main_window=main_window, project_name=PROJECT_NAME)
 
     # Properties
     # NOTE: These are known existing properties
     NAME_PROP = "name"
-    VERSION_PROP = "version"
-    DESCRIPTION_PROP = "description"
-
-    # old name value
-    old_name = None
+    ACRONYM_PROP = "acronym"
 
     # New values
     new_name = "New name"
-    new_version = "New version"
-    new_description = "New description"
+    new_acronym = "ACRO"
 
     # --------------------------------------------
     # Act
@@ -87,23 +84,29 @@ def test_edit_project(qtbot, app):
         while not dialog:
             dialog = main_window.current_dialog
 
-        # Get old name
-        nonlocal old_name
-        old_name = dialog.input_widgets[NAME_PROP].get_value()
-
         # Change properties
-        # NOTE: inputs types are known so we can use setText and setPlainText
+        # NOTE: inputs types are known so we can use setText
         dialog.input_widgets[NAME_PROP].input.setText(new_name)
-        dialog.input_widgets[VERSION_PROP].input.setText(new_version)
-        dialog.input_widgets[DESCRIPTION_PROP].input.setPlainText(new_description)
+        dialog.input_widgets[ACRONYM_PROP].input.setText(new_acronym)
 
         # Accept dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
-    # Open project button click
-    edit_project_button = main_window.main_menu.project_properties_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    qtbot.mouseClick(edit_project_button, Qt.MouseButton.LeftButton)
+    # Edit document button, double click in the tree item
+    documents_container: DocumentsContainer = (
+        main_window.project_container.documents_container
+    )
+    document_tree_widget: QTreeWidget = documents_container.tab_children[
+        DOCUMENT_ID
+    ].tree_widget
+    doc_tree_element: QTreeWidgetItem = documents_container.tab_children[
+        DOCUMENT_ID
+    ].tree_items[DOCUMENT_ID]
+
+    # Wait for the dialog to be created
+    QTimer.singleShot(5, handle_dialog)
+    # Double click in the tree item cannot be done using qbot
+    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # --------------------------------------------
     # Assert
@@ -112,8 +115,7 @@ def test_edit_project(qtbot, app):
     # Variable to store current values
     # NOTE: Assertion cannot be done in nested functions
     current_name = None
-    current_version = None
-    current_description = None
+    current_acronym = None
 
     def handle_dialog_assert():
         dialog: PropertyDialog = main_window.current_dialog
@@ -121,36 +123,26 @@ def test_edit_project(qtbot, app):
             dialog = main_window.current_dialog
 
         # Check properties changed
-        nonlocal current_name, current_version, current_description
+        nonlocal current_name, current_acronym
         current_name = dialog.input_widgets[NAME_PROP].get_value()
-        current_version = dialog.input_widgets[VERSION_PROP].get_value()
-        current_description = dialog.input_widgets[DESCRIPTION_PROP].get_value()
+        current_acronym = dialog.input_widgets[ACRONYM_PROP].get_value()
         # Close the dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
 
     # Access properties post edit
     QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
-    qtbot.mouseClick(edit_project_button, Qt.MouseButton.LeftButton)
-
-    # Check title changed to replace old project name
-    assert main_window.windowTitle() == old_window_title.replace(old_name, new_name), (
-        f"Window title must include the new project name '{new_name}'"
-        f"Current window title is'{main_window.windowTitle()}'"
-    )
-
-    # Check main menu buttons new state
-    assert main_window.main_menu.save_button.isEnabled(), (
-        "Save button must be enabled after editing a project"
-        f"Current state is isEnabled() -> {main_window.main_menu.save_button.isEnabled()}"
-    )
+    # Double click in the tree item cannot be done using qbot
+    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # Check properties changed
     assert (
         current_name == new_name
     ), f"Project name must be '{new_name}' but it is '{current_name}'"
     assert (
-        current_version == new_version
-    ), f"Project version must be '{new_version}' but it is '{current_version}'"
+        current_acronym == new_acronym
+    ), f"Project acronym must be '{new_acronym}' but it is '{current_acronym}'"
+
+    # Check tab acronym changed
     assert (
-        current_description == new_description
-    ), f"Project description must be '{new_description}' but it is '{current_description}'"
+        documents_container.tabBar().tabText(0) == new_acronym
+    ), f"Document tab acronym must be '{new_acronym}' but it is '{documents_container.tabBar().tabText(0)}'"
