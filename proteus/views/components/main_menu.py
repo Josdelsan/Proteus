@@ -93,13 +93,18 @@ class MainMenu(QDockWidget):
         # Get translator instance
         self.translator = Translator()
 
-        # Main menu buttons that are updated
+        # Main menu buttons
+        self.new_button: QToolButton = None
+        self.open_button: QToolButton = None
         self.save_button: QToolButton = None
         self.undo_button: QToolButton = None
         self.redo_button: QToolButton = None
         self.project_properties_button: QToolButton = None
         self.add_document_button: QToolButton = None
         self.delete_document_button: QToolButton = None
+        self.settings_button: QToolButton = None
+        self.export_document_button: QToolButton = None
+        self.information_button: QToolButton = None
 
         # Archetype menu buttons that are updated
         self.archetype_buttons: Dict[ProteusID, ArchetypeMenuButton] = {}
@@ -437,7 +442,6 @@ class MainMenu(QDockWidget):
         else:
             # Get the selected object and its accepted children
             selected_object: Object = self._controller.get_element(selected_object_id)
-            accepted_children: List[ProteusClassTag] = selected_object.acceptedChildren
 
             # Iterate over the archetype buttons
             for archetype_id in self.archetype_buttons.keys():
@@ -561,20 +565,20 @@ class MainMenu(QDockWidget):
         document_name: str = document.get_property("name").value
 
         # Show a confirmation dialog
-        confirmation_dialog = QMessageBox()
-        confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-        confirmation_dialog.setWindowTitle(
+        self.confirmation_dialog = QMessageBox()
+        self.confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+        self.confirmation_dialog.setWindowTitle(
             self.translator.text("main_menu.delete_document.title")
         )
-        confirmation_dialog.setText(
+        self.confirmation_dialog.setText(
             self.translator.text("main_menu.delete_document.text", document_name)
         )
-        confirmation_dialog.setStandardButtons(
+        self.confirmation_dialog.setStandardButtons(
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
-        confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
-        confirmation_dialog.accepted.connect(
+        self.confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        self.confirmation_dialog.accepted.connect(
             # Delete the document
             lambda arg=document.id: self._controller.delete_document(arg)
         )
-        confirmation_dialog.exec()
+        self.confirmation_dialog.exec()

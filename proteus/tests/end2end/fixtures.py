@@ -49,17 +49,6 @@ def app(qtbot, mocker):
     """
     Handle the creation of the QApplication instance and the main window.
     """
-    # Create the QApplication instance and the main window
-    test_app: QApplication = QApplication.instance()
-    if test_app is None:
-        test_app = QApplication([])
-
-    main_window: MainWindow = test_app.activeWindow()
-    if main_window is not None:
-        # Destroy the main window and create a new one
-        main_window.close()
-        main_window.deleteLater()
-
     # NOTE: Its important to restore the singleton instances when
     # running tests together, otherwise stores information might
     # screw up the tests
@@ -74,13 +63,11 @@ def app(qtbot, mocker):
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
     main_window.show()
+    qtbot.addWidget(main_window) # Cannot use waitExposed with addWidget
 
     # Return the main window when it is exposed
-    with qtbot.waitExposed(main_window, timeout=5000):
-        yield test_app
+    return main_window
 
-    # Teardown
-    test_app.quit()
 
 
 def load_project(

@@ -45,7 +45,7 @@ from proteus.tests.end2end.fixtures import app, load_project
 # --------------------------------------------------------------------------
 
 
-def test_edit_project(qtbot, app):
+def test_edit_project(app):
     """
     Test the edit project use case. Edit an existing project changing its
     name and other properties. It tests the following steps:
@@ -57,7 +57,7 @@ def test_edit_project(qtbot, app):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
-    main_window: MainWindow = app.activeWindow()
+    main_window: MainWindow = app
 
     load_project(main_window=main_window)
 
@@ -103,7 +103,7 @@ def test_edit_project(qtbot, app):
     # Open project button click
     edit_project_button = main_window.main_menu.project_properties_button
     QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    qtbot.mouseClick(edit_project_button, Qt.MouseButton.LeftButton)
+    edit_project_button.click()
 
     # --------------------------------------------
     # Assert
@@ -130,7 +130,7 @@ def test_edit_project(qtbot, app):
 
     # Access properties post edit
     QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
-    qtbot.mouseClick(edit_project_button, Qt.MouseButton.LeftButton)
+    edit_project_button.click()
 
     # Check title changed to replace old project name
     assert main_window.windowTitle() == old_window_title.replace(old_name, new_name), (

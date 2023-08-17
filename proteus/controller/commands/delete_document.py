@@ -59,6 +59,7 @@ class DeleteDocumentCommand(QUndoCommand):
         self.before_clone_parent_state: ProteusState = None
         self.document: Object = self.project_service._get_element_by_id(document_id)
         self.old_document_state: ProteusState = self.document.state
+        self.old_position: int = self.document.parent.get_descendants().index(self.document)
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -112,4 +113,4 @@ class DeleteDocumentCommand(QUndoCommand):
         self.document.parent.state: ProteusState = self.before_clone_parent_state
 
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_DOCUMENT, document=self.document)
+        EventManager.notify(Event.ADD_DOCUMENT, document=self.document, position=self.old_position)

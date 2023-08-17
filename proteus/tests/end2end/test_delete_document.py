@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_create_document.py
-# Description: pytest file for the PROTEUS pyqt create document use case
-# Date: 15/08/2023
+# File: test_delete_document.py
+# Description: pytest file for the PROTEUS pyqt delete document use case
+# Date: 16/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -23,35 +23,35 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 from proteus.views.main_window import MainWindow
-from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "empty_project"
+PROJECT_NAME = "one_doc_project"
 
 # --------------------------------------------------------------------------
-# End to end "create document" tests
+# End to end "delete document" tests
 # --------------------------------------------------------------------------
 
 
-def test_create_document(app):
+def test_delete_document(app):
     """
-    Test the create document use case. Create a document in an existing
+    Test the delete document use case. Delete the only document in an
     project. It tests the following steps:
-        - Open the create document dialog
-        - Create a new document
-        - Check the document was created
+        - Open the confirmation dialog
+        - Handle the dialog
+        - Check the document is deleted
+        - Check buttons state changed
     """
     # --------------------------------------------
     # Arrange
@@ -69,22 +69,19 @@ def test_create_document(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
+    # Handle confirmation accept
     def handle_dialog():
-        dialog: NewDocumentDialog = main_window.current_dialog
+        dialog: QMessageBox = main_window.main_menu.confirmation_dialog
         while not dialog:
-            dialog = main_window.current_dialog
-
-        # No need to select archetype. We use the default one
-        # TODO: Check archetypes are loaded correctly
+            dialog = main_window.main_menu.confirmation_dialog
 
         # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+        dialog.button(QMessageBox.StandardButton.Yes).click()
 
-    # Add document button click
-    add_document_button = main_window.main_menu.add_document_button
+    # Delete document button click
+    delete_document_button = main_window.main_menu.delete_document_button
     QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    add_document_button.click()
+    delete_document_button.click()
 
     # --------------------------------------------
     # Assert
@@ -99,41 +96,35 @@ def test_create_document(app):
         delete_doc_button_state
         != main_window.main_menu.delete_document_button.isEnabled()
     ), (
-        "Delete document button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        "Delete document button state should change from ENABLED to DISABLED when a document is deleted and there are no more documents in the project"
         f"Current state: {main_window.main_menu.delete_document_button.isEnabled()}"
     )
     assert (
         export_doc_button_state
         != main_window.main_menu.export_document_button.isEnabled()
     ), (
-        "Export document button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        "Export document button state should change from ENABLED to DISABLED when a document is deleted and there are no more documents in the project"
         f"Current state: {main_window.main_menu.export_document_button.isEnabled()}"
     )
     assert (
         undo_button_state != main_window.main_menu.undo_button.isEnabled()
     ), (
-        "Undo button state should change from DISABLED to ENABLED when a document is created in an empty project"
+        "Undo button state should change from DISABLED to ENABLED when a document is deleted in a project"
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-     # Check documents container includes the new document
+     # Check documents container does not include the document
     documents_container = main_window.project_container.documents_container
     assert (
-        documents_container.tabs.keys().__len__() == 1
-    ), f"Documents container has not only one tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
-    assert documents_container.tabs.keys() == documents_container.tab_children.keys(), (
-        f"Documents container tabs and tree children do not correspond"
-        f"tabs: '{documents_container.tabs.keys()}'"
-        f"tree children: '{documents_container.tab_children.keys()}'"
-    )
+        documents_container.tabs.keys().__len__() == 0
+    ), f"Documents container should not include any document tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
+    assert (
+        documents_container.tab_children.keys().__len__() == 0
+    ), f"Documents container should not include any document tree, number of trees: '{documents_container.tab_children.keys().__len__()}'"
 
-    # Check each document tree has at least one tree item
-    for document_tree in documents_container.tab_children.values():
-        assert (
-            document_tree.__class__.__name__ == "DocumentTree"
-        ), f"Document tree is not a DocumentTree, '{document_tree.__class__.__name__}'"
-        assert (
-            document_tree.tree_items.keys().__len__() >= 1
-        ), f"Document tree has not at least one tree item, number of tree items: '{document_tree.tree_items.keys().__len__()}'"
-
+    # Check that the tab was deleted from the tabbar
+    tab_bar = documents_container.tabBar()
+    assert (
+        tab_bar.count() == 0
+    ), f"Documents container tab bar should not include any tab, number of tabs: '{tab_bar.count()}'"
 

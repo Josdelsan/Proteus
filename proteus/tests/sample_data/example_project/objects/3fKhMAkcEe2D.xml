@@ -9,5 +9,8 @@
     <markdownProperty name="description" category="detail"><![CDATA[Documento de Análisis del sistema madeja]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[Empty document of empty project.]]></markdownProperty>
   </properties>
-  <children/>
+  <children>
+    <child id="7s63wvxgekU6"/>
+    <child id="7s63wvxgekU7"/>
+  </children>
 </object>

@@ -80,6 +80,7 @@ class DocumentsContainer(QTabWidget):
         self._controller: Controller = controller
 
         # Tabs dictionary
+        # TODO: Use QTabWidget tabBar to fetch the tabs instead of storing them
         self.tabs: Dict[ProteusID, QWidget] = {}
 
         # Tab children
@@ -137,7 +138,7 @@ class DocumentsContainer(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def add_document(self, document: Object):
+    def add_document(self, document: Object, position: int = None) -> None:
         """
         Add a document to the tab menu creating its child component (document
         tree).
@@ -159,7 +160,10 @@ class DocumentsContainer(QTabWidget):
 
         # Get acronym, add the tab and store the index given by the addTab method
         document_acronym: str = document.get_property("acronym").value
-        tab_index = self.addTab(tab, document_acronym)
+        if position is not None:
+            tab_index = self.insertTab(position, tab, document_acronym)
+        else:
+            tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
         icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
@@ -212,13 +216,15 @@ class DocumentsContainer(QTabWidget):
         """
         new_document: Object = kwargs.get("document")
 
+        position: int = kwargs.get("position", None)
+
         # Check the document is instance of Object
         # Check the object is instance of Object
         assert isinstance(
             new_document, Object
         ), "Object is not instance of Object on ADD_DOCUMENT event"
 
-        self.add_document(new_document)
+        self.add_document(new_document, position=position)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_document
@@ -247,11 +253,11 @@ class DocumentsContainer(QTabWidget):
         ), f"Document tab not found for document {document_id} on DELETE_DOCUMENT event"
 
         # Delete tab from tabs widget
-        document_tab: QWidget = self.tabs.get(document_id)
+        document_tab: QWidget = self.tabs.pop(document_id)
         self.removeTab(self.indexOf(document_tab))
 
         # Delete child components
-        child_component: DocumentTree = self.tab_children.get(document_id)
+        child_component: DocumentTree = self.tab_children.pop(document_id)
         child_component.delete_component()
 
         # Delete tab object

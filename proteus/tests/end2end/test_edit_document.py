@@ -23,8 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-import pytest
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget
 
 # --------------------------------------------------------------------------
@@ -33,7 +32,6 @@ from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget
 
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
-from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -49,8 +47,7 @@ DOCUMENT_ID = "3fKhMAkcEe2C"  # Known document id from one_doc_project
 # --------------------------------------------------------------------------
 
 
-# @pytest.mark.skip
-def test_edit_document(qtbot, app):
+def test_edit_document(app):
     """
     Test the edit document use case. Edit an existing document changing its
     name and acronym. It tests the following steps:
@@ -62,7 +59,7 @@ def test_edit_document(qtbot, app):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
-    main_window: MainWindow = app.activeWindow()
+    main_window: MainWindow = app
 
     load_project(main_window=main_window, project_name=PROJECT_NAME)
 
@@ -141,6 +138,11 @@ def test_edit_document(qtbot, app):
     assert (
         current_acronym == new_acronym
     ), f"Project acronym must be '{new_acronym}' but it is '{current_acronym}'"
+
+    # Check the QTreeWidgetItem name changed
+    assert (
+        doc_tree_element.text(0) == new_name
+    ), f"Document tree item name must be '{new_name}' but it is '{doc_tree_element.text(0)}'"
 
     # Check tab acronym changed
     assert (

@@ -51,7 +51,7 @@ PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH
 # --------------------------------------------------------------------------
 
 
-def test_create_project(qtbot, app):
+def test_create_project(app):
     """
     Test the create project use case. Create a project from an archetype and open it
     automatically. It tests the following steps:
@@ -62,7 +62,7 @@ def test_create_project(qtbot, app):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
-    main_window: MainWindow = app.activeWindow()
+    main_window: MainWindow = app
 
     # Check if the project already exists and delete it
     # NOTE: This is a workaround if the test fails and the project is not deleted
@@ -90,7 +90,7 @@ def test_create_project(qtbot, app):
     # Open project button click
     create_project_button = main_window.main_menu.new_button
     QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    qtbot.mouseClick(create_project_button, Qt.MouseButton.LeftButton)
+    create_project_button.click()
 
     # --------------------------------------------
     # Assert
@@ -181,7 +181,7 @@ def test_create_project(qtbot, app):
     ],
 )
 def test_create_project_negative(
-    qtbot, app, project_path, project_name, expected_error
+    app, project_path, project_name, expected_error
 ):
     """
     Test the ocreate project use case. Create a project from an archetype and open it
@@ -196,7 +196,7 @@ def test_create_project_negative(
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
-    main_window: MainWindow = app.activeWindow()
+    main_window: MainWindow = app
 
     # Translator instace to translate error messages
     translator = main_window.translator
@@ -229,7 +229,7 @@ def test_create_project_negative(
     # Open project button click
     create_project_button = main_window.main_menu.new_button
     QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    qtbot.mouseClick(create_project_button, Qt.MouseButton.LeftButton)
+    create_project_button.click()
 
     # --------------------------------------------
     # Assert

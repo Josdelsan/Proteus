@@ -58,7 +58,7 @@ def test_open_project(qtbot, mocker, app):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
-    main_window: MainWindow = app.activeWindow()
+    main_window: MainWindow = app
 
     # Mock the QFileDialog response and handle the dialog life cycle
     mocker.patch(
@@ -83,7 +83,7 @@ def test_open_project(qtbot, mocker, app):
     # Open project button click
     open_project_button = main_window.main_menu.open_button
     QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    qtbot.mouseClick(open_project_button, Qt.MouseButton.LeftButton)
+    open_project_button.click()
 
     # --------------------------------------------
     # Assert

@@ -313,7 +313,7 @@ def test_get_ids(sample_project: Project):
     Test Project get_ids_from_project method
     """
     # Expected ids in sample_project, including the project id
-    expected_len = 7
+    expected_len = 9
 
     # Get ids from project
     ids = sample_project.get_ids()
