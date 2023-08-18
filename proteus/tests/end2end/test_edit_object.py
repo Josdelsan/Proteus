@@ -1,9 +1,13 @@
 # ==========================================================================
-# File: test_clone_object.py
-# Description: pytest file for the PROTEUS pyqt clone object use case
+# File: test_edit_object.py
+# Description: pytest file for the PROTEUS pyqt edit object use case
 # Date: 18/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
+# ==========================================================================
+# NOTE: Edit properties form dialog is the same for objects, documents
+# and projects. This test aims to test dialog access from the context
+# menu, access from double click is tested in test_edit_document.py
 # ==========================================================================
 
 # NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
@@ -24,7 +28,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication, QDialogButtonBox
 from PyQt6.QtCore import QPoint, QTimer
 
 # --------------------------------------------------------------------------
@@ -35,6 +39,7 @@ from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
+from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
@@ -55,14 +60,19 @@ PROJECT_NAME = "example_project"
         ("7s63wvxgekU6", "3fKhMAkcEe2D"),
     ],
 )
-def test_clone_object(app, object_id, document_id):
+def test_edit_object(app, object_id, document_id):
     """
-    Test the clone object use case. Clone an existing object.
+    Test the edit object use case. Edit an existing object
+    accessing the dialog from the context menu.
     It tests the following steps:
         - Select an existing object
-        - Open the context menu and click the clone action
-        - Check the archetype is cloned
+        - Open the context menu and click the edit action
+        - Check the archetype was edited
         - Check buttons are enabled
+    
+    NOTE: Do not double check the properties are updated in the dialog.
+    This is tested in test_edit_document.py, this is focused on the
+    context menu access and tree item update.
     """
     # --------------------------------------------
     # Arrange
@@ -94,10 +104,8 @@ def test_clone_object(app, object_id, document_id):
     # Emit set current item, accessed in context menu
     tree_widget.setCurrentItem(tree_element)
 
-    # Store the old number of objects in the document
-    old_objects_number = len(document_tree.tree_items)
-    parent_element: QTreeWidgetItem = tree_element.parent()
-    old_parent_children_number = parent_element.childCount()
+    NAME_PROP = "name"
+    NEW_NAME = "new name"
 
     # --------------------------------------------
     # Act
@@ -109,15 +117,29 @@ def test_clone_object(app, object_id, document_id):
             menu = QApplication.activePopupWidget()
 
         # Click the clone action
-        menu.action_clone_object.trigger()
+        QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
+        menu.action_edit_object.trigger()
 
         # Manual trigger of actions does not close the menu
         menu.close()
 
+    def handle_dialog():
+        dialog: PropertyDialog = QApplication.activeModalWidget()
+        while not dialog:
+            dialog = QApplication.activeModalWidget()
+
+        # Change properties
+        # NOTE: inputs types are known so we can use setText
+        dialog.input_widgets[NAME_PROP].input.setText(NEW_NAME)
+
+        # Accept dialog
+        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+
     # Get element position
     element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)    
+    tree_widget.customContextMenuRequested.emit(element_position)
+    
 
     # --------------------------------------------
     # Assert
@@ -133,12 +155,7 @@ def test_clone_object(app, object_id, document_id):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check tree item was updated
     assert (
-        len(document_tree.tree_items) == old_objects_number + 1
-    ), f"Number of objects in the document must be '{old_objects_number} + 1' but it is '{len(document_tree.tree_items)}'"
-
-    # Check the new object was added to the parent tree item
-    assert (
-        parent_element.childCount() == old_parent_children_number + 1
-    ), f"Number of children in the parent tree item must be '{old_parent_children_number} + 1' but it is '{parent_element.childCount()}'"
+        tree_element.text(0) == NEW_NAME
+    ), f"Tree item name must be '{NEW_NAME}' but it is '{tree_element.text(0)}'"

@@ -38,6 +38,7 @@ from PyQt6.QtCore import Qt
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.config import Config
+from proteus.views.utils.translator import Translator
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -68,7 +69,7 @@ def _string_property_validator(input: QLineEdit) -> str:
 
     # Check if the input is valid
     if not text:
-        return "This field cannot be empty"
+        return "string_property_input.validator.error"
     
     # Return None if the input is valid
     return None
@@ -126,7 +127,7 @@ def _float_property_validator(input: QLineEdit) -> str:
     try:
         float(text)
     except ValueError:
-        return "This field must be a number"
+        return "float_property_input.validator.error"
     
     # Return None if the input is valid
     return None
@@ -146,7 +147,7 @@ def _integer_property_validator(input: QLineEdit) -> str:
     try:
         int(text)
     except ValueError:
-        return "This field must be an integer"
+        return "integer_property_input.validator.error"
     
     # Return None if the input is valid
     return None
@@ -296,7 +297,8 @@ class PropertyInputWidget(QWidget):
         """
         error: str = self.validator(self.input)
         if error:
-            self.error_label.setText(error)
+            error_msg: str = Translator().text(error)
+            self.error_label.setText(error_msg)
             self.error_label.show()
             return True
         else:

@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: test_clone_object.py
-# Description: pytest file for the PROTEUS pyqt clone object use case
+# File: test_delete_object.py
+# Description: pytest file for the PROTEUS pyqt delete object use case
 # Date: 18/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -31,6 +31,7 @@ from PyQt6.QtCore import QPoint, QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.abstract_object import ProteusState
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
@@ -44,7 +45,7 @@ from proteus.tests.end2end.fixtures import app, load_project
 PROJECT_NAME = "example_project"
 
 # --------------------------------------------------------------------------
-# End to end "clone object" tests
+# End to end "delete object" tests
 # --------------------------------------------------------------------------
 
 
@@ -55,13 +56,13 @@ PROJECT_NAME = "example_project"
         ("7s63wvxgekU6", "3fKhMAkcEe2D"),
     ],
 )
-def test_clone_object(app, object_id, document_id):
+def test_delete_object(app, object_id, document_id):
     """
-    Test the clone object use case. Clone an existing object.
+    Test the delete object use case. Delete an existing object.
     It tests the following steps:
         - Select an existing object
-        - Open the context menu and click the clone action
-        - Check the archetype is cloned
+        - Open the context menu and click the delete action
+        - Check the archetype was deleted
         - Check buttons are enabled
     """
     # --------------------------------------------
@@ -109,7 +110,7 @@ def test_clone_object(app, object_id, document_id):
             menu = QApplication.activePopupWidget()
 
         # Click the clone action
-        menu.action_clone_object.trigger()
+        menu.action_delete_object.trigger()
 
         # Manual trigger of actions does not close the menu
         menu.close()
@@ -117,7 +118,7 @@ def test_clone_object(app, object_id, document_id):
     # Get element position
     element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)    
+    tree_widget.customContextMenuRequested.emit(element_position)
 
     # --------------------------------------------
     # Assert
@@ -135,10 +136,21 @@ def test_clone_object(app, object_id, document_id):
 
     # Check the new number of objects in the document
     assert (
-        len(document_tree.tree_items) == old_objects_number + 1
-    ), f"Number of objects in the document must be '{old_objects_number} + 1' but it is '{len(document_tree.tree_items)}'"
+        len(document_tree.tree_items) == old_objects_number - 1
+    ), f"Number of objects in the document must be '{old_objects_number} - 1' but it is '{len(document_tree.tree_items)}'"
 
     # Check the new object was added to the parent tree item
     assert (
-        parent_element.childCount() == old_parent_children_number + 1
-    ), f"Number of children in the parent tree item must be '{old_parent_children_number} + 1' but it is '{parent_element.childCount()}'"
+        parent_element.childCount() == old_parent_children_number - 1
+    ), f"Number of children in the parent tree item must be '{old_parent_children_number} - 1' but it is '{parent_element.childCount()}'"
+
+    # Check the object was deleted from the tree items dictionary
+    assert (
+        object_id not in document_tree.tree_items
+    ), f"Object with id '{object_id}' should not be in the tree items dictionary"
+
+    # Check the object was marked as DEAD in the service
+    object_state: ProteusState = main_window._controller.get_element(object_id).state
+    assert (
+        object_state == ProteusState.DEAD
+    ), f"Object with id '{object_id}' should be marked as DEAD in the service, but it is '{object_state}'"

@@ -33,6 +33,11 @@ general: "General"
 detail: "Detalle"
 conditions: "Condiciones"
 
+# Properties validation messages
+string_property_input.validator.error: "Este campo no puede estar vacío"
+float_property_input.validator.error: "Este campo debe ser un número decimal"
+integer_property_input.validator.error: "Este campo debe ser un número entero"
+
 #---------------------------------------------------------------------------
 # Menú principal
 #---------------------------------------------------------------------------

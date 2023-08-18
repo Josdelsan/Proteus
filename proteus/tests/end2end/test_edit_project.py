@@ -75,7 +75,7 @@ def test_edit_project(app):
 
     # New values
     new_name = "New name"
-    new_version = "New version"
+    new_version = "3.0"
     new_description = "New description"
 
     # --------------------------------------------

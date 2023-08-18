@@ -33,6 +33,11 @@ general: "General"
 detail: "Detail"
 conditions: "Conditions"
 
+# Properties validation messages
+string_property_input.validator.error: "This field cannot be empty"
+float_property_input.validator.error: "This field must be a float number"
+integer_property_input.validator.error: "This field must be an integer number"
+
 #---------------------------------------------------------------------------
 # Main menu
 #---------------------------------------------------------------------------

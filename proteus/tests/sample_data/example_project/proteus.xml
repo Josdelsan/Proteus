@@ -2,7 +2,7 @@
 <project id="QSDQUqqQh8NrCdrSL3QYVA">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Proyecto Proteus]]></stringProperty>
-    <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
+    <floatProperty name="version" category="general">0.1</floatProperty>
     <urlProperty name="google" category="general"><![CDATA[https://google.com]]></urlProperty>
     <dateProperty name="date" category="general">2022-08-10</dateProperty>
     <stringProperty name="author" category="general"><![CDATA[Amador Durán]]></stringProperty>
