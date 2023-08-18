@@ -225,10 +225,5 @@ class NewDocumentDialog(QDialog):
         """
         Create a new document dialog and show it
         """
-        # Get main window instance
-        app: QApplication = QApplication.instance()
-        main_window = app.activeWindow()
-
         dialog = NewDocumentDialog(controller=controller)
-        main_window.current_dialog = dialog
         dialog.exec()

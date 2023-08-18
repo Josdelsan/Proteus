@@ -78,10 +78,6 @@ class MainWindow(QMainWindow):
         # Create the configuration instance
         self.config = Config()
 
-        # NOTE: This variable keeps reference to the current dialog
-        # opened. This is only used to access it when testing.
-        self.current_dialog = None
-
         # Create the component
         self.create_component()
 

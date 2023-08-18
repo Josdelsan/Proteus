@@ -362,9 +362,9 @@ class ExportDialog(QDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : object_property_dialog (static)
+    # Method     : create_dialog (static)
     # Description: Handle the creation and display of the form window.
-    # Date       : 05/06/2023
+    # Date       : 14/07/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------

@@ -46,6 +46,7 @@ from proteus.views.utils.event_manager import Event, EventManager
 from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.controller.command_stack import Controller
 
 # logging configuration
@@ -184,7 +185,11 @@ class DocumentTree(QWidget):
 
         # Set context menu policy
         self.tree_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.tree_widget.customContextMenuRequested.connect(self.show_context_menu)
+        self.tree_widget.customContextMenuRequested.connect(
+            lambda position: ContextMenu.create_dialog(
+                self.tree_widget, self._controller, position
+            )
+        )
 
         # Expand all items and disable double click expand
         self.tree_widget.expandAll()
@@ -430,149 +435,6 @@ class DocumentTree(QWidget):
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : show_context_menu
-    # Description: Manage the context menu event. Display a context menu
-    #              with the available actions for the selected object.
-    # Date       : 03/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def show_context_menu(self, position):
-        """
-        Manage the context menu event. Display a context menu with the
-        available actions for the selected object.
-        """
-        # Get the selected item
-        selected_item: QTreeWidgetItem = self.tree_widget.currentItem()
-
-        # Check if the selected item is not None
-        if selected_item is None:
-            return
-
-        # Get the selected item id
-        selected_item_id: ProteusID = selected_item.data(1, 0)
-
-        # Do not show context menu for document root item
-        # NOTE: Elements stored in the tree items dictionary are always
-        #       Objects.
-        element: Object = self._controller.get_element(selected_item_id)
-        is_document: bool = isinstance(element.parent, Project)
-        if is_document:
-            return
-
-        # Get selected item index and parent item id to handle object
-        # position changes.
-        position_index: int = self.tree_widget.indexFromItem(selected_item).row()
-        parent_id: ProteusID = selected_item.parent().data(1, 0)
-
-        # Create the context menu
-        context_menu: QMenu = QMenu(self)
-
-        # Create the edit action --------------------------------------------
-        action_edit_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.edit"), self
-        )
-        action_edit_object.triggered.connect(
-            lambda: PropertyDialog.create_dialog(
-                element_id=selected_item_id, controller=self._controller
-            )
-        )
-        edit_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_FileDialogDetailedView
-        )
-        action_edit_object.setIcon(edit_icon)
-
-        # Create the delete action ------------------------------------------
-        action_delete_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.delete"), self
-        )
-        action_delete_object.triggered.connect(
-            lambda: self.delete_object(selected_item_id)
-        )
-        delete_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_TrashIcon
-        )
-        action_delete_object.setIcon(delete_icon)
-
-        # Create clone action -----------------------------------------------
-        action_clone_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.clone"), self
-        )
-        action_clone_object.triggered.connect(
-            lambda: self._controller.clone_object(selected_item_id)
-        )
-        clone_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_DialogApplyButton
-        )
-        action_clone_object.setIcon(clone_icon)
-
-        # Create move up action ---------------------------------------------
-        action_move_up_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.move_up"), self
-        )
-        action_move_up_object.triggered.connect(
-            lambda: self._controller.change_object_position(
-                selected_item_id, position_index - 1, parent_id
-            )
-        )
-        move_up_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_ArrowUp
-        )
-        action_move_up_object.setIcon(move_up_icon)
-
-        # Create move down action -------------------------------------------
-        action_move_down_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.move_down"), self
-        )
-        # TODO: Fix change position method to avoid using +2
-        action_move_down_object.triggered.connect(
-            lambda: self._controller.change_object_position(
-                selected_item_id, position_index + 2, parent_id
-            )
-        )
-        move_down_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_ArrowDown
-        )
-        action_move_down_object.setIcon(move_down_icon)
-
-        # Disable the move up action if the selected item is the first
-        # item in the list
-        if position_index == 0:
-            action_move_up_object.setEnabled(False)
-
-        # Disable the move down action if the selected item is the last
-        # item in the list
-        if position_index == selected_item.parent().childCount() - 1:
-            action_move_down_object.setEnabled(False)
-
-        # Add the actions to the context menu
-        context_menu.addAction(action_edit_object)
-        context_menu.addAction(action_delete_object)
-        context_menu.addAction(action_clone_object)
-        context_menu.addAction(action_move_up_object)
-        context_menu.addAction(action_move_down_object)
-
-        # Show the context menu
-        context_menu.exec(self.tree_widget.viewport().mapToGlobal(position))
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_object
-    # Description: Manage the delete key pressed event. Delete the selected
-    #              object.
-    # Date       : 05/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    # TODO: Consider connecting this method directly to the delete key
-    #       pressed event.
-    def delete_object(self, element_id: ProteusID) -> None:
-        """
-        Manage the delete key pressed event. Delete the selected object.
-        """
-        # Delete the object
-        self._controller.delete_object(element_id)
 
     # ----------------------------------------------------------------------
     # Method     : drop_event

@@ -25,7 +25,7 @@
 
 import pytest
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -83,9 +83,9 @@ def test_edit_project(app):
     # --------------------------------------------
     # Handle form filling
     def handle_dialog():
-        dialog: PropertyDialog = main_window.current_dialog
+        dialog: PropertyDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         # Get old name
         nonlocal old_name
@@ -116,9 +116,9 @@ def test_edit_project(app):
     current_description = None
 
     def handle_dialog_assert():
-        dialog: PropertyDialog = main_window.current_dialog
+        dialog: PropertyDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         # Check properties changed
         nonlocal current_name, current_version, current_description

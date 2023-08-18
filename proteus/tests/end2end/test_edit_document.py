@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget
+from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -77,9 +77,9 @@ def test_edit_document(app):
     # --------------------------------------------
     # Handle form filling
     def handle_dialog():
-        dialog: PropertyDialog = main_window.current_dialog
+        dialog: PropertyDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         # Change properties
         # NOTE: inputs types are known so we can use setText
@@ -115,9 +115,9 @@ def test_edit_document(app):
     current_acronym = None
 
     def handle_dialog_assert():
-        dialog: PropertyDialog = main_window.current_dialog
+        dialog: PropertyDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         # Check properties changed
         nonlocal current_name, current_acronym

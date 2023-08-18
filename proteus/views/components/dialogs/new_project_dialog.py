@@ -285,11 +285,6 @@ class NewProjectDialog(QDialog):
         """
         Create a new project dialog and show it
         """
-        # Get main window instance
-        app: QApplication = QApplication.instance()
-        main_window = app.activeWindow()
-
         # Create the dialog
         dialog = NewProjectDialog(controller=controller)
-        main_window.current_dialog = dialog
         dialog.exec()

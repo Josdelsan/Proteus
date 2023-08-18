@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -71,9 +71,9 @@ def test_create_document(app):
     # --------------------------------------------
     # Handle form filling
     def handle_dialog():
-        dialog: NewDocumentDialog = main_window.current_dialog
+        dialog: NewDocumentDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         # No need to select archetype. We use the default one
         # TODO: Check archetypes are loaded correctly

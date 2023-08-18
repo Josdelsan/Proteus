@@ -28,7 +28,7 @@ import shutil
 
 import pytest
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -78,9 +78,9 @@ def test_create_project(app):
     # --------------------------------------------
     # Handle form filling
     def handle_dialog():
-        dialog: NewProjectDialog = main_window.current_dialog
+        dialog: NewProjectDialog = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(PROJECT_NAME)
@@ -213,7 +213,7 @@ def test_create_project_negative(
     def handle_dialog():
         nonlocal dialog, error_label_text
         while not dialog:
-            dialog = main_window.current_dialog
+            dialog = QApplication.activeModalWidget()
 
         dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(project_name)

@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_clone_archetype.py
-# Description: pytest file for the PROTEUS pyqt clone archetype use case
-# Date: 16/08/2023
+# File: test_clone_object.py
+# Description: pytest file for the PROTEUS pyqt clone object use case
+# Date: 18/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -24,7 +24,8 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem
+from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtCore import QPoint, QTimer, Qt
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -33,6 +34,7 @@ from PyQt6.QtWidgets import QTreeWidgetItem
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
+from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.utils.state_manager import StateManager
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -43,33 +45,22 @@ from proteus.tests.end2end.fixtures import app, load_project
 PROJECT_NAME = "example_project"
 
 # --------------------------------------------------------------------------
-# End to end "clone archetype" tests
+# End to end "clone object" tests
 # --------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
-    "archetype_id, parent_id, document_id",
+    "object_id, document_id",
     [
-        ("empty-section", "3fKhMAkcEe2C", "3fKhMAkcEe2C"),  # Section into document 1
-        ("empty-section", "3fKhMAkcEe2D", "3fKhMAkcEe2D"),  # Section into document 2
-        (
-            "empty-section",
-            "7s63wvxgekU6",
-            "3fKhMAkcEe2D",
-        ),  # Section into section document 2
-        (
-            "subobjective",
-            "7s63wvxgekU7",
-            "3fKhMAkcEe2D",
-        ),  # Subobjective into objective document 2
+        ("64xM8FLyxtaB", "3fKhMAkcEe2C"),
     ],
 )
-def test_clone_archetype(app, archetype_id, parent_id, document_id):
+def test_clone_object(qtbot, app, object_id, document_id):
     """
-    Test the clone archetype use case. Clone an archetype in an existing
-    object/document. It tests the following steps:
-        - Select an existing object/document
-        - Press the desired archetype button
+    Test the clone object use case. Clone an existing object.
+    It tests the following steps:
+        - Select an existing object
+        - Open the context menu and click the clone action
         - Check the archetype is cloned
         - Check buttons are enabled
     """
@@ -94,32 +85,39 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
     document_tab_index: int = documents_container.indexOf(tab)
     documents_container.currentChanged.emit(document_tab_index)
 
-    # Click the object tree item
+    # Right click arrange
+    # NOTE: Clicking in a QMenu is not supported by pytest-qt
+    # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tab_children[document_id]
-    tree_element: QTreeWidgetItem = document_tree.tree_items[parent_id]
-    document_tree.tree_widget.itemClicked.emit(tree_element, 0)
-
-    # Check application state
-    # NOTE: This is done to detect StateManager inconsistencies and test correct behaviour
-    assert (
-        StateManager.get_current_document() == document_id
-    ), f"Current document must be '{document_id}' but it is '{StateManager.current_document}'"
-
-    assert (
-        StateManager.get_current_object() == parent_id
-    ), f"Current object must be '{parent_id}' but it is '{StateManager.current_object}'"
+    tree_widget: QTreeWidget = document_tree.tree_widget
+    tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
+    # Emit set current item, accessed in context menu
+    tree_widget.setCurrentItem(tree_element)
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)
-    old_parent_children_number = tree_element.childCount()
+    parent_element: QTreeWidgetItem = tree_element.parent()
+    old_parent_children_number = parent_element.childCount()
 
     # --------------------------------------------
     # Act
     # --------------------------------------------
 
-    # Click the archetype button
-    archetype_button = main_window.main_menu.archetype_buttons.get(archetype_id)
-    archetype_button.click()
+    def handle_menu():
+        menu: ContextMenu = QApplication.activePopupWidget()
+        while menu is None:
+            menu = QApplication.activePopupWidget()
+
+        # Click the clone action
+        menu.action_clone_object.trigger()
+
+        # Manual trigger of actions does not close the menu
+        menu.close()
+
+    # Get element position
+    element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
+    QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
+    tree_widget.customContextMenuRequested.emit(element_position)    
 
     # --------------------------------------------
     # Assert
@@ -130,13 +128,10 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
         "Save button state should change from DISABLED to ENABLED when an archetype is cloned"
         f"Current state: {main_window.main_menu.save_button.isEnabled()}"
     )
-    assert (
-        undo_button_state != main_window.main_menu.undo_button.isEnabled()
-    ), (
+    assert undo_button_state != main_window.main_menu.undo_button.isEnabled(), (
         "Undo button state should change from DISABLED to ENABLED when an archetype is cloned"
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
-
 
     # Check the new number of objects in the document
     assert (
@@ -145,5 +140,5 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
 
     # Check the new object was added to the parent tree item
     assert (
-        tree_element.childCount() == old_parent_children_number + 1
-    ), f"Number of children in the parent tree item must be '{old_parent_children_number} + 1' but it is '{tree_element.childCount()}'"
+        parent_element.childCount() == old_parent_children_number + 1
+    ), f"Number of children in the parent tree item must be '{old_parent_children_number} + 1' but it is '{parent_element.childCount()}'"

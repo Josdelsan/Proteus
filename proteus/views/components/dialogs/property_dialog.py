@@ -253,7 +253,7 @@ class PropertyDialog(QDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : object_property_dialog (static)
+    # Method     : create_dialog (static)
     # Description: Handle the creation and display of the form window.
     # Date       : 05/06/2023
     # Version    : 0.1
@@ -266,13 +266,8 @@ class PropertyDialog(QDialog):
 
         :param element_id: The id of the element to edit.
         """
-        # Get main window instance
-        app: QApplication = QApplication.instance()
-        main_window = app.activeWindow()
-
         # Create the form window
         form_window = PropertyDialog(element_id=element_id, controller=controller)
-        main_window.current_dialog = form_window
 
         # Show the form window
         form_window.exec()

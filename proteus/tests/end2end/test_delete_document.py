@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -71,9 +71,9 @@ def test_delete_document(app):
     # --------------------------------------------
     # Handle confirmation accept
     def handle_dialog():
-        dialog: QMessageBox = main_window.main_menu.confirmation_dialog
+        dialog: QMessageBox = QApplication.activeModalWidget()
         while not dialog:
-            dialog = main_window.main_menu.confirmation_dialog
+            dialog = QApplication.activeModalWidget()
 
         # Accept dialog
         dialog.button(QMessageBox.StandardButton.Yes).click()
