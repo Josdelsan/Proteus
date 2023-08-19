@@ -15,10 +15,11 @@
   </properties>
   <documents>
     <document id="3fKhMAkcEe2C"/>
+    <document id="56i4dHSDSppX"/>
     <document id="3fKhMAkcEe2D"/>
     <document id="3fKhMAkcEe2E"/>
   </documents>
   <xsl-templates>
-    <xsl-template name="default" />
+    <xsl-template name="default"/>
   </xsl-templates>
 </project>

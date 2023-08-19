@@ -31,7 +31,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_APP_PATH
-from proteus.model import PROJECT_FILE_NAME
+from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
@@ -313,7 +313,9 @@ def test_get_ids(sample_project: Project):
     Test Project get_ids_from_project method
     """
     # Expected ids in sample_project, including the project id
-    expected_len = 9
+    # Get number of files in the Objects folder
+    objects_folder = SAMPLE_PROJECT_PATH / OBJECTS_REPOSITORY
+    expected_len = len(os.listdir(objects_folder)) + 1
 
     # Get ids from project
     ids = sample_project.get_ids()
@@ -321,7 +323,7 @@ def test_get_ids(sample_project: Project):
     # Check that ids are equal
     assert (
         len(ids) == expected_len
-    ), f"Ids are not equal. Expected: {expected_len}, Actual: {ids}"
+    ), f"Ids are not equal. Expected: {expected_len}, Actual: {len(ids)} | {ids}"
 
 
 def test_save_project(cloned_project: Project):

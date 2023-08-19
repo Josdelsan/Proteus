@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="6zGv3BNUkTec" classes="product-requirement information-requirement" acceptedChildren=":Proteus-none">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Information requirement]]></stringProperty>
+    <floatProperty name="version" category="general">0.1</floatProperty>
+    <dateProperty name="date" category="general">2023-05-16</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+    <markdownProperty name="description" category="general"><![CDATA[None]]></markdownProperty>
+    <markdownProperty name="specificData" category="detail"><![CDATA[None]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
+  </properties>
+  <children/>
+</object>

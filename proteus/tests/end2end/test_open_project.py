@@ -23,7 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import QTimer
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -45,7 +45,7 @@ SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
 # --------------------------------------------------------------------------
 
 
-def test_open_project(qtbot, mocker, app):
+def test_open_project(mocker, app):
     """
     Test the open project use case. Opens a project with documents and objects.
     It tests the following:
@@ -128,7 +128,7 @@ def test_open_project(qtbot, mocker, app):
 
     # Check documents container tabs and tree chidlren correspond
     assert (
-        documents_container.tabs.keys().__len__() == 3
+        documents_container.tabs.keys().__len__() == 4
     ), f"Expected 3 tabs, got {documents_container.tabs.keys().__len__()}"
     assert (
         documents_container.tabs.keys() == documents_container.tab_children.keys()

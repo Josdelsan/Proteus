@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="6F4M75pSc9KL" classes="external-resource" acceptedChildren=":Proteus-none">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[External resource]]></stringProperty>
+    <floatProperty name="version" category="general">1.0</floatProperty>
+    <dateProperty name="date" category="general">2022-10-10</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+    <urlProperty name="url" category="general"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+  </properties>
+  <children/>
+</object>
