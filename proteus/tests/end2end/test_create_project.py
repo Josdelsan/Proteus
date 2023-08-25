@@ -82,7 +82,10 @@ def test_create_project(app):
         while not dialog:
             dialog = QApplication.activeModalWidget()
 
-        dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
+        # Select empty-project archetype
+        # NOTE: archetypes might be loaded in different order, this is a workaround
+        # to select the correct archetype
+        dialog._archetype_id = "empty-project"
         dialog.name_input.setText(PROJECT_NAME)
         dialog.path_input.setText(str(PROJECT_PATH))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()

@@ -36,8 +36,10 @@ jobs:
           pip install -r requirements.txt
  
       - name: Test with pytest and generate report
-        run: |  
-          pytest --cov-report xml --cov
+        uses: aganders3/headless-gui@v1
+        with:
+          run: |  
+            pytest --cov-report xml --cov
 
       - name: Upload Coverage Report
         uses: codacy/codacy-coverage-reporter-action@v1

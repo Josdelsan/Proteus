@@ -504,8 +504,6 @@ class ProjectService:
         """
         Add a new project template to the project.
 
-        Triggers: Event.ADD_VIEW
-
         :param template_name: The name of the template to add.
         """
         # Check if the template exists in the app installation
@@ -527,8 +525,6 @@ class ProjectService:
     def delete_project_template(self, template_name: str) -> None:
         """
         Remove a project template from the project.
-
-        Triggers: Event.DELETE_VIEW
 
         :param template_name: The name of the template to remove.
         """

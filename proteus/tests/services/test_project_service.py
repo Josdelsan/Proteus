@@ -23,10 +23,11 @@ from lxml import etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import Property, PropertyFactory
+from proteus.model.properties import Property
 from proteus.services.project_service import ProjectService
 from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
 
@@ -36,6 +37,8 @@ from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
 
 SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
 SAMPLE_OBJECT_ID = "3fKhMAkcEe2C"
+SAMPLE_DOCUMENT_ID = "56i4dHSDSppX"
+EXAMPLE_XML_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
 
 
 @pytest.fixture
@@ -75,6 +78,7 @@ def mock_property(mocker):
 # Integration tests
 # --------------------------------------------------------------------------
 
+
 def test_load_project(project_service: ProjectService):
     """
     It tests the initialization of the project service. check that the project
@@ -103,6 +107,7 @@ def test_load_project(project_service: ProjectService):
         f"\n\tIndex ids: {index_ids}"
     )
 
+
 def test_get_project_structure(project_service: ProjectService):
     """
     It tests the get_project_structure method.
@@ -122,6 +127,7 @@ def test_get_project_structure(project_service: ProjectService):
         f"\n\tProject structure: {project_structure}"
         f"\n\tProject service structure: {project_service.project_structure}"
     )
+
 
 def test_get_object_structure(project_service: ProjectService):
     """
@@ -159,9 +165,91 @@ def test_get_object_structure(project_service: ProjectService):
     )
 
 
+# test generate_document_xml ------------------------------------------------------
+def test_generate_document_xml(
+    project_service: ProjectService,
+):
+    """
+    Test the generate_document_xml method.
+    """
+    # Arrange -------------------------
+    # Create parser
+    # NOTE: CDATA is not stripped because it is needed for the comparison.
+    parser = ET.XMLParser(remove_blank_text=True, strip_cdata=False)
+    # Get the example document xml
+    example_xml: ET.Element = ET.parse(EXAMPLE_XML_PATH, parser=parser).getroot()
+    example_xml_string: bytes = ET.tostring(
+        example_xml, xml_declaration=False, encoding="utf-8", pretty_print=True
+    )
+
+    # Act -----------------------------
+    document_xml: ET.Element = project_service.generate_document_xml(SAMPLE_DOCUMENT_ID)
+    document_xml_string: bytes = ET.tostring(
+        document_xml, xml_declaration=False, encoding="utf-8", pretty_print=True
+    )
+
+    # Assert --------------------------
+    assert document_xml_string == example_xml_string, (
+        f"The generated xml is different from the example xml, check {EXAMPLE_XML_PATH}"
+        f"\n\nGenerated xml: {document_xml_string}"
+        f"\n\nExample xml: {example_xml_string}"
+    )
+
+
+# test_add_project_template ---------------------------------------------------
+def test_add_project_template(
+    project_service: ProjectService,
+):
+    """
+    Test the add_project_template method.
+    """
+    # Arrange -------------------------
+    DUMMY_TEMPLATE = "example"
+    # Mock xlst_routes from Config class
+    Config().xslt_routes[DUMMY_TEMPLATE] = "dummy.path"
+
+    # Check that the dummy template do not exist
+    old_template_list = project_service.project.xsl_templates.copy()
+
+    # Act -----------------------------
+    project_service.add_project_template(DUMMY_TEMPLATE)
+
+    # Assert --------------------------
+    # Check that the project template is added
+    assert (
+        DUMMY_TEMPLATE in project_service.project.xsl_templates
+    ), f"Project template list should contain {DUMMY_TEMPLATE} template, current list: {project_service.project.xsl_templates}"
+
+    # Check that the template did not exist before
+    assert (
+        DUMMY_TEMPLATE not in old_template_list
+    ), f"{DUMMY_TEMPLATE} template should not exist in project template list before calling add_project_template, old list: {old_template_list}"
+
+
+def test_add_project_template_negative(
+    project_service: ProjectService,
+):
+    """
+    Test the add_project_template method negative case.
+    """
+    # Arrange -------------------------
+    NON_EXISTING_TEMPLATE = "non_existing_template"
+
+    # Act - Assert --------------------
+    # Check assertion error is raised
+    with pytest.raises(AssertionError):
+        project_service.add_project_template(NON_EXISTING_TEMPLATE)
+
+    # Check that the project template is not added
+    assert (
+        NON_EXISTING_TEMPLATE not in project_service.project.xsl_templates
+    ), f"Project template list should not contain {NON_EXISTING_TEMPLATE} template, current list: {project_service.project.xsl_templates}"
+
+
 # --------------------------------------------------------------------------
 # Unit tests
 # --------------------------------------------------------------------------
+
 
 # test_update_properties ---------------------------------------------------
 def test_update_properties(mocker, basic_project_service: ProjectService):
@@ -189,6 +277,7 @@ def test_update_properties(mocker, basic_project_service: ProjectService):
     assert (
         basic_project_service._get_element_by_id.call_count == 1
     ), f"_get_element_by_id should be called once"
+
 
 @pytest.mark.parametrize(
     "property_list",
@@ -262,6 +351,7 @@ def test_get_element_by_id(
         basic_project_service._populate_index.call_count == 0
     ), f"_populate_index should not be called"
 
+
 def test_get_element_by_id_negative(
     mocker,
     basic_project_service: ProjectService,
@@ -276,7 +366,7 @@ def test_get_element_by_id_negative(
 
     # Act | Assert --------------------
     with pytest.raises(AssertionError):
-        element = basic_project_service._get_element_by_id("id")    
+        element = basic_project_service._get_element_by_id("id")
 
     # Check that _populate_index is called
     assert (
@@ -290,8 +380,6 @@ def test_get_element_by_id_negative(
 # TODO: test delete object
 # TODO: test clone_object
 # TODO: test change_object_position
-# TODO: test generate_document_xml
-# TODO: test add_project_template
 # TODO: test delete_project_template
 
 
