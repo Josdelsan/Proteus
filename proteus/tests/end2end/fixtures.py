@@ -66,7 +66,8 @@ def app(qtbot, mocker):
     qtbot.addWidget(main_window) # Cannot use waitExposed with addWidget
 
     # Return the main window when it is exposed
-    return main_window
+    with qtbot.waitExposed(main_window):
+        return main_window
 
 
 
