@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object id="empty-paragraph" />
+    <object id="empty-section" />
+    <object id="external-resource" />
+    <object id="graphic-file" />
+</objects>

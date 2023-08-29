@@ -9,26 +9,49 @@
 # Description:
 # - Project now inherits from AbstractObject
 # ==========================================================================
-
-# imports
+# Update: 15/04/2023 (José María)
+# Description:
+# - Project now lazy loads its documents.
+#   Project now has a method to clone itself into a new directory.
+# ==========================================================================
 
 # for using classes as return type hints in methods
 # (this will change in Python 3.11)
-from __future__ import annotations # it has to be the first import
+from __future__ import annotations  # it has to be the first import
 
-# standard library imports
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
 import os
-from os.path import join
 import pathlib
 import shutil
 import logging
+from typing import List
+
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
+
 import lxml.etree as ET
 
-# local imports (starting from root)
-from proteus.model import DOCUMENT_TAG, DOCUMENTS_TAG, OBJECTS_REPOSITORY, PROJECT_TAG, ProteusID, PROJECT_FILE_NAME
+# --------------------------------------------------------------------------
+# Project specific imports (starting from root)
+# --------------------------------------------------------------------------
+from proteus.model import (
+    DOCUMENT_TAG,
+    DOCUMENTS_TAG,
+    OBJECTS_REPOSITORY,
+    PROJECT_TAG,
+    ProteusID,
+    PROJECT_FILE_NAME,
+    PROTEUS_DOCUMENT,
+    XSL_TEMPLATES_TAG,
+    XLS_TEMPLATE_TAG,
+)
 from proteus.model.abstract_object import AbstractObject, ProteusState
-import proteus.model.archetype_manager as archetypes
-#if 'proteus.model.object' in sys.modules:
+from proteus.config import Config
+
+# if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
 from proteus.model.object import Object
 
@@ -43,6 +66,7 @@ log = logging.getLogger(__name__)
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
+
 class Project(AbstractObject):
     """
     A PROTEUS project is a 'proteus.xml' file inside a directory with 'objects'
@@ -56,6 +80,7 @@ class Project(AbstractObject):
     An already created project can be loaded by providing the path to its
     directory.
     """
+
     # ----------------------------------------------------------------------
     # Method: load (static)
     # Description: It loads a PROTEUS project from disk into memory
@@ -68,15 +93,16 @@ class Project(AbstractObject):
     def load(path: str) -> Project:
         """
         Static factory method for loading a PROTEUS project from a given path.
-        
+
         :param path: path to the project file.
         :return: a PROTEUS project.
         """
         log.info(f"Loading a PROTEUS project from {path}.")
 
         # Check path is a directory
-        assert os.path.isdir(path), \
-            f"PROTEUS projects must be located in a directory. {path} is not a directory."
+        assert os.path.isdir(
+            path
+        ), f"PROTEUS projects must be located in a directory. {path} is not a directory."
 
         # Change the current working directory
         os.chdir(path)
@@ -85,8 +111,9 @@ class Project(AbstractObject):
         project_file_path = f"./{PROJECT_FILE_NAME}"
 
         # Check project file exists
-        assert os.path.isfile(project_file_path), \
-            f"PROTEUS project file {project_file_path} not found in {path}."
+        assert os.path.isfile(
+            project_file_path
+        ), f"PROTEUS project file {project_file_path} not found in {path}."
 
         # Create and return the project object
         return Project(project_file_path)
@@ -103,7 +130,7 @@ class Project(AbstractObject):
     def __init__(self, project_file_path: str) -> None:
         """
         It initializes and builds a PROTEUS project from an XML file.
-        
+
         :param project_file_path: path to the project file.
         """
 
@@ -116,23 +143,49 @@ class Project(AbstractObject):
         self.path = project_file_path
 
         # Parse and load XML into memory
-        root : ET.Element = ET.parse( project_file_path ).getroot()
+        root: ET.Element = ET.parse(project_file_path).getroot()
 
         # Check root tag is <project>
-        assert root.tag == PROJECT_TAG, \
-            f"PROTUES project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
+        assert (
+            root.tag == PROJECT_TAG
+        ), f"PROTUES project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
 
         # Get project ID from XML
-        self.id = ProteusID(root.attrib['id'])
+        self.id = ProteusID(root.attrib["id"])
 
         # Load project's properties using superclass method
         super().load_properties(root)
 
-        # Documents dictionary
-        self.documents : dict[ProteusID,Object] = dict[ProteusID,Object]()
+        # Template list
+        self.xsl_templates: List[str] = self.load_xsl_templates(root)
 
-        # Load project's documents
-        self.load_documents(root)
+        # Documents dictionary
+        self._documents: List[Object] = None
+
+    # ----------------------------------------------------------------------
+    # Property   : documents
+    # Description: Property documents getter. Loads children from XML file
+    #              on demand.
+    # Date       : 12/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @property
+    def documents(self) -> List[Object]:
+        """
+        Property documents getter. Loads documents from XML file on demand.
+        :return: documents dictionary.
+        """
+        # Check if documents dictionary is not initialized
+        if self._documents is None:
+            # Initialize documents dictionary
+            self._documents: List[Object] = []
+
+            # Load documents from XML file
+            self.load_documents()
+
+        # Return documents dictionary
+        return self._documents
 
     # ----------------------------------------------------------------------
     # Method     : load_documents
@@ -143,37 +196,165 @@ class Project(AbstractObject):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def load_documents(self, root : ET.Element) -> None:
+    def load_documents(self) -> None:
         """
         It loads a PROTEUS project's documents from an XML root element.
         :param root: XML root element.
         """
+        # Parse and load XML into memory
+        root: ET.Element = ET.parse(self.path).getroot()
 
         # Check root is not None
-        assert root is not None, \
-            f"Root element is not valid in {self.path}."
+        assert root is not None, f"Root element is not valid in {self.path}."
 
         # Load documents
-        documents_element : ET.Element = root.find(DOCUMENTS_TAG)
+        documents_element: ET.Element = root.find(DOCUMENTS_TAG)
 
         # Check whether it has documents
-        assert documents_element is not None, \
-            f"PROTEUS project file {self.path} does not have a <{DOCUMENTS_TAG}> element."
+        assert (
+            documents_element is not None
+        ), f"PROTEUS project file {self.path} does not have a <{DOCUMENTS_TAG}> element."
 
         # Parse project's documents
         # TODO: check document_element tag is <document>
-        document_element : ET.Element
+        document_element: ET.Element
         for document_element in documents_element:
-            document_id : ProteusID = document_element.attrib.get('id', None)
+            document_id: ProteusID = document_element.attrib.get("id", None)
 
             # Check whether the document has an ID
-            assert document_id is not None, \
-                f"PROTEUS project file {self.path} includes a document without ID."
+            assert (
+                document_id is not None
+            ), f"PROTEUS project file {self.path} includes a document without ID."
 
             # Add the document to the documents dictionary and set the parent
-            object = Object.load(self, document_id)
+            object = Object.load(document_id, self)
             object.parent = self
-            self.documents[document_id] = object
+            self.documents.append(object)
+
+    # ----------------------------------------------------------------------
+    # Method     : load_xsl_templates
+    # Description: It loads the XSL templates of a PROTEUS project using an
+    #              XML root element <project>.
+    # Date       : 23/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def load_xsl_templates(self, root: ET.Element) -> List[str]:
+        """
+        It loads a PROTEUS project's XSL templates from an XML root element.
+
+        :param root: XML root element.
+        """
+        # Check root is not None
+        assert root is not None, f"Root element is not valid in {self.path}."
+
+        # Load XSL templates
+        xsl_templates_element: ET.Element = root.find(XSL_TEMPLATES_TAG)
+
+        # Check whether it has XSL templates
+        assert (
+            xsl_templates_element is not None
+        ), f"PROTEUS project file {self.path} does not have a <{XSL_TEMPLATES_TAG}> element."
+
+        # Parse project's XSL templates
+        xsl_template_element: ET.Element
+        xsl_templates: List[str] = []
+        for xsl_template_element in xsl_templates_element:
+            xsl_template_name: str = xsl_template_element.attrib.get("name", None)
+
+            # NOTE: Templates that are not in the system installation are
+            #       ignored and not saved later
+            if xsl_template_name in Config().xslt_routes:
+                xsl_templates.append(xsl_template_name)
+            else:
+                log.warning(
+                    f"XSL template '{xsl_template_name}' is not in the system installation and will be ignored. It will not be saved later if the project is modified."
+                )
+
+        # Return XSL templates
+        return xsl_templates
+
+    # ----------------------------------------------------------------------
+    # Method     : get_descendants
+    # Description: It returns a list with all the documents of a project.
+    # Date       : 23/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_descendants(self) -> List:
+        """
+        It returns a list with all the documents of a project.
+        :return: list with all the documents of a project.
+        """
+        # Return the list with all the descendants of an object
+        return self.documents
+
+    # ----------------------------------------------------------------------
+    # Method     : add_descendants
+    # Description: Adds a document to the project given a document and its
+    #              position.
+    # Date       : 26/04/2023
+    # Version    : 0.2
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def add_descendant(self, document: Object, position: int = None) -> None:
+        """
+        Method that adds a document to the project.
+
+        :param document: Document to be added to the project.
+        :param position: Position of the document in the project.
+        """
+
+        # If position is not specified, add the document at the end
+        if position is None:
+            position = len(self.documents)
+
+        # Check if the document is a valid object
+        assert isinstance(
+            document, Object
+        ), f"Document {document} is not a valid PROTEUS object."
+
+        # Check if the document is already in the project
+        assert (
+            PROTEUS_DOCUMENT in document.classes
+        ), f"The object is not a Proteus document. Object is class: {document.classes}"
+
+        # Check if the document is already in the project
+        assert document.id not in [
+            o.id for o in self.documents
+        ], f"Document {document.id} is already in the project {self.id}."
+
+        # Add the document to the project
+        self.documents.insert(position, document)
+        document.parent = self
+
+        # Set dirty flag
+        self.state = ProteusState.DIRTY
+
+    # ----------------------------------------------------------------------
+    # Method     : accept_descendant
+    # Description: Checks if a child is accepted by a PROTEUS object.
+    # Date       : 09/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def accept_descendant(self, child: Object) -> bool:
+        """
+        Checks if a child is accepted by a PROTEUS object. Parent must accept
+        :Proteus-any and child must not be strictParent. StrictParent objects
+        only accept parents that where they are explicitly accepted.
+
+        :param child: Child Object to be checked.
+        """
+        # Check if the child is a valid object
+        assert isinstance(
+            child, Object
+        ), f"Child {child} is not a valid PROTEUS object."
+
+        # Check if the child is a document
+        return PROTEUS_DOCUMENT in child.classes
     # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.
@@ -189,7 +370,7 @@ class Project(AbstractObject):
         """
         # Create <project> element and set ID
         project_element = ET.Element(PROJECT_TAG)
-        project_element.set('id', self.id)
+        project_element.set("id", self.id)
 
         # Create <properties> element
         super().generate_xml_properties(project_element)
@@ -198,104 +379,109 @@ class Project(AbstractObject):
         documents_element = ET.SubElement(project_element, DOCUMENTS_TAG)
 
         # Create <document> subelements
-        for document in self.documents.values():
-            if(document.state != ProteusState.DEAD):
+        for document in self.documents:
+            if document.state != ProteusState.DEAD:
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-                document_element.set('id', document.id)
+                document_element.set("id", document.id)
+
+        # Create <xsl_templates> element
+        xsl_templates_element = ET.SubElement(project_element, XSL_TEMPLATES_TAG)
+
+        # Create <xsl_template> subelements
+        for xsl_template in self.xsl_templates:
+            xsl_template_element = ET.SubElement(
+                xsl_templates_element, XLS_TEMPLATE_TAG
+            )
+            xsl_template_element.set("name", xsl_template)
 
         return project_element
 
     # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: It saves a project in the system.
-    # Date       : 27/09/2022
-    # Version    : 0.1
+    # Date       : 01/05/2023
+    # Version    : 0.2
     # Author     : Pablo Rivera Jiménez
+    #              José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
     def save_project(self) -> None:
         """
         It saves a project in the system.
         """
-        print("Saving project...")
+        # Save all the documents
+        documents = list(self.documents)
+        for document in documents:
+            document.save()
 
-        # Extract project directory from project path
-        project_directory : str = os.path.dirname(self.path)
-        
-        # Create path to objects repository
-        objects_repository : str = f"{project_directory}/{OBJECTS_REPOSITORY}"
-        
-        # If the Project is dead (Deleted/removed)
-        if(self.state == ProteusState.DEAD):
-            # If the project was already saved in OS and not in memory:
-            if(os.path.isfile(self.path)):
-                relative_path = pathlib.Path(self.path)
-                absolute_path = relative_path.resolve()
-                shutil.rmtree(absolute_path.parent)
-            for document in self.documents.values():
-                document.state = ProteusState.DEAD
-            return None
-        # If the Project is Dirty
-        elif(self.state == ProteusState.DIRTY):
+        # Persist the project only if it is DIRTY or FRESH
+        if self.state == ProteusState.DIRTY or self.state == ProteusState.FRESH:
             root = self.generate_xml()
-            # In case we can set any indent
-            # ET.indent(root, "    ")
 
             # Get the elementTree, save it in the project path and set state to clean
             tree = ET.ElementTree(root)
-            tree.write(self.path, pretty_print=True, xml_declaration=True, encoding="utf-8")
+            tree.write(
+                self.path, pretty_print=True, xml_declaration=True, encoding="utf-8"
+            )
             self.state = ProteusState.CLEAN
-        
-        # For each document in the project
-        documents_to_be_removed : list = []
-        for document in self.documents.values():
-            document_path = f"{objects_repository}/{document.id}.xml"
 
-            # If the document is DEAD (Deleted)
-            if(document.state == ProteusState.DEAD):
-                # If the document exists (not in memory), we deleted from os
-                if(os.path.isfile(document_path)):
-                    os.remove(document_path)
-                
-                #We have to use a list and not pop from the dict here cause will be a RuntimeError
-                # (dictionary changed size during iteration)
-                documents_to_be_removed.append(document.id)
-            
-            # If the state of the document is DIRTY or FRESH, we save it
-            elif(document.state == ProteusState.DIRTY or document.state == ProteusState.FRESH):
-                root = document.generate_xml()
-                # In case we can set any indent
-                # ET.indent(root, "    ")
-                tree = ET.ElementTree(root)
-                tree.write(document_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                document.state = ProteusState.CLEAN
-            
-            if(document.children):
-                # If the document has children we save them and if the child has children
-                # we save them as well
-                def save_children(parent: Object):
-                    child: Object
-                    for child in document.children.values():
+        log.info(f"Project saved successfully.")
 
-                        child_path = f"{objects_repository}/{child.id}.xml"
-                        child_root = child.generate_xml()
-                        
-                        if((child.state == ProteusState.DIRTY or child.state == ProteusState.FRESH)
-                            and parent.state != ProteusState.DEAD):
-                            # In case we can set any indent
-                            # ET.indent(root, "    ")
-                            
-                            tree = ET.ElementTree(child_root)
-                            tree.write(child_path, pretty_print=True, xml_declaration=True, encoding="utf-8")
-                            child.state = ProteusState.CLEAN
-                        if(child.state == ProteusState.DEAD or parent.state == ProteusState.DEAD):
-                            os.remove(child.path)
-                            child.state = ProteusState.DEAD
-                save_children(document)
-        
-        # PermissionError: [WinError 32] El proceso no tiene acceso al archivo porque está siendo utilizado por otro proceso:
-        for i in documents_to_be_removed:
-            self.documents.pop(i) 
-        
+    # ----------------------------------------------------------------------
+    # Method     : clone_project
+    # Description: It clones a project into the selected system path.
+    # Date       : 13/04/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
 
-    
+    def clone_project(
+        self, filename_path_to_save: str, new_project_dir_name: str
+    ) -> None:
+        """
+        Method that creates a new project from an existing project.
+
+        :param filename: Path where we want to save the project.
+        :param new_project_dir_name: Name of the new project directory.
+        :return: The new project.
+        """
+        log.info(
+            f"Cloning project {self.id} into {filename_path_to_save} with name {new_project_dir_name}"
+        )
+
+        assert os.path.isdir(
+            filename_path_to_save
+        ), f"The given path is not a directory: {filename_path_to_save}"
+
+        # Directory where we save the project
+        target_dir = (
+            pathlib.Path(filename_path_to_save).resolve() / new_project_dir_name
+        )
+
+        # Directory where the project is located
+        project_dir = pathlib.Path(self.path).parent.resolve()
+
+        # Check the objects directory and the project file exists (or project archetype file)
+        assert os.path.isdir(
+            project_dir / OBJECTS_REPOSITORY
+        ), f"The objects directory does not exist: {project_dir / OBJECTS_REPOSITORY}"
+        assert os.path.isfile(project_dir / PROJECT_FILE_NAME) or os.path.isfile(
+            project_dir / "project.xml"
+        ), f"The project file does not exist in {project_dir}"
+
+        shutil.copytree(project_dir, target_dir)
+
+        # Check if the project is an archetype then change the project file
+        project_arquetype_file = target_dir / "project.xml"
+        if os.path.isfile(project_arquetype_file):
+            project_file = target_dir / PROJECT_FILE_NAME
+            os.rename(project_arquetype_file, project_file)
+
+        # Load the new project to check if it is correct
+        cloned_project: Project = Project.load(target_dir)
+        assert (
+            cloned_project is not None
+        ), f"Error loading the cloned project {target_dir}"
+
+        log.info(f"Project cloned successfully.")
+        return cloned_project

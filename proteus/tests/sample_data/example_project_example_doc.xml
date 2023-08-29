@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project id="QSDQUqqQh8NrCdrSL3QYVA">
+  <properties>
+    <stringProperty name="name" category="general"><![CDATA[Proyecto Proteus]]></stringProperty>
+    <floatProperty name="version" category="general">0.1</floatProperty>
+    <urlProperty name="google" category="general"><![CDATA[https://google.com]]></urlProperty>
+    <dateProperty name="date" category="general">2022-08-10</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[Amador Durán]]></stringProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Descripción del proyecto]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[Comentarios del proyecto con un & y < y >.]]></markdownProperty>
+    <integerProperty name="numberOfUsers" category="general">15</integerProperty>
+    <floatProperty name="money" category="general">10.5</floatProperty>
+    <booleanProperty name="info" category="estilo">false</booleanProperty>
+    <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
+  </properties>
+  <documents>
+    <object id="56i4dHSDSppX" classes=":Proteus-document" acceptedChildren=":Proteus-any">
+      <properties>
+        <stringProperty name="acronym" category="general"><![CDATA[EXAMPLE]]></stringProperty>
+        <stringProperty name="name" category="general"><![CDATA[Empty document]]></stringProperty>
+        <stringProperty name="version" category="general"><![CDATA[1.0]]></stringProperty>
+        <dateProperty name="date" category="general">2022-10-10</dateProperty>
+        <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+        <markdownProperty name="description" category="detail"><![CDATA[Empty document of empty project.]]></markdownProperty>
+        <markdownProperty name="comments" category="comments"><![CDATA[Empty document of empty project.]]></markdownProperty>
+      </properties>
+      <children>
+        <object id="4d4pmArs8LtP" classes="section" acceptedChildren=":Proteus-any">
+          <properties>
+            <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
+            <floatProperty name="version" category="general">1.0</floatProperty>
+            <dateProperty name="date" category="general">2022-10-10</dateProperty>
+            <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+            <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+          </properties>
+          <children>
+            <object id="6aYJj9Nwet45" classes="paragraph" acceptedChildren=":Proteus-none">
+              <properties>
+                <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
+                <floatProperty name="version" category="general">1.0</floatProperty>
+                <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                <markdownProperty name="text" category="details"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id felis vel justo semper congue placerat eu diam. Nam non odio sodales, volutpat velit quis, ultricies elit. Vestibulum ex ipsum, dapibus id leo et, placerat egestas enim. In in hendrerit lorem. Ut malesuada at dui sit amet molestie. Pellentesque tempus est vel eros fringilla lobortis.]]></markdownProperty>
+                <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+              </properties>
+              <children/>
+            </object>
+            <object id="6VQfdFUiaBHU" classes="section" acceptedChildren=":Proteus-any">
+              <properties>
+                <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
+                <floatProperty name="version" category="general">1.0</floatProperty>
+                <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+              </properties>
+              <children>
+                <object id="3fbBbigSVTEG" classes="paragraph" acceptedChildren=":Proteus-none">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
+                    <floatProperty name="version" category="general">1.0</floatProperty>
+                    <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="text" category="details"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id felis vel justo semper congue placerat eu diam. Nam non odio sodales, volutpat velit quis, ultricies elit. Vestibulum ex ipsum, dapibus id leo et, placerat egestas enim. In in hendrerit lorem. Ut malesuada at dui sit amet molestie. Pellentesque tempus est vel eros fringilla lobortis.]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+                <object id="5zPKovT5gouZ" classes="graphic-file" acceptedChildren=":Proteus-none">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Graphic File]]></stringProperty>
+                    <floatProperty name="version" category="general">1.0</floatProperty>
+                    <dateProperty name="date" category="general">2023-05-05</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <fileProperty name="file" category="general"><![CDATA[basic-figure.jpg]]></fileProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+                <object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[System actor]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2023-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <stringProperty name="role" category="general"><![CDATA[Product Owner]]></stringProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[System actor...]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[No **comments**]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+              </children>
+            </object>
+          </children>
+        </object>
+        <object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any">
+          <properties>
+            <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
+            <floatProperty name="version" category="general">1.0</floatProperty>
+            <dateProperty name="date" category="general">2022-10-10</dateProperty>
+            <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+            <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+          </properties>
+          <children>
+            <object id="7WdMapuCgHsm" classes="paragraph" acceptedChildren=":Proteus-none">
+              <properties>
+                <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
+                <floatProperty name="version" category="general">1.0</floatProperty>
+                <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                <markdownProperty name="text" category="details"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id felis vel justo semper congue placerat eu diam. Nam non odio sodales, volutpat velit quis, ultricies elit. Vestibulum ex ipsum, dapibus id leo et, placerat egestas enim. In in hendrerit lorem. Ut malesuada at dui sit amet molestie. Pellentesque tempus est vel eros fringilla lobortis.]]></markdownProperty>
+                <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+              </properties>
+              <children/>
+            </object>
+            <object id="52fwR9fXGY9J" classes="section" acceptedChildren=":Proteus-any">
+              <properties>
+                <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
+                <floatProperty name="version" category="general">1.0</floatProperty>
+                <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+              </properties>
+              <children>
+                <object id="6F4M75pSc9KL" classes="external-resource" acceptedChildren=":Proteus-none">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[External resource]]></stringProperty>
+                    <floatProperty name="version" category="general">1.0</floatProperty>
+                    <dateProperty name="date" category="general">2022-10-10</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <urlProperty name="url" category="general"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+                <object id="6zGv3BNUkTec" classes="product-requirement information-requirement" acceptedChildren=":Proteus-none">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Information requirement]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2023-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="description" category="general"><![CDATA[None]]></markdownProperty>
+                    <markdownProperty name="specificData" category="detail"><![CDATA[None]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+                <object id="4Etjfs7bAYgX" classes="objective" acceptedChildren="subobjective">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Objective]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2015-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[The system shall]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+                <object id="6XiHg4PkVuUG" classes="objective" acceptedChildren="subobjective">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Objective]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2015-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[The system shall]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
+                  </properties>
+                  <children>
+                    <object id="3vojvYu2HqXC" classes="subobjective" acceptedChildren=":Proteus-none">
+                      <properties>
+                        <stringProperty name="name" category="general"><![CDATA[Subobjective]]></stringProperty>
+                        <floatProperty name="version" category="general">0.1</floatProperty>
+                        <dateProperty name="date" category="general">2015-05-16</dateProperty>
+                        <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                        <markdownProperty name="description" category="detail"><![CDATA[The system shall]]></markdownProperty>
+                        <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
+                      </properties>
+                      <children/>
+                    </object>
+                  </children>
+                </object>
+                <object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Use case]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2020-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[The system shall behave as described in the following use case when]]></markdownProperty>
+                    <markdownProperty name="precondition" category="conditions"><![CDATA[System...]]></markdownProperty>
+                    <markdownProperty name="postcondition" category="conditions"><![CDATA[System...]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
+                  </properties>
+                  <children>
+                    <object id="HagGwFLXhNky" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none">
+                      <properties>
+                        <stringProperty name="name" category="general"><![CDATA[Use case step]]></stringProperty>
+                        <markdownProperty name="description" category="general"><![CDATA[The user ask...]]></markdownProperty>
+                        <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
+                      </properties>
+                      <children/>
+                    </object>
+                  </children>
+                </object>
+                <object id="4fRReKDHr43n" classes="product-requirement use-case" acceptedChildren="use-case-step">
+                  <properties>
+                    <stringProperty name="name" category="general"><![CDATA[Use case]]></stringProperty>
+                    <floatProperty name="version" category="general">0.1</floatProperty>
+                    <dateProperty name="date" category="general">2020-05-16</dateProperty>
+                    <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
+                    <markdownProperty name="description" category="detail"><![CDATA[The system shall behave as described in the following use case when]]></markdownProperty>
+                    <markdownProperty name="precondition" category="conditions"><![CDATA[System...]]></markdownProperty>
+                    <markdownProperty name="postcondition" category="conditions"><![CDATA[System...]]></markdownProperty>
+                    <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
+                  </properties>
+                  <children/>
+                </object>
+              </children>
+            </object>
+          </children>
+        </object>
+      </children>
+    </object>
+  </documents>
+  <xsl-templates>
+    <xsl-template name="default"/>
+  </xsl-templates>
+</project>

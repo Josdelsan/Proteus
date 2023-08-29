@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template name="simple">
+    <config language="default" file="EXAMPLE_main.xsl"/>
+</template>

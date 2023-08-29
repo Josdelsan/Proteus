@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<object id="3fKhMAkcEe2D" classes="section" acceptedChildren=":Proteus-any">
-  <properties>
-    <stringProperty name="name" category="general"><![CDATA[NewName]]></stringProperty>
-    <stringProperty name="name2" category="general"><![CDATA[TFG2]]></stringProperty>
-    <classListProperty name="rowClasses" category="general"><class>A</class><class>B</class></classListProperty>
-  </properties>
-  <children/>
-</object>

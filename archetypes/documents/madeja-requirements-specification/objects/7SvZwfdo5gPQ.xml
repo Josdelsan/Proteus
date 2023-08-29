@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="7SvZwfdo5gPQ" classes=":Proteus-document" acceptedChildren=":Proteus-any">
+  <properties>
+    <stringProperty name="acronym" category="general"><![CDATA[DRS]]></stringProperty>
+    <stringProperty name="name" category="general"><![CDATA[Especificación de Requisitos del Sistema madeja]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
+    <dateProperty name="date" category="general">2022-10-10</dateProperty>
+    <stringProperty name="author" category="general"><![CDATA[Amador Durán Toro]]></stringProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Especifiación de requisitos]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
+  </properties>
+  <children>
+    <child id="JGjXrKSMS5Vt"/>
+    <child id="32DozrqYfZgY"/>
+    <child id="7QJocDww3HKE"/>
+    <child id="89cft6yQUDp9"/>
+    <child id="3mgz4jJrFYqE"/>
+    <child id="7iWVnmrcmW5N"/>
+  </children>
+</object>
