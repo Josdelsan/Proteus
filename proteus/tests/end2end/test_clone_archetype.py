@@ -95,9 +95,9 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
     documents_container.currentChanged.emit(document_tab_index)
 
     # Click the object tree item
-    document_tree: DocumentTree = documents_container.tab_children[document_id]
+    document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[parent_id]
-    document_tree.tree_widget.itemClicked.emit(tree_element, 0)
+    document_tree.itemClicked.emit(tree_element, 0)
 
     # Check application state
     # NOTE: This is done to detect StateManager inconsistencies and test correct behaviour

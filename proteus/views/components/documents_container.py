@@ -20,6 +20,7 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
 from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -43,7 +44,7 @@ log = logging.getLogger(__name__)
 # Description: PyQT6 documents container class for the PROTEUS
 #              application
 # Date: 25/05/2023
-# Version: 0.1
+# Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class DocumentsContainer(QTabWidget):
@@ -80,13 +81,7 @@ class DocumentsContainer(QTabWidget):
         self._controller: Controller = controller
 
         # Tabs dictionary
-        # TODO: Use QTabWidget tabBar to fetch the tabs instead of storing them
-        self.tabs: Dict[ProteusID, QWidget] = {}
-
-        # Tab children
-        # NOTE: Store children components of each tab in a dictionary to
-        #       delete them later
-        self.tab_children: Dict[ProteusID, DocumentTree] = {}
+        self.tabs: Dict[ProteusID, DocumentTree] = {}
 
         # Create the component
         self.create_component()
@@ -114,6 +109,10 @@ class DocumentsContainer(QTabWidget):
         structure from the controller and creates a tab for each
         document.
         """
+        self.setObjectName("documents_container")
+        self.setIconSize(QSize(28, 28))
+        self.tabBar().setExpanding(True)
+
         # Handle tab reordering
         self.setMovable(True)
         self.tabBar().tabMoved.connect(self.tab_moved)
@@ -143,20 +142,11 @@ class DocumentsContainer(QTabWidget):
         Add a document to the tab menu creating its child component (document
         tree).
         """
-        # Create document tab widget
-        tab: QWidget = QWidget()
-        tab_layout: QHBoxLayout = QHBoxLayout(tab)
-
         # Tree widget --------------------------------------------------------
-        document_tree: DocumentTree = DocumentTree(self, document.id, self._controller)
-        document_tree.setStyleSheet("background-color: #FFFFFF;")
-
-        tab_layout.addWidget(document_tree)
-        tab.setLayout(tab_layout)
+        tab: DocumentTree = DocumentTree(self, document.id, self._controller)
 
         # Add tab to the dictionary with the document id as key
         self.tabs[document.id] = tab
-        self.tab_children[document.id] = document_tree
 
         # Get acronym, add the tab and store the index given by the addTab method
         document_acronym: str = document.get_property("acronym").value
@@ -185,7 +175,7 @@ class DocumentsContainer(QTabWidget):
         EventManager.detach(self)
 
         # Delete its children components
-        for tab in self.tab_children.values():
+        for tab in self.tabs.values():
             tab.delete_component()
 
         # Delete the component
@@ -252,13 +242,10 @@ class DocumentsContainer(QTabWidget):
             document_id in self.tabs
         ), f"Document tab not found for document {document_id} on DELETE_DOCUMENT event"
 
-        # Delete tab from tabs widget
-        document_tab: QWidget = self.tabs.pop(document_id)
+        # Delete tab from tabs widget and delete it
+        document_tab: DocumentTree = self.tabs.pop(document_id)
         self.removeTab(self.indexOf(document_tab))
-
-        # Delete child components
-        child_component: DocumentTree = self.tab_children.pop(document_id)
-        child_component.delete_component()
+        document_tab.delete_component()
 
         # Delete tab object
         document_tab.parent = None
@@ -288,7 +275,7 @@ class DocumentsContainer(QTabWidget):
         # Check if exists a tab for the element
         if element_id in self.tabs:
             # Get document tab
-            document_tab: QWidget = self.tabs.get(element_id)
+            document_tab: DocumentTree = self.tabs.get(element_id)
             tab_index: int = self.indexOf(document_tab)
 
             # Get new acronym
@@ -321,8 +308,10 @@ class DocumentsContainer(QTabWidget):
         # Get document id
         document_id: ProteusID = None
         if index >= 0:
-            document_tab: QWidget = self.widget(index)
-            # Get the document id (key) from the tab (value)
+            # Access tab from the index
+            document_tab: DocumentTree = self.widget(index)
+
+            # Access document id (key) from the tab (value)
             document_id = list(self.tabs.keys())[
                 list(self.tabs.values()).index(document_tab)
             ]

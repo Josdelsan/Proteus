@@ -118,9 +118,6 @@ def test_delete_document(app):
     assert (
         documents_container.tabs.keys().__len__() == 0
     ), f"Documents container should not include any document tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
-    assert (
-        documents_container.tab_children.keys().__len__() == 0
-    ), f"Documents container should not include any document tree, number of trees: '{documents_container.tab_children.keys().__len__()}'"
 
     # Check that the tab was deleted from the tabbar
     tab_bar = documents_container.tabBar()

@@ -152,7 +152,7 @@ class NewProjectDialog(QDialog):
 
         # Error message label
         self.error_label: QLabel = QLabel()
-        self.error_label.setStyleSheet("color: red")
+        self.error_label.setObjectName("error_label")
 
         # Add the widgets to the layout
         layout.addWidget(archetype_label)

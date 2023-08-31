@@ -130,12 +130,9 @@ def test_open_project(mocker, app):
     assert (
         documents_container.tabs.keys().__len__() == 4
     ), f"Expected 3 tabs, got {documents_container.tabs.keys().__len__()}"
-    assert (
-        documents_container.tabs.keys() == documents_container.tab_children.keys()
-    ), f"Expected DocumentTree children to match tabs number but got {documents_container.tab_children.keys().__len__()}"
 
     # Check each document tree has at least one tree item
-    for document_tree in documents_container.tab_children.values():
+    for document_tree in documents_container.tabs.values():
         assert (
             document_tree.__class__.__name__ == "DocumentTree"
         ), f"Expected document tree to be a DocumentTree, got {document_tree.__class__.__name__}"

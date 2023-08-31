@@ -1,0 +1,14 @@
+/*Error label displayed in forms */
+QLabel#error_label{
+    color: red;
+    font: bold;
+}
+
+QTreeWidget {
+    border: 0px;
+}
+
+QSplitter::handle {
+    width: 4px;
+    background-color: #666666;
+}

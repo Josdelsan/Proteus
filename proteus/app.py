@@ -69,6 +69,10 @@ class ProteusApplication:
         # Create the application instance
         app = QApplication(sys.argv)
 
+        with open(self.config.resources_directory / "stylesheets" / "proteus.qss", "r") as f:
+            _stylesheet = f.read()
+            app.setStyleSheet(_stylesheet)
+
         # Create the main window
         window = MainWindow(parent=None)
         window.show()

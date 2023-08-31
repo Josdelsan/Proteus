@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget, QApp
 
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
+from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -93,17 +94,17 @@ def test_edit_document(app):
     documents_container: DocumentsContainer = (
         main_window.project_container.documents_container
     )
-    document_tree_widget: QTreeWidget = documents_container.tab_children[
+    document_tree: DocumentTree = documents_container.tabs[
         DOCUMENT_ID
-    ].tree_widget
-    doc_tree_element: QTreeWidgetItem = documents_container.tab_children[
+    ]
+    doc_tree_element: QTreeWidgetItem = documents_container.tabs[
         DOCUMENT_ID
     ].tree_items[DOCUMENT_ID]
 
     # Wait for the dialog to be created
     QTimer.singleShot(5, handle_dialog)
     # Double click in the tree item cannot be done using qbot
-    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
+    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # --------------------------------------------
     # Assert
@@ -129,7 +130,7 @@ def test_edit_document(app):
     # Access properties post edit
     QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
     # Double click in the tree item cannot be done using qbot
-    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
+    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # Check properties changed
     assert (

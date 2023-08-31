@@ -88,11 +88,10 @@ def test_clone_object(app, object_id, document_id):
     # Right click arrange
     # NOTE: Clicking in a QMenu is not supported by pytest-qt
     # https://github.com/pytest-dev/pytest-qt/issues/195
-    document_tree: DocumentTree = documents_container.tab_children[document_id]
-    tree_widget: QTreeWidget = document_tree.tree_widget
+    document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
     # Emit set current item, accessed in context menu
-    tree_widget.setCurrentItem(tree_element)
+    document_tree.setCurrentItem(tree_element)
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)
@@ -115,9 +114,9 @@ def test_clone_object(app, object_id, document_id):
         menu.close()
 
     # Get element position
-    element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
+    element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)    
+    document_tree.customContextMenuRequested.emit(element_position)    
 
     # --------------------------------------------
     # Assert

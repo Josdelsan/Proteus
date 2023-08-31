@@ -81,14 +81,13 @@ def test_change_object_position_up(app):
     # Right click arrange
     # NOTE: Clicking in a QMenu is not supported by pytest-qt
     # https://github.com/pytest-dev/pytest-qt/issues/195
-    document_tree: DocumentTree = documents_container.tab_children[DOCUMENT_ID]
-    tree_widget: QTreeWidget = document_tree.tree_widget
+    document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     tree_element: QTreeWidgetItem = document_tree.tree_items[OBJECT_ID]
     # Emit set current item, accessed in context menu
-    tree_widget.setCurrentItem(tree_element)
+    document_tree.setCurrentItem(tree_element)
 
     # Store tree element position relative to its siblings
-    tree_element_position = tree_widget.indexFromItem(tree_element).row()
+    tree_element_position = document_tree.indexFromItem(tree_element).row()
 
     # --------------------------------------------
     # Act
@@ -106,9 +105,9 @@ def test_change_object_position_up(app):
         menu.close()
 
     # Get element position
-    element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
+    element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)  
+    document_tree.customContextMenuRequested.emit(element_position)  
 
 
     # --------------------------------------------
@@ -126,7 +125,7 @@ def test_change_object_position_up(app):
     )
 
     # Check element position changed
-    new_element_position = tree_widget.indexFromItem(tree_element).row()
+    new_element_position = document_tree.indexFromItem(tree_element).row()
     assert tree_element_position-1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"
@@ -164,14 +163,13 @@ def test_change_object_position_down(app):
     # Right click arrange
     # NOTE: Clicking in a QMenu is not supported by pytest-qt
     # https://github.com/pytest-dev/pytest-qt/issues/195
-    document_tree: DocumentTree = documents_container.tab_children[DOCUMENT_ID]
-    tree_widget: QTreeWidget = document_tree.tree_widget
+    document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     tree_element: QTreeWidgetItem = document_tree.tree_items[OBJECT_ID]
     # Emit set current item, accessed in context menu
-    tree_widget.setCurrentItem(tree_element)
+    document_tree.setCurrentItem(tree_element)
 
     # Store tree element position relative to its siblings
-    tree_element_position = tree_widget.indexFromItem(tree_element).row()
+    tree_element_position = document_tree.indexFromItem(tree_element).row()
 
     # --------------------------------------------
     # Act
@@ -189,9 +187,9 @@ def test_change_object_position_down(app):
         menu.close()
 
     # Get element position
-    element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
+    element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)  
+    document_tree.customContextMenuRequested.emit(element_position)  
 
 
     # --------------------------------------------
@@ -209,7 +207,7 @@ def test_change_object_position_down(app):
     )
 
     # Check element position changed
-    new_element_position = tree_widget.indexFromItem(tree_element).row()
+    new_element_position = document_tree.indexFromItem(tree_element).row()
     assert tree_element_position+1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"

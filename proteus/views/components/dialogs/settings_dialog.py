@@ -119,7 +119,7 @@ class SettingsDialog(QDialog):
 
         # Error message label
         self.error_label: QLabel = QLabel()
-        self.error_label.setStyleSheet("color: red")
+        self.error_label.setObjectName("error_label")
 
         # Setting message label
         setting_info_label: QLabel = QLabel(self.translator.text("settings_dialog.info.label"))

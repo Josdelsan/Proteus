@@ -160,7 +160,7 @@ class ExportDialog(QDialog):
 
         # Error label
         self.error_label = QLabel()
-        self.error_label.setStyleSheet("color: red;")
+        self.error_label.setObjectName("error_label")
 
         # Create the buttons
         self.button_box = QDialogButtonBox(

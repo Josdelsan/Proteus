@@ -95,9 +95,6 @@ class ProjectContainer(QWidget):
 
         # Splitter
         splitter: QSplitter = QSplitter()
-        splitter.setStyleSheet(
-            "QSplitter::handle { width: 4px; background-color: #666666; }"
-        )
 
         # DocumentsContainer -------------------------------------------------
         self.documents_container: DocumentsContainer = DocumentsContainer(self, self._controller)

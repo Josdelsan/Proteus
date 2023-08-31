@@ -100,8 +100,7 @@ class ViewsContainer(QTabWidget):
         #       has an impact on memory usage but is faster than setHtml.
         #       Multiple browsers are a solution to QTabWidget since a
         #       QWebEngineView cannot be added to multiple parents.
-        self.browsers: Dict[str, QWebEngineView] = {}
-        self.tabs: Dict[str, QWidget] = {}
+        self.tabs: Dict[str, QWebEngineView] = {}
 
         # Create the component
         self.create_component()
@@ -156,9 +155,7 @@ class ViewsContainer(QTabWidget):
         self.setCornerWidget(add_view_button, Qt.Corner.TopRightCorner)
 
         # Hide the close button on the main view tab
-        tabbutton: QWidget = (
-            self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
-        )
+        self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
 
         # Connect singal to handle view tab change
         self.currentChanged.connect(self.current_view_changed)
@@ -176,13 +173,9 @@ class ViewsContainer(QTabWidget):
         """
         Add a new view to the views container component.
         """
-        main_tab: QWidget = QWidget()
-        layout = QVBoxLayout()
-
         # Create browser
         browser: QWebEngineView = QWebEngineView(self)
         browser.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
-        layout.addWidget(browser)
 
         # Create document page using subclass
         # NOTE: This subclass is needed for external links handling
@@ -199,12 +192,10 @@ class ViewsContainer(QTabWidget):
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
-        main_tab.setLayout(layout)
-        self.addTab(main_tab, self.translator.text(tab_code_name))
+        self.addTab(browser, self.translator.text(tab_code_name))
 
-        # Store the browser and the tab
-        self.browsers[xslt_name] = browser
-        self.tabs[xslt_name] = main_tab
+        # Store the browser in the tab dict
+        self.tabs[xslt_name] = browser
 
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -252,7 +243,7 @@ class ViewsContainer(QTabWidget):
         current_view: str = StateManager.get_current_view()
 
         # If the current view is not in the browsers dict, ignore the update
-        if current_view not in self.browsers:
+        if current_view not in self.tabs:
             log.warning(
                 f"View {current_view} not found in the views container component"
             )
@@ -260,13 +251,13 @@ class ViewsContainer(QTabWidget):
 
         # If there is no current document, clear the browser
         if current_document_id is None:
-            browser: QWebEngineView = self.browsers[current_view]
+            browser: QWebEngineView = self.tabs[current_view]
             browser.page().setContent(QByteArray(), "text/html")
             return
 
         # Update the current view browser with the content of the current document
-        if current_view in self.browsers and current_document_id is not None:
-            browser: QWebEngineView = self.browsers[current_view]
+        if current_view in self.tabs and current_document_id is not None:
+            browser: QWebEngineView = self.tabs[current_view]
 
             # Get html from controller
             html_str: str = self._controller.get_document_view(
@@ -303,7 +294,7 @@ class ViewsContainer(QTabWidget):
         xslt_name: str = kwargs["xslt_name"]
 
         # If the view already exists, do nothing
-        if xslt_name in self.browsers.keys():
+        if xslt_name in self.tabs.keys():
             return
 
         self.add_view(xslt_name)
@@ -341,7 +332,7 @@ class ViewsContainer(QTabWidget):
         )
 
         # Iterate over the browsers and navigate to the url
-        browser: QWebEngineView = self.browsers[current_view]
+        browser: QWebEngineView = self.tabs[current_view]
         browser.page().runJavaScript(script)
 
     # ----------------------------------------------------------------------
@@ -369,10 +360,9 @@ class ViewsContainer(QTabWidget):
         self.removeTab(tab_index)
         self.update()
 
-        self.tabs.pop(xslt_name)
+        browser: QWebEngineView = self.tabs.pop(xslt_name)
 
         # Delete the browser
-        browser: QWebEngineView = self.browsers.pop(xslt_name)
         browser.parent = None
         browser.deleteLater()
 
@@ -394,7 +384,7 @@ class ViewsContainer(QTabWidget):
         file.
         """
         # Get the key corresponding to the tab index
-        xslt_name: str = list(self.browsers.keys())[index]
+        xslt_name: str = list(self.tabs.keys())[index]
 
         # Delete the view
         self._controller.delete_project_template(xslt_name)

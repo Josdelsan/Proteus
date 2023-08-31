@@ -252,7 +252,7 @@ class PropertyInputWidget(QWidget):
         self.validator = validator
         self.input = input
         self.error_label: QLabel = QLabel()
-        self.error_label.setStyleSheet("color: red;")
+        self.error_label.setObjectName("error_label")
         self.error_label.hide()
 
         # Initialize layout

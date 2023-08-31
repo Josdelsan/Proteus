@@ -20,15 +20,10 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QAction, QDropEvent, QIcon
+from PyQt6.QtGui import QDropEvent, QIcon
 from PyQt6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QTreeWidget,
     QTreeWidgetItem,
-    QMenu,
-    QStyle,
-    QApplication,
     QMessageBox,
 )
 
@@ -73,7 +68,7 @@ TREE_ITEM_COLOR = {
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentTree(QWidget):
+class DocumentTree(QTreeWidget):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
@@ -85,7 +80,7 @@ class DocumentTree(QWidget):
     # Description: Class constructor, invoke the parents class constructors
     #              and create the component.
     # Date       : 27/05/2023
-    # Version    : 0.1
+    # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
@@ -117,9 +112,6 @@ class DocumentTree(QWidget):
         # Set tree document id
         self.element_id: ProteusID = element_id
 
-        # tree widget
-        self.tree_widget: QTreeWidget = None
-
         # Tree items dictionary used to make easier the access to the tree
         # items on update events. Access by object id.
         self.tree_items: Dict[ProteusID, QTreeWidgetItem] = {}
@@ -146,57 +138,51 @@ class DocumentTree(QWidget):
         Create the document tree for the document referenced by the element
         id.
         """
-        # Create vertical layout
-        layout: QVBoxLayout = QVBoxLayout(self)
-
-        # Create tree widget and set header
-        self.tree_widget = QTreeWidget()
-        self.tree_widget.header().setVisible(False)
+        # Set header
+        self.header().setVisible(False)
 
         # Set drag and drop properties
-        self.tree_widget.setDragEnabled(True)
-        self.tree_widget.setAcceptDrops(True)
-        self.tree_widget.setDropIndicatorShown(True)
-        self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
 
         # Connect drag and drop events
         # TODO: Drag must show if drop is allowed for different objects types
-        self.tree_widget.dropEvent = self.drop_event
+        self.dropEvent = self.drop_event
 
         # Get document structure and top level items
         top_level_object: Object = self._controller.get_element(self.element_id)
 
         # Populate tree widget
-        self.populate_tree(self.tree_widget, top_level_object)
+        self.populate_tree(self, top_level_object)
 
         # Connect double click to object properties form
-        self.tree_widget.itemDoubleClicked.connect(
+        self.itemDoubleClicked.connect(
             lambda item: PropertyDialog.create_dialog(
                 element_id=item.data(1, 0), controller=self._controller
             )
         )
 
         # Connect click to object selection
-        self.tree_widget.itemClicked.connect(
+        self.itemClicked.connect(
             lambda item: StateManager.set_current_object(
                 object_id=item.data(1, 0), document_id=self.element_id
             )
         )
 
         # Set context menu policy
-        self.tree_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.tree_widget.customContextMenuRequested.connect(
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(
             lambda position: ContextMenu.create_dialog(
-                self.tree_widget, self._controller, position
+                self, self._controller, position
             )
         )
 
         # Expand all items and disable double click expand
-        self.tree_widget.expandAll()
-        self.tree_widget.setExpandsOnDoubleClick(False)
+        self.expandAll()
+        self.setExpandsOnDoubleClick(False)
 
-        layout.addWidget(self.tree_widget)
-        self.setLayout(layout)
 
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -446,14 +432,14 @@ class DocumentTree(QWidget):
     # ----------------------------------------------------------------------
     def drop_event(self, event: QDropEvent):
         # Get dropped element_id
-        dropped_item = self.tree_widget.currentItem()
+        dropped_item = self.currentItem()
         dropped_element_id: ProteusID = dropped_item.data(1, 0)
 
         # Drop position
         point: QPoint = event.position().toPoint()
 
         # Get target element_id
-        target_item = self.tree_widget.itemAt(point)
+        target_item = self.itemAt(point)
         try:
             target_element_id: ProteusID = target_item.data(1, 0)
         except AttributeError:
@@ -468,12 +454,12 @@ class DocumentTree(QWidget):
             # be added as a child of the target item. Otherwise, the dropped
             # item will be added as a sibling of the target item depending on
             # the drop position (above or below the target item).
-            target_rect = self.tree_widget.visualItemRect(target_item)
+            target_rect = self.visualItemRect(target_item)
             rect_center = target_rect.center()
             rect_height = target_rect.height()
 
             # Get the index of the target item
-            target_index: int = self.tree_widget.indexFromItem(target_item).row()
+            target_index: int = self.indexFromItem(target_item).row()
 
             # Get the parent id
             try:
