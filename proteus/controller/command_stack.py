@@ -685,16 +685,36 @@ class Controller:
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes
     # Description: Get object archetypes.
-    # Date       : 29/05/2023
-    # Version    : 0.1
+    # Date       : 31/08/2023
+    # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_first_level_object_archetypes(self) -> Dict[str, List[Object]]:
         """
         Get object archetypes.
         """
-        log.info("Getting object archetypes")
-        return self._archetype_service.get_object_archetypes()
+        log.info("Getting first level object archetypes")
+        return self._archetype_service.get_first_level_object_archetypes()
+
+    # ----------------------------------------------------------------------
+    # Method     : get_accepted_object_archetypes
+    # Description: Get object archetypes accepted by the parent.
+    # Date       : 31/08/2023
+    # Version    : 0.2
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_accepted_object_archetypes(
+        self, parent_id: ProteusID
+    ) -> Dict[str, List[Object]]:
+        """
+        Get object archetypes accepted by the parent. It return second level
+        archetypes grouped by object class.
+        """
+        log.info(
+            f"Getting second level object archetypes accepted by parent: {parent_id}"
+        )
+        parent: Object = self._project_service._get_element_by_id(parent_id)
+        return self._archetype_service.get_accepted_object_archetypes(parent)
 
     # ----------------------------------------------------------------------
     # Method     : get_document_archetypes

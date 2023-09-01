@@ -57,11 +57,6 @@ PROJECT_NAME = "example_project"
             "7s63wvxgekU6",
             "3fKhMAkcEe2D",
         ),  # Section into section document 2
-        (
-            "subobjective",
-            "7s63wvxgekU7",
-            "3fKhMAkcEe2D",
-        ),  # Subobjective into objective document 2
     ],
 )
 def test_clone_archetype(app, archetype_id, parent_id, document_id):

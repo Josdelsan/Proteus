@@ -347,9 +347,9 @@ def test_get_document_archetypes_duplicate_id(
 
 
 # test_get_object_archetypes -----------------------------------------------
-def test_get_object_archetypes_classes(mocker, archetype_service: ArchetypeService):
+def test_get_object_archetypes_types(mocker, archetype_service: ArchetypeService):
     """
-    It tests the get_object_archetypes_classes method.
+    It tests the get_object_archetypes_types method.
     """
     # Arrange -------------------------
     mock_object = mocker.MagicMock(spec=Object)
@@ -366,7 +366,7 @@ def test_get_object_archetypes_classes(mocker, archetype_service: ArchetypeServi
     # Load the object archetypes classes list
     object_archetypes_classes: List[
         str
-    ] = archetype_service.get_object_archetypes_classes()
+    ] = archetype_service.get_object_archetypes_types()
 
     # Assert --------------------------
     # Check that the object archetypes are loaded
@@ -378,9 +378,9 @@ def test_get_object_archetypes_classes(mocker, archetype_service: ArchetypeServi
     ArchetypeManager.load_object_archetypes.assert_called_once()
 
 
-def test_get_object_archetypes_by_class(mocker, archetype_service: ArchetypeService):
+def test_get_object_archetypes_by_type(mocker, archetype_service: ArchetypeService):
     """
-    It tests the get_object_archetypes_by_class method.
+    It tests the get_object_archetypes_by_type method.
     """
     # Arrange -------------------------
     OBJECT_CLASS = "mock_object_class_1"
@@ -398,7 +398,7 @@ def test_get_object_archetypes_by_class(mocker, archetype_service: ArchetypeServ
     # Load the object archetypes list
     object_archetypes_by_class: List[
         Object
-    ] = archetype_service.get_object_archetypes_by_class(OBJECT_CLASS)
+    ] = archetype_service.get_object_archetypes_by_type(OBJECT_CLASS)
 
     # Assert --------------------------
     # Check that the object archetypes are loaded

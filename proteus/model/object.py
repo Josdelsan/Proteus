@@ -179,10 +179,12 @@ class Object(AbstractObject):
             "acceptedChildren"
         ].split()
 
-        # Get strict parent directive
-        # NOTE: Prevent archetypes like subobjectives being cloned into :Proteus-any
-        # accepting archetypes like section
-        self.strictParent: bool = bool(root.attrib.get("strictParent", False))
+        # Get accepted parent classes
+        # NOTE: Prevent second level archetypes to be accepted by any archetypes.
+        # Default value is PROTEUS_ANY, which means any object can be parent.
+        self.acceptedParents: List[ProteusClassTag] = root.attrib.get(
+            "acceptedParents", PROTEUS_ANY
+        ).split()
 
         # Load object's properties using superclass method
         super().load_properties(root)
@@ -314,7 +316,7 @@ class Object(AbstractObject):
         ), f"Child is not accepted by {self.id}.           \
             Accepted children are {self.acceptedChildren}. \
             Child is class {child.classes}.                \
-            strictParent is {self.strictParent}."
+            Accepted parents are {self.acceptedParents}."
 
         # Add the child to the children list and set the parent
         self.children.insert(position, child)
@@ -335,8 +337,8 @@ class Object(AbstractObject):
     def accept_descendant(self, child: Object) -> bool:
         """
         Checks if a child is accepted by a PROTEUS object. Parent must accept
-        :Proteus-any and child must not be strictParent. StrictParent objects
-        only accept parents that where they are explicitly accepted.
+        :Proteus-any and child must accept the object as parent if second level
+        object.
 
         :param child: Child Object to be checked.
         """
@@ -345,15 +347,15 @@ class Object(AbstractObject):
             child, Object
         ), f"Child {child} is not a valid PROTEUS object."
 
-        # Check if the child is accepted
-        accepted_children: List[ProteusClassTag] = self.acceptedChildren
+        # Condition 1 - child accepted parents must be PROTEUS_ANY or contain the object class
+        condition_1 = ( PROTEUS_ANY in child.acceptedParents or self.classes[-1] in child.acceptedParents )
 
-        # If child in accepted children -> True
-        # If proteus-any and not strictParent -> True
-        # If strictParent and child in accepted children -> False
-        return child.classes[-1] in accepted_children or (
-            PROTEUS_ANY in accepted_children and not child.strictParent
-        )
+        # Condition 2 - self accepted children must be PROTEUS_ANY or contain the child class
+        condition_2 = ( PROTEUS_ANY in self.acceptedChildren or child.classes[-1] in self.acceptedChildren )
+
+        # BOTH conditions must be true
+        return condition_1 and condition_2
+
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml

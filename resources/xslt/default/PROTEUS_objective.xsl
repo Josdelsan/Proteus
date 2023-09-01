@@ -29,7 +29,7 @@
 
         <xsl:variable name="label_number">
             <xsl:number from="object[@classes='Proteus-document']"
-                count="object[@classes='objective'] | object[@classes='subobjective']"
+                count="object[@classes='objective']"
                 level="any" format="001" />
         </xsl:variable>
 
@@ -59,7 +59,9 @@
                         </th>
                         <td colspan="{$span}">
                             <ul class="subobjectives">
-                                <xsl:apply-templates select="children/object" />
+                                <xsl:for-each select="children/object">
+                                    <xsl:call-template name="generate_subobjective"/>
+                                </xsl:for-each>
                             </ul>
                         </td>
                     </tr>
@@ -79,14 +81,16 @@
     <!-- Subobjective template                          -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='subobjective']">
+    <xsl:template name="generate_subobjective">
+        <!-- Label number -->
         <xsl:variable name="label_number">
             <xsl:number from="object[@classes='Proteus-document']"
-                count="object[@classes='objective'] | object[@classes='subobjective']"
+                count="object[@classes='objective']"
                 level="any" format="001" />
         </xsl:variable>
 
         <div id="{@id}">
+            <!-- Current objective -->
             <li>
                 <strong>
                     <xsl:value-of select="concat('[OBJ-',$label_number,']')" />
@@ -96,6 +100,15 @@
                 <xsl:text> : </xsl:text>
                 <xsl:value-of select="properties/markdownProperty[@name='description']" />
             </li>
+
+            <!-- Nested objectives -->
+            <xsl:if test="children/object">
+                <ul class="subobjectives">
+                    <xsl:for-each select="children/object">
+                        <xsl:call-template name="generate_subobjective"/>
+                    </xsl:for-each>
+                </ul>
+            </xsl:if>
         </div>
     </xsl:template>
 

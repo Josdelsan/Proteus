@@ -158,7 +158,7 @@ class MainMenu(QDockWidget):
         # Get the object archetypes
         object_archetypes_dict: Dict[
             str, List[Object]
-        ] = self._controller.get_object_archetypes()
+        ] = self._controller.get_first_level_object_archetypes()
         # Create a tab for each class of object archetypes
         for class_name in object_archetypes_dict.keys():
             self.add_archetype_tab(class_name, object_archetypes_dict[class_name])

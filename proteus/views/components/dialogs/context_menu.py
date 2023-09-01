@@ -10,11 +10,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import List, Dict
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QMenu,
     QApplication,
@@ -29,6 +31,8 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.config import Config
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
@@ -37,15 +41,15 @@ from proteus.views.components.dialogs.property_dialog import PropertyDialog
 
 
 # --------------------------------------------------------------------------
-# Class: InformationDialog
-# Description: Class for the PROTEUS application information dialog.
+# Class: ContextMenu
+# Description: Class for the PROTEUS application context menu.
 # Date: 09/08/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class ContextMenu(QMenu):
     """
-    Class for the PROTEUS application information dialog.
+    Class for the PROTEUS application context menu.
     """
 
     # ----------------------------------------------------------------------
@@ -197,6 +201,24 @@ class ContextMenu(QMenu):
         self.addAction(self.action_edit_object)
         self.addAction(self.action_delete_object)
         self.addAction(self.action_clone_object)
+        self.addSeparator()
+        # Insert the accepted archetypes clone menus
+        accepted_archetypes: Dict[str, List[Object]] = self._controller.get_accepted_object_archetypes(
+            selected_item_id
+        )
+        for archetype_class in accepted_archetypes.keys():
+            # Create the archetype menu
+            archetype_menu: AvailableArchetypesMenu = AvailableArchetypesMenu(
+                parent_id=selected_item_id,
+                class_name=archetype_class,
+                archetype_list=accepted_archetypes[archetype_class],
+                controller=self._controller,
+                parent=self,
+            )
+            # Add the archetype menu to the context menu
+            self.addMenu(archetype_menu)
+
+        self.addSeparator()
         self.addAction(self.action_move_up_object)
         self.addAction(self.action_move_down_object)
 
@@ -222,3 +244,85 @@ class ContextMenu(QMenu):
         """
         menu = ContextMenu(tree_widget=tree_widget, controller=controller)
         menu.exec(tree_widget.viewport().mapToGlobal(position))
+
+
+# --------------------------------------------------------------------------
+# Class: AvailableArchetypesMenu
+# Description: Class for the PROTEUS application context menu.
+# Date: 31/08/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class AvailableArchetypesMenu(QMenu):
+    """
+    Class for the PROTEUS application context menu.
+    """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Class constructor, invoke the parents class constructors
+    #              and create the component.
+    # Date       : 31/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(
+        self,
+        parent_id: ProteusID,
+        class_name: str,
+        archetype_list: List[Object],
+        controller: Controller,
+        *args,
+        **kwargs
+    ) -> None:
+        """
+        Class constructor, invoke the parents class constructors and create
+        the component. Store the page object and the controller instance.
+        """
+        super().__init__(*args, **kwargs)
+
+        assert controller is not None, "Controller cannot be None"
+
+        # Dependencies
+        self.archetype_list = archetype_list
+        self.parent_id = parent_id
+        self.class_name = class_name
+        self._controller = controller
+        self.translator = Translator()
+
+        # Action buttons
+        self.action_buttons: Dict[ProteusID, QAction] = {}
+
+        # Create the component
+        self.create_component()
+
+    # ----------------------------------------------------------------------
+    # Method     : create_component
+    # Description: Create the component.
+    # Date       : 31/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_component(self) -> None:
+        """
+        Create the component.
+        """
+        icon: QIcon = QIcon(Config().get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix())
+        self.setIcon(icon)
+        self.setTitle(self.translator.text('document_tree.menu.action.add_archetype',self.class_name))
+
+        # Create the actions
+        for archetype in self.archetype_list:
+            action: QAction = QAction(self.translator.text(archetype.get_property('name').value), self)
+            icon: QIcon = QIcon(Config().get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix())
+            action.setIcon(icon)
+            action.triggered.connect(
+                lambda: self._controller.create_object(archetype.id, self.parent_id)
+            )
+
+            # Store the action button
+            self.action_buttons[archetype.id] = action
+
+        # Add the actions to the context menu
+        for action in self.action_buttons.values():
+            self.addAction(action)

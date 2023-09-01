@@ -2,7 +2,7 @@
 <object
     id="objective"
     classes="objective"
-    acceptedChildren="subobjective"
+    acceptedChildren="objective"
 >
     <properties>
         <stringProperty name="name">Objective</stringProperty>

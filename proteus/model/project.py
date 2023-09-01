@@ -342,9 +342,8 @@ class Project(AbstractObject):
 
     def accept_descendant(self, child: Object) -> bool:
         """
-        Checks if a child is accepted by a PROTEUS object. Parent must accept
-        :Proteus-any and child must not be strictParent. StrictParent objects
-        only accept parents that where they are explicitly accepted.
+        Checks if a child is accepted by a PROTEUS project. Projects only
+        accept documents.
 
         :param child: Child Object to be checked.
         """
