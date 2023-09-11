@@ -13,13 +13,14 @@
 from typing import Dict, List
 import logging
 from pathlib import Path
+from PyQt6 import QtGui
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QTabWidget
-from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QTabWidget
+from PyQt6.QtGui import QIcon, QDragEnterEvent, QDragMoveEvent
 from PyQt6.QtCore import QSize
 
 # --------------------------------------------------------------------------
@@ -158,6 +159,11 @@ class DocumentsContainer(QTabWidget):
         # Set the tab icon
         icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
         self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+
+        # Drop configuration to allow objects moves between tabs
+        tabbar = self.tabBar()
+        tabbar.setChangeCurrentOnDrag(True)
+        tabbar.setAcceptDrops(True)
         
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -333,3 +339,5 @@ class DocumentsContainer(QTabWidget):
             new_index += 1
 
         self._controller.change_document_position(document_id, new_index)
+
+    

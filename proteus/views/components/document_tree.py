@@ -431,8 +431,15 @@ class DocumentTree(QTreeWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def drop_event(self, event: QDropEvent):
+        # Get the object that performs the drop
+        # NOTE: When drop is performed across different documents, source
+        # reference is the source tree widget and this drop_event is called'
+        # from the target tree widget. This is necessary to get the dropped
+        # item.
+        source: QTreeWidget = event.source()
+
         # Get dropped element_id
-        dropped_item = self.currentItem()
+        dropped_item = source.currentItem()
         dropped_element_id: ProteusID = dropped_item.data(1, 0)
 
         # Drop position
@@ -496,7 +503,7 @@ class DocumentTree(QTreeWidget):
                 # dropped item will be added as the last child of the target item.
                 else:
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
+                        f"Tree element with id {dropped_element_id} dropped inside {target_element_id} inserted at the end of the children list."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, None, target_element_id
