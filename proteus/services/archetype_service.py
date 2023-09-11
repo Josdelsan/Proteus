@@ -56,13 +56,11 @@ class ArchetypeService:
         # Instance variables
         self._project_archetypes: List[Project] = None
         self._document_archetypes: List[Object] = None
-        self._object_archetypes: Dict[str, List[Object]] = None
+
+        self._object_archetypes: Dict[str, Dict[str, List[Object]]] = None
+        self._unordered_object_archetypes: List[Object] = None
+
         self.archetype_index: Dict[ProteusID, Union[Project, Object]] = {}
-
-        self._unordered_object_archetypes: List[
-            Object
-        ] = None
-
 
         log.info("ArchetypeService initialized")
 
@@ -142,7 +140,7 @@ class ArchetypeService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Object_archetypes getter. Loads the list of object archetypes on demand.
         """
@@ -159,20 +157,20 @@ class ArchetypeService:
             # ------------------------------------------------------------------
             # Populate non ordered list of object archetypes
             self._unordered_object_archetypes = []
-            for archetype_list in self._object_archetypes.values():
-                self._unordered_object_archetypes.extend(archetype_list)
+            for arch_by_class in self._object_archetypes.values():
+                for arch_list in arch_by_class.values():
+                    self._unordered_object_archetypes.extend(arch_list)
 
             # ------------------------------------------------------------------
             # Populate the archetype index
-            for object_type in self._object_archetypes.keys():
-                for object in self._object_archetypes[object_type]:
-                    # Check for collisions
-                    assert (
-                        object.id not in self.archetype_index
-                    ), f"Object archetype id {object.id} already exists in the archetype index"
+            for object in self._unordered_object_archetypes:
+                # Check for collisions
+                assert (
+                    object.id not in self.archetype_index
+                ), f"Object archetype id {object.id} already exists in the archetype index"
 
-                    # Add the object archetype to the archetype index
-                    self.archetype_index[object.id] = object
+                # Add the object archetype to the archetype index
+                self.archetype_index[object.id] = object
 
         return self._object_archetypes
 
@@ -196,7 +194,7 @@ class ArchetypeService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_by_type(self, type: str) -> List[Object]:
+    def get_object_archetypes_by_type(self, type: str) -> Dict[str, List[Object]]:
         """
         Returns the list of object archetypes for a given type.
         """
@@ -209,29 +207,32 @@ class ArchetypeService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_first_level_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_first_level_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Returns the list of first level object archetypes.
         """
-        # Dictionary to store the first level object archetypes
-        dict: Dict[str, List[Object]] = {}
+        # Copy the dict of object archetypes to pop second level objects
+        archetypes: Dict[
+            str, Dict[str, List[Object]]
+        ] = self.get_object_archetypes().copy()
 
-        # Get archetype types
-        keys: List[str] = self.get_object_archetypes_types()
+        empty_keys: List[str] = []
 
-        # Iterate over the archetype types
-        for key in keys:
-            # PROTEUS_ANY means the object accept any parent so it is a first level object
-            first_level_objects: List[Object] = [
-                object
-                for object in self.get_object_archetypes_by_type(key)
-                if PROTEUS_ANY in object.acceptedParents
-            ]
+        # Iterate over the archetype types and classes
+        for type in archetypes.keys():
+            for class_ in archetypes[type].keys():
+                # Remove the second level objects
+                for object in archetypes[type][class_]:
+                    if PROTEUS_ANY not in object.acceptedParents:
+                        archetypes[type][class_].remove(object)
+                        if len(archetypes[type][class_]) == 0:
+                            empty_keys.append(class_)
 
-            # Add the first level objects to the dictionary
-            dict[key] = first_level_objects
+        # Remove empty keys
+        for key in empty_keys:
+            archetypes[type].pop(key)
 
-        return dict
+        return archetypes
 
     # ----------------------------------------------------------------------
     # Method     : get_accepted_object_archetypes

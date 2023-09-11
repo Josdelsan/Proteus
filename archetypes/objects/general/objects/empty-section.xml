@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object id="empty-section" classes="section" acceptedChildren=":Proteus-any">
   <properties>
-    <stringProperty name="name"><![CDATA[Section]]></stringProperty>
+    <stringProperty name="name"><![CDATA[Empty section]]></stringProperty>
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
 	  <dateProperty name="date">2022-10-10</dateProperty>
     <stringProperty name="author"><![CDATA[José María Delgado]]></stringProperty>	

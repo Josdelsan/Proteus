@@ -33,6 +33,7 @@ from PyQt6.QtWidgets import QTreeWidgetItem
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
+from proteus.views.components.archetypes_menu_dropdown import ArchetypesMenuDropdown
 from proteus.views.utils.state_manager import StateManager
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -48,18 +49,29 @@ PROJECT_NAME = "example_project"
 
 
 @pytest.mark.parametrize(
-    "archetype_id, parent_id, document_id",
+    "archetype_id, archetype_class, parent_id, document_id",
     [
-        ("empty-section", "3fKhMAkcEe2C", "3fKhMAkcEe2C"),  # Section into document 1
-        ("empty-section", "3fKhMAkcEe2D", "3fKhMAkcEe2D"),  # Section into document 2
         (
             "empty-section",
+            "section",
+            "3fKhMAkcEe2C",
+            "3fKhMAkcEe2C",
+        ),  # Section into document 1
+        (
+            "empty-section",
+            "section",
+            "3fKhMAkcEe2D",
+            "3fKhMAkcEe2D",
+        ),  # Section into document 2
+        (
+            "empty-section",
+            "section",
             "7s63wvxgekU6",
             "3fKhMAkcEe2D",
         ),  # Section into section document 2
     ],
 )
-def test_clone_archetype(app, archetype_id, parent_id, document_id):
+def test_clone_archetype(app, archetype_id, archetype_class, parent_id, document_id):
     """
     Test the clone archetype use case. Clone an archetype in an existing
     object/document. It tests the following steps:
@@ -113,8 +125,9 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
     # --------------------------------------------
 
     # Click the archetype button
-    archetype_button = main_window.main_menu.archetype_buttons.get(archetype_id)
-    archetype_button.click()
+    archetype_button = main_window.main_menu.archetype_buttons.get(archetype_class)
+    archetype_class_menu: ArchetypesMenuDropdown = archetype_button.menu()
+    archetype_class_menu.actions[archetype_id].triggered.emit()
 
     # --------------------------------------------
     # Assert
@@ -125,13 +138,10 @@ def test_clone_archetype(app, archetype_id, parent_id, document_id):
         "Save button state should change from DISABLED to ENABLED when an archetype is cloned"
         f"Current state: {main_window.main_menu.save_button.isEnabled()}"
     )
-    assert (
-        undo_button_state != main_window.main_menu.undo_button.isEnabled()
-    ), (
+    assert undo_button_state != main_window.main_menu.undo_button.isEnabled(), (
         "Undo button state should change from DISABLED to ENABLED when an archetype is cloned"
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
-
 
     # Check the new number of objects in the document
     assert (

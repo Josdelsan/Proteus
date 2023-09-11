@@ -108,16 +108,16 @@ information_button.statustip: "Información sobre la aplicación PROTEUS"
 information_button.tooltip: "Información sobre la aplicación PROTEUS"
 information_button.text: "Acerca de"
 
-# Archetype buttons
+# Archetype classes buttons
 archetype_menu_button.paragraph: "Párrafo"
 archetype_menu_button.section: "Sección"
-archetype_menu_button.system_actor: "Actor"
-archetype_menu_button.graphic_file: "Archivo gráfico"
+archetype_menu_button.actor: "Actor"
+archetype_menu_button.graphic-file: "Archivo gráfico"
 
-archetype_menu_button.use_case: "Caso de uso"
-archetype_menu_button.use_case_step: "Paso caso de uso"
-archetype_menu_button.external_resource: "Recurso externo"
-archetype_menu_button.information_requirement: "Información"
+archetype_menu_button.use-case: "Caso de uso"
+archetype_menu_button.use-case-step: "Paso caso de uso"
+archetype_menu_button.external-resource: "Recurso externo"
+archetype_menu_button.information-requirement: "Información"
 archetype_menu_button.objective: "Objective"
 archetype_menu_button.subobjective: "Subobjective"
 

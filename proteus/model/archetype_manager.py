@@ -26,6 +26,7 @@ import logging
 from os import listdir
 from os.path import join, isdir, isfile
 from pathlib import Path
+from typing import Dict, List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -38,7 +39,7 @@ from strenum import StrEnum
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import OBJECTS_REPOSITORY, ASSETS_REPOSITORY
+from proteus.model import OBJECTS_REPOSITORY, ASSETS_REPOSITORY, ProteusClassTag
 from proteus.config import Config
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -92,17 +93,18 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
     # Method: load_object_archetypes (static)
     # Description: It load object archetypes
-    # Date: 13/04/2023
-    # Version: 0.2
+    # Date: 01/09/2023
+    # Version: 0.3
     # Author: Pablo Rivera Jiménez
     #         José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_object_archetypes() -> dict[str, list[Object]]:
+    def load_object_archetypes() -> Dict[str, Dict[str, List[Object]]]:
         """
         Method that loads the object archetypes.
-        :return: A dict with key archetype class and value list of objects.
+        :return: A dict with key archetype typr and value dict of
+        object lists by class.
         """
         log.info('ArchetypeManager - load object archetypes')
         # Build archetypes directory name from archetype type
@@ -113,19 +115,19 @@ class ArchetypeManager:
         # TODO: this means that ALL archetypes must be in one subdirectory, i.e., that
         #       no archetypes are supposed to be in the root directory, AND that only one
         #       level of subdirectories is allowed.
-        subdirs : list[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
+        subdirs : List[str] = [f for f in listdir(archetypes_dir) if isdir(join(archetypes_dir, f))]
 
         # Check there is no files in the root directory
         assert all([not isfile(join(archetypes_dir, f)) for f in listdir(archetypes_dir)]), \
              f"Unexpected files in {archetypes_dir}. Check the object archetypes directory structure."
         
         # We create a dictionary to store the result
-        object_arquetype_dict : dict[str, list[Object]] = dict[str, list[Object]]()
+        object_arquetype_dict : Dict[str, Dict] = {}
 
         # For each subdirectory, containing the archetypes of a given class
         for subdir in subdirs:
-            # We create a list to store the archetypes of the class
-            object_arquetype_list : list[Object] = list[Object]()
+            # Create dict to store the list of objects of the class
+            object_arquetype_by_class: Dict[str, List[Object]] = {}
 
             # Build the full path to the subdirectory
             object_archetype_class_path : str = join(archetypes_dir, subdir)
@@ -161,11 +163,15 @@ class ArchetypeManager:
                 # We create the object
                 object : Object = Object(object_path)
 
-                # We add it to the list
-                object_arquetype_list.append(object)
+                # Access the last class of the object
+                object_class: ProteusClassTag = object.classes[-1]
+                if object_class in object_arquetype_by_class:
+                    object_arquetype_by_class[object_class].append(object)
+                else:
+                    object_arquetype_by_class[object_class] = [object]
 
             # We add the list to the dictionary
-            object_arquetype_dict[subdir] = object_arquetype_list
+            object_arquetype_dict[subdir] = object_arquetype_by_class
 
         return object_arquetype_dict
 

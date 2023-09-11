@@ -36,7 +36,7 @@ from PyQt6.QtCore import Qt, QSize
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model.object import Object
+from proteus.model import ProteusClassTag
 from proteus.views import ARCHETYPE_MENU_ICON_TYPE, MAIN_MENU_ICON_TYPE
 from proteus.views.utils.translator import Translator
 
@@ -422,7 +422,7 @@ class ArchetypeMenuButton(QToolButton):
     Class that implements a button for the archetype menu.
     """
 
-    def __init__(self, parent: QWidget, archetype: Object) -> None:
+    def __init__(self, parent: QWidget, object_class: ProteusClassTag) -> None:
         super().__init__(parent)
 
         # Button settings
@@ -431,9 +431,9 @@ class ArchetypeMenuButton(QToolButton):
         # Set icon
         archetype_icon = QIcon()
 
-        # Build icon path from archetype id or use default icon
+        # Build icon path from object_class or use default icon
         icon_path: Path = (
-            Config().get_icon(ARCHETYPE_MENU_ICON_TYPE,archetype.id)
+            Config().get_icon(ARCHETYPE_MENU_ICON_TYPE,object_class)
         )
         
         # Add icon
@@ -442,16 +442,12 @@ class ArchetypeMenuButton(QToolButton):
         self.setIconSize(QSize(32, 32))
 
         # Set tooltip
-        arch_name = archetype.properties["name"].value
-        arch_name_code = f"archetype_menu_button.{arch_name}"
-        self.setToolTip(f"{arch_name}")
-        self.setStatusTip(
-            f"Archetype {Translator().text(arch_name_code)}, class {archetype.classes}"
-        )
+        name_code = f"archetype_menu_button.{object_class}"
+        self.setToolTip(Translator().text(f"{name_code}"))
 
         # Set text
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.setText(Translator().text(arch_name_code))
+        self.setText(Translator().text(name_code))
 
         # Set enabled initial value
         self.setEnabled(False)

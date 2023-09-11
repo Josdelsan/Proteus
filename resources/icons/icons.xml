@@ -10,8 +10,8 @@
     </type>
     <type name="archetype_menu_icon" default="archetype-default.svg">
         <icon key="actor" file="actor.svg" />
-        <icon key="empty-paragraph" file="paragraph.svg" />
-        <icon key="empty-section" file="section.svg" />
+        <icon key="paragraph" file="paragraph.svg" />
+        <icon key="section" file="section.svg" />
         <icon key="external-resource" file="external-resource.svg" />
         <icon key="graphic-file" file="graphic-file.svg" />
         <icon key="information-requirement" file="information-requirement.svg" />

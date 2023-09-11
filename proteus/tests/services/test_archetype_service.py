@@ -140,7 +140,7 @@ def test_archetype_index_load(archetype_service: ArchetypeService):
     project_archetypes: List[Project] = archetype_service.get_project_archetypes()
     document_archetypes: List[Object] = archetype_service.get_document_archetypes()
     object_archetypes: Dict[
-        str, List[Object]
+        str, Dict[str, List[Object]]
     ] = archetype_service.get_object_archetypes()
 
     # Get ids of the archetypes
@@ -151,8 +151,11 @@ def test_archetype_index_load(archetype_service: ArchetypeService):
         document.id for document in document_archetypes
     )
     object_archetypes_ids: List[ProteusID] = set()
-    for object_class_list in object_archetypes.values():
-        object_archetypes_ids.update(object.id for object in object_class_list)
+    for archetype_class_dict in object_archetypes.values():
+        for archetype_list in archetype_class_dict.values():
+            object_archetypes_ids = object_archetypes_ids.union(
+                set(object.id for object in archetype_list)
+            )
 
     archetypes_ids = project_archetypes_ids.union(document_archetypes_ids).union(
         object_archetypes_ids
@@ -355,7 +358,7 @@ def test_get_object_archetypes_types(mocker, archetype_service: ArchetypeService
     mock_object = mocker.MagicMock(spec=Object)
     mock_object.id = "mock_object_1"
 
-    mock_object_archetypes = {"mock_object_class_1": [mock_object]}
+    mock_object_archetypes = {"mock_type_1": {"mock_object_class_1": [mock_object]}}
     mocker.patch.object(
         ArchetypeManager,
         "load_object_archetypes",
@@ -363,16 +366,14 @@ def test_get_object_archetypes_types(mocker, archetype_service: ArchetypeService
     )
 
     # Act -----------------------------
-    # Load the object archetypes classes list
-    object_archetypes_classes: List[
-        str
-    ] = archetype_service.get_object_archetypes_types()
+    # Load the object archetypes types list
+    object_archetypes_types: List[str] = archetype_service.get_object_archetypes_types()
 
     # Assert --------------------------
     # Check that the object archetypes are loaded
     assert isinstance(
-        object_archetypes_classes, list
-    ), f"object_archetypes should be a list, not {type(object_archetypes_classes)}"
+        object_archetypes_types, list
+    ), f"object_archetypes should be a list, not {type(object_archetypes_types)}"
 
     # Check that ArchetypeManager.load_object_archetypes static method is called
     ArchetypeManager.load_object_archetypes.assert_called_once()
@@ -383,11 +384,12 @@ def test_get_object_archetypes_by_type(mocker, archetype_service: ArchetypeServi
     It tests the get_object_archetypes_by_type method.
     """
     # Arrange -------------------------
+    OBJECT_TYPE = "mock_type_1"
     OBJECT_CLASS = "mock_object_class_1"
     mock_object = mocker.MagicMock(spec=Object)
     mock_object.id = "mock_object_1"
 
-    mock_object_archetypes = {OBJECT_CLASS: [mock_object]}
+    mock_object_archetypes = {OBJECT_TYPE: {OBJECT_CLASS: [mock_object]}}
     mocker.patch.object(
         ArchetypeManager,
         "load_object_archetypes",
@@ -396,14 +398,14 @@ def test_get_object_archetypes_by_type(mocker, archetype_service: ArchetypeServi
 
     # Act -----------------------------
     # Load the object archetypes list
-    object_archetypes_by_class: List[
-        Object
-    ] = archetype_service.get_object_archetypes_by_type(OBJECT_CLASS)
+    object_archetypes_by_class: Dict[
+        str, List[Object]
+    ] = archetype_service.get_object_archetypes_by_type(OBJECT_TYPE)
 
     # Assert --------------------------
     # Check that the object archetypes are loaded
     assert isinstance(
-        object_archetypes_by_class, list
+        object_archetypes_by_class, dict
     ), f"object_archetypes should be a list, not {type(object_archetypes_by_class)}"
 
     # Check that ArchetypeManager.load_object_archetypes static method is called
@@ -439,7 +441,7 @@ def test_get_object_archetypes_duplicate_id(
     # Mock the load_object_archetypes function to return a list with duplicate object IDs
     object_mock = mocker.Mock(spec=Object)
     object_mock.id = "1"
-    mock_archetypes = {"General": [object_mock, object_mock]}
+    mock_archetypes = {"General": { "section": [object_mock, object_mock]}}
     mocker.patch.object(
         ArchetypeManager, "load_object_archetypes", return_value=mock_archetypes
     )

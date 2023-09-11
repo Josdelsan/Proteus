@@ -689,7 +689,7 @@ class Controller:
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_first_level_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_first_level_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Get object archetypes.
         """

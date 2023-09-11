@@ -75,32 +75,36 @@ def test_document_archetype():
 def test_object_archetype():
     # Get the number of objects arquetypes clases
     dir_path = str(app.archetypes_directory / "objects")
-    archetype_classes = os.listdir(dir_path)
+    archetype_types = os.listdir(dir_path)
     
     # Check if load object function return all the classes
-    objects : dict[str, list(Object)] = ArchetypeManager.load_object_archetypes()
-    for archetype_class in archetype_classes:
+    objects : dict[str, dict[str, list(Object)]] = ArchetypeManager.load_object_archetypes()
+    for archetype_type in archetype_types:
 
         # Check if the class is in the objects dictionary
-        assert archetype_class in objects.keys(), \
-            f"Archetype class {archetype_class} not found in objects"
+        assert archetype_type in objects.keys(), \
+            f"Archetype type {archetype_type} not found in objects"
         
         # Parse the objects.xml file of the class
-        objects_pointer_xml : ET.Element = ET.parse(f"{dir_path}/{archetype_class}/objects.xml")
+        objects_pointer_xml : ET.Element = ET.parse(f"{dir_path}/{archetype_type}/objects.xml")
 
         # Get the number of objects in the objects.xml file ignoring children objects
         objects_id_list : list[str] = [child.attrib["id"] for child in objects_pointer_xml.getroot()]
         number_of_objects_expected = len(objects_id_list)
 
         # Check if the number of objects in the class is correct
-        assert len(objects[archetype_class]) == number_of_objects_expected, \
-            f"Number of objects in class {archetype_class} not match with the number of objects in the directory"
+        objects_list: list[Object] = []
+        for object in objects[archetype_type].values():
+            objects_list.extend(object)
+
+        assert len(objects_list) == number_of_objects_expected, \
+            f"Number of objects in type {archetype_type} do not match with the number of objects in the directory"
         
         # Check if the objects are Object objects
-        for object in objects[archetype_class]:
+        for object in objects_list:
             assert isinstance(object, Object), \
                 f"Archetype object {object} is not a Object object"
 
     # Check if the number of classes in the directory is correct
-    assert len(objects.keys()) == len(archetype_classes), \
-        f"Number of object archetype classes not match with the number of classes in the directory"
+    assert len(objects.keys()) == len(archetype_types), \
+        f"Number of object archetype types not match with the number of types in the directory"

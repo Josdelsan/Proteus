@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag
+from proteus.model import ProteusID, ProteusClassTag, PROTEUS_ANY
 from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -39,6 +39,9 @@ from proteus.views.components.dialogs.new_document_dialog import NewDocumentDial
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.components.dialogs.information_dialog import InformationDialog
+from proteus.views.components.archetypes_menu_dropdown import (
+    ArchetypesMenuDropdown,
+)
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
 from proteus.views.utils.event_manager import Event, EventManager
@@ -106,8 +109,8 @@ class MainMenu(QDockWidget):
         self.export_document_button: QToolButton = None
         self.information_button: QToolButton = None
 
-        # Archetype menu buttons that are updated
-        self.archetype_buttons: Dict[ProteusID, ArchetypeMenuButton] = {}
+        # Store archetype buttons by object class
+        self.archetype_buttons: Dict[str, ArchetypeMenuButton] = {}
 
         # Tab widget to display app menus in different tabs
         self.tab_widget: QTabWidget = QTabWidget()
@@ -157,11 +160,11 @@ class MainMenu(QDockWidget):
 
         # Get the object archetypes
         object_archetypes_dict: Dict[
-            str, List[Object]
+            str, Dict[str, List[Object]]
         ] = self._controller.get_first_level_object_archetypes()
-        # Create a tab for each class of object archetypes
-        for class_name in object_archetypes_dict.keys():
-            self.add_archetype_tab(class_name, object_archetypes_dict[class_name])
+        # Create a tab for each type of object archetypes
+        for type_name in object_archetypes_dict.keys():
+            self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
 
         # Set the tab widget as the main widget of the component
         self.setWidget(self.tab_widget)
@@ -215,7 +218,12 @@ class MainMenu(QDockWidget):
         # Add the buttons to the project menu widget
         project_menu: QWidget = buttons.button_group(
             "main_menu.button_group.project",
-            [self.new_button, self.open_button, self.save_button, self.project_properties_button],
+            [
+                self.new_button,
+                self.open_button,
+                self.save_button,
+                self.project_properties_button,
+            ],
         )
         tab_layout.addWidget(project_menu)
 
@@ -304,10 +312,10 @@ class MainMenu(QDockWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def add_archetype_tab(
-        self, class_name: str, object_archetypes: List[Object]
+        self, type_name: str, object_archetypes_by_class: Dict[str, List[Object]]
     ) -> None:
         """
-        Add a tab to the tab widget for a given class of object archetypes.
+        Add a tab to the tab widget for a given type of object archetypes.
         """
         # Create the tab widget with a horizontal layout
         tab_widget: QWidget = QWidget()
@@ -317,20 +325,21 @@ class MainMenu(QDockWidget):
         buttons_list: List[ArchetypeMenuButton] = []
 
         # Add the archetype widgets to the tab widget
-        archetype: Object = None
-        for archetype in object_archetypes:
+        for object_class in object_archetypes_by_class.keys():
             # Create the archetype button
-            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(self, archetype)
-
-            # Add the archetype button to the archetype buttons dictionary
-            self.archetype_buttons[archetype.id] = archetype_button
-
-            # Connect the clicked signal to the clone archetype method
-            archetype_button.clicked.connect(
-                lambda checked, arg=archetype.id: self._controller.create_object(
-                    archetype_id=arg, parent_id=StateManager.get_current_object()
+            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
+                self, object_class
+            )
+            archetype_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+            archetype_button.setMenu(
+                ArchetypesMenuDropdown(
+                    controller=self._controller,
+                    archetype_list=object_archetypes_by_class[object_class],
                 )
             )
+
+            # Add the archetype button to the archetype buttons dictionary
+            self.archetype_buttons[object_class] = archetype_button
 
             # Add the archetype button to the buttons list
             buttons_list.append(archetype_button)
@@ -340,8 +349,8 @@ class MainMenu(QDockWidget):
         #       code is used to retrieve the text from the translation files.
         #       This has to be dynamic because archetype tabs are created
         #       dynamically.
-        tab_name_code: str = f"main_menu.tab.{class_name}.name"
-        group_name_code: str = f"main_menu.button_group.archetypes.{class_name}"
+        tab_name_code: str = f"main_menu.tab.{type_name}.name"
+        group_name_code: str = f"main_menu.button_group.archetypes.{type_name}"
 
         # Create the archetype button group
         archetype_menu: QWidget = buttons.button_group(group_name_code, buttons_list)
@@ -444,23 +453,19 @@ class MainMenu(QDockWidget):
             selected_object: Object = self._controller.get_element(selected_object_id)
 
             # Iterate over the archetype buttons
-            for archetype_id in self.archetype_buttons.keys():
+            for archetype_class in self.archetype_buttons.keys():
                 # Get the archetype button
                 archetype_button: ArchetypeMenuButton = self.archetype_buttons[
-                    archetype_id
+                    archetype_class
                 ]
 
-                # Get the archetype
-                archetype: Object = self._controller.get_archetype_by_id(archetype_id)
-
-                assert (
-                    type(archetype) is Object
-                ), f"Archetype {archetype_id} is not an object"
+                enable: bool = (
+                    archetype_class in selected_object.acceptedChildren
+                    or PROTEUS_ANY in selected_object.acceptedChildren 
+                )
 
                 # Enable or disable the archetype button
-                archetype_button.setEnabled(
-                    selected_object.accept_descendant(archetype)
-                )
+                archetype_button.setEnabled(enable)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
