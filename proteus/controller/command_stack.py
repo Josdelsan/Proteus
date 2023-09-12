@@ -42,6 +42,7 @@ from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
 from proteus.views.utils.event_manager import EventManager, Event
+from proteus.views.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
@@ -167,6 +168,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def update_properties(
         self, element_id: ProteusID, new_properties: List[Property]
     ) -> None:
@@ -200,6 +202,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def clone_object(self, object_id: ProteusID) -> None:
         """
         Clone an object given its id. It pushes the command to the command
@@ -229,6 +232,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def delete_object(self, object_id: ProteusID) -> None:
         """
         Delete an object given its id. It pushes the command to the command
@@ -255,6 +259,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def change_object_position(
         self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
     ) -> None:
@@ -307,6 +312,7 @@ class Controller:
     # instead of emitting the signal once is dropped. In projects with multiple
     # documents this might cause a lot of undo commands to be pushed to the
     # command stack obfuscating the undo/redo history.
+    @proteus_action
     def change_document_position(
         self, document_id: ProteusID, new_position: int
     ) -> None:
@@ -346,6 +352,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def delete_document(self, document_id: ProteusID) -> None:
         """
         Delete a document given its id. It pushes the command to the command
@@ -371,6 +378,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def load_project(self, project_path: str) -> None:
         """
         Load a project from a given path.
@@ -420,6 +428,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def save_project(self) -> None:
         """
         Save the current project state including all the children objects
@@ -605,6 +614,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_project(self, archetype_id, name, path) -> None:
         """
         Create a new project with the given archetype id, name and path.
@@ -628,6 +638,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_object(self, archetype_id: ProteusID, parent_id: ProteusID) -> None:
         """
         Create a new object with the given archetype id and parent id.
@@ -653,6 +664,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_document(self, archetype_id: ProteusID) -> None:
         """
         Create a new document with the given archetype id.
