@@ -13,6 +13,17 @@
 import logging
 from pathlib import Path
 import sys
+import datetime
+from logging.handlers import TimedRotatingFileHandler
+
+# --------------------------------------------------------------------------
+# Application absolute path
+# --------------------------------------------------------------------------
+
+# NOTE: this is a workaround for the PyInstaller application. It is needed
+#       for the application to work properly when it is packaged as one file.
+
+PROTEUS_APP_PATH = Path(getattr(sys, '_MEIPASS', Path().parent.absolute()))
 
 # --------------------------------------------------------------------------
 # Constant declarations for PROTEUS logger name
@@ -20,6 +31,7 @@ import sys
 
 PROTEUS_LOGGER_NAME    = str('proteus')
 PROTEUS_LOGGING_FORMAT = str('%(name)s:%(filename)s [%(levelname)s] -> %(message)s')
+PROTEUS_LOGGING_DIR    = PROTEUS_APP_PATH / '.proteus'
 
 # --------------------------------------------------------------------------
 # Logger configuration
@@ -33,20 +45,28 @@ PROTEUS_LOGGING_FORMAT = str('%(name)s:%(filename)s [%(levelname)s] -> %(message
 #   ERROR=40
 #   CRITICAL=50
 
-logging.basicConfig(
-    #filename=PROTEUS_LOGGER_NAME+'.log',
-    #filemode='a',    
-    level=logging.DEBUG, 
-    format=PROTEUS_LOGGING_FORMAT
-)
-
+# Create a logger
 logger = logging.getLogger(PROTEUS_LOGGER_NAME)
+logger.setLevel(logging.DEBUG)
 
-# --------------------------------------------------------------------------
-# Application absolute path
-# --------------------------------------------------------------------------
+# Create directory for log files
+if not PROTEUS_LOGGING_DIR.exists():
+    PROTEUS_LOGGING_DIR.mkdir()
 
-# NOTE: this is a workaround for the PyInstaller application. It is needed
-#       for the application to work properly when it is packaged as one file.
+# Define a formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-PROTEUS_APP_PATH = Path(getattr(sys, '_MEIPASS', Path().parent.absolute()))
+# Create a TimedRotatingFileHandler to create log files based on date and time
+log_filename = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
+file_handler = TimedRotatingFileHandler(
+    filename=f'{PROTEUS_LOGGING_DIR}/{log_filename}',
+    when='midnight',
+    interval=1,
+    backupCount=5
+)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+# Add the file handler to the logger
+logger.addHandler(file_handler)
+

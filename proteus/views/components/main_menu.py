@@ -12,6 +12,7 @@
 
 from typing import List, Dict
 import logging
+import traceback
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -548,7 +549,13 @@ class MainMenu(QDockWidget):
                 error_dialog.setText(
                     self.translator.text("main_menu.open_project.error.text")
                 )
-                error_dialog.setInformativeText(str(e))
+
+                informative_text: str = str(e)
+
+                tb: str = "".join(traceback.format_tb(e.__traceback__))
+                log.error(tb)
+
+                error_dialog.setInformativeText(informative_text)
                 error_dialog.exec()
 
     # ----------------------------------------------------------------------

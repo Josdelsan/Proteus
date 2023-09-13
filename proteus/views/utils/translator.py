@@ -148,7 +148,7 @@ class Translator:
         except KeyError:
             # If translation not found return the key itself
             translation = key
-            log.error(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
+            log.warning(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
 
         # Check if there are arguments to format the translation
         if args:

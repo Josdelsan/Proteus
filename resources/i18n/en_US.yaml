@@ -225,3 +225,8 @@ information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "This software do not collect any personal information. The software is provided 'as is', without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software."
 information_dialog.important_notes.text: "This version requires internet connection in order to show and export the default template render correctly."
 
+# ---------------------------------------------------------------------------
+# App critical error
+# ---------------------------------------------------------------------------
+app.critical_error.title: "PROTEUS has encountered a critical error"
+app.critical_error.text: "The application will be closed due to a critical error. For more information, check the log file: "

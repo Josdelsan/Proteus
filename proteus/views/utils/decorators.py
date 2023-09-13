@@ -22,7 +22,6 @@ from PyQt6.QtWidgets import QApplication
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.translator import Translator
 
 # --------------------------------------------------------------------------
 # Function: proteus_action

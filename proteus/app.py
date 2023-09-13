@@ -13,25 +13,21 @@
 from pathlib import Path
 import sys
 import logging
+import traceback
 
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import lxml.etree as ET
 from proteus.config import Config
-from proteus.model.abstract_object import ProteusState
-from proteus.model.project import Project
-from proteus.model.object import Object
-from proteus.model.archetype_manager import ArchetypeManager
-from proteus.model.properties import EnumProperty, Property, StringProperty
 from proteus.views.main_window import MainWindow
+from proteus.views.utils.translator import Translator
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -44,12 +40,15 @@ log = logging.getLogger(__name__)
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
+
 class ProteusApplication:
     def __init__(self):
         """
         It initializes the PROTEUS application.
         """
-        self.config : Config = Config()
+        self.config: Config = Config()
+        self.app: QApplication = None
+        self.main_window: MainWindow = None
 
     def run(self) -> int:
         """
@@ -67,115 +66,45 @@ class ProteusApplication:
         # self._old_main_tests()
 
         # Create the application instance
-        app = QApplication(sys.argv)
+        sys.excepthook = self.excepthook
+        self.app = QApplication(sys.argv)
 
-        with open(self.config.resources_directory / "stylesheets" / "proteus.qss", "r") as f:
+        with open(
+            self.config.resources_directory / "stylesheets" / "proteus.qss", "r"
+        ) as f:
             _stylesheet = f.read()
-            app.setStyleSheet(_stylesheet)
+            self.app.setStyleSheet(_stylesheet)
 
         # Create the main window
-        window = MainWindow(parent=None)
-        window.show()
+        self.main_window = MainWindow(parent=None)
+        self.main_window.show()
 
         # Execute the application
-        sys.exit(app.exec())
+        sys.exit(self.app.exec())
 
+    # NOTE: Exception handling for QApplication must be done overriding the
+    # excepthook method. Otherwise, it will depend on the thread where the
+    # exception is raised.
+    # https://stackoverflow.com/questions/55819330/catching-exceptions-raised-in-qapplication
+    def excepthook(self, exc_type, exc_value, exc_tb):
+        tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        log.critical("Uncaught exception:\n" + tb)
 
-    def _old_main_tests(self):
-        project : Project = Project.load(self.config.base_directory / "tests" / "sample_data" / "example_project")
+        # Show the exception and its traceback in a message box
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Icon.Critical)
+        error_dialog.setWindowTitle(Translator().text("app.critical_error.title"))
+        error_dialog.setText(Translator().text("app.critical_error.text"))
+        error_dialog.setInformativeText(tb)
+        error_dialog.exec()
 
-        property : Property
-        for property in project.properties.values():
-            print( f"{property.__class__.__name__} {property.name} = {property.value}" )
+        self.handle_critical_error()
 
-        document : Object
-        for document in project.documents:
-            print( f"document {document.id=}" )
-
-        print("project.xml")
-        print("------------")
-
-        print( ET.tostring(project.generate_xml(),
-            xml_declaration=True,
-            encoding='utf-8',
-            pretty_print=True).decode() )
-
-        for document in project.documents:
-            print(f"{document.id}.xml")
-            print("------------------")
-            print( ET.tostring(document.generate_xml(),
-                xml_declaration=True,
-                encoding='utf-8',
-                pretty_print=True).decode() )
-
-            print("Document Properties Tests")
-            print("------------")
-
-            print(document.get_property("name").value)
-
-            document.set_property(StringProperty("name", "NewName"))
-
-            print(document.get_property("name").value)
-            print("------------")
-
-        print("Project Properties Tests")
-        print("------------------------")
-
-        enum_property : EnumProperty = project.get_property("stability")
-
-        print(f"{enum_property.value=}")
-
-        project.set_property(EnumProperty(enum_property.name, "baja", enum_property.get_choices_as_set()))
-
-        print(project.get_property("stability").value)
-
-        print("Archetype Object Test")
-        print("------------------------")
-        objects = ArchetypeManager.load_object_archetypes()
-        for key, value in objects.items():
-            print(f"{key}:")
-            for obj in value:
-                print(f"\t{obj.id}")
-                print(f"\t\t{obj.children}")
-
-        
-
-        print("Archetype Document Test")
-        print("------------------------")
-        documents = ArchetypeManager.load_document_archetypes()
-        for document in documents:
-            print(document.path, "\n", document.id)
-            print(document.children)
-
-        print("Archetype Project Test")
-        print("------------------------")
-        projects = ArchetypeManager.load_project_archetypes()
-        for project_arch in projects:
-            print(project_arch.path, "\n", project_arch.id)
-            print(project_arch.documents)
-
-
-        # # object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
-
-        # object2 = Object(project, self.config.archetypes_directory / "documents" / "empty-document" / "objects" / "empty-document-01.xml")
-        # object2.clone_object(project)
-        # for doc in project.documents.values():
-        #     doc.state = ProteusState.DEAD
-            
-
-
-
-        # BUG this won't work because the pointer is different from document.children 
-        # object1 = Object(project, "../../proteus/tests/objects/64xM8FLyxtaE.xml")
-        # object1.set_property(StringProperty("name", "NewName"))
-
-        # On the other hand, this will work.
-        # for document in project.documents.values():
-        #     if(str(document.id) == "3fKhMAkcEe2C"):
-        #         for child in document.children.values():
-        #             print("HERE")
-        #             print(child.id)
-        #             child.set_property(StringProperty("name", "NewName"))
-        
-        # project.save_project()
-
+    # TODO: Find a way to store application state before quitting
+    # and restore it when the application is restarted.
+    def handle_critical_error(self):
+        """
+        Handle a critical error in the application quitting the application.
+        """
+        # Quit the application
+        self.app.quit()
