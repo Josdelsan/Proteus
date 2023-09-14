@@ -478,11 +478,16 @@ class DocumentTree(QTreeWidget):
                 return
 
             try:
+                # Check the dropped item is different from the target item
+                assert dropped_element_id != target_element_id, (
+                    f"Cannot drop element {dropped_element_id} on itself."
+                )
+
                 # If in the 25% of the bottom of the target item, then add the
                 # dropped item as a sibling above the target item
                 if event.position().y() > rect_center.y() + rect_height / 4:
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
+                        f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1} parent {parent_id}."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, target_index + 1, parent_id
@@ -492,7 +497,7 @@ class DocumentTree(QTreeWidget):
                 # dropped item as a sibling below the target item
                 elif event.position().y() < rect_center.y() - rect_height / 4:
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
+                        f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index} parent {parent_id}."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, target_index, parent_id

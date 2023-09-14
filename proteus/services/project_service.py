@@ -412,6 +412,11 @@ class ProjectService:
             new_position = None
         # If position is given, calculate the real position using a reference sibling
         else:
+            # Check the new position is valid (different from current position and the following one)
+            assert (
+                new_position != current_position
+            ), f"Object {object_id} is already in position {new_position}."
+
             # Use a sibling as reference to calculate the real position relative to
             # non DEAD objects and once the object in current position is removed
             reference_sibling: Object = alive_descendants[new_position]
@@ -530,7 +535,6 @@ class ProjectService:
         """
         self.project.xsl_templates.remove(template_name)
         self.project.state = ProteusState.DIRTY
-
 
     # ----------------------------------------------------------------------
     # Method     : delete_unused_assets
