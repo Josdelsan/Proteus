@@ -462,7 +462,7 @@ class MainMenu(QDockWidget):
 
                 enable: bool = (
                     archetype_class in selected_object.acceptedChildren
-                    or PROTEUS_ANY in selected_object.acceptedChildren 
+                    or PROTEUS_ANY in selected_object.acceptedChildren
                 )
 
                 # Enable or disable the archetype button

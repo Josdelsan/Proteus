@@ -56,14 +56,8 @@ class FileProperty(Property):
         # Superclass validation        
         super().__post_init__()
 
-        # Value validation
-        try:
-            if not (Path(self.value).exists()):
-                raise ValueError
-        except ValueError:
-            log.warning(f"File property '{self.name}': file '{self.value}' does not exist. Please check.")
-
-        # TODO: how to access project path and make relative file path from it?
+        # NOTE: value validation is not performed since it stores
+        # the file name and extension. Full path cannot be validated.
 
     @property
     def is_file(self) -> bool:

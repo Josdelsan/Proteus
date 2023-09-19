@@ -551,6 +551,11 @@ class ProjectService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # NOTE: This method is not used at the moment. The user is responsible
+    # of assets folder management. This method use memory stored objects to
+    # determine which assets are used in the project. This is not a good
+    # approach if save is not perfomed after the assets deletion, it might
+    # lead to inconsistencies.
     def delete_unused_assets(self) -> None:
         """
         Delete all the assets that are not used in the project. This is

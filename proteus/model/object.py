@@ -467,44 +467,12 @@ class Object(AbstractObject):
                 asset_file_path.exists()
             ), f"Asset file {asset_file_path} does not exist."
 
-            # Check for name collisions
+            # Name collision are not checked. If the asset file already exists
+            # in the target assets path, it will be overwritten.
             target_asset_file_path = target_assets_path / asset_property.value
-            # If there is a collision, rename the asset
-            if target_asset_file_path.exists():
-                # Rename the asset
-                asset_property = rename_asset(asset_property, target_assets_path)
-                target_asset_file_path = target_assets_path / asset_property.value
-                # Set the new asset name in the object
-                new_object.set_property(asset_property)
 
             # Copy the asset file to the target assets path
             shutil.copy(asset_file_path, target_asset_file_path)
-
-        def rename_asset(
-            asset_property: Property, target_folder: pathlib.Path, iteration: int = 1
-        ) -> Property:
-            """
-            Helper function that renames an asset recursively.
-
-            :param asset_property: The asset property to be renamed.
-            :param target_folder: The target folder where the asset will be saved.
-            :return: The renamed asset property.
-            """
-            # get the asset name separated from the extension
-            asset_name, asset_extension = os.path.splitext(asset_property.value)
-            # Build a new name for the asset
-            new_asset_name = f"{asset_name}({iteration}){asset_extension}"
-            # Check if the new name is already in use
-            new_asset_path = target_folder / new_asset_name
-            new_property: Property = None
-            if new_asset_path.exists():
-                new_property = rename_asset(
-                    asset_property, target_folder, iteration + 1
-                )
-            else:
-                new_property = asset_property.clone(new_asset_name)
-
-            return new_property
 
         # ------------------------------------------------------------------
 

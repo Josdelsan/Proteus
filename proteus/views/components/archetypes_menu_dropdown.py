@@ -97,7 +97,9 @@ class ArchetypesMenuDropdown(QMenu):
         for archetype in self._archetype_list:
             arch_class = archetype.classes[-1]
             clone_action = QAction(
-                self.translator.text(archetype.get_property("name").value)
+                # Name translation might not be needed for archetypes
+                # self.translator.text(archetype.get_property("name").value),
+                archetype.get_property("name").value,
             )
             icon: QIcon = QIcon(Config().get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix())
             clone_action.setIcon(icon)

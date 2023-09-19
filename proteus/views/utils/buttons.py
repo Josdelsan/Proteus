@@ -11,7 +11,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import os
 from typing import List
 from pathlib import Path
 
@@ -416,7 +415,8 @@ def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
 # Classes
 # --------------------------------------------------------------------------
 
-
+# NOTE: ArchetypesMenuDropdown is set as menu for each button in the
+# MainMenu component when the application is initialized.
 class ArchetypeMenuButton(QToolButton):
     """
     Class that implements a button for the archetype menu.
