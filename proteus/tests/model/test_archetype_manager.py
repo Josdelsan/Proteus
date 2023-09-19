@@ -36,7 +36,6 @@ from proteus.model.project import Project
 # Fixtures and helpers
 # --------------------------------------------------------------------------
 
-app : Config = Config()
 
 # --------------------------------------------------------------------------
 # ArchetypeManager unit tests
@@ -44,7 +43,7 @@ app : Config = Config()
 
 def test_project_archetype():
     # Get the number of projects in archetypes projects
-    dir_path = str(app.archetypes_directory / "projects")
+    dir_path = str(Config().archetypes_directory / "projects")
     number_of_projects : int = len(os.listdir(dir_path))
     
     # Check if load project function return all the projects
@@ -59,7 +58,7 @@ def test_project_archetype():
 
 def test_document_archetype():
     # Get the number of documents in archetypes documents
-    dir_path = str(app.archetypes_directory / "documents")
+    dir_path = str(Config().archetypes_directory / "documents")
     number_of_documents = len(os.listdir(dir_path))
     
     # Check if load document function return all the documents
@@ -74,7 +73,7 @@ def test_document_archetype():
 
 def test_object_archetype():
     # Get the number of objects arquetypes clases
-    dir_path = str(app.archetypes_directory / "objects")
+    dir_path = str(Config().archetypes_directory / "objects")
     archetype_types = os.listdir(dir_path)
     
     # Check if load object function return all the classes

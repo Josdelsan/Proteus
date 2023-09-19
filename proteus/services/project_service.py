@@ -208,6 +208,11 @@ class ProjectService:
         # Get element by id
         element = self._get_element_by_id(element_id)
 
+        # Check element is an object or project
+        assert isinstance(
+            element, (Object, Project)
+        ), f"Element with id {element_id} is not an object or project."
+
         for property in properties:
             element.set_property(property)
 
@@ -338,6 +343,9 @@ class ProjectService:
 
         :param object_id: Id of the object to clone.
         """
+        # Check the object_id is not None
+        assert object_id is not None, "Object id cannot be None."
+
         # Get object using helper method
         object: Object = self._get_element_by_id(object_id)
 

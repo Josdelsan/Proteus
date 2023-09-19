@@ -16,10 +16,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import os
+import datetime
 from typing import Dict
 from pathlib import Path
 from configparser import ConfigParser
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -32,6 +35,7 @@ from lxml import etree as ET
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -89,6 +93,9 @@ class Config:
         if self._initialized:
             return
         self._initialized = True
+
+        # Logger configuration
+        self._logger_configuration()
 
         # Application configuration
         self.config: ConfigParser = self._create_config_parser()
@@ -265,6 +272,40 @@ class Config:
         config_parser.read(CONFIG_FILE_PATH)
 
         return config_parser
+
+    def _logger_configuration(self) -> None:
+        # Create a logger
+        logger = logging.getLogger(PROTEUS_LOGGER_NAME)
+        logger.setLevel(logging.DEBUG)
+
+        # Create directory for log files
+        if not PROTEUS_LOGGING_DIR.exists():
+            PROTEUS_LOGGING_DIR.mkdir()
+
+        # Define a formatter
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        # Create a TimedRotatingFileHandler to create log files based on date and time
+        log_filename = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
+        file_handler = TimedRotatingFileHandler(
+            filename=f'{PROTEUS_LOGGING_DIR}/{log_filename}',
+            when='midnight',
+            interval=1,
+            backupCount=PROTEUS_MAX_LOG_FILES
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+
+        # Clean logs
+        # This is required because TimedRotatingFileHandler does not delete old log files
+        log_files = [str(log_file) for log_file in PROTEUS_LOGGING_DIR.glob('*.log')]
+        log_files.sort(key=os.path.getmtime, reverse=True)
+
+        for old_log_file in log_files[PROTEUS_MAX_LOG_FILES:]:
+            os.remove(old_log_file)
 
     def check_application_directories(self) -> None:
         """

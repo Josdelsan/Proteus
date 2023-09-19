@@ -186,6 +186,21 @@ class Controller:
         log.info(
             f"Updating properties of element with id: {element_id}. New properties: {new_properties}"
         )
+
+        # Check element_id is not None
+        assert element_id is not None, "Element id can not be None"
+
+        # Check new_properties is a list
+        assert isinstance(
+            new_properties, list
+        ), f"New properties must be a list. New properties: {new_properties}"
+
+        # Check new properties are type of Property
+        assert all(
+            isinstance(property, Property) for property in new_properties
+        ), f"New properties must be type of Property. New properties: {new_properties}"
+
+        # Push the command to the command stack
         self._push(
             UpdatePropertiesCommand(
                 element_id=element_id,
@@ -245,6 +260,11 @@ class Controller:
         """
         # Push the command to the command stack
         log.info(f"Deleting object with id: {object_id}")
+
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Push the command to the command stack
         self._push(
             DeleteObjectCommand(
                 object_id=object_id, project_service=self._project_service
@@ -275,7 +295,10 @@ class Controller:
         :param new_position: The new position of the object.
         :param new_parent_id: The new parent of the object.
         """
-        # Check the object is accepted by the parent
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Get parent
         parent: Union[Project, Object] = self._project_service._get_element_by_id(
             new_parent_id
         )
@@ -308,8 +331,8 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     # NOTE: This action is not undoable. This decision was made because of
-    # the behaviour of tabMoved signal of QTabBar, which while moving tabs
-    # instead of emitting the signal once is dropped. In projects with multiple
+    # the behaviour of tabMoved signal of QTabBar, which is triggered while moving
+    # tabs instead of emitting the signal once is dropped. In projects with multiple
     # documents this might cause a lot of undo commands to be pushed to the
     # command stack obfuscating the undo/redo history.
     @proteus_action
@@ -363,8 +386,12 @@ class Controller:
 
         :param document_id: The id of the document to delete.
         """
-        # Push the command to the command stack
         log.info(f"Deleting document with id: {document_id}")
+
+        # Check document_id is not None
+        assert document_id is not None, "Document id can not be None"
+
+        # Push the command to the command stack
         self._push(
             DeleteDocumentCommand(
                 document_id=document_id, project_service=self._project_service
@@ -404,6 +431,10 @@ class Controller:
         Get the structure of an object given its id.
         """
         log.info(f"Getting structure of object with id: {object_id}")
+
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
         return self._project_service.get_object_structure(object_id)
 
     # ----------------------------------------------------------------------
