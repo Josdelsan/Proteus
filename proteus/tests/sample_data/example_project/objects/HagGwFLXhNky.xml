@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="HagGwFLXhNky" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none">
+<object id="HagGwFLXhNky" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none" acceptedParents="use-case">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Use case step]]></stringProperty>
     <markdownProperty name="description" category="general"><![CDATA[The user ask...]]></markdownProperty>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any">
+<object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
     <floatProperty name="version" category="general">1.0</floatProperty>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object id="empty-paragraph" classes="paragraph" acceptedChildren=":Proteus-none">
+<object id="empty-paragraph" classes="paragraph" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name="name"><![CDATA[empty paragraph]]></stringProperty>
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>

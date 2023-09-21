@@ -3,6 +3,7 @@
     id="use-case"
     classes="product-requirement use-case"
     acceptedChildren="use-case-step"
+    acceptedParents=":Proteus-any"
 >
     <properties>
         <stringProperty name="name">Use case</stringProperty>

@@ -203,7 +203,9 @@ class MainMenu(QDockWidget):
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
-        self.save_button.clicked.connect(self._controller.save_project)
+        self.save_button.clicked.connect(
+            lambda: self._controller.save_project()
+        )  # Using lambda to avoid passing the event as argument
 
         # Project properties action
         self.project_properties_button: QToolButton = buttons.project_properties_button(

@@ -3,6 +3,7 @@
     id="actor"
     classes="product-requirement actor"
     acceptedChildren=":Proteus-none"
+    acceptedParents=":Proteus-any"
 >
     <properties>
         <stringProperty name="name" category="general">System actor</stringProperty>

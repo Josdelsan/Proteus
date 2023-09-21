@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none">
+<object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[System actor]]></stringProperty>
     <floatProperty name="version" category="general">0.1</floatProperty>

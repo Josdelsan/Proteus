@@ -379,6 +379,7 @@ class Object(AbstractObject):
         object_element.set("id", self.id)
         object_element.set("classes", " ".join(self.classes))
         object_element.set("acceptedChildren", " ".join(self.acceptedChildren))
+        object_element.set("acceptedParents", " ".join(self.acceptedParents))
 
         # Create <properties> element
         super().generate_xml_properties(object_element)

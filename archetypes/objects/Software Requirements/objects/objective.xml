@@ -3,6 +3,7 @@
     id="objective"
     classes="objective"
     acceptedChildren="objective"
+    acceptedParents=":Proteus-any"
 >
     <properties>
         <stringProperty name="name">Objective</stringProperty>

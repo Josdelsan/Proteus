@@ -14,7 +14,7 @@
     <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
   </properties>
   <documents>
-    <object id="56i4dHSDSppX" classes=":Proteus-document" acceptedChildren=":Proteus-any">
+    <object id="56i4dHSDSppX" classes=":Proteus-document" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
       <properties>
         <stringProperty name="acronym" category="general"><![CDATA[EXAMPLE]]></stringProperty>
         <stringProperty name="name" category="general"><![CDATA[Empty document]]></stringProperty>
@@ -25,7 +25,7 @@
         <markdownProperty name="comments" category="comments"><![CDATA[Empty document of empty project.]]></markdownProperty>
       </properties>
       <children>
-        <object id="4d4pmArs8LtP" classes="section" acceptedChildren=":Proteus-any">
+        <object id="4d4pmArs8LtP" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
           <properties>
             <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
             <floatProperty name="version" category="general">1.0</floatProperty>
@@ -34,7 +34,7 @@
             <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
           </properties>
           <children>
-            <object id="6aYJj9Nwet45" classes="paragraph" acceptedChildren=":Proteus-none">
+            <object id="6aYJj9Nwet45" classes="paragraph" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
               <properties>
                 <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
                 <floatProperty name="version" category="general">1.0</floatProperty>
@@ -45,7 +45,7 @@
               </properties>
               <children/>
             </object>
-            <object id="6VQfdFUiaBHU" classes="section" acceptedChildren=":Proteus-any">
+            <object id="6VQfdFUiaBHU" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
               <properties>
                 <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
                 <floatProperty name="version" category="general">1.0</floatProperty>
@@ -54,7 +54,7 @@
                 <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
               </properties>
               <children>
-                <object id="3fbBbigSVTEG" classes="paragraph" acceptedChildren=":Proteus-none">
+                <object id="3fbBbigSVTEG" classes="paragraph" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
                     <floatProperty name="version" category="general">1.0</floatProperty>
@@ -65,7 +65,7 @@
                   </properties>
                   <children/>
                 </object>
-                <object id="5zPKovT5gouZ" classes="graphic-file" acceptedChildren=":Proteus-none">
+                <object id="5zPKovT5gouZ" classes="graphic-file" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Graphic File]]></stringProperty>
                     <floatProperty name="version" category="general">1.0</floatProperty>
@@ -77,7 +77,7 @@
                   </properties>
                   <children/>
                 </object>
-                <object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none">
+                <object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[System actor]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>
@@ -93,7 +93,7 @@
             </object>
           </children>
         </object>
-        <object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any">
+        <object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
           <properties>
             <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
             <floatProperty name="version" category="general">1.0</floatProperty>
@@ -102,7 +102,7 @@
             <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
           </properties>
           <children>
-            <object id="7WdMapuCgHsm" classes="paragraph" acceptedChildren=":Proteus-none">
+            <object id="7WdMapuCgHsm" classes="paragraph" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
               <properties>
                 <stringProperty name="name" category="general"><![CDATA[Paragraph]]></stringProperty>
                 <floatProperty name="version" category="general">1.0</floatProperty>
@@ -113,7 +113,7 @@
               </properties>
               <children/>
             </object>
-            <object id="52fwR9fXGY9J" classes="section" acceptedChildren=":Proteus-any">
+            <object id="52fwR9fXGY9J" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
               <properties>
                 <stringProperty name="name" category="general"><![CDATA[Section]]></stringProperty>
                 <floatProperty name="version" category="general">1.0</floatProperty>
@@ -122,7 +122,7 @@
                 <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
               </properties>
               <children>
-                <object id="6F4M75pSc9KL" classes="external-resource" acceptedChildren=":Proteus-none">
+                <object id="6F4M75pSc9KL" classes="external-resource" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[External resource]]></stringProperty>
                     <floatProperty name="version" category="general">1.0</floatProperty>
@@ -134,7 +134,7 @@
                   </properties>
                   <children/>
                 </object>
-                <object id="6zGv3BNUkTec" classes="product-requirement information-requirement" acceptedChildren=":Proteus-none">
+                <object id="6zGv3BNUkTec" classes="product-requirement information-requirement" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Information requirement]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>
@@ -146,7 +146,7 @@
                   </properties>
                   <children/>
                 </object>
-                <object id="4Etjfs7bAYgX" classes="objective" acceptedChildren="subobjective">
+                <object id="4Etjfs7bAYgX" classes="objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Objective]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>
@@ -157,7 +157,7 @@
                   </properties>
                   <children/>
                 </object>
-                <object id="6XiHg4PkVuUG" classes="objective" acceptedChildren="subobjective">
+                <object id="6XiHg4PkVuUG" classes="objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Objective]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>
@@ -167,7 +167,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
                   </properties>
                   <children>
-                    <object id="3vojvYu2HqXC" classes="subobjective" acceptedChildren=":Proteus-none">
+                    <object id="3vojvYu2HqXC" classes="objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
                       <properties>
                         <stringProperty name="name" category="general"><![CDATA[Subobjective]]></stringProperty>
                         <floatProperty name="version" category="general">0.1</floatProperty>
@@ -180,7 +180,7 @@
                     </object>
                   </children>
                 </object>
-                <object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step">
+                <object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Use case]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>
@@ -192,7 +192,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
                   </properties>
                   <children>
-                    <object id="HagGwFLXhNky" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none">
+                    <object id="HagGwFLXhNky" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none" acceptedParents="use-case">
                       <properties>
                         <stringProperty name="name" category="general"><![CDATA[Use case step]]></stringProperty>
                         <markdownProperty name="description" category="general"><![CDATA[The user ask...]]></markdownProperty>
@@ -202,7 +202,7 @@
                     </object>
                   </children>
                 </object>
-                <object id="4fRReKDHr43n" classes="product-requirement use-case" acceptedChildren="use-case-step">
+                <object id="4fRReKDHr43n" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
                   <properties>
                     <stringProperty name="name" category="general"><![CDATA[Use case]]></stringProperty>
                     <floatProperty name="version" category="general">0.1</floatProperty>

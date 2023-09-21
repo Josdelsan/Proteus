@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step">
+<object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Use case]]></stringProperty>
     <floatProperty name="version" category="general">0.1</floatProperty>

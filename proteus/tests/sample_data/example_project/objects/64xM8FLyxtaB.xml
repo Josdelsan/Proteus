@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="64xM8FLyxtaB" classes="product-requirement use-case" acceptedChildren="use-case-step">
+<object id="64xM8FLyxtaB" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name="name" category="general"><![CDATA[Actualizar pedido]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>

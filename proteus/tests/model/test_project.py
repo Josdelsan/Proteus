@@ -18,6 +18,7 @@
 import os
 import pathlib
 import shutil
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -398,23 +399,17 @@ def test_save_project_document_edit(cloned_project: Project):
     assert xml_after_save == generated_xml, f"XML strings are not equal."
 
 
-@pytest.mark.skip
 def test_save_project_document_delete(cloned_project: Project):
     """
     Test Project save_project method checking that the object file
     is deleted and document is removed from project children dictionary.
     """
-    # Get document by id
-    document_id = "3fKhMAkcEe2C"
-    document: Object = [
-        d for d in cloned_project.get_descendants() if d.id == document_id
-    ][0]
-
     # Get number of documents before delete
     num_documents_before_delete = len(cloned_project.documents)
 
-    # Delete document and its children
-    # TODO: Delete method was moved to Service class. Update test.
+    # Delete document and its children (mark as DEAD)
+    document: Object = cloned_project.documents[0]
+    document.state = ProteusState.DEAD
 
     # Save project
     cloned_project.save_project()
@@ -432,5 +427,22 @@ def test_save_project_document_delete(cloned_project: Project):
         Expected: {num_documents_before_delete - 1} \
         Actual: {num_documents_after_delete}"
 
-    # TODO: Test load_xsl_templates
-    # TODO: Test add_descendant
+
+def test_load_xsl_templates(sample_project: Project):
+    """
+    Test Project load_xsl_templates method
+    """
+    # Expected xsl templates
+    expected_xsl_templates = ["default"]
+
+    # Parse and load XML into memory
+    root: ET.Element = ET.parse(sample_project.path).getroot()
+    actual_xsl_templates: List[str] = sample_project.load_xsl_templates(root)
+
+    # Check that xsl templates are equal
+    assert (
+        expected_xsl_templates == actual_xsl_templates
+    ), f"XSL templates are not equal. Expected: {expected_xsl_templates} \
+        Actual: {actual_xsl_templates}"
+
+    # TODO: Test add_descendant and accept descendant (not prioritary for project)

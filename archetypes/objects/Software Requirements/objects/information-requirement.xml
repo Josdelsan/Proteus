@@ -3,6 +3,7 @@
     id="information-requirement"
     classes="product-requirement information-requirement"
     acceptedChildren=":Proteus-none"
+    acceptedParents=":Proteus-any"
 >
     <properties>
         <stringProperty name="name" category="general">Information requirement</stringProperty>

@@ -2,7 +2,8 @@
 <object
     id="7s63wvxgekU7"
     classes="objective"
-    acceptedChildren="subobjective"
+    acceptedChildren="objective"
+    acceptedParents=":Proteus-any"
 >
     <properties>
         <stringProperty name="name">Objective</stringProperty>
