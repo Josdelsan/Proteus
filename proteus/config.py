@@ -21,6 +21,7 @@ import datetime
 from typing import Dict
 from pathlib import Path
 from configparser import ConfigParser
+import shutil
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -155,7 +156,7 @@ class Config:
             self.config.set(SETTINGS, setting, settings[setting])
 
         # Save settings
-        with open(proteus.PROTEUS_APP_PATH / CONFIG_FILE, "w") as configfile:
+        with open(Path.cwd() / CONFIG_FILE, "w") as configfile:
             self.config.write(configfile)
 
     def get_icon(self, type: str, name: str) -> Path:
@@ -268,8 +269,20 @@ class Config:
             CONFIG_FILE_PATH.exists()
         ), f"PROTEUS configuration file {CONFIG_FILE} does not exist!"
 
+        # Check for proteus.ini file where the application is executed
+        # NOTE: This allows to change config in single executable app version
+        CONFIG_FILE_EXEC_PATH: Path = Path.cwd() / CONFIG_FILE
+        if not CONFIG_FILE_EXEC_PATH.exists():
+            log.warning(
+                f"PROTEUS configuration file {CONFIG_FILE} does not exist in the execution path. Copying configuration file to execution path..."
+            )
+
+            # Copy proteus.ini file to execution path
+            shutil.copy(CONFIG_FILE_PATH, CONFIG_FILE_EXEC_PATH)
+
+
         config_parser: ConfigParser = ConfigParser()
-        config_parser.read(CONFIG_FILE_PATH)
+        config_parser.read(CONFIG_FILE_EXEC_PATH)
 
         return config_parser
 
