@@ -55,6 +55,7 @@ from proteus.model.properties.classlist_property import ClassListProperty
 # logging configuration
 log = logging.getLogger(__name__)
 
+
 # --------------------------------------------------------------------------
 # String property input and validator
 # --------------------------------------------------------------------------
@@ -63,6 +64,7 @@ def _string_property_input(property: StringProperty) -> QLineEdit:
     string_input.setText(property.value)
     return string_input
 
+
 def _string_property_validator(input: QLineEdit) -> str:
     # Get the input text
     text = input.text()
@@ -70,9 +72,10 @@ def _string_property_validator(input: QLineEdit) -> str:
     # Check if the input is valid
     if not text:
         return "string_property_input.validator.error"
-    
+
     # Return None if the input is valid
     return None
+
 
 # --------------------------------------------------------------------------
 # Date property input and validator
@@ -81,6 +84,7 @@ def _date_property_input(property) -> QDateEdit:
     date_input = QDateEdit()
     date_input.setDate(property.value)
     return date_input
+
 
 # NOTE: This validator is not used yet
 def _date_property_validator(input: QDateEdit) -> str:
@@ -95,6 +99,7 @@ def _markdown_property_input(property) -> QTextEdit:
     markdown_input.setPlainText(property.value)
     return markdown_input
 
+
 def _markdown_property_validator(input: QTextEdit) -> str:
     pass
 
@@ -107,6 +112,7 @@ def _boolean_property_input(property) -> QCheckBox:
     state = Qt.CheckState.Checked if bool(property.value) else Qt.CheckState.Unchecked
     boolean_input.setCheckState(state)
     return boolean_input
+
 
 def _boolean_property_validator(input: QCheckBox) -> str:
     pass
@@ -121,6 +127,7 @@ def _float_property_input(property) -> QLineEdit:
     float_input.setText(str(property.value))
     return float_input
 
+
 def _float_property_validator(input: QLineEdit) -> str:
     # Perform validation to prevent non-numeric values
     text = input.text()
@@ -128,9 +135,10 @@ def _float_property_validator(input: QLineEdit) -> str:
         float(text)
     except ValueError:
         return "float_property_input.validator.error"
-    
+
     # Return None if the input is valid
     return None
+
 
 # --------------------------------------------------------------------------
 # Integer property input and validator
@@ -141,6 +149,7 @@ def _integer_property_input(property) -> QLineEdit:
     float_input.setText(str(property.value))
     return float_input
 
+
 def _integer_property_validator(input: QLineEdit) -> str:
     # Perform validation to prevent non-numeric values
     text = input.text()
@@ -148,9 +157,10 @@ def _integer_property_validator(input: QLineEdit) -> str:
         int(text)
     except ValueError:
         return "integer_property_input.validator.error"
-    
+
     # Return None if the input is valid
     return None
+
 
 # --------------------------------------------------------------------------
 # Enum property input and validator
@@ -159,6 +169,7 @@ def _enum_property_input(property) -> QLineEdit:
     enum_input = QLineEdit()
     enum_input.setText(property.value)
     return enum_input
+
 
 def _enum_property_validator(input: QLineEdit) -> str:
     pass
@@ -172,8 +183,10 @@ def _url_property_input(property) -> QLineEdit:
     url_input.setText(property.value)
     return url_input
 
+
 def _url_property_validator(input: QLineEdit) -> str:
     pass
+
 
 # --------------------------------------------------------------------------
 # File property input and validator
@@ -214,6 +227,7 @@ def _file_property_input(property) -> QLineEdit:
     # Connect click event to open file dialog
     file_input.mousePressEvent = _open_file_dialog
     return file_input
+
 
 def _file_property_validator(input: QLineEdit) -> str:
     pass
@@ -305,6 +319,7 @@ class PropertyInputWidget(QWidget):
             self.error_label.hide()
             return False
 
+
 # --------------------------------------------------------------------------
 # Class: PropertyInputFactory
 # Description: Implementation of a property input factory to handle the
@@ -318,6 +333,7 @@ class PropertyInputFactory:
     Implementation of a property input factory to handle the creation of
     property input widgets.
     """
+
     # Map of property types to input creation functions
     property_input_map: Dict[type[Property], List[Callable]] = {
         StringProperty: (_string_property_input, _string_property_validator),
@@ -341,7 +357,10 @@ class PropertyInputFactory:
     @staticmethod
     def create(property: Property) -> PropertyInputWidget:
         try:
-            property_input, property_validator = PropertyInputFactory.property_input_map[type(property)]
+            (
+                property_input,
+                property_validator,
+            ) = PropertyInputFactory.property_input_map[type(property)]
             return PropertyInputWidget(property_input(property), property_validator)
         except KeyError:
             log.error(f"Property input widget for {type(property)} was not found")

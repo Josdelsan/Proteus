@@ -54,11 +54,11 @@ def new_project_button(parent: QWidget) -> QToolButton:
     new_button.setFixedWidth(55)
 
     # Set file icon
-    file_icon: QIcon = QApplication.style().standardIcon(
-        QStyle.StandardPixmap.SP_FileIcon
-    )
-    new_button.setIcon(QIcon(file_icon))
-    new_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "new-project")
+    button_icon = QIcon()
+    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    new_button.setIcon(button_icon)
+    new_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     new_button.setToolTip(Translator().text("new_project_button.tooltip"))
@@ -83,11 +83,11 @@ def open_project_button(parent: QWidget) -> QToolButton:
     open_button.setFixedWidth(55)
 
     # Set file icon
-    file_icon: QIcon = QApplication.style().standardIcon(
-        QStyle.StandardPixmap.SP_DirIcon
-    )
-    open_button.setIcon(QIcon(file_icon))
-    open_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "open-project")
+    button_icon = QIcon()
+    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    open_button.setIcon(QIcon(button_icon))
+    open_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     open_button.setToolTip(Translator().text("open_project_button.tooltip"))
@@ -364,11 +364,11 @@ def info_button(parent: QWidget) -> QToolButton:
     info_button.setFixedWidth(55)
 
     # Set file icon
-    file_icon: QIcon = QApplication.style().standardIcon(
-        QStyle.StandardPixmap.SP_MessageBoxInformation
-    )
-    info_button.setIcon(QIcon(file_icon))
-    info_button.setIconSize(file_icon.actualSize(QSize(32, 32)))
+    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "info")
+    button_icon = QIcon()
+    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    info_button.setIcon(QIcon(button_icon))
+    info_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
     info_button.setToolTip(Translator().text("information_button.tooltip"))

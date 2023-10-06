@@ -34,13 +34,16 @@
         <icon key="use-case-step" file="use-case.svg" />
     </type>
     <type name="main_menu_icon" default="archetype-default.svg">
-        <icon key="delete-file" file="delete-file-button.svg" />
-        <icon key="new-file" file="new-file-button.svg" />
-        <icon key="edit" file="edit-button.svg" />
-        <icon key="save" file="save-button.svg" />
-        <icon key="export" file="export-button.svg" />
-        <icon key="settings" file="settings-button.svg" />
-        <icon key="redo" file="redo.svg" />
-        <icon key="undo" file="undo.svg" />
+        <icon key="new-project" file="new-project-button.png" />
+        <icon key="open-project" file="open-project-button.png" />
+        <icon key="delete-file" file="delete-file-button.png" />
+        <icon key="new-file" file="new-file-button.png" />
+        <icon key="edit" file="edit-button.png" />
+        <icon key="save" file="save-button.png" />
+        <icon key="export" file="export-button.png" />
+        <icon key="settings" file="settings-button.png" />
+        <icon key="redo" file="redo.png" />
+        <icon key="undo" file="undo.png" />
+        <icon key="info" file="info-button.png" />
     </type>
 </icons>

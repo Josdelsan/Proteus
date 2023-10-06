@@ -109,6 +109,13 @@ class InformationDialog(QDialog):
         important_notes.setWordWrap(True)
         important_notes.setContentsMargins(0, 0, 0, 20)
 
+        # Icons8 attribution
+        icons8_attribution = QLabel(
+            "Icons by <a href='https://icons8.com'>Icons8</a>"
+        )
+        icons8_attribution.setOpenExternalLinks(True)
+        icons8_attribution.setContentsMargins(0, 0, 0, 20)
+
 
         # layout
         layout = QVBoxLayout()
@@ -118,6 +125,7 @@ class InformationDialog(QDialog):
         layout.addWidget(license)
         layout.addWidget(terms_of_use)
         layout.addWidget(important_notes)
+        layout.addWidget(icons8_attribution)
 
         # Set the layout
         self.setLayout(layout)
