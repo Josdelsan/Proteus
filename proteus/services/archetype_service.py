@@ -194,11 +194,11 @@ class ArchetypeService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_by_type(self, type: str) -> Dict[str, List[Object]]:
+    def get_object_archetypes_by_type(self, _type: str) -> Dict[str, List[Object]]:
         """
         Returns the list of object archetypes for a given type.
         """
-        return self.get_object_archetypes()[type]
+        return self.get_object_archetypes()[_type]
 
     # ----------------------------------------------------------------------
     # Method     : get_first_level_object_archetypes
@@ -216,21 +216,22 @@ class ArchetypeService:
             str, Dict[str, List[Object]]
         ] = self.get_object_archetypes().copy()
 
-        empty_keys: List[str] = []
-
         # Iterate over the archetype types and classes
-        for type in archetypes.keys():
-            for class_ in archetypes[type].keys():
+        for _type in archetypes.keys():
+
+            empty_keys: List[str] = []
+
+            for class_ in archetypes[_type].keys():
                 # Remove the second level objects
-                for object in archetypes[type][class_]:
+                for object in archetypes[_type][class_]:
                     if PROTEUS_ANY not in object.acceptedParents:
-                        archetypes[type][class_].remove(object)
-                        if len(archetypes[type][class_]) == 0:
+                        archetypes[_type][class_].remove(object)
+                        if len(archetypes[_type][class_]) == 0:
                             empty_keys.append(class_)
 
-        # Remove empty keys
-        for key in empty_keys:
-            archetypes[type].pop(key)
+            # Remove empty keys
+            for key in empty_keys:
+                archetypes[_type].pop(key)
 
         return archetypes
 
