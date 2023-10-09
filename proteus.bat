@@ -1,19 +1,34 @@
 @echo off
 setlocal
 
-echo PROTEUS: v1.0.0-aplha.1
+echo PROTEUS: v1.0.0-alpha.1
 
-@REM Check if Python is installed
+@REM Initialize variables
+set python_executable=
+
+@REM Check if 'python' is installed
 python --version >nul 2>&1
-if errorlevel 1 (
-    echo PROTEUS: Python is not installed on your system.
+if not errorlevel 1 (
+    set python_executable=python
+)
+
+@REM Check if 'python3' is installed
+python3 --version >nul 2>&1
+if not errorlevel 1 (
+    set python_executable=python3
+)
+
+@REM Check if either 'python' or 'python3' is installed
+if "%python_executable%"=="" (
+    echo PROTEUS: Neither 'python' nor 'python3' is installed on your system.
     echo PROTEUS: Please install Python and try running this script again. Recommended version: 3.10.7
     pause
     exit /b 1
-) else (
-    echo PROTEUS: Installed Python version
-    python --version
 )
+
+echo PROTEUS: %python_executable% is installed on your system.
+echo PROTEUS: Installed Python version:
+%python_executable% --version || true
 
 set "script_dir=%~dp0"
 set "venv_dir=%script_dir%proteus_env"
@@ -23,9 +38,9 @@ if exist "%venv_dir%" (
     echo PROTEUS: Environment "proteus_env" was found.
 ) else (
     echo PROTEUS: Environment "proteus_env" was not found.
-    echo PROTEUS: Creating a virtual environment...
+    echo PROTEUS: Creating a virtual environment using %python_executable%...
 
-    python -m venv "%venv_dir%"
+    %python_executable% -m venv "%venv_dir%"
     
     if exist "%venv_dir%" (
         echo PROTEUS: Virtual environment created successfully.
@@ -46,6 +61,6 @@ pip install -r "%script_dir%requirements.txt"
 
 @REM Run the application in the background so the console can be closed
 echo PROTEUS: Running the application...
-start "" /b python -m proteus
+start "" /b %python_executable% -m proteus
 
 endlocal
