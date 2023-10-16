@@ -137,7 +137,7 @@ class RenderService:
         """
         transform = self._get_xslt(xslt_name)
         result_tree = transform(xml)
-        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True)
+        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True, method="html")
         return html_string
 
     # ----------------------------------------------------------------------

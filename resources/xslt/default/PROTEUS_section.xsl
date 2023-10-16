@@ -27,35 +27,37 @@
         <!-- Nest level -->
         <xsl:param name="nest_level" select="1"/>
 
-        <a id="{@id}"></a>
+        <div id="{@id}">
 
-        <!-- Calculate the normalized header level -->
-        <xsl:variable name="header_level">
-            <xsl:choose>
-                <xsl:when test="$nest_level > 6">6</xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$nest_level"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
+            <!-- Calculate the normalized header level -->
+            <xsl:variable name="header_level">
+                <xsl:choose>
+                    <xsl:when test="$nest_level > 6">6</xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$nest_level"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
 
-        <!-- Calculate section index -->
-        <xsl:variable name="section_index">
-            <xsl:number level="multiple" count="object[@classes='section']" />
-        </xsl:variable>
-        <xsl:element name="h{$header_level}">
-            <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
-            <xsl:attribute name="class">section</xsl:attribute>
-            <xsl:value-of select="$section_index"/>
-            <xsl:text> </xsl:text>
-            <xsl:value-of select="properties/stringProperty[@name='name']"/><xsl:apply-templates select="name"/>
-        </xsl:element>
+            <!-- Calculate section index -->
+            <xsl:variable name="section_index">
+                <xsl:number level="multiple" count="object[@classes='section']" />
+            </xsl:variable>
+            <xsl:element name="h{$header_level}">
+                <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
+                <xsl:attribute name="class">section</xsl:attribute>
+                <xsl:value-of select="$section_index"/>
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="properties/stringProperty[@name='name']"/><xsl:apply-templates select="name"/>
+            </xsl:element>
 
-        <!-- Apply templates to all section -->
-        <xsl:apply-templates select="children/object">
-            <!-- Provide nest level context to children -->
-            <xsl:with-param name="nest_level" select="$nest_level + 1"/>
-        </xsl:apply-templates>
+            <!-- Apply templates to all section -->
+            <xsl:apply-templates select="children/object">
+                <!-- Provide nest level context to children -->
+                <xsl:with-param name="nest_level" select="$nest_level + 1"/>
+            </xsl:apply-templates>
+            
+        </div>
     </xsl:template>
 
     <!-- ============================================= -->

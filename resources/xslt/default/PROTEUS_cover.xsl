@@ -19,9 +19,8 @@
     exclude-result-prefixes="proteus"
 >
     <xsl:template name="document_cover">
-
         <div id="document_cover">
-            <a id="{@id}"></a>
+            <div id="{@id}"></div>
     
             <div id="project_name">
                 <xsl:value-of select="$proteus:lang_project"/>

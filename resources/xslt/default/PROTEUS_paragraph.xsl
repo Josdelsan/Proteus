@@ -24,12 +24,13 @@
     <!-- =========================================================== -->
 
     <xsl:template match="object[@classes='paragraph']">
-        <a id="{@id}"></a>
-        <p>
-            <xsl:call-template name="generate_markdown">
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='text']"/>
-            </xsl:call-template>
-        </p>
+        <div id="{@id}">
+            <p>
+                <xsl:call-template name="generate_markdown">
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='text']"/>
+                </xsl:call-template>
+            </p>
+        </div>
     </xsl:template>
 
     <!-- =========================================================== -->
