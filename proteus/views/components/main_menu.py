@@ -126,6 +126,7 @@ class MainMenu(QDockWidget):
         )
         EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
         EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
+        EventManager.attach(Event.CURRENT_DOCUMENT_CHANGED, self.update_on_select_object, self)
         EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
         EventManager.attach(
             Event.CURRENT_DOCUMENT_CHANGED,

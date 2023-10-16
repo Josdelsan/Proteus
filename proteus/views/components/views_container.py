@@ -271,9 +271,11 @@ class ViewsContainer(QTabWidget):
             browser.page().setContent(html_array, "text/html")
 
             # Connect to load finished signal to update the object list
-            # NOTE: This is necessary to run the script after the page is loaded
+            # NOTE: This is necessary to run the script after the page is loaded.
+            # TODO: Due to PyQt6 behavior, signal is emitted several times. Find
+            # a way to run the script only once.
             # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
-            browser.page().loadFinished.connect(lambda: self.update_on_select_object())
+            browser.page().loadFinished.connect(self.update_on_select_object)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -331,7 +333,7 @@ class ViewsContainer(QTabWidget):
             f"document.getElementById('{selected_object_id}').scrollIntoView();"
         )
 
-        # Iterate over the browsers and navigate to the url
+        # Run the script in the current view browser
         browser: QWebEngineView = self.tabs[current_view]
         browser.page().runJavaScript(script)
 

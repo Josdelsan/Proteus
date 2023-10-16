@@ -74,7 +74,6 @@ class StateManager:
         EventManager.notify(
             Event.CURRENT_DOCUMENT_CHANGED, document_id=cls.current_document
         )
-        EventManager.notify(Event.SELECT_OBJECT)
 
     # --------------------------------------------------------------------------
     # Method: get_current_document
