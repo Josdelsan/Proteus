@@ -255,8 +255,9 @@ class MainWindow(QMainWindow):
             # Save the project
             self._controller.save_project()
 
+            # NOTE: Users may be responsible for assets management
             # Delete unused assets
-            self._controller.delete_unused_assets()
+            # self._controller.delete_unused_assets()
 
             # Close the application
             event.accept()

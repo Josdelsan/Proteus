@@ -472,8 +472,11 @@ class Object(AbstractObject):
             # in the target assets path, it will be overwritten.
             target_asset_file_path = target_assets_path / asset_property.value
 
-            # Copy the asset file to the target assets path
-            shutil.copy(asset_file_path, target_asset_file_path)
+            # To avoid shutil.copy error, we need to check if the target asset
+            # file path is different from the source asset file path.
+            if target_asset_file_path != asset_file_path:
+                # Copy the asset file to the target assets path
+                shutil.copy(asset_file_path, target_asset_file_path)
 
         # ------------------------------------------------------------------
 

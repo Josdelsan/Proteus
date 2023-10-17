@@ -144,7 +144,6 @@ def _float_property_validator(input: QLineEdit) -> str:
 # Integer property input and validator
 # --------------------------------------------------------------------------
 def _integer_property_input(property) -> QLineEdit:
-    # TODO: Perform validation to prevent non-numeric values
     float_input = QLineEdit()
     float_input.setText(str(property.value))
     return float_input
@@ -195,7 +194,9 @@ def _file_property_input(property) -> QLineEdit:
     def _open_file_dialog(*args, **kwargs):
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-        file_dialog.setNameFilter("Images (*.png *.jpeg *.jpg, *.gif, *.svg)")
+        file_dialog.setNameFilter(
+            "Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)"
+        )
         file_dialog.exec()
 
         # Get the name of the selected file
@@ -212,7 +213,10 @@ def _file_property_input(property) -> QLineEdit:
             # are updated. Every file that is not used by any property
             # must be deleted when the project closes.
             assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
-            shutil.copy(file_path, assets_path)
+            # Avoid copying the file if it is already in the assets directory
+            # It triggers an error when the file is copied to the same directory
+            if file_path.parent.as_posix() != assets_path:
+                shutil.copy(file_path, assets_path)
 
             # Get file name
             # NOTE: It will be stored in the property value and
