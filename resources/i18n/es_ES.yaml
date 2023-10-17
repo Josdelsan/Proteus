@@ -137,7 +137,7 @@ main_menu.delete_document.text: "¿Está seguro de que desea eliminar el documen
 main_window.title: "Aplicación Proteus"
 main_window.exit_dialog.title: "Salir de Proteus sin guardar"
 main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
-main_window.statusbar.text.selected_object: "Objeto seleccionado: {} | Arquetipos aceptados por el objeto: {}"
+main_window.statusbar.text.selected_object: "Objeto seleccionado id [{}] nombre [{}] | Arquetipos aceptados por el objeto {}"
 
 
 # ---------------------------------------------------------------------------

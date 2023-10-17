@@ -187,6 +187,7 @@ class MainWindow(QMainWindow):
         # Message to show in the status bar
         message: str = self.translator.text(
             "main_window.statusbar.text.selected_object",
+            selected_object_id,
             object_name,
             selected_object.acceptedChildren,
         )

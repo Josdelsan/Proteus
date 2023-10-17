@@ -16,6 +16,7 @@ from typing import Union, List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -23,7 +24,6 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QDialog,
-    QApplication
 )
 
 
@@ -35,13 +35,16 @@ from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property
-from proteus.views.utils.input_factory import PropertyInputFactory, PropertyInputWidget
+from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.views.utils.forms.properties.property_input_factory import (
+    PropertyInputFactory,
+)
 from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
-# Class: PropertyForm
+# Class: PropertyDialog
 # Description: Class for the PROTEUS application properties form component.
 # Date: 27/05/2023
 # Version: 0.1
@@ -87,7 +90,7 @@ class PropertyDialog(QDialog):
         # Create a dictionary to hold the input widgets for each property
         # NOTE: This is used to get the input values when the form is
         #       accepted
-        self.input_widgets: Dict[str, PropertyInputWidget] = {}
+        self.input_widgets: Dict[str, PropertyInput] = {}
 
         # Create the component
         self.create_component()
@@ -139,10 +142,8 @@ class PropertyDialog(QDialog):
                 category_layout: QFormLayout = category_widget.layout()
 
             # Create the property input widget
-            input_field_widget: PropertyInputWidget = PropertyInputFactory.create(prop)
-            category_layout.addRow(
-                self.translator.text(prop.name), input_field_widget
-            )
+            input_field_widget: PropertyInput = PropertyInputFactory.create(prop)
+            category_layout.addRow(self.translator.text(prop.name), input_field_widget)
 
             # Add the input field widget to the input widgets dictionary
             # NOTE: This is used to retrieve the values of the widgets that changed
@@ -198,7 +199,7 @@ class PropertyDialog(QDialog):
         # Iterate over the input widgets and update the properties dictionary
         for prop_name in properties_dict.keys():
             # Get the property input value
-            input_widget: PropertyInputWidget = self.input_widgets[prop_name]
+            input_widget: PropertyInput = self.input_widgets[prop_name]
 
             # Check if the widget has errors
             widget_has_errors: bool = input_widget.has_errors()

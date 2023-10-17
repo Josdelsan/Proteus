@@ -136,7 +136,7 @@ main_menu.delete_document.text: "Are you sure you want to delete the document {}
 main_window.title: "Proteus application"
 main_window.exit_dialog.title: "Exit Proteus without saving"
 main_window.exit_dialog.text: "Do you want to save changes before exiting Proteus?"
-main_window.statusbar.text.selected_object: "Current selected object: {} | Accepted archetypes by the object: {}"
+main_window.statusbar.text.selected_object: "Current selected object id [{}] name [{}] | Accepted archetypes by the object {}"
 
 
 # ---------------------------------------------------------------------------

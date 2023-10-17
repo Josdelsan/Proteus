@@ -47,7 +47,7 @@ PROJECT_NAME = "example_project"
 # --------------------------------------------------------------------------
 
 
-# NOTE: PropertyInputWidget would need a set_value() method to be able to
+# NOTE: PropertyInput would need a set_value() method to be able to
 # test validation of different property types in the same test. This would
 # only be use in testing.
 @pytest.mark.parametrize(
