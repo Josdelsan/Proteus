@@ -87,7 +87,7 @@ def test_create_project(app):
         # to select the correct archetype
         dialog._archetype_id = "empty-project"
         dialog.name_input.setText(PROJECT_NAME)
-        dialog.path_input.setText(str(PROJECT_PATH))
+        dialog.path_input.setDirectory(str(PROJECT_PATH))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # Open project button click
@@ -215,7 +215,7 @@ def test_create_project_negative(
 
         dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(project_name)
-        dialog.path_input.setText(str(project_path))
+        dialog.path_input.setDirectory(str(project_path))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
         # Store error label text

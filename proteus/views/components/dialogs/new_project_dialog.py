@@ -18,17 +18,14 @@ import os
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QFileDialog,
     QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QLineEdit,
-    QPushButton,
     QFrame,
     QSizePolicy,
     QDialogButtonBox,
-    QApplication
 )
 
 
@@ -38,6 +35,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID
 from proteus.model.project import Project
+from proteus.views.utils.forms.directory_edit import DirectoryEdit
 from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
@@ -129,18 +127,13 @@ class NewProjectDialog(QDialog):
 
         # Create the name input widget
         name_label = QLabel(self.translator.text("new_project_dialog.input.name"))
-        # NOTE: Temporary solution to get the name of the project
-        #       in save_button_clicked method
         self.name_input: QLineEdit = QLineEdit()
 
         # Create the path input widget
         path_label: QLabel = QLabel(
             self.translator.text("new_project_dialog.input.path")
         )
-        self.path_input: QLabel = QLabel()
-        browse_button = QPushButton(
-            self.translator.text("new_project_dialog.input.path.browser")
-        )
+        self.path_input: DirectoryEdit = DirectoryEdit()
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
@@ -164,7 +157,6 @@ class NewProjectDialog(QDialog):
         layout.addWidget(self.name_input)
         layout.addWidget(path_label)
         layout.addWidget(self.path_input)
-        layout.addWidget(browse_button)
         layout.addWidget(self.error_label)
 
         layout.addWidget(self.button_box)
@@ -193,17 +185,6 @@ class NewProjectDialog(QDialog):
         # Update the description for the first archetype
         update_description()
 
-        # Open a file dialog to select the project path
-        def select_project_path():
-            file_dialog: QFileDialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.Directory)
-            if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-                path: str = file_dialog.selectedFiles()[0]
-                self.path_input.setText(path)
-
-        # Open a file dialog when the user clicks on the browse button
-        browse_button.clicked.connect(select_project_path)
-
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
@@ -218,7 +199,7 @@ class NewProjectDialog(QDialog):
     def save_button_clicked(self):
         # Get the project name
         name: str = self.name_input.text()
-        path: str = self.path_input.text()
+        path: str = self.path_input.directory()
 
         # TODO: This is a temporal solution for testing purposes.
         #       Create a proper validator and

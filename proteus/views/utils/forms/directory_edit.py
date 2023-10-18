@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: asset_edit.py
-# Description: Asset edit input widget for forms.
-# Date: 17/10/2023
+# File: directory_edit.py
+# Description: Directory edit input widget for forms.
+# Date: 18/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -20,7 +20,6 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QPushButton,
     QHBoxLayout,
-    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
@@ -28,27 +27,23 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.views import APP_ICON_TYPE
-from proteus.model import ASSETS_REPOSITORY
 from proteus.config import Config
-from proteus.views.utils.translator import Translator
+
 
 # --------------------------------------------------------------------------
-# Class: AssetEdit
-# Description: Asset edit input widget for forms.
+# Class: DirectoryEdit
+# Description: Directory edit input widget for forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class AssetEdit(QWidget):
+class DirectoryEdit(QWidget):
     """
-    Asset edit input widget for forms. It copies the selected file into the
+    Directory edit input widget for forms. It copies the selected file into the
     assets directory if it is not already there.
 
     Similar to PyQt6 QLineEdit, QTextEdit, etc. It is used to retrieve the
     value of the user input.
-
-    NOTE: It is meant to be used standalone or in FilePropertyInput. Do not
-    confuse it with FilePropertyInput.
     """
 
     # ----------------------------------------------------------------------
@@ -90,7 +85,7 @@ class AssetEdit(QWidget):
         self.input.setDisabled(True)
         
         # Browse button
-        browse_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "browse_asset_icon")
+        browse_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "browse_dir_icon")
         browse_button_icon = QIcon()
         browse_button_icon.addFile(browse_icon_path.as_posix())
 
@@ -105,7 +100,7 @@ class AssetEdit(QWidget):
         self.setLayout(layout)
 
         # Connect signals --------------------------------------------------
-        self.browse_button.clicked.connect(self._open_file_dialog)
+        self.browse_button.clicked.connect(self._browse_directory_dialog)
 
     # ----------------------------------------------------------------------
     # Method     : asset
@@ -114,9 +109,9 @@ class AssetEdit(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def asset(self) -> str:
+    def directory(self) -> str:
         """
-        Returns the asset.
+        Returns the selected directory.
         """
         return self.input.text()
     
@@ -127,11 +122,11 @@ class AssetEdit(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def setAsset(self, asset: str) -> None:
+    def setDirectory(self, directory: str) -> None:
         """
-        Sets the asset.
+        Sets the directory.
         """
-        self.input.setText(asset)
+        self.input.setText(directory)
 
     
     # ======================================================================
@@ -139,67 +134,17 @@ class AssetEdit(QWidget):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : open_file_dialog
-    # Description: Opens a file dialog.
+    # Method     : _browse_directory_dialog
+    # Description: Browse directory dialog.
     # Date       : 17/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _open_file_dialog(self) -> None:
+    def _browse_directory_dialog(self) -> None:
             """
-            Opens a file dialog and sets the selected file as the input value.
-            Copies the file to the assets directory if it is not already there.
+            Browse directory dialog.
             """
-            file_dialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-            file_dialog.setNameFilter(
-                "Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)"
-            )
-            file_dialog.exec()
-
-            # Get the name of the selected file
-            selected_files = file_dialog.selectedFiles()
-            if selected_files:
-                selected_file = selected_files[0]
-
-                # Build file path
-                file_path: Path = Path(selected_file)
-
-                # NOTE: We copy the file to the project directory
-                # so we can perform undo/redo operations. If we don't
-                # copy it now, we cannot access the file when properties
-                # are updated. Every file that is not used by any property
-                # must be deleted when the project closes.
-                assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
-                # Avoid copying the file if it was selected from the assets directory
-                # It triggers an error when the file is copied to the same directory
-                if file_path.parent.as_posix() != assets_path:
-
-                    # Before copying the file, check if it already exists
-                    # a file with the same name in the assets directory
-                    if Path(f"{assets_path}/{file_path.name}").exists():
-                        # Ask the user if he wants to overwrite the file
-                        msg_box = QMessageBox()
-                        msg_box.setIcon(QMessageBox.Icon.Warning)
-                        msg_box.setWindowTitle(Translator().text("asset_edit.warning.title"))
-                        msg_box.setText(
-                            Translator().text("asset_edit.warning.text")
-                        )
-                        msg_box.setStandardButtons(
-                            QMessageBox.StandardButton.Yes
-                            | QMessageBox.StandardButton.No
-                        )
-                        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-                        msg_box.exec()
-
-                        if msg_box.result() == QMessageBox.StandardButton.No:
-                            return
-                    else:
-                        shutil.copy(file_path, assets_path)
-
-                # Get file name
-                # NOTE: It will be stored in the property value and
-                # used to create the path to the file relative to
-                # the project directory
-                file_name = file_path.name
-                self.input.setText(file_name)
+            file_dialog: QFileDialog = QFileDialog()
+            file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+            path: str = file_dialog.getExistingDirectory()
+            self.input.setText(path)

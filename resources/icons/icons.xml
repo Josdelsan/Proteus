@@ -7,7 +7,8 @@
         <icon key="proteus_icon" file="proteus_logo.ico" />
         <icon key="proteus_logo" file="proteus_logo.png" />
         <icon key="add_view_icon" file="add-view.svg"/>
-        <icon key="browse_icon" file="open-project-button.png"/>
+        <icon key="browse_asset_icon" file="browse-asset.png"/>
+        <icon key="browse_dir_icon" file="browse-dir.png"/>
     </type>
     <type name="archetype_menu_icon" default="archetype-default.svg">
         <icon key="actor" file="actor.svg" />
