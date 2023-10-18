@@ -110,6 +110,7 @@ class ExportDialog(QDialog):
             file_dialog.setDefaultSuffix(file_format)
             file_dialog.setNameFilter(f"{file_format} files (*.{file_format})")
             file_dialog.selectFile(default_file_name)
+            file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
 
             # Get the selected file path and fix the extension if needed
             if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
