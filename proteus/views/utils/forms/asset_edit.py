@@ -32,6 +32,7 @@ from proteus.model import ASSETS_REPOSITORY
 from proteus.config import Config
 from proteus.views.utils.translator import Translator
 
+
 # --------------------------------------------------------------------------
 # Class: AssetEdit
 # Description: Asset edit input widget for forms.
@@ -71,7 +72,6 @@ class AssetEdit(QWidget):
         # Create input widget
         self.create_input()
 
-
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
@@ -88,7 +88,7 @@ class AssetEdit(QWidget):
         # Line edit
         self.input = QLineEdit()
         self.input.setDisabled(True)
-        
+
         # Browse button
         browse_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "browse_asset_icon")
         browse_button_icon = QIcon()
@@ -119,7 +119,7 @@ class AssetEdit(QWidget):
         Returns the asset.
         """
         return self.input.text()
-    
+
     # ----------------------------------------------------------------------
     # Method     : setAsset
     # Description: Sets the asset.
@@ -133,7 +133,6 @@ class AssetEdit(QWidget):
         """
         self.input.setText(asset)
 
-    
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================
@@ -146,60 +145,63 @@ class AssetEdit(QWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def _open_file_dialog(self) -> None:
-            """
-            Opens a file dialog and sets the selected file as the input value.
-            Copies the file to the assets directory if it is not already there.
-            """
-            file_dialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-            file_dialog.setNameFilter(
-                "Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)"
-            )
-            file_dialog.exec()
+        """
+        Opens a file dialog and sets the selected file as the input value.
+        Copies the file to the assets directory if it is not already there.
+        """
+        # Assets directory
+        assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
 
-            # Get the name of the selected file
-            selected_files = file_dialog.selectedFiles()
-            if selected_files:
-                selected_file = selected_files[0]
+        file_dialog = QFileDialog()
 
-                # Build file path
-                file_path: Path = Path(selected_file)
+        # TODO: Translate using the translator
+        # Get the name of the selected file
+        selected_file = file_dialog.getOpenFileName(
+            self,
+            caption="Select image",
+            directory=assets_path,
+            filter="Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)",
+        )
 
-                # NOTE: We copy the file to the project directory
-                # so we can perform undo/redo operations. If we don't
-                # copy it now, we cannot access the file when properties
-                # are updated. Every file that is not used by any property
-                # must be deleted when the project closes.
-                assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
-                # Avoid copying the file if it was selected from the assets directory
-                # It triggers an error when the file is copied to the same directory
-                if file_path.parent.as_posix() != assets_path:
+        if selected_file[0] != "":
+            selected_file = selected_file[0]
 
-                    # Before copying the file, check if it already exists
-                    # a file with the same name in the assets directory
-                    if Path(f"{assets_path}/{file_path.name}").exists():
-                        # Ask the user if he wants to overwrite the file
-                        msg_box = QMessageBox()
-                        msg_box.setIcon(QMessageBox.Icon.Warning)
-                        msg_box.setWindowTitle(Translator().text("asset_edit.warning.title"))
-                        msg_box.setText(
-                            Translator().text("asset_edit.warning.text")
-                        )
-                        msg_box.setStandardButtons(
-                            QMessageBox.StandardButton.Yes
-                            | QMessageBox.StandardButton.No
-                        )
-                        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-                        msg_box.exec()
+            # Build file path
+            file_path: Path = Path(selected_file)
 
-                        if msg_box.result() == QMessageBox.StandardButton.No:
-                            return
-                    else:
-                        shutil.copy(file_path, assets_path)
+            # NOTE: We copy the file to the project directory
+            # so we can perform undo/redo operations. If we don't
+            # copy it now, we cannot access the file when properties
+            # are updated. Every file that is not used by any property
+            # must be deleted when the project closes.
 
-                # Get file name
-                # NOTE: It will be stored in the property value and
-                # used to create the path to the file relative to
-                # the project directory
-                file_name = file_path.name
-                self.input.setText(file_name)
+            # Avoid copying the file if it was selected from the assets directory
+            # It triggers an error when the file is copied to the same directory
+            if file_path.parent.as_posix() != assets_path:
+                # Before copying the file, check if it already exists
+                # a file with the same name in the assets directory
+                if Path(f"{assets_path}/{file_path.name}").exists():
+                    # Ask the user if he wants to overwrite the file
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Icon.Warning)
+                    msg_box.setWindowTitle(
+                        Translator().text("asset_edit.warning.title")
+                    )
+                    msg_box.setText(Translator().text("asset_edit.warning.text"))
+                    msg_box.setStandardButtons(
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                    )
+                    msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+                    msg_box.exec()
+
+                    if msg_box.result() == QMessageBox.StandardButton.No:
+                        return
+                else:
+                    shutil.copy(file_path, assets_path)
+
+            # Get file name
+            # NOTE: It will be stored in the property value and
+            # used to create the path to the file relative to
+            # the project directory
+            file_name = file_path.name
+            self.input.setText(file_name)
