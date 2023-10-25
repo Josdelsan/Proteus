@@ -103,8 +103,8 @@ class DirectoryEdit(QWidget):
         self.browse_button.clicked.connect(self._browse_directory_dialog)
 
     # ----------------------------------------------------------------------
-    # Method     : asset
-    # Description: Returns the asset.
+    # Method     : directory
+    # Description: Returns the directory.
     # Date       : 17/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
@@ -116,8 +116,8 @@ class DirectoryEdit(QWidget):
         return self.input.text()
     
     # ----------------------------------------------------------------------
-    # Method     : setAsset
-    # Description: Sets the asset.
+    # Method     : setDirectory
+    # Description: Sets the directory.
     # Date       : 17/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez

@@ -28,6 +28,12 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import (
+    ID_ATTR,
+    CLASSES_ATTR,
+    ACCEPTED_CHILDREN_ATTR,
+    ACCEPTED_PARENTS_ATTR,
+)
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
 from proteus.model.object import Object
@@ -58,6 +64,7 @@ def sample_project() -> Project:
     """
     return Project.load(SAMPLE_PROJECT_PATH)
 
+
 # TODO: For rich tests we need sample archetype objects. This is a temporary
 #       based on the current archetype repository content (16/04/2023)
 #       solution. Sample archetype objects should have children to test
@@ -69,6 +76,7 @@ def sample_archetype_document() -> Object:
     """
     archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
     return archetype_list[1]
+
 
 @pytest.fixture
 def sample_object(sample_project) -> Object:
@@ -111,13 +119,13 @@ def test_init():
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib["id"] == test_object.id
+        root.attrib[ID_ATTR] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTR].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"].split() == test_object.classes
+        root.attrib[CLASSES_ATTR].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -138,13 +146,13 @@ def test_load(sample_project: Project):
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib["id"] == test_object.id
+        root.attrib[ID_ATTR] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTR].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"].split() == test_object.classes
+        root.attrib[CLASSES_ATTR].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -195,7 +203,7 @@ def test_load_children(test_object: Object, request):
     children = root.find("children")
     children_list: list = []
     for child in children:
-        children_list.append(child.attrib["id"])
+        children_list.append(child.attrib[ID_ATTR])
 
     # Call method to load children
     # NOTE: This method could be called when accessing children

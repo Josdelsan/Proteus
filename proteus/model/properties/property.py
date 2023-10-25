@@ -28,7 +28,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model import NAME_ATTR, CATEGORY_ATTR
 from proteus.model.properties import DEFAULT_NAME, DEFAULT_CATEGORY
 
 # logging configuration
@@ -65,7 +65,7 @@ class Property(ABC):
         """      
         # Name validation
         if not self.name:
-            log.warning(f"PROTEUS properties must have a '{NAME_TAG}' attribute -> assigning '{DEFAULT_NAME}' as name")
+            log.warning(f"PROTEUS properties must have a '{NAME_ATTR}' attribute -> assigning '{DEFAULT_NAME}' as name")
             # self.name = DEFAULT_NAME cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
             object.__setattr__(self, 'name', DEFAULT_NAME)
@@ -96,8 +96,8 @@ class Property(ABC):
         """
         # element_tagname is a class attribute of each concrete subclass
         property_element : ET._Element = ET.Element(self.element_tagname)
-        property_element.set(NAME_TAG, self.name)
-        property_element.set(CATEGORY_TAG, self.category)
+        property_element.set(NAME_ATTR, self.name)
+        property_element.set(CATEGORY_ATTR, self.category)
         # generate_xml_value() is defined in subclasses
         property_element.text = self.generate_xml_value(property_element)
 

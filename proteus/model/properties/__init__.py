@@ -72,7 +72,7 @@ FILE_PROPERTY_TAG       = str('fileProperty')
 CLASSLIST_PROPERTY_TAG  = str('classListProperty')
 
 CLASS_TAG               = str('class')
-CHOICES_TAG             = str('choices')
+CHOICES_ATTR             = str('choices')
 
 DEFAULT_NAME            = str('unnamed')
 DEFAULT_CATEGORY        = str('general')

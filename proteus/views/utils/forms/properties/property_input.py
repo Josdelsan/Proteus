@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.views.utils.translator import Translator
 
@@ -49,8 +50,11 @@ class PropertyInput(QWidget):
     to display errors.
     """
 
-    def __init__(self, property: Property, *args, **kwargs):
+    def __init__(self, property: Property, controller: Controller=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Initialize controller
+        self.controller: Controller = controller
 
         # Initialize input widget by calling the abstract method
         self.input: QWidget = None

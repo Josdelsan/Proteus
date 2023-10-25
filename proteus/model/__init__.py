@@ -2,9 +2,15 @@
 # File: __init__.py
 # Description: PROTEUS 'model' package initializer
 # Date: 10/08/2022
-# Version: 0.1
+# Version: 0.2
 # Author: Amador Durán Toro
+#         José María Delgado Sánchez
 # ==========================================================================
+# Update: 23/10/2022 (José María)
+# Description:
+# - Refactorized constants names
+# ==========================================================================
+
 
 # standard library imports
 from typing import NewType
@@ -15,23 +21,44 @@ from typing import NewType
 #from model.project import Project
 #from model.object import Object
 
+# ==========================================================================
 # constants
+# ==========================================================================
+
+# Directory and file names
 PROJECT_FILE_NAME  = str('proteus.xml')
 OBJECTS_REPOSITORY = str('objects')
 ASSETS_REPOSITORY  = str('assets')
 
+# XML tags
 PROJECT_TAG        = str('project')
 OBJECT_TAG         = str('object')
-NAME_TAG           = str('name')
-CATEGORY_TAG       = str('category')
-CHOICES_TAG        = str('choices')
 PROPERTIES_TAG     = str('properties')
 DOCUMENT_TAG       = str('document')
 DOCUMENTS_TAG      = str('documents')
 CHILD_TAG          = str('child')
 CHILDREN_TAG       = str('children')
-XSL_TEMPLATES_TAG = str('xsl-templates')
-XLS_TEMPLATE_TAG  = str('xsl-template')
+TRACES_TAG         = str('traces')
+TRACE_PROPERTY_TAG = str('traceProperty')
+TRACE_TAG          = str('trace')
+XSL_TEMPLATES_TAG  = str('xsl-templates')
+XLS_TEMPLATE_TAG   = str('xsl-template')
+
+# XML attributes
+ID_ATTR                = str('id')
+ACCEPTED_CHILDREN_ATTR = str('acceptedChildren')
+ACCEPTED_PARENTS_ATTR  = str('acceptedParents')
+ACCEPTED_SOURCES_ATTR  = str('acceptedSources')
+CLASSES_ATTR           = str('classes')
+NAME_ATTR              = str('name')
+CATEGORY_ATTR          = str('category')
+SOURCE_ATTR            = str('source-of')
+CHOICES_ATTR           = str('choices')
+
+# Default values
+DEFAULT_TRACE_NAME     = str('trace')
+DEFAULT_TRACE_CATEGORY = str('traceability')
+
 
 # Type for Class tags in Proteus
 ProteusClassTag = NewType('ProteusClassTag', str)

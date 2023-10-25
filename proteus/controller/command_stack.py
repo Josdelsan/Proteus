@@ -24,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, ProteusClassTag
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
     CloneArchetypeObjectCommand,
@@ -452,6 +452,20 @@ class Controller:
         return self._project_service.get_project_structure()
 
     # ----------------------------------------------------------------------
+    # Method     : get_objects
+    # Description: Get the objects of the current project.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_objects(self, classes: List[ProteusClassTag]=[]) -> List[Object]:
+        """
+        Get the objects of the current project. They can be filtered by classes.
+        """
+        log.info(f"Getting objects of current project with classes: {classes}")
+        return self._project_service.get_objects(classes) 
+
+    # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Save the current project state including all the children
     #              objects and documents.
@@ -480,6 +494,11 @@ class Controller:
     def get_element(self, element_id: ProteusID) -> Union[Object, Project]:
         """
         Get the element given its id.
+
+        Raises an exception if the element is not found.
+
+        :param element_id: The id of the element to get.
+        :return: The element with the given id. Project or Object.
         """
         return self._project_service._get_element_by_id(element_id)
 
@@ -493,6 +512,8 @@ class Controller:
     def get_current_project(self) -> Project:
         """
         Get the id of the current project.
+
+        Raises an exception if the project is not loaded.
         """
         current_project: Project = self._project_service.project
 
@@ -614,24 +635,6 @@ class Controller:
         # undoable
         EventManager.notify(Event.REQUIRED_SAVE_ACTION)
 
-    # ----------------------------------------------------------------------
-    # Method     : delete_unused_assets
-    # Description: Delete the assets that are not used in the project.
-    # Date       : 12/07/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_unused_assets(self) -> None:
-        """
-        Delete the assets that are not used in the project.
-
-        This operation may be performed when the project is saved or close.
-        It can be costly in terms of performance due to the way fileProperties
-        are accessed in the objects.
-        """
-        log.info("Deleting unused assets from the project")
-
-        self._project_service.delete_unused_assets()
 
     # ======================================================================
     # Archetype methods

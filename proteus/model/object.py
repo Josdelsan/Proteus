@@ -42,15 +42,24 @@ import shortuuid
 
 from proteus.model import (
     ProteusID,
+    ID_ATTR,
+    NAME_ATTR,
+    CLASSES_ATTR,
+    ACCEPTED_CHILDREN_ATTR,
+    ACCEPTED_PARENTS_ATTR,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
     CHILD_TAG,
+    TRACES_TAG,
+    TRACE_PROPERTY_TAG,
+    TRACE_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import Property
+from proteus.model.trace import Trace
 
 
 # from proteus.model.project import Project
@@ -168,26 +177,30 @@ class Object(AbstractObject):
         ), f"PROTEUS object file {object_file_path} must have <{OBJECT_TAG}> as root element, not {root.tag}."
 
         # Get object ID from XML
-        self.id: ProteusID = ProteusID(root.attrib["id"])
+        self.id: ProteusID = ProteusID(root.attrib[ID_ATTR])
 
         # Object or Project
         self.parent: Union[Object, Project] = None
 
         # Get object classes and accepted children classes
-        self.classes: List[ProteusClassTag] = root.attrib["classes"].split()
+        self.classes: List[ProteusClassTag] = root.attrib[CLASSES_ATTR].split()
         self.acceptedChildren: List[ProteusClassTag] = root.attrib[
-            "acceptedChildren"
+            ACCEPTED_CHILDREN_ATTR
         ].split()
 
         # Get accepted parent classes
         # NOTE: Prevent second level archetypes to be accepted by any archetypes.
         # Default value is PROTEUS_ANY, which means any object can be parent.
         self.acceptedParents: List[ProteusClassTag] = root.attrib.get(
-            "acceptedParents", PROTEUS_ANY
+            ACCEPTED_PARENTS_ATTR, PROTEUS_ANY
         ).split()
 
         # Load object's properties using superclass method
         super().load_properties(root)
+
+        # Load object's traces
+        self.traces: dict[str, Trace] = dict[str, Trace]()
+        self.load_traces(root=root)
 
         # Children dictionary (will be loaded on demand)
         self._children: List[Object] = None
@@ -249,7 +262,7 @@ class Object(AbstractObject):
         # Parse object's children
         child: ET.Element
         for child in children:
-            child_id: ProteusID = child.attrib["id"]
+            child_id: ProteusID = child.attrib[ID_ATTR]
 
             # Check whether the child has an ID
             assert (
@@ -270,6 +283,48 @@ class Object(AbstractObject):
             object.parent = self
 
             self.children.append(object)
+
+    # ----------------------------------------------------------------------
+    # Method     : load_traces
+    # Description: It loads the traces of a PROTEUS object using an
+    #              XML root element <object>.
+    # Date       : 23/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def load_traces(self, root: ET.Element) -> None:
+        """
+        It loads a PROTEUS object's traces from an XML root element.
+        """
+        # Check root is not None
+        assert root is not None, f"Root element is not valid in {self.path}."
+
+        # Find <traces> element
+        traces_element: ET.Element = root.find(TRACES_TAG)
+
+        # If <traces> element is not found, ignore traces
+        # TODO: Consider raising an exception. Now is prepared to avoid breaking
+        #       the system when loading old objects and simplifing the archetypes
+        #       creation to the user.
+        self.traces: dict[str, Trace] = dict[str, Trace]()
+        if traces_element is not None:
+            # Find <traceProperty> elements
+            trace_property_elements: List[ET.Element] = traces_element.findall(
+                TRACE_PROPERTY_TAG
+            )
+
+            # Create a Trace object for each <traceProperty> element
+            trace_property_element: ET.Element
+            for trace_property_element in trace_property_elements:
+                trace_name: str = trace_property_element.attrib.get(NAME_ATTR)
+
+                # Check if trace name is None
+                assert (
+                    trace_name is not None
+                ), f"PROTES file {self.path} includes an unnamed trace."
+
+                trace: Trace = Trace.create(trace_property_element)
+                self.traces[trace_name] = trace
 
     # ----------------------------------------------------------------------
     # Method     : get_descendants
@@ -353,14 +408,19 @@ class Object(AbstractObject):
         ), f"Object cannot be its own child. {child.id} is the same as object id {self.id}."
 
         # Condition 1 - child accepted parents must be PROTEUS_ANY or contain the object class
-        condition_1 = ( PROTEUS_ANY in child.acceptedParents or self.classes[-1] in child.acceptedParents )
+        condition_1 = (
+            PROTEUS_ANY in child.acceptedParents
+            or self.classes[-1] in child.acceptedParents
+        )
 
         # Condition 2 - self accepted children must be PROTEUS_ANY or contain the child class
-        condition_2 = ( PROTEUS_ANY in self.acceptedChildren or child.classes[-1] in self.acceptedChildren )
+        condition_2 = (
+            PROTEUS_ANY in self.acceptedChildren
+            or child.classes[-1] in self.acceptedChildren
+        )
 
         # BOTH conditions must be true
         return condition_1 and condition_2
-
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml
@@ -376,10 +436,10 @@ class Object(AbstractObject):
         """
         # Create <object> element and set ID
         object_element = ET.Element(OBJECT_TAG)
-        object_element.set("id", self.id)
-        object_element.set("classes", " ".join(self.classes))
-        object_element.set("acceptedChildren", " ".join(self.acceptedChildren))
-        object_element.set("acceptedParents", " ".join(self.acceptedParents))
+        object_element.set(ID_ATTR, self.id)
+        object_element.set(CLASSES_ATTR, " ".join(self.classes))
+        object_element.set(ACCEPTED_CHILDREN_ATTR, " ".join(self.acceptedChildren))
+        object_element.set(ACCEPTED_PARENTS_ATTR, " ".join(self.acceptedParents))
 
         # Create <properties> element
         super().generate_xml_properties(object_element)
@@ -390,7 +450,12 @@ class Object(AbstractObject):
         # Create <child> subelements
         for child in self.children:
             child_element = ET.SubElement(children_element, CHILD_TAG)
-            child_element.set("id", child.id)
+            child_element.set(ID_ATTR, child.id)
+
+        # Create <traces> element
+        traces_element = ET.SubElement(object_element, TRACES_TAG)
+        for trace in self.traces.values():
+            traces_element.append(trace.generate_xml())
 
         return object_element
 
@@ -513,6 +578,7 @@ class Object(AbstractObject):
         # Add the new object to the parent children and set the parent
         parent.add_descendant(new_object, position)
 
+        # TODO: Iterate over fileProperties and clone all the files
         # Get asset (file) property
         try:
             asset_property = new_object.get_property("file")

@@ -1,0 +1,471 @@
+# ==========================================================================
+# File: trace_edit.py
+# Description: Trace edit input widget for forms.
+# Date: 25/10/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+from pathlib import Path
+from typing import List
+
+# --------------------------------------------------------------------------
+# Third-party library imports
+# --------------------------------------------------------------------------
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import (
+    QWidget,
+    QPushButton,
+    QHBoxLayout,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QDialog,
+    QDialogButtonBox,
+)
+
+# --------------------------------------------------------------------------
+# Project specific imports
+# --------------------------------------------------------------------------
+
+from proteus.model import ProteusID, ProteusClassTag
+from proteus.model.object import Object
+from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
+from proteus.config import Config
+
+
+# --------------------------------------------------------------------------
+# Class: TraceEdit
+# Description: Trace edit input widget for forms.
+# Date: 25/10/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class TraceEdit(QWidget):
+    """
+    Trace edit input widget for forms.
+
+    It needs a controller instance in order to show user traced object data
+    and list of available objects to trace.
+
+    Similar to PyQt6 QLineEdit, QTextEdit, etc. It is used to retrieve the
+    traces from the user.
+    """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Object initialization.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(
+        self,
+        controller: Controller = None,
+        accepted_sources: List[ProteusClassTag] = [],
+        *args,
+        **kwargs,
+    ):
+        """
+        Object initialization.
+        """
+        super().__init__(*args, **kwargs)
+
+        # Validate controller
+        assert isinstance(
+            controller, Controller
+        ), f"TraceEdit requires a Controller instance to be initialized. Controller argument is type {type(controller)}"
+
+        # Arguments initialization
+        self.controller: Controller = controller
+        self.accepted_sources: List[ProteusClassTag] = accepted_sources
+
+        # Initialize widgets
+        self.list_widget: QListWidget = None
+        self.add_button: QPushButton = None
+        self.remove_button: QPushButton = None
+
+        # Create input widget
+        self.create_input()
+
+    # ----------------------------------------------------------------------
+    # Method     : create_input
+    # Description: Creates the input widget.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_input(self) -> None:
+        """
+        Create the widgets and configure the layout.
+        """
+
+        # Widgets creation --------------------------------------------------
+        # Create a QListWidget
+        self.list_widget = QListWidget(self)
+        self.list_widget.setFixedHeight(80)
+        self.list_widget.setMovement(QListWidget.Movement.Static)
+
+        # Create QPushButtons
+        self.add_button = QPushButton()
+        add_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "add_trace_icon")
+        add_button_icon = QIcon()
+        add_button_icon.addFile(add_icon_path.as_posix())
+        self.add_button.setIcon(add_button_icon)
+
+        self.remove_button = QPushButton()
+        self.remove_button.setEnabled(False)
+        remove_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "remove_trace_icon")
+        remove_button_icon = QIcon()
+        remove_button_icon.addFile(remove_icon_path.as_posix())
+        self.remove_button.setIcon(remove_button_icon)
+
+        # Create a layout for the buttons (vertically stacked)
+        button_layout = QVBoxLayout()
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.addWidget(self.add_button)
+        button_layout.addWidget(self.remove_button)
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Create a layout for the QListWidget and button layout (horizontally arranged)
+        main_layout = QHBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.list_widget)
+        main_layout.addLayout(button_layout)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.setLayout(main_layout)
+
+        # Connect signals ---------------------------------------------------
+        self.add_button.clicked.connect(self.add_trace)
+        self.remove_button.clicked.connect(self.remove_trace)
+        self.list_widget.currentItemChanged.connect(self.update_remove_button)
+
+    # ----------------------------------------------------------------------
+    # Method     : traces
+    # Description: Returns the asset.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def traces(self) -> List[ProteusID]:
+        """
+        Returns the traces.
+        """
+        # Iterate over the QListWidget items and get the traces (ids)
+        traces: List[ProteusID] = list()
+        for i in range(self.list_widget.count()):
+            trace_item: QListWidgetItem = self.list_widget.item(i)
+            traces.append(trace_item.data(1))
+
+        return traces
+
+    # ----------------------------------------------------------------------
+    # Method     : setTraces
+    # Description: Sets the asset.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def setTraces(self, traces: List[ProteusID]) -> None:
+        """
+        Sets the traces.
+        """
+        trace: ProteusID
+        for trace in traces:
+            # Get object from the id
+            object: Object = self.controller.get_element(element_id=trace)
+
+            # Validate object type
+            assert isinstance(
+                object, Object
+            ), f"Trace must be a reference to an object, id '{trace}' is not a reference to an object but to a '{type(object)}' type."
+
+            trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
+            trace_item.setText(object.get_property("name").value)
+            trace_item.setData(1, trace)
+
+            self.list_widget.addItem(trace_item)
+
+    # ======================================================================
+    # Slots (connected to signals)
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method: add_trace
+    # Description: Adds a trace to the list widget.
+    # Date: 25/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def add_trace(self):
+        """
+        Connected to the add trace button, it triggers the add trace dialog
+        and handles the result adding or not the trace to the list widget.
+        """
+        # Create dialog
+        trace: ProteusID = TraceEditDialog.create_dialog(
+            controller=self.controller,
+            accepted_classes=self.accepted_sources,
+            sources=self.traces(),
+        )
+
+        # Check if the dialog was accepted
+        if trace:
+            # Get object from the id
+            object: Object = self.controller.get_element(element_id=trace)
+
+            # Validate object type
+            assert isinstance(
+                object, Object
+            ), f"Trace must be a reference to an object, id '{trace}' is not a reference to an object but to a '{type(object)}' type."
+
+            # Create QListWidgetItem
+            trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
+            trace_item.setText(object.get_property("name").value)
+            trace_item.setData(1, trace)
+
+            # Add item to the QListWidget
+            self.list_widget.addItem(trace_item)
+
+    # ----------------------------------------------------------------------
+    # Method: remove_trace
+    # Description: Removes a trace from the list widget.
+    # Date: 25/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def remove_trace(self):
+        """
+        Connected to the remove trace button, it removes the selected trace
+        from the list widget without asking for confirmation.
+        """
+        # Get the current item
+        current_item: QListWidgetItem = self.list_widget.currentItem()
+
+        # Remove the item
+        self.list_widget.takeItem(self.list_widget.row(current_item))
+
+    # ----------------------------------------------------------------------
+    # Method: update_remove_button
+    # Description: Updates the remove button status.
+    # Date: 25/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_remove_button(self):
+        """
+        Connected to the list widget selection changed signal, it updates
+        the remove button status.
+        """
+        if self.list_widget.currentItem():
+            self.remove_button.setEnabled(True)
+        else:
+            self.remove_button.setEnabled(False)
+
+
+# --------------------------------------------------------------------------
+# Class: TraceEditDialog
+# Description: Dialog to select a trace.
+# Date: 25/10/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class TraceEditDialog(QDialog):
+    """
+    Dialog to select a trace from a list of available objects. It shows
+    only objects from the given object class. Discard objects that are
+    already traced.
+    """
+
+    # ----------------------------------------------------------------------
+    # Method     : __init__
+    # Description: Object initialization.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def __init__(
+        self,
+        controller: Controller,
+        accepted_classes: List[ProteusClassTag],
+        sources: List[ProteusID] = [],
+        *args,
+        **kwargs,
+    ):
+        """
+        Dialog initialization.
+        """
+        super().__init__(*args, **kwargs)
+
+        # Validate controller
+        assert isinstance(
+            controller, Controller
+        ), f"TraceEditDialog requires a Controller instance to be initialized. Controller argument is type {type(controller)}"
+        self.controller: Controller = controller
+
+        # Validate object class
+        assert isinstance(
+            accepted_classes, list
+        ), f"TraceEditDialog requires a string as object class. Object class argument is type {type(accepted_classes)}"
+        self.accepted_classes: List[ProteusClassTag] = accepted_classes
+
+        # Validate sources
+        assert isinstance(
+            sources, list
+        ), f"TraceEditDialog requires a list of ProteusID as sources. Sources argument is type {type(sources)}"
+        self.sources: List[ProteusID] = sources
+
+        # Initialize widgets
+        self.list_widget: QListWidget = None
+
+        # Initialize variables
+        self.selected_object: ProteusID = None
+
+        # Create component
+        self.create_component()
+
+    # ----------------------------------------------------------------------
+    # Method     : create_component
+    # Description: Creates the dialog component.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_component(self) -> None:
+        """
+        Creates the dialog component.
+        """
+        # Set dialog title
+        self.setWindowTitle("Select an object to trace")
+
+        # Create a QListWidget
+        self.list_widget = QListWidget(self)
+        self.list_widget.setMovement(QListWidget.Movement.Static)
+        self.list_widget.setMinimumHeight(100)
+        self.list_widget.setMaximumHeight(300)
+
+        # Get list of project objects
+        objects: List[Object] = self.controller.get_objects(
+            classes=self.accepted_classes
+        )
+
+        # Populate the QListWidget
+        object: Object
+        for object in objects:
+            
+            # Skip objects that are already traced
+            if object.id in self.sources:
+                continue
+
+            # Get object name
+            object_name: str = object.get_property("name").value
+
+            # Create QListWidgetItem
+            object_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
+            object_item.setText(object_name)
+            object_item.setData(1, object.id)
+
+            # Add item to the QListWidget
+            self.list_widget.addItem(object_item)
+
+        # Create accept and reject buttons
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+
+        # Disable accept button (until an item is selected)
+        self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+
+        # Create a layout for the QListWidget
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.list_widget)
+        main_layout.addWidget(self.button_box)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.setLayout(main_layout)
+
+        # Connect signals
+        self.list_widget.currentItemChanged.connect(self.enable_accept_button)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+    # ----------------------------------------------------------------------
+    # Method     : enable_accept_button
+    # Description: Enables the accept button.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def enable_accept_button(self) -> None:
+        """
+        Enables the accept button.
+        """
+        self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
+
+    # ----------------------------------------------------------------------
+    # Method     : accept
+    # Description: Accepts the dialog.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def accept(self) -> None:
+        """
+        Accepts the dialog. It sets the selected object id.
+        """
+        # Get the current item
+        current_item: QListWidgetItem = self.list_widget.currentItem()
+
+        # Get the object id
+        self.selected_object = current_item.data(1)
+
+        # Accept the dialog
+        super().accept()
+
+    # ----------------------------------------------------------------------
+    # Method     : reject
+    # Description: Rejects the dialog.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def reject(self) -> None:
+        """
+        Rejects the dialog.
+        """
+        # Reject the dialog
+        super().reject()
+
+    # ----------------------------------------------------------------------
+    # Method     : create_dialog
+    # Description: Creates and executes the dialog.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def create_dialog(
+        controller: Controller,
+        accepted_classes: List[ProteusClassTag],
+        sources: List[ProteusID] = [],
+    ) -> List[ProteusID]:
+        """
+        Creates and executes the dialog.
+        """
+        # Create dialog
+        dialog = TraceEditDialog(controller, accepted_classes, sources)
+
+        # Execute dialog
+        result = dialog.exec()
+
+        # Get traces
+        trace: ProteusID = None
+        if result == QDialog.DialogCode.Accepted:
+            trace = dialog.selected_object
+
+        return trace

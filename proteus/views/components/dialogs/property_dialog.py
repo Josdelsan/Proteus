@@ -16,7 +16,6 @@ from typing import Union, List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -26,7 +25,6 @@ from PyQt6.QtWidgets import (
     QDialog,
 )
 
-
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
@@ -34,6 +32,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.model.trace import Trace
 from proteus.model.properties import Property
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 from proteus.views.utils.forms.properties.property_input_factory import (
@@ -53,9 +52,14 @@ from proteus.controller.command_stack import Controller
 class PropertyDialog(QDialog):
     """
     Class for the PROTEUS application properties form component. It is used
-    to display the properties of an element in a form. Properties are
-    grouped by categories in tabs. Each property is displayed in a widget
-    that is created using the PropertyInputFactory class.
+    to display the properties an traces of an element in a form. Properties
+    and traces are grouped by categories in tabs. Each property and trace
+    is displayed in a widget that is created using the PropertyInputFactory
+    class.
+
+    NOTE: Properties and Traces are different concepts in PROTEUS, but they
+    are handle the same in the GUI. This is to simplify the user experience
+    creating just one form to display both properties and traces.
     """
 
     # ----------------------------------------------------------------------
@@ -72,7 +76,7 @@ class PropertyDialog(QDialog):
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the element id, reference to the element whose
-        properties will be displayed.
+        properties and traces will be displayed.
         """
         super().__init__(*args, **kwargs)
         # Controller instance
@@ -121,15 +125,22 @@ class PropertyDialog(QDialog):
         tab_widget: QTabWidget = QTabWidget()
 
         # Get the object's properties dictionary
-        properties_dict: Dict[str, Property] = self.object.properties
+        properties_form_dict: Dict[
+            str, Union[Property, Trace]
+        ] = self.object.properties.copy()
+
+        # If the object is Object class, include traces in the properties
+        if isinstance(self.object, Object):
+            # Merge object's traces with properties dict
+            properties_form_dict.update(self.object.traces)
 
         # Create a dictionary to hold category widgets
         category_widgets: Dict[str, QWidget] = {}
 
         # Iterate over the properties and create widgets for each category
         prop: Property = None
-        for prop in properties_dict.values():
-            # Get the category for the property
+        for prop in properties_form_dict.values():
+            # Get the category for the property (or trace)
             category: str = self.translator.text(prop.category)
 
             # Create a QWidget for the category if it doesn't exist
@@ -142,7 +153,9 @@ class PropertyDialog(QDialog):
                 category_layout: QFormLayout = category_widget.layout()
 
             # Create the property input widget
-            input_field_widget: PropertyInput = PropertyInputFactory.create(prop)
+            input_field_widget: PropertyInput = PropertyInputFactory.create(
+                prop, controller=self._controller
+            )
             category_layout.addRow(self.translator.text(prop.name), input_field_widget)
 
             # Add the input field widget to the input widgets dictionary
@@ -209,11 +222,14 @@ class PropertyDialog(QDialog):
             if widget_has_errors:
                 continue
 
-            new_prop_value: str = input_widget.get_value()
+            new_prop_value: Union[str, list] = input_widget.get_value()
 
             # Get the original property and its value
-            original_prop: Property = properties_dict[prop_name]
-            original_prop_value: str = original_prop.value
+            original_prop: Union[Property, Trace] = properties_dict[prop_name]
+            if isinstance(original_prop, Trace):
+                original_prop_value: list = original_prop.sources
+            else:
+                original_prop_value: str = original_prop.value
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
@@ -226,7 +242,9 @@ class PropertyDialog(QDialog):
 
         # Update the properties of the element if there are changes
         if len(update_list) > 0:
-            self._controller.update_properties(self.element_id, update_list)
+            self._controller.update_properties(
+                self.element_id, new_properties=update_list
+            )
 
         # Close the form window
         self.close()

@@ -11,9 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
-import os
-import shutil
-from typing import Union, List, Dict, Set
+from typing import Union, List, Dict
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -27,11 +25,11 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, CHILD_TAG, DOCUMENT_TAG, ASSETS_REPOSITORY
+from proteus.model import ProteusID, ID_ATTR, CHILD_TAG, DOCUMENT_TAG, ProteusClassTag, PROTEUS_ANY
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import Property, FileProperty
+from proteus.model.properties import Property
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -63,7 +61,7 @@ class ProjectService:
         """
         # Instance variables
         self.project: Project = None
-        self.project_index: Dict[ProteusID, Object] = {}
+        self.project_index: Dict[ProteusID, Union[Object, Project]] = {}
 
         log.info("ProjectService initialized.")
 
@@ -108,6 +106,8 @@ class ProjectService:
     def _get_element_by_id(self, element_id: ProteusID) -> Union[Project, Object]:
         """
         Returns the project or object with the given id.
+
+        Raises an exception if the element is not found.
 
         :param element_id: Id of the project or object.
         :return: Project or object with the given id.
@@ -328,6 +328,47 @@ class ProjectService:
         :return: List with the project documents.
         """
         return self.project.get_descendants()
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_objects
+    # Description: Returns objects in the project.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_objects(self, classes: List[ProteusClassTag]=[]) -> List[Object]:
+        """
+        Get the objects of the current project. They can be filtered by classes.
+        """
+
+        # Variable initialization
+        objects: List[Object] = []
+
+        # if classes is empty, is None or contains :Proteus-any, return all objects
+        if not classes or PROTEUS_ANY in classes:
+            # Iterate over project index and drop project and dead objects
+            for element in self.project_index.values():
+                if isinstance(element, Object) and element.state != ProteusState.DEAD:
+                    objects.append(element)
+
+        # else, filter objects by classes droping project and dead objects
+        else:
+            object: Object
+            # Iterate over all objects in the project
+            for object in self.project_index.values():
+
+                if object.state == ProteusState.DEAD or not isinstance(object, Object):
+                    continue
+
+                # Get object classes
+                object_classes: List[ProteusClassTag] = object.classes
+
+                # Check for common classes between object classes and desired classes
+                common_classes = [c for c in classes if c in object_classes]
+                if common_classes:
+                    objects.append(object)
+
+        return objects
 
     # ----------------------------------------------------------------------
     # Method     : clone_object
@@ -471,7 +512,7 @@ class ProjectService:
         root: ET.element = self.project.generate_xml()
         # Iterate over document tag and replace the asked document
         for document_element in root.findall(f".//{DOCUMENT_TAG}"):
-            if document_element.attrib["id"] == document_id:
+            if document_element.attrib[ID_ATTR] == document_id:
                 parent_element: ET.Element = document_element.getparent()
                 document_xml: ET.Element = document.generate_xml()
                 parent_element.replace(document_element, document_xml)
@@ -487,7 +528,7 @@ class ProjectService:
             # Parse object's children
             child_element: ET.Element
             for child_element in children:
-                child_id: ProteusID = child_element.attrib["id"]
+                child_id: ProteusID = child_element.attrib[ID_ATTR]
 
                 # Get child object
                 child: Object = self._get_element_by_id(child_id)
@@ -543,76 +584,3 @@ class ProjectService:
         """
         self.project.xsl_templates.remove(template_name)
         self.project.state = ProteusState.DIRTY
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_unused_assets
-    # Description: Delete all the assets that are not used in the project.
-    # Date       : 12/07/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    # NOTE: This method is not used at the moment. The user is responsible
-    # of assets folder management. This method use memory stored objects to
-    # determine which assets are used in the project. This is not a good
-    # approach if save is not perfomed after the assets deletion, it might
-    # lead to inconsistencies.
-    def delete_unused_assets(self) -> None:
-        """
-        Delete all the assets that are not used in the project. This is
-        done by comparing all the used assets with all the assets in the
-        project directory.
-
-        This operation may be performed when the project is saved or close.
-        It can be costly in terms of performance due to the way fileProperties
-        are accessed in the objects.
-
-        An asset might be shared between several objects, so it is not
-        deleted if it is used by at least one object.
-
-        NOTE: By convention, there is maximum one asset per object. Its name
-        is always "file". This might change in the future.
-        """
-
-        # Helper function to list the assets recursively
-        def list_assets(item: Union[Object, Project]) -> None:
-            """
-            Check if the item has an asset and call the function recursively
-            """
-            # Skip if the item is dead
-            if item.state == ProteusState.DEAD:
-                return
-
-            # Look for fileProperties
-            file_properties: Set[str] = set()
-            for prop in item.properties:
-                property: Property = item.get_property(prop)
-                if type(property) == FileProperty:
-                    file_properties.add(property.value)
-
-            # Add the assets to the set
-            if file_properties:
-                assets_set.update(file_properties)
-
-            # Call the function recursively for all the children
-            children: List[Object] = item.get_descendants()
-            for child in children:
-                list_assets(child)
-
-        # Variable to store the assets used in the project
-        assets_set: Set = set()
-
-        # List the assets used in the project
-        list_assets(self.project)
-
-        # Get the assets in the project directory
-        assets_dir: str = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
-        assets_in_dir: Set = set(os.listdir(assets_dir))
-
-        # Get the assets that are not used in the project
-        unused_assets: Set = assets_in_dir.difference(assets_set)
-
-        # Delete the unused assets
-        for asset in unused_assets:
-            log.info(f"Deleting unused asset: {asset}")
-            asset_path: str = f"{assets_dir}/{asset}"
-            os.remove(asset_path)

@@ -11,7 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
+from typing import Dict, List, Union
 import logging
 
 # --------------------------------------------------------------------------
@@ -23,7 +23,10 @@ import logging
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.controller.command_stack import Controller
+
 # Properties imports
+from proteus.model.trace import Trace
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -38,6 +41,7 @@ from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 
 # Property input imports
+from proteus.views.utils.forms.properties.trace_input import TraceInput
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 from proteus.views.utils.forms.properties.string_property_input import (
     StringPropertyInput,
@@ -78,7 +82,8 @@ class PropertyInputFactory:
     """
 
     # Map of property types to input creation functions
-    property_input_map: Dict[type[Property], type[PropertyInput]] = {
+    property_input_map: Dict[Union[Property, Trace], PropertyInput] = {
+        Trace: TraceInput,
         StringProperty: StringPropertyInput,
         DateProperty: DatePropertyInput,
         MarkdownProperty: MarkdownPropertyInput,
@@ -98,10 +103,18 @@ class PropertyInputFactory:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create(property: Property) -> PropertyInput:
+    def create(
+        property: Union[Property, Trace], controller: Controller = None
+    ) -> PropertyInput:
         try:
-            property_input_class = PropertyInputFactory.property_input_map[type(property)]
-            return property_input_class(property)
+            # Retrieve the input class for the given property type or trace
+            property_input_class = PropertyInputFactory.property_input_map[
+                type(property)
+            ]
+            property_input: PropertyInput = property_input_class(
+                property, controller=controller
+            )
+            return property_input
         except KeyError:
             log.error(f"Property input widget for {type(property)} was not found")
             return None
