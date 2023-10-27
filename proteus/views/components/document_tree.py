@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID
+from proteus.model import ProteusID, ProteusClassTag
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
@@ -239,7 +239,7 @@ class DocumentTree(QTreeWidget):
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
         # Set the icon based on the object last class
-        object_class: str = object.classes[-1]
+        object_class: ProteusClassTag = object.classes[-1]
         icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
         new_item.setIcon(0, QIcon(icon_path.as_posix()))
 

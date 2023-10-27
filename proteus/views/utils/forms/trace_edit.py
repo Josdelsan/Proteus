@@ -34,6 +34,7 @@ from proteus.model import ProteusID, ProteusClassTag
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
+from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.config import Config
 
 
@@ -65,7 +66,7 @@ class TraceEdit(QWidget):
     def __init__(
         self,
         controller: Controller = None,
-        accepted_sources: List[ProteusClassTag] = [],
+        accepted_targets: List[ProteusClassTag] = [],
         *args,
         **kwargs,
     ):
@@ -81,7 +82,7 @@ class TraceEdit(QWidget):
 
         # Arguments initialization
         self.controller: Controller = controller
-        self.accepted_sources: List[ProteusClassTag] = accepted_sources
+        self.accepted_targets: List[ProteusClassTag] = accepted_targets
 
         # Initialize widgets
         self.list_widget: QListWidget = None
@@ -159,7 +160,7 @@ class TraceEdit(QWidget):
         traces: List[ProteusID] = list()
         for i in range(self.list_widget.count()):
             trace_item: QListWidgetItem = self.list_widget.item(i)
-            traces.append(trace_item.data(1))
+            traces.append(trace_item.data(Qt.ItemDataRole.UserRole))
 
         return traces
 
@@ -185,8 +186,15 @@ class TraceEdit(QWidget):
             ), f"Trace must be a reference to an object, id '{trace}' is not a reference to an object but to a '{type(object)}' type."
 
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
+
+            # Set text and data (ProteusID)
             trace_item.setText(object.get_property("name").value)
-            trace_item.setData(1, trace)
+            trace_item.setData(Qt.ItemDataRole.UserRole, trace)
+
+            # Set icon
+            object_class: ProteusClassTag = object.classes[-1]
+            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+            trace_item.setIcon(QIcon(icon_path.as_posix()))
 
             self.list_widget.addItem(trace_item)
 
@@ -209,8 +217,8 @@ class TraceEdit(QWidget):
         # Create dialog
         trace: ProteusID = TraceEditDialog.create_dialog(
             controller=self.controller,
-            accepted_classes=self.accepted_sources,
-            sources=self.traces(),
+            accepted_classes=self.accepted_targets,
+            targets=self.traces(),
         )
 
         # Check if the dialog was accepted
@@ -226,7 +234,12 @@ class TraceEdit(QWidget):
             # Create QListWidgetItem
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
             trace_item.setText(object.get_property("name").value)
-            trace_item.setData(1, trace)
+            trace_item.setData(Qt.ItemDataRole.UserRole, trace)
+
+            # Set icon
+            object_class: ProteusClassTag = object.classes[-1]
+            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+            trace_item.setIcon(QIcon(icon_path.as_posix()))
 
             # Add item to the QListWidget
             self.list_widget.addItem(trace_item)
@@ -292,7 +305,7 @@ class TraceEditDialog(QDialog):
         self,
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
-        sources: List[ProteusID] = [],
+        targets: List[ProteusID] = [],
         *args,
         **kwargs,
     ):
@@ -313,11 +326,11 @@ class TraceEditDialog(QDialog):
         ), f"TraceEditDialog requires a string as object class. Object class argument is type {type(accepted_classes)}"
         self.accepted_classes: List[ProteusClassTag] = accepted_classes
 
-        # Validate sources
+        # Validate targets
         assert isinstance(
-            sources, list
-        ), f"TraceEditDialog requires a list of ProteusID as sources. Sources argument is type {type(sources)}"
-        self.sources: List[ProteusID] = sources
+            targets, list
+        ), f"TraceEditDialog requires a list of ProteusID as targets. Targets argument is type {type(targets)}"
+        self.targets: List[ProteusID] = targets
 
         # Initialize widgets
         self.list_widget: QListWidget = None
@@ -356,9 +369,8 @@ class TraceEditDialog(QDialog):
         # Populate the QListWidget
         object: Object
         for object in objects:
-            
             # Skip objects that are already traced
-            if object.id in self.sources:
+            if object.id in self.targets:
                 continue
 
             # Get object name
@@ -367,7 +379,11 @@ class TraceEditDialog(QDialog):
             # Create QListWidgetItem
             object_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
             object_item.setText(object_name)
-            object_item.setData(1, object.id)
+            object_item.setData(Qt.ItemDataRole.UserRole, object.id)
+            # Set icon
+            object_class: ProteusClassTag = object.classes[-1]
+            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+            object_item.setIcon(QIcon(icon_path.as_posix()))
 
             # Add item to the QListWidget
             self.list_widget.addItem(object_item)
@@ -422,7 +438,7 @@ class TraceEditDialog(QDialog):
         current_item: QListWidgetItem = self.list_widget.currentItem()
 
         # Get the object id
-        self.selected_object = current_item.data(1)
+        self.selected_object = current_item.data(Qt.ItemDataRole.UserRole)
 
         # Accept the dialog
         super().accept()
@@ -452,13 +468,13 @@ class TraceEditDialog(QDialog):
     def create_dialog(
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
-        sources: List[ProteusID] = [],
+        targets: List[ProteusID] = [],
     ) -> List[ProteusID]:
         """
         Creates and executes the dialog.
         """
         # Create dialog
-        dialog = TraceEditDialog(controller, accepted_classes, sources)
+        dialog = TraceEditDialog(controller, accepted_classes, targets)
 
         # Execute dialog
         result = dialog.exec()

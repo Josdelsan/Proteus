@@ -29,10 +29,10 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.model import (
-    ID_ATTR,
-    CLASSES_ATTR,
-    ACCEPTED_CHILDREN_ATTR,
-    ACCEPTED_PARENTS_ATTR,
+    ID_ATTRIBUTE,
+    CLASSES_ATTRIBUTE,
+    ACCEPTED_CHILDREN_ATTRIBUTE,
+    ACCEPTED_PARENTS_ATTRIBUTE,
 )
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
@@ -119,13 +119,13 @@ def test_init():
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib[ID_ATTR] == test_object.id
+        root.attrib[ID_ATTRIBUTE] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib[ACCEPTED_CHILDREN_ATTR].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTRIBUTE].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib[CLASSES_ATTR].split() == test_object.classes
+        root.attrib[CLASSES_ATTRIBUTE].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -146,13 +146,13 @@ def test_load(sample_project: Project):
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib[ID_ATTR] == test_object.id
+        root.attrib[ID_ATTRIBUTE] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib[ACCEPTED_CHILDREN_ATTR].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTRIBUTE].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib[CLASSES_ATTR].split() == test_object.classes
+        root.attrib[CLASSES_ATTRIBUTE].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -203,7 +203,7 @@ def test_load_children(test_object: Object, request):
     children = root.find("children")
     children_list: list = []
     for child in children:
-        children_list.append(child.attrib[ID_ATTR])
+        children_list.append(child.attrib[ID_ATTRIBUTE])
 
     # Call method to load children
     # NOTE: This method could be called when accessing children

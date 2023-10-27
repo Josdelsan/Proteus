@@ -42,11 +42,11 @@ import shortuuid
 
 from proteus.model import (
     ProteusID,
-    ID_ATTR,
-    NAME_ATTR,
-    CLASSES_ATTR,
-    ACCEPTED_CHILDREN_ATTR,
-    ACCEPTED_PARENTS_ATTR,
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
+    CLASSES_ATTRIBUTE,
+    ACCEPTED_CHILDREN_ATTRIBUTE,
+    ACCEPTED_PARENTS_ATTRIBUTE,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
@@ -177,22 +177,22 @@ class Object(AbstractObject):
         ), f"PROTEUS object file {object_file_path} must have <{OBJECT_TAG}> as root element, not {root.tag}."
 
         # Get object ID from XML
-        self.id: ProteusID = ProteusID(root.attrib[ID_ATTR])
+        self.id: ProteusID = ProteusID(root.attrib[ID_ATTRIBUTE])
 
         # Object or Project
         self.parent: Union[Object, Project] = None
 
         # Get object classes and accepted children classes
-        self.classes: List[ProteusClassTag] = root.attrib[CLASSES_ATTR].split()
+        self.classes: List[ProteusClassTag] = root.attrib[CLASSES_ATTRIBUTE].split()
         self.acceptedChildren: List[ProteusClassTag] = root.attrib[
-            ACCEPTED_CHILDREN_ATTR
+            ACCEPTED_CHILDREN_ATTRIBUTE
         ].split()
 
         # Get accepted parent classes
         # NOTE: Prevent second level archetypes to be accepted by any archetypes.
         # Default value is PROTEUS_ANY, which means any object can be parent.
         self.acceptedParents: List[ProteusClassTag] = root.attrib.get(
-            ACCEPTED_PARENTS_ATTR, PROTEUS_ANY
+            ACCEPTED_PARENTS_ATTRIBUTE, PROTEUS_ANY
         ).split()
 
         # Load object's properties using superclass method
@@ -262,7 +262,7 @@ class Object(AbstractObject):
         # Parse object's children
         child: ET.Element
         for child in children:
-            child_id: ProteusID = child.attrib[ID_ATTR]
+            child_id: ProteusID = child.attrib[ID_ATTRIBUTE]
 
             # Check whether the child has an ID
             assert (
@@ -316,7 +316,7 @@ class Object(AbstractObject):
             # Create a Trace object for each <traceProperty> element
             trace_property_element: ET.Element
             for trace_property_element in trace_property_elements:
-                trace_name: str = trace_property_element.attrib.get(NAME_ATTR)
+                trace_name: str = trace_property_element.attrib.get(NAME_ATTRIBUTE)
 
                 # Check if trace name is None
                 assert (
@@ -436,10 +436,10 @@ class Object(AbstractObject):
         """
         # Create <object> element and set ID
         object_element = ET.Element(OBJECT_TAG)
-        object_element.set(ID_ATTR, self.id)
-        object_element.set(CLASSES_ATTR, " ".join(self.classes))
-        object_element.set(ACCEPTED_CHILDREN_ATTR, " ".join(self.acceptedChildren))
-        object_element.set(ACCEPTED_PARENTS_ATTR, " ".join(self.acceptedParents))
+        object_element.set(ID_ATTRIBUTE, self.id)
+        object_element.set(CLASSES_ATTRIBUTE, " ".join(self.classes))
+        object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
+        object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
 
         # Create <properties> element
         super().generate_xml_properties(object_element)
@@ -450,7 +450,7 @@ class Object(AbstractObject):
         # Create <child> subelements
         for child in self.children:
             child_element = ET.SubElement(children_element, CHILD_TAG)
-            child_element.set(ID_ATTR, child.id)
+            child_element.set(ID_ATTRIBUTE, child.id)
 
         # Create <traces> element
         traces_element = ET.SubElement(object_element, TRACES_TAG)

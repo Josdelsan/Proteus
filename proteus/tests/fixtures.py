@@ -27,13 +27,13 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_ATTR, CATEGORY_ATTR
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE
 
 from proteus.model.properties import \
     Property,                      \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
-    CHOICES_ATTR,                   \
+    CHOICES_ATTRIBUTE,                   \
     CLASS_TAG,                     \
     PropertyFactory
 
@@ -53,13 +53,13 @@ def create_property(property_tag, name, category, value, choices = None) -> tupl
 
     # Process name
     if name:
-        property_element.set(NAME_ATTR, name)
+        property_element.set(NAME_ATTRIBUTE, name)
     else:
         name = DEFAULT_NAME
 
     # Process category
     if category:
-        property_element.set(CATEGORY_ATTR, category)
+        property_element.set(CATEGORY_ATTRIBUTE, category)
     else:
         category = DEFAULT_CATEGORY
 
@@ -68,7 +68,7 @@ def create_property(property_tag, name, category, value, choices = None) -> tupl
 
     # Set choices attribute if needed (EnumProperty only)
     if choices is not None:
-        property_element.set(CHOICES_ATTR, choices)
+        property_element.set(CHOICES_ATTRIBUTE, choices)
 
     # Add <class> children if needed (ClasslistProperty only)
     for class_name in str(value).split():

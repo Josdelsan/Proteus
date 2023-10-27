@@ -42,7 +42,7 @@ from strenum import StrEnum
 from proteus.model import (
     OBJECTS_REPOSITORY,
     ASSETS_REPOSITORY,
-    ID_ATTR,
+    ID_ATTRIBUTE,
     ProteusClassTag,
 )
 from proteus.config import Config
@@ -167,7 +167,7 @@ class ArchetypeManager:
             # Parse the XML file
             objects_pointer_xml: ET.Element = ET.parse(objects_pointer_file)
             objects_id_list: list[str] = [
-                child.attrib[ID_ATTR] for child in objects_pointer_xml.getroot()
+                child.attrib[ID_ATTRIBUTE] for child in objects_pointer_xml.getroot()
             ]
 
             # For each object id, we create the object and add it to the list
@@ -260,7 +260,7 @@ class ArchetypeManager:
             document_pointer_xml: ET.Element = ET.parse(document_pointer_file)
 
             # Get the id of the root document from document.xml
-            document_id: str = document_pointer_xml.getroot().attrib[ID_ATTR]
+            document_id: str = document_pointer_xml.getroot().attrib[ID_ATTRIBUTE]
 
             # Build the path to the root document
             objects_path = join(archetype_dir_path, "objects")

@@ -38,8 +38,8 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 from proteus.model import (
-    ID_ATTR,
-    NAME_ATTR,
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
     DOCUMENT_TAG,
     DOCUMENTS_TAG,
     OBJECTS_REPOSITORY,
@@ -153,7 +153,7 @@ class Project(AbstractObject):
         ), f"PROTUES project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
 
         # Get project ID from XML
-        self.id = ProteusID(root.attrib[ID_ATTR])
+        self.id = ProteusID(root.attrib[ID_ATTRIBUTE])
 
         # Load project's properties using superclass method
         super().load_properties(root)
@@ -221,7 +221,7 @@ class Project(AbstractObject):
         # TODO: check document_element tag is <document>
         document_element: ET.Element
         for document_element in documents_element:
-            document_id: ProteusID = document_element.attrib.get(ID_ATTR, None)
+            document_id: ProteusID = document_element.attrib.get(ID_ATTRIBUTE, None)
 
             # Check whether the document has an ID
             assert (
@@ -262,7 +262,7 @@ class Project(AbstractObject):
         xsl_template_element: ET.Element
         xsl_templates: List[str] = []
         for xsl_template_element in xsl_templates_element:
-            xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTR, None)
+            xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTRIBUTE, None)
 
             # NOTE: Templates that are not in the system installation are
             #       ignored and not saved later
@@ -371,7 +371,7 @@ class Project(AbstractObject):
         """
         # Create <project> element and set ID
         project_element = ET.Element(PROJECT_TAG)
-        project_element.set(ID_ATTR, self.id)
+        project_element.set(ID_ATTRIBUTE, self.id)
 
         # Create <properties> element
         super().generate_xml_properties(project_element)
@@ -383,7 +383,7 @@ class Project(AbstractObject):
         for document in self.documents:
             if document.state != ProteusState.DEAD:
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-                document_element.set(ID_ATTR, document.id)
+                document_element.set(ID_ATTRIBUTE, document.id)
 
         # Create <xsl_templates> element
         xsl_templates_element = ET.SubElement(project_element, XSL_TEMPLATES_TAG)
@@ -393,7 +393,7 @@ class Project(AbstractObject):
             xsl_template_element = ET.SubElement(
                 xsl_templates_element, XLS_TEMPLATE_TAG
             )
-            xsl_template_element.set(NAME_ATTR, xsl_template)
+            xsl_template_element.set(NAME_ATTRIBUTE, xsl_template)
 
         return project_element
 

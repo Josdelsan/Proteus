@@ -27,10 +27,10 @@ import lxml.etree as ET
 from proteus.model import (
     ProteusID,
     ProteusClassTag,
-    NAME_ATTR,
-    CATEGORY_ATTR,
-    SOURCE_ATTR,
-    ACCEPTED_SOURCES_ATTR,
+    NAME_ATTRIBUTE,
+    CATEGORY_ATTRIBUTE,
+    TARGET_ATTRIBUTE,
+    ACCEPTED_TARGETS_ATTRIBUTE,
     TRACE_PROPERTY_TAG,
     TRACE_TAG,
     DEFAULT_TRACE_NAME,
@@ -59,8 +59,8 @@ class Trace:
     # dataclass instance attributes
     name: str = str(DEFAULT_TRACE_NAME)
     category: str = str(DEFAULT_TRACE_CATEGORY)
-    acceptedSources: List[ProteusClassTag] = field(default_factory=list)
-    sources: List[ProteusID] = field(default_factory=list)
+    acceptedTargets: List[ProteusClassTag] = field(default_factory=list)
+    targets: List[ProteusID] = field(default_factory=list)
 
     # --------------------------------------------------------------------------
     # Method: __post_init__
@@ -71,12 +71,12 @@ class Trace:
     # --------------------------------------------------------------------------
     def __post_init__(self) -> None:
         """
-        It validates name, category, acceptedSources and value of an PROTEUS trace.
+        It validates name, category, acceptedTargets and value of an PROTEUS trace.
         """
         # Name validation
         if not self.name:
             log.warning(
-                f"PROTEUS trace must have a '{NAME_ATTR}' attribute -> assigning '{DEFAULT_TRACE_NAME}' as name"
+                f"PROTEUS trace must have a '{NAME_ATTRIBUTE}' attribute -> assigning '{DEFAULT_TRACE_NAME}' as name"
             )
             # self.name = DEFAULT_NAME cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
@@ -87,40 +87,40 @@ class Trace:
             # self.category = DEFAULT_CATEGORY cannot be used when frozen=True
             object.__setattr__(self, "category", DEFAULT_TRACE_CATEGORY)
 
-        # Accepted sources validation
-        if not isinstance(self.acceptedSources, list):
+        # Accepted targets validation
+        if not isinstance(self.acceptedTargets, list):
             log.warning(
-                f"PROTEUS trace '{self.name}' must have a list of accepted sources -> assigning :Proteus-any as accepted sources"
+                f"PROTEUS trace '{self.name}' must have a list of accepted targets -> assigning :Proteus-any as accepted targets"
             )
-            # self.acceptedSources = list() cannot be used when frozen=True
-            object.__setattr__(self, "acceptedSources", list().append(PROTEUS_ANY))
+            # self.acceptedTargets = list() cannot be used when frozen=True
+            object.__setattr__(self, "acceptedTargets", list().append(PROTEUS_ANY))
 
         # Value validation
-        if not isinstance(self.sources, list):
+        if not isinstance(self.targets, list):
             log.warning(
-                f"PROTEUS trace '{self.name}' must have a list of sources -> assigning an empty list"
+                f"PROTEUS trace '{self.name}' must have a list of targets -> assigning an empty list"
             )
-            # self.sources = list() cannot be used when frozen=True
-            object.__setattr__(self, "sources", list())
+            # self.targets = list() cannot be used when frozen=True
+            object.__setattr__(self, "targets", list())
 
     # --------------------------------------------------------------------------
     # Method: clone
-    # Description: It clones the trace with new sources if it is not None.
+    # Description: It clones the trace with new targets if it is not None.
     # Date: 23/10/2023
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def clone(self, new_sources: List = None) -> "Trace":
+    def clone(self, new_targets: List = None) -> "Trace":
         """
-        It clones the trace with new sources if it is not None.
-        The new sources must be provided as a list of ProteusID.
-        :param new_sources: new sources for the trace.
-        :return: a copy of the trace with the new sources.
+        It clones the trace with new targets if it is not None.
+        The new targets must be provided as a list of ProteusID.
+        :param new_targets: new targets for the trace.
+        :return: a copy of the trace with the new targets.
         """
-        if new_sources is None:
+        if new_targets is None:
             return replace(self)
 
-        return replace(self, sources=new_sources)
+        return replace(self, targets=new_targets)
 
     # --------------------------------------------------------------------------
     # Method: generate_xml
@@ -135,14 +135,14 @@ class Trace:
         """
         # Create trace property tag and set its attributes
         trace_property_element: ET._Element = ET.Element(TRACE_PROPERTY_TAG)
-        trace_property_element.set(NAME_ATTR, self.name)
-        trace_property_element.set(CATEGORY_ATTR, self.category)
-        trace_property_element.set(ACCEPTED_SOURCES_ATTR, "".join(self.acceptedSources))
+        trace_property_element.set(NAME_ATTRIBUTE, self.name)
+        trace_property_element.set(CATEGORY_ATTRIBUTE, self.category)
+        trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, "".join(self.acceptedTargets))
 
         # Create each trace tag and set its attribute
-        for source in self.sources:
+        for target in self.targets:
             trace_element: ET._Element = ET.Element(TRACE_TAG)
-            trace_element.set(SOURCE_ATTR, source)
+            trace_element.set(TARGET_ATTRIBUTE, target)
             trace_property_element.append(trace_element)
 
         return trace_property_element
@@ -158,40 +158,41 @@ class Trace:
     def create(cls, trace_property_element: ET._Element) -> "Trace":
         """
         It creates a trace from an XML element.
+
         :param element: XML element with the trace.
         :return: Trace object.
         """
         # Get name
         name: AnyStr | None = trace_property_element.attrib.get(
-            NAME_ATTR, DEFAULT_TRACE_NAME
+            NAME_ATTRIBUTE, DEFAULT_TRACE_NAME
         )
 
         # Get category
         category: AnyStr | None = trace_property_element.attrib.get(
-            CATEGORY_ATTR, DEFAULT_TRACE_CATEGORY
+            CATEGORY_ATTRIBUTE, DEFAULT_TRACE_CATEGORY
         )
 
-        # Get accepted sources
-        accepted_sources: List | None = trace_property_element.attrib.get(
-            ACCEPTED_SOURCES_ATTR, "".join(PROTEUS_ANY)
+        # Get accepted targets
+        accepted_targets: List | None = trace_property_element.attrib.get(
+            ACCEPTED_TARGETS_ATTRIBUTE, "".join(PROTEUS_ANY)
         ).split()
 
-        # Get sources
+        # Get targets
         traces = list()
         for trace in trace_property_element.findall(TRACE_TAG):
-            source: ProteusID = trace.attrib.get(SOURCE_ATTR)
+            target: ProteusID = trace.attrib.get(TARGET_ATTRIBUTE)
 
-            if source is None:
+            if target is None:
                 log.warning(
-                    f"PROTEUS trace '{name}' has a trace without a source -> ignoring it"
+                    f"PROTEUS trace '{name}' has a trace without a target -> ignoring it"
                 )
                 continue
 
-            traces.append(source)
+            traces.append(target)
 
         return cls(
             name=name,
             category=category,
-            sources=traces,
-            acceptedSources=accepted_sources,
+            targets=traces,
+            acceptedTargets=accepted_targets,
         )

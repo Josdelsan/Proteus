@@ -44,6 +44,7 @@
                 <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
               </properties>
               <children/>
+              <traces/>
             </object>
             <object id="6VQfdFUiaBHU" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
               <properties>
@@ -64,6 +65,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
                 <object id="5zPKovT5gouZ" classes="graphic-file" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
@@ -76,6 +78,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
                 <object id="y3vZPwwh6hjp" classes="product-requirement actor" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
@@ -88,10 +91,13 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[No **comments**]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
               </children>
+              <traces/>
             </object>
           </children>
+          <traces/>
         </object>
         <object id="7C7NU3vEK2a8" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
           <properties>
@@ -112,6 +118,7 @@
                 <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
               </properties>
               <children/>
+              <traces/>
             </object>
             <object id="52fwR9fXGY9J" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
               <properties>
@@ -133,6 +140,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
                 <object id="6zGv3BNUkTec" classes="product-requirement information-requirement" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
                   <properties>
@@ -145,6 +153,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
                 <object id="4Etjfs7bAYgX" classes="objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
                   <properties>
@@ -156,6 +165,7 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
                 <object id="6XiHg4PkVuUG" classes="objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
                   <properties>
@@ -177,8 +187,10 @@
                         <markdownProperty name="comments" category="comments"><![CDATA[**Proteus**]]></markdownProperty>
                       </properties>
                       <children/>
+                      <traces/>
                     </object>
                   </children>
+                  <traces/>
                 </object>
                 <object id="3jy7qaWiU7Td" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
                   <properties>
@@ -199,8 +211,10 @@
                         <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
                       </properties>
                       <children/>
+                      <traces/>
                     </object>
                   </children>
+                  <traces/>
                 </object>
                 <object id="4fRReKDHr43n" classes="product-requirement use-case" acceptedChildren="use-case-step" acceptedParents=":Proteus-any">
                   <properties>
@@ -214,12 +228,16 @@
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments]]></markdownProperty>
                   </properties>
                   <children/>
+                  <traces/>
                 </object>
               </children>
+              <traces/>
             </object>
           </children>
+          <traces/>
         </object>
       </children>
+      <traces/>
     </object>
   </documents>
   <xsl-templates>

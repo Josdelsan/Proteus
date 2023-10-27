@@ -100,7 +100,7 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> Union[str, list]:
         """
         Returns the value of the input widget. The value is converted to a
         string.

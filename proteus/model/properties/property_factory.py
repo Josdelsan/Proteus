@@ -39,12 +39,12 @@ from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 
-from proteus.model import NAME_ATTR, CATEGORY_ATTR
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE
 
 from proteus.model.properties import \
     CLASS_TAG,                       \
     DEFAULT_CATEGORY,                \
-    CHOICES_ATTR
+    CHOICES_ATTRIBUTE
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -94,10 +94,10 @@ class PropertyFactory:
             return None
 
         # Get name (checked in property constructors)
-        name = element.attrib.get(NAME_ATTR)
+        name = element.attrib.get(NAME_ATTRIBUTE)
 
         # Get category (checked in property constructors)
-        category = element.attrib.get(CATEGORY_ATTR, DEFAULT_CATEGORY)
+        category = element.attrib.get(CATEGORY_ATTRIBUTE, DEFAULT_CATEGORY)
 
         # Get value (checked in property constructors)
         if( property_class is ClassListProperty ):
@@ -119,7 +119,7 @@ class PropertyFactory:
         # Special case: EnumProperty
         if( property_class is EnumProperty ):
             # We need to collect its choices
-            choices = element.attrib.get(CHOICES_ATTR, str())
+            choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
             return EnumProperty(name, category, value, choices)
 
         # Ordinary case: rest of property classes

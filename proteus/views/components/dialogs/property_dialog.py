@@ -90,6 +90,7 @@ class PropertyDialog(QDialog):
         # Set the element id, reference to the element whose properties
         # will be displayed
         self.element_id: ProteusID = element_id
+        self.project_dialog: bool = False
 
         # Create a dictionary to hold the input widgets for each property
         # NOTE: This is used to get the input values when the form is
@@ -114,15 +115,10 @@ class PropertyDialog(QDialog):
             self.element_id
         )
 
-        # Set the window name
-        window_name: str = self.object.get_property("name").value
-        self.setWindowTitle(window_name)
-
-        # Create the form vertical layout
-        form_layout: QVBoxLayout = QVBoxLayout(self)
-
-        # Create a QTabWidget to organize properties by categories
-        tab_widget: QTabWidget = QTabWidget()
+        # Check if the object is a project to set the flag
+        # This is used to avoid handling traces in the project form
+        if isinstance(self.object, Project):
+            self.project_dialog = True
 
         # Get the object's properties dictionary
         properties_form_dict: Dict[
@@ -130,9 +126,18 @@ class PropertyDialog(QDialog):
         ] = self.object.properties.copy()
 
         # If the object is Object class, include traces in the properties
-        if isinstance(self.object, Object):
+        if not self.project_dialog:
             # Merge object's traces with properties dict
             properties_form_dict.update(self.object.traces)
+
+        # Set the window name
+        window_name: str = self.object.get_property("name").value
+        self.setWindowTitle(window_name)
+
+        # Create the form vertical layout and the tab widget
+        # to organize the properties by category
+        form_layout: QVBoxLayout = QVBoxLayout(self)
+        tab_widget: QTabWidget = QTabWidget()
 
         # Create a dictionary to hold category widgets
         category_widgets: Dict[str, QWidget] = {}
@@ -198,13 +203,15 @@ class PropertyDialog(QDialog):
     def save_button_clicked(self):
         """
         Manage the save button clicked event. It gets the values of the
-        input widgets and updates the properties of the element.
+        input widgets and updates the propertie and traces of the element.
         """
         # Empty dictionary to hold the properties to update
-        update_list: List[Property] = []
+        update_list: List[Union[Property, Trace]] = []
 
-        # Get the original object properties dictionary
-        properties_dict = self.object.properties
+        # Get the original object properties (and merge with traces if needed)
+        properties_dict: Dict[str, Property] = self.object.properties.copy()
+        if not self.project_dialog:
+            properties_dict.update(self.object.traces)
 
         # Boolean property to check if there are errors
         form_has_errors: bool = False
@@ -214,26 +221,29 @@ class PropertyDialog(QDialog):
             # Get the property input value
             input_widget: PropertyInput = self.input_widgets[prop_name]
 
-            # Check if the widget has errors
+            # Check if the widget has errors and update the form errors flag
             widget_has_errors: bool = input_widget.has_errors()
             form_has_errors = form_has_errors or widget_has_errors
 
-            # If the widget has errors, skip the property
-            if widget_has_errors:
+            # If the widget has errors or previous errors exist, continue
+            if widget_has_errors or form_has_errors:
                 continue
 
+            # Get the value of the property (or trace property)
             new_prop_value: Union[str, list] = input_widget.get_value()
 
             # Get the original property and its value
             original_prop: Union[Property, Trace] = properties_dict[prop_name]
             if isinstance(original_prop, Trace):
-                original_prop_value: list = original_prop.sources
+                original_prop_value: list = original_prop.targets
             else:
                 original_prop_value: str = original_prop.value
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
-                cloned_property: Property = original_prop.clone(new_prop_value)
+                cloned_property: Union[Property, Trace] = original_prop.clone(
+                    new_prop_value
+                )
                 update_list.append(cloned_property)
 
         # If there are errors, do not update the properties

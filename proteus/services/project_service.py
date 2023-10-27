@@ -25,11 +25,19 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, ID_ATTR, CHILD_TAG, DOCUMENT_TAG, ProteusClassTag, PROTEUS_ANY
+from proteus.model import (
+    ProteusID,
+    ID_ATTRIBUTE,
+    CHILD_TAG,
+    DOCUMENT_TAG,
+    ProteusClassTag,
+    PROTEUS_ANY,
+)
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.model.properties import Property
+from proteus.model.trace import Trace
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -217,6 +225,43 @@ class ProjectService:
             element.set_property(property)
 
     # ----------------------------------------------------------------------
+    # Method     : update_traces
+    # Description: Updates the object traces.
+    # Date       : 26/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_traces(self, element_id: ProteusID, traces: List[Trace]) -> None:
+        """
+        Updates the object traces.
+
+        :param element_id: Id of the object.
+        :param traces: List of traces to update.
+        """
+        # Check traces is a list
+        assert isinstance(traces, list), "Traces must be a list."
+
+        # Check traces are Trace objects
+        assert all(
+            isinstance(trace, Trace) for trace in traces
+        ), "Traces must be Trace objects."
+
+        # Get element by id
+        element = self._get_element_by_id(element_id)
+
+        # Check element is an object or project
+        assert isinstance(
+            element, (Object)
+        ), f"Element with id {element_id} is not an object. Traces can only be added to objects"
+
+        for trace in traces:
+            element.traces[trace.name] = trace
+
+        # Update state to Dirty if traces are updated and the element is not FRESH
+        if traces and element.state == ProteusState.CLEAN:
+            element.state = ProteusState.DIRTY
+
+    # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Saves the project to disk.
     # Date       : 06/05/2023
@@ -328,7 +373,7 @@ class ProjectService:
         :return: List with the project documents.
         """
         return self.project.get_descendants()
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_objects
     # Description: Returns objects in the project.
@@ -336,7 +381,7 @@ class ProjectService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_objects(self, classes: List[ProteusClassTag]=[]) -> List[Object]:
+    def get_objects(self, classes: List[ProteusClassTag] = []) -> List[Object]:
         """
         Get the objects of the current project. They can be filtered by classes.
         """
@@ -356,7 +401,6 @@ class ProjectService:
             object: Object
             # Iterate over all objects in the project
             for object in self.project_index.values():
-
                 if object.state == ProteusState.DEAD or not isinstance(object, Object):
                     continue
 
@@ -512,7 +556,7 @@ class ProjectService:
         root: ET.element = self.project.generate_xml()
         # Iterate over document tag and replace the asked document
         for document_element in root.findall(f".//{DOCUMENT_TAG}"):
-            if document_element.attrib[ID_ATTR] == document_id:
+            if document_element.attrib[ID_ATTRIBUTE] == document_id:
                 parent_element: ET.Element = document_element.getparent()
                 document_xml: ET.Element = document.generate_xml()
                 parent_element.replace(document_element, document_xml)
@@ -528,7 +572,7 @@ class ProjectService:
             # Parse object's children
             child_element: ET.Element
             for child_element in children:
-                child_id: ProteusID = child_element.attrib[ID_ATTR]
+                child_id: ProteusID = child_element.attrib[ID_ATTRIBUTE]
 
                 # Get child object
                 child: Object = self._get_element_by_id(child_id)

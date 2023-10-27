@@ -385,5 +385,3 @@ def test_get_element_by_id_negative(
 
 # NOTE: test save_project might not be necessary because it is a simple call
 # to the project save method, which is tested in the project model tests.
-# NOTE: test get_properties might not be necessary because it is a simple access
-# to the object properties attribute and _get_element_by_id method call.

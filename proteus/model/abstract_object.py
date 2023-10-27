@@ -32,8 +32,8 @@ import lxml.etree as ET
 
 from proteus.model import (
     ProteusID,
-    ID_ATTR,
-    NAME_ATTR,
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
     PROPERTIES_TAG,
     PROJECT_TAG,
     OBJECT_TAG,
@@ -150,7 +150,7 @@ class AbstractObject(ABC):
         # Parse properties
         property_element: ET.Element
         for property_element in properties_element:
-            property_name: str = property_element.attrib.get(NAME_ATTR, None)
+            property_name: str = property_element.attrib.get(NAME_ATTRIBUTE, None)
             # Check whether the property has a name
             assert (
                 property_name is not None
@@ -257,7 +257,7 @@ class AbstractObject(ABC):
             element: ET.Element = ET.Element(OBJECT_TAG)
 
         # Set element the id
-        element.set(ID_ATTR, self.id)
+        element.set(ID_ATTRIBUTE, self.id)
 
         # Create <properties> element
         self.generate_xml_properties(element)
@@ -269,7 +269,7 @@ class AbstractObject(ABC):
             # Create <document> subelements
             for document in self.documents.values():
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-                document_element.set(ID_ATTR, document.id)
+                document_element.set(ID_ATTRIBUTE, document.id)
 
         elif self.class_name == "Object":
             # Create <children> element
@@ -277,7 +277,7 @@ class AbstractObject(ABC):
             # Create <child> subelements
             for child in self.children.values():
                 child_element = ET.SubElement(children_element, CHILD_TAG)
-                child_element.set(ID_ATTR, child.id)
+                child_element.set(ID_ATTRIBUTE, child.id)
 
         return element
 

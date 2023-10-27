@@ -46,6 +46,7 @@ from proteus.views.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
+from proteus.model.trace import Trace
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -170,11 +171,11 @@ class Controller:
     # ----------------------------------------------------------------------
     @proteus_action
     def update_properties(
-        self, element_id: ProteusID, new_properties: List[Property]
+        self, element_id: ProteusID, new_properties: List[Union[Property, Trace]]
     ) -> None:
         """
-        Update the properties of an element given its id. It pushes the
-        command to the command stack.
+        Update the properties (and traces) of an element given its id.
+        It pushes the command to the command stack.
 
         Notify the frontend components when the command is executed passing
         the element_id as a parameter. MODIFY_OBJECT event is triggered.
@@ -195,10 +196,10 @@ class Controller:
             new_properties, list
         ), f"New properties must be a list. New properties: {new_properties}"
 
-        # Check new properties are type of Property
+        # Check new properties are type of Property or Trace
         assert all(
-            isinstance(property, Property) for property in new_properties
-        ), f"New properties must be type of Property. New properties: {new_properties}"
+            isinstance(property, (Property, Trace)) for property in new_properties
+        ), f"New properties must be type of Property or Trace. New properties: {new_properties}"
 
         # Push the command to the command stack
         self._push(
@@ -458,12 +459,12 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_objects(self, classes: List[ProteusClassTag]=[]) -> List[Object]:
+    def get_objects(self, classes: List[ProteusClassTag] = []) -> List[Object]:
         """
         Get the objects of the current project. They can be filtered by classes.
         """
         log.info(f"Getting objects of current project with classes: {classes}")
-        return self._project_service.get_objects(classes) 
+        return self._project_service.get_objects(classes)
 
     # ----------------------------------------------------------------------
     # Method     : save_project
@@ -634,7 +635,6 @@ class Controller:
         # Notify that this action requires saving even if the command is not
         # undoable
         EventManager.notify(Event.REQUIRED_SAVE_ACTION)
-
 
     # ======================================================================
     # Archetype methods

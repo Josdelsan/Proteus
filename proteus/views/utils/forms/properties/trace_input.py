@@ -22,8 +22,6 @@ from typing import List
 # --------------------------------------------------------------------------
 
 from proteus.model.trace import Trace
-from proteus.controller.command_stack import Controller
-from proteus.model.properties.property import Property
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 from proteus.views.utils.forms.trace_edit import TraceEdit
 
@@ -78,5 +76,5 @@ class TraceInput(PropertyInput):
         """
         Creates the input widget based on TraceEdit.
         """
-        self.input: TraceEdit = TraceEdit(controller=self.controller, accepted_sources=property.acceptedSources)
-        self.input.setTraces(property.sources)
+        self.input: TraceEdit = TraceEdit(controller=self.controller, accepted_targets=property.acceptedTargets)
+        self.input.setTraces(property.targets)
