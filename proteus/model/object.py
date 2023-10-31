@@ -58,7 +58,7 @@ from proteus.model import (
     ASSETS_REPOSITORY,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property
+from proteus.model.properties import Property, FileProperty
 from proteus.model.trace import Trace
 
 
@@ -333,7 +333,7 @@ class Object(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_descendants(self) -> List:
+    def get_descendants(self) -> List[Object]:
         """
         It returns a list with all the children of an object.
         :return: list with all the children of an object.
@@ -497,7 +497,7 @@ class Object(AbstractObject):
         cloned_object: Object = self._clone_object(parent, project, ids_map, position)
 
         # Recalculate traces
-        self._recalculate_traces(cloned_object, ids_map)
+        self._recalculate_traces(cloned_object, ids_map, project)
 
         # Return the cloned object
         return cloned_object
@@ -522,7 +522,7 @@ class Object(AbstractObject):
         # ------------------------------------------------------------------
 
         # Helper function to assign a new id to the object
-        def generate_new_id(project: Project) -> ProteusID:
+        def _generate_new_id(project: Project) -> ProteusID:
             """
             Helper function that generates a new id for the object.
             """
@@ -536,7 +536,7 @@ class Object(AbstractObject):
             return ProteusID(new_id)
 
         # Helper function to handle asset cloning
-        def handle_asset_clone(asset_property: Property) -> None:
+        def _handle_asset_clone(asset_property: Property) -> None:
             """
             Helper function that handles the asset cloning.
             """
@@ -579,6 +579,7 @@ class Object(AbstractObject):
             if target_asset_file_path != asset_file_path:
                 # Copy the asset file to the target assets path
                 shutil.copy(asset_file_path, target_asset_file_path)
+                log.debug(f"Asset {asset_property.value} copied from {asset_file_path} to {target_asset_file_path}.")
 
         # ------------------------------------------------------------------
 
@@ -594,12 +595,14 @@ class Object(AbstractObject):
             parent, Object
         ), f"Parent must be instance of Object or Project"
 
-        # Deepcopy so we don't change the original object.
-        # Differences between copy and deepcopy -> https://www.programiz.com/python-programming/shallow-deep-copy
-        new_object = copy.deepcopy(self)
+        # We use standart clone instead of deepcopy to avoid unnecessary copies of project and children
+        # This improves performance but It is necessary to manually deepcopy properties and traces
+        new_object = copy.copy(self)
+        new_object.properties = copy.deepcopy(self.properties)
+        new_object.traces = copy.deepcopy(self.traces)
 
-        # Force children load
-        new_object.children
+        # Reset children
+        new_object._children = []
 
         # Set new project and FRESH state
         new_object.project = project
@@ -607,7 +610,7 @@ class Object(AbstractObject):
 
         # Assign a new id that is not in use
         old_id: ProteusID = new_object.id
-        new_object.id = generate_new_id(project)
+        new_object.id = _generate_new_id(project)
         ids_map[old_id] = new_object.id
 
         # Create file path
@@ -617,32 +620,21 @@ class Object(AbstractObject):
         # Add the new object to the parent children and set the parent
         parent.add_descendant(new_object, position)
 
-        # TODO: Iterate over fileProperties and clone all the files
-        # Get asset (file) property
-        try:
-            asset_property = new_object.get_property("file")
-        except AssertionError:
-            asset_property = None
-
-        if asset_property is not None:
-            handle_asset_clone(asset_property)
-            log.info(f"Asset {asset_property.value} cloned.")
+        # Clone assets using auxiliary function
+        for property in new_object.properties.values():
+            if isinstance(property, FileProperty):
+                _handle_asset_clone(property)
 
         # Children clone ---------------------------------------------------
         # If the object has children we clone them
-        if len(new_object.children) > 0:
-            # Get the children list
-            children = list(new_object.children)
-
-            # Clone the children
-            for child in children:
-                # Clone the child
-                child._clone_object(
-                    new_object, project, ids_map, len(new_object.children)
-                )
-
-                # Remove the old child from the children list
-                new_object.children.remove(child)
+        for child in self.get_descendants():
+            # Clone the child
+            child._clone_object(
+                parent=new_object,
+                project=project,
+                ids_map=ids_map,
+                position=len(new_object.children),
+            )
 
         # Check the new object is valid
         assert isinstance(
@@ -652,7 +644,9 @@ class Object(AbstractObject):
         # Return the new object
         return new_object
 
-    def _recalculate_traces(self, object: Object, ids_map: dict) -> None:
+    def _recalculate_traces(
+        self, object: Object, ids_map: dict, project: Project
+    ) -> None:
         """
         Recalculate traces of an object and given a map with the ids correlation.
         If a target is not found in the project, the trace will be discarded.
@@ -672,7 +666,7 @@ class Object(AbstractObject):
                 if target in ids_map:
                     new_targets.append(ids_map[target])
                 # If the target is in the project ids, add the target
-                elif target in self.project.ids:
+                elif target in project.ids:
                     new_targets.append(target)
                 # If target not in conversion map or project ids, log error
                 else:
@@ -688,7 +682,7 @@ class Object(AbstractObject):
         # Iterate over children
         for child in object.children:
             # Recalculate traces
-            self._recalculate_traces(child, ids_map)
+            self._recalculate_traces(child, ids_map, project)
 
     # ----------------------------------------------------------------------
     # Method     : save

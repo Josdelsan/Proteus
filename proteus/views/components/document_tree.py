@@ -253,6 +253,8 @@ class DocumentTree(QTreeWidget):
         for child in object.children:
             self.populate_tree(new_item, child)
 
+        new_item.setExpanded(True)
+
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
@@ -339,6 +341,7 @@ class DocumentTree(QTreeWidget):
 
         # Get the parent item
         parent_item: QTreeWidgetItem = self.tree_items[new_object.parent.id]
+        parent_item.setExpanded(True)
 
         # Update the parent item color
         # NOTE: Parent will always be an Object. Project cannot be selected
