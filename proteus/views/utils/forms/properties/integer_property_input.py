@@ -46,12 +46,12 @@ class IntegerPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> int:
         """
         Returns the value of the input widget. The value is converted to a
         integer.
         """
-        return self.input.text()
+        return int(self.input.text())
 
     # ----------------------------------------------------------------------
     # Method     : validate

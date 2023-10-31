@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict, Union
+from typing import List, Set, Dict, Union
 import logging
 
 # --------------------------------------------------------------------------
@@ -135,7 +135,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def undo(self) -> None:
+    @proteus_action
+    def undo(self, *args, **kwargs) -> None:
         """
         Undo the last command. Only works if the command is undoable.
         """
@@ -149,7 +150,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def redo(self) -> None:
+    @proteus_action
+    def redo(self, *args, **kwargs) -> None:
         """
         Redo the last command. Only works if the command is
         undoable/redoable.
@@ -521,6 +523,22 @@ class Controller:
         assert current_project is not None, "Project is not loaded"
 
         return self._project_service.project
+
+    # ----------------------------------------------------------------------
+    # Method     : get_traces_dependencies
+    # Description: Checks if the given object has traces pointing to it.
+    # Date       : 27/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traces_dependencies(self, object_id: ProteusID) -> Dict[ProteusID, Set]:
+        """
+        Checks if the given object and its children have traces pointing to them.
+
+        :param object_id: Id of the object to check.
+        :return: Dictionary with sets of sources ids pointing to each object.
+        """
+        return self._project_service.get_traces_dependencies_outside(object_id)
 
     # ======================================================================
     # Document views methods

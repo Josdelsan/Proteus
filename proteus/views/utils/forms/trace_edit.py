@@ -36,6 +36,7 @@ from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.config import Config
+from proteus.views.utils.translator import Translator
 
 
 # --------------------------------------------------------------------------
@@ -353,13 +354,13 @@ class TraceEditDialog(QDialog):
         Creates the dialog component.
         """
         # Set dialog title
-        self.setWindowTitle("Select an object to trace")
+        title: str = Translator().text("trace_edit_dialog.title")
+        self.setWindowTitle(title)
 
         # Create a QListWidget
         self.list_widget = QListWidget(self)
         self.list_widget.setMovement(QListWidget.Movement.Static)
         self.list_widget.setMinimumHeight(100)
-        self.list_widget.setMaximumHeight(300)
 
         # Get list of project objects
         objects: List[Object] = self.controller.get_objects(

@@ -238,7 +238,12 @@ class ViewsContainer(QTabWidget):
         Triggered by: Event.MODIFY_OBJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT
         Event.CURRENT_DOCUMENT_CHANGED, Event.CURRENT_VIEW_CHANGED
         """
+        # Check update_view flag
+        update_view: bool = kwargs.get("update_view", True)
+        if not update_view:
+            return
 
+        # Get the current document id and the current view
         current_document_id: ProteusID = StateManager.get_current_document()
         current_view: str = StateManager.get_current_view()
 

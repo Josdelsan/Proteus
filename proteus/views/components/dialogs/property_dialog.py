@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Any
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -75,8 +75,16 @@ class PropertyDialog(QDialog):
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
-        the component. Store the element id, reference to the element whose
-        properties and traces will be displayed.
+        the component.
+        
+        Store the element id, reference to the element whose properties and
+        traces will be displayed, and the PropertyInput widgets in a dictionary.
+
+        Flag project_dialog is used to avoid handling traces in the project
+        form.
+
+        :param element_id: The id of the element to edit.
+        :param controller: A Controller instance.
         """
         super().__init__(*args, **kwargs)
         # Controller instance
@@ -109,7 +117,16 @@ class PropertyDialog(QDialog):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the component.
+        Create the dialog component. This method is called from the constructor.
+
+        It creates a vertical layout where a tab widget is added. Each tab contains
+        a form layout with the PropertyInput widgets for each category (properties
+        and traces).
+
+        Store the input widgets in a dictionary to get the values when the form
+        is accepted.
+
+        Creation is dinamic, depending on the properties and traces of the element.
         """
         self.object: Union[Project, Object] = self._controller.get_element(
             self.element_id
@@ -204,6 +221,18 @@ class PropertyDialog(QDialog):
         """
         Manage the save button clicked event. It gets the values of the
         input widgets and updates the propertie and traces of the element.
+
+        This method compares the values of the input widgets with the 
+        original properties and traces of the element. If there are changes,
+        just the properties and traces that changed are updated.
+
+        Form errors are checked before updating the properties. All errors
+        are displayed in each input widget. If there are errors, the
+        properties update method is not called
+
+        Controller update_properties method is called. Both properties and
+        traces are passed in the same list, they can be processed separately
+        later.
         """
         # Empty dictionary to hold the properties to update
         update_list: List[Union[Property, Trace]] = []
@@ -230,14 +259,14 @@ class PropertyDialog(QDialog):
                 continue
 
             # Get the value of the property (or trace property)
-            new_prop_value: Union[str, list] = input_widget.get_value()
+            new_prop_value: Any = input_widget.get_value()
 
             # Get the original property and its value
             original_prop: Union[Property, Trace] = properties_dict[prop_name]
             if isinstance(original_prop, Trace):
                 original_prop_value: list = original_prop.targets
             else:
-                original_prop_value: str = original_prop.value
+                original_prop_value: Any = original_prop.value
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
@@ -294,6 +323,7 @@ class PropertyDialog(QDialog):
         Handle the creation and display of the form window.
 
         :param element_id: The id of the element to edit.
+        :param controller: A Controller instance.
         """
         # Create the form window
         form_window = PropertyDialog(element_id=element_id, controller=controller)

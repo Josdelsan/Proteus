@@ -38,6 +38,7 @@ from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
 from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 
 
 # --------------------------------------------------------------------------
@@ -139,7 +140,9 @@ class ContextMenu(QMenu):
             self.translator.text("document_tree.menu.action.delete"), self
         )
         self.action_delete_object.triggered.connect(
-            lambda: self._controller.delete_object(selected_item_id)
+            lambda: DeleteDialog.create_dialog(
+                element_id=selected_item_id, controller=self._controller
+            )
         )
         delete_icon = QApplication.style().standardIcon(
             QStyle.StandardPixmap.SP_TrashIcon
@@ -203,9 +206,9 @@ class ContextMenu(QMenu):
         self.addAction(self.action_clone_object)
         self.addSeparator()
         # Insert the accepted archetypes clone menus
-        accepted_archetypes: Dict[str, List[Object]] = self._controller.get_accepted_object_archetypes(
-            selected_item_id
-        )
+        accepted_archetypes: Dict[
+            str, List[Object]
+        ] = self._controller.get_accepted_object_archetypes(selected_item_id)
         for archetype_class in accepted_archetypes.keys():
             # Create the archetype menu
             archetype_menu: AvailableArchetypesMenu = AvailableArchetypesMenu(
@@ -307,14 +310,24 @@ class AvailableArchetypesMenu(QMenu):
         """
         Create the component.
         """
-        icon: QIcon = QIcon(Config().get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix())
+        icon: QIcon = QIcon(
+            Config().get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix()
+        )
         self.setIcon(icon)
-        self.setTitle(self.translator.text('document_tree.menu.action.add_archetype',self.class_name))
+        self.setTitle(
+            self.translator.text(
+                "document_tree.menu.action.add_archetype", self.class_name
+            )
+        )
 
         # Create the actions
         for archetype in self.archetype_list:
-            action: QAction = QAction(self.translator.text(archetype.get_property('name').value), self)
-            icon: QIcon = QIcon(Config().get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix())
+            action: QAction = QAction(
+                self.translator.text(archetype.get_property("name").value), self
+            )
+            icon: QIcon = QIcon(
+                Config().get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix()
+            )
             action.setIcon(icon)
             action.triggered.connect(
                 lambda: self._controller.create_object(archetype.id, self.parent_id)

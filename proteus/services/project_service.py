@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Set
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -65,11 +65,24 @@ class ProjectService:
     # ----------------------------------------------------------------------
     def __init__(self):
         """
-        Class constructor.
+        Class constructor. Initializes the following instance variables:
+
+        - project: Project object. It is initialized when the project is
+        loaded via load_project method.
+
+        - project_index: Dictionary with the project objects indexed by
+        their id. It is initialized when the project is loaded via
+        load_project method. Updated when get_element_by_id method is
+        called via _populate_index method.
+
+        - traces_index: Dictionary with the traces with the following
+        structure: {key: target, value: set of sources}. It is initialized
+        when the project is loaded via _load_traces_index method.
         """
         # Instance variables
         self.project: Project = None
         self.project_index: Dict[ProteusID, Union[Object, Project]] = {}
+        self.traces_index: Dict[ProteusID, Set[ProteusID]] = {}
 
         log.info("ProjectService initialized.")
 
@@ -100,6 +113,9 @@ class ProjectService:
 
         # Populate project index
         self._populate_index()
+
+        # Load traces index
+        self._load_traces_index()
 
         log.info(f"Project '{self.project.get_property('name').value}' loaded.")
 
@@ -170,6 +186,145 @@ class ProjectService:
         # Include project in the index if it is not there
         if self.project.id not in self.project_index:
             self.project_index[self.project.id] = self.project
+
+    # ----------------------------------------------------------------------
+    # Method     : _load_traces_index
+    # Description: Helper method that loads the traces index with the
+    #              traces of all the objects in the project.
+    # Date       : 27/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _load_traces_index(self) -> None:
+        """
+        Loads the traces index with the traces of all the objects in the
+        project. This method loads the traces index from scratch, so it
+        could impact performance.
+
+        The traces index has the following structure: {key: target, value: set of sources}.
+        This structure is the opposite of the one used in Traces, where the source
+        contains a list of targets. This way is easier to check on delete operations.
+
+        If a target is DEAD, it will be ignored in the traces index. This allows to
+        the sources to be deleted. This is a consistency problem in the project.
+        """
+        # Initialize traces index
+        self.traces_index = {}
+
+        # Iterate over all objects in the project using the project index
+        for object in self.project_index.values():
+            # Store all non DEAD targeted objects by the current object
+            targets: Set[ProteusID] = set()
+
+            # Skip project
+            if object.id == self.project.id or object.state == ProteusState.DEAD:
+                continue
+            # Iterate over object's traces
+            for trace in object.traces.values():
+                targets.update(trace.targets)
+
+            # Include object in source set of all its targets
+            for target in targets:
+                # Check if the target is DEAD state
+                target_object: Object = self._get_element_by_id(target)
+                if target_object.state == ProteusState.DEAD:
+                    log.error(
+                        f"Found a Trace in object '{object.id}' targeting a DEAD object '{target}'. "
+                        f"Target '{target}' will be ignored in load_traces_index method so it can be deleted. "
+                        "Check for project inconsistencies, this might affect the project integrity. "
+                    )
+                    if target in self.traces_index:
+                        self.traces_index.pop(target)
+
+                # Add object to the target's source set
+                if target not in self.traces_index:
+                    self.traces_index[target] = set()
+                self.traces_index[target].add(object.id)
+
+    # ----------------------------------------------------------------------
+    # Method     : get_traces_dependencies
+    # Description: Checks if the given object has traces pointing to it.
+    # Date       : 27/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traces_dependencies(self, object_id: ProteusID) -> Dict[ProteusID, Set]:
+        """
+        Checks if the given object and its children have traces pointing to them.
+        Do not check for traces pointing to DEAD objects.
+
+        :param object_id: Id of the object to check.
+        :return: Dictionary with a set of sources ids pointing to each object.
+        """
+
+        object: Object = self._get_element_by_id(object_id)
+
+        # Dictionary to store the sources by object id
+        sources: Dict[ProteusID, Set] = {}
+
+        # Skip if the object is DEAD
+        if object.state == ProteusState.DEAD:
+            return sources
+
+        # Check if the object has traces pointing to it
+        if object_id in self.traces_index:
+            sources[object_id] = self.traces_index[object_id]
+
+        # Check if the object has children, for each child check
+        # if it has traces pointing to it calling recursively
+        for child in object.get_descendants():
+            sources.update(self.get_traces_dependencies(child.id))
+
+        return sources
+
+    # ----------------------------------------------------------------------
+    # Method     : get_traces_dependencies_outside
+    # Description: Checks if the given object has traces pointing to it
+    #              from outside the given object and its children.
+    # Date       : 31/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traces_dependencies_outside(
+        self, object_id: ProteusID
+    ) -> Dict[ProteusID, Set]:
+        """
+        Checks if the given object and its children have traces pointing to them
+        only from outside the given object and its children. Do not check for
+        traces pointing to DEAD objects.
+
+        :param object_id: Id of the object to check.
+        :return: Dictionary with a set of sources ids pointing to each object.
+        """
+
+        # Iterate over the children and create a set of their ids
+        def _get_children_ids(object: Object) -> Set[ProteusID]:
+            children_ids: Set[ProteusID] = set()
+            for child in object.get_descendants():
+                children_ids.update(_get_children_ids(child))
+            children_ids.add(object.id)
+            return children_ids
+
+        # Get object using helper method
+        object: Object = self._get_element_by_id(object_id)
+        children_ids: Set[ProteusID] = _get_children_ids(object)
+
+        # Dictionary to store the sources by object id
+        traces_dependencies: Dict[ProteusID, Set] = self.get_traces_dependencies(
+            object_id
+        )
+
+        # Check if sources are inside the object, if so, remove them
+        for target, sources in traces_dependencies.copy().items():
+            for source in sources.copy():
+                if source in children_ids:
+                    sources.remove(source)
+
+            # If there are no sources left, remove the target
+            if not sources:
+                traces_dependencies.pop(target)
+
+        return traces_dependencies
 
     # ----------------------------------------------------------------------
     # Method     : get_properties
@@ -257,9 +412,14 @@ class ProjectService:
         for trace in traces:
             element.traces[trace.name] = trace
 
-        # Update state to Dirty if traces are updated and the element is not FRESH
-        if traces and element.state == ProteusState.CLEAN:
-            element.state = ProteusState.DIRTY
+        # If traces list is not empty
+        if traces:
+            # Reload traces index
+            self._load_traces_index()
+
+            # Set element state to DIRTY if current state is CLEAN
+            if element.state == ProteusState.CLEAN:
+                element.state = ProteusState.DIRTY
 
     # ----------------------------------------------------------------------
     # Method     : save_project

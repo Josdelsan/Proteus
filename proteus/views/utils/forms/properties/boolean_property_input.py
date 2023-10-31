@@ -49,7 +49,7 @@ class BooleanPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> bool:
         """
         Returns the value of the input widget. The value is converted to a
         boolean.

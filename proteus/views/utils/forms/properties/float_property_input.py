@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -46,12 +45,12 @@ class FloatPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> float:
         """
         Returns the value of the input widget. The value is converted to a
         float.
         """
-        return self.input.text()
+        return float(self.input.text())
 
     # ----------------------------------------------------------------------
     # Method     : validate

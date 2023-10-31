@@ -221,6 +221,20 @@ information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "This software do not collect any personal information. The software is provided 'as is', without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software."
 information_dialog.important_notes.text: "This version requires internet connection in order to show and export the default template render correctly."
 
+
+# ---------------------------------------------------------------------------
+# Trace edit dialog
+# ---------------------------------------------------------------------------
+trace_edit_dialog.title: "Select an element to trace"
+
+# ---------------------------------------------------------------------------
+# Delete dialog
+# ---------------------------------------------------------------------------
+delete_dialog.title: "Confirm delete"
+delete_dialog.message: "Are you sure you want to delete the element '{}'?"
+delete_dialog.traces_explanation: This element or its children are traced by other elements. If you delete it, the traces will be deleted too. Check all the elements that will be updated below.
+delete_dialog.tree.header: Click in each item to see the elements that will be updated.
+
 # ---------------------------------------------------------------------------
 # Message boxes
 # ---------------------------------------------------------------------------

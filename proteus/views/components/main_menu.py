@@ -40,6 +40,7 @@ from proteus.views.components.dialogs.new_document_dialog import NewDocumentDial
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.components.dialogs.information_dialog import InformationDialog
+from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.views.components.archetypes_menu_dropdown import (
     ArchetypesMenuDropdown,
 )
@@ -579,21 +580,28 @@ class MainMenu(QDockWidget):
         document: Object = self._controller.get_element(document_id)
         document_name: str = document.get_property("name").value
 
+        # Create the delete dialog
+        DeleteDialog.create_dialog(
+            element_id=document_id,
+            is_document=True,
+            controller=self._controller,
+        )
+
         # Show a confirmation dialog
-        self.confirmation_dialog = QMessageBox()
-        self.confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-        self.confirmation_dialog.setWindowTitle(
-            self.translator.text("main_menu.delete_document.title")
-        )
-        self.confirmation_dialog.setText(
-            self.translator.text("main_menu.delete_document.text", document_name)
-        )
-        self.confirmation_dialog.setStandardButtons(
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-        self.confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
-        self.confirmation_dialog.accepted.connect(
-            # Delete the document
-            lambda arg=document.id: self._controller.delete_document(arg)
-        )
-        self.confirmation_dialog.exec()
+        # self.confirmation_dialog = QMessageBox()
+        # self.confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+        # self.confirmation_dialog.setWindowTitle(
+        #     self.translator.text("main_menu.delete_document.title")
+        # )
+        # self.confirmation_dialog.setText(
+        #     self.translator.text("main_menu.delete_document.text", document_name)
+        # )
+        # self.confirmation_dialog.setStandardButtons(
+        #     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        # )
+        # self.confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        # self.confirmation_dialog.accepted.connect(
+        #     # Delete the document
+        #     lambda arg=document.id: self._controller.delete_document(arg)
+        # )
+        # self.confirmation_dialog.exec()

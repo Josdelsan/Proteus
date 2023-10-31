@@ -224,6 +224,19 @@ information_dialog.terms_of_use.text: "Este software no recopila ninguna informa
 information_dialog.important_notes.text: "Esta versión requiere de conexión a internet para mostrar y exportar el renderizado de la plantilla por defecto correctamente."
 
 # ---------------------------------------------------------------------------
+# Trace edit dialog
+# ---------------------------------------------------------------------------
+trace_edit_dialog.title: "Selecciona un elemento a trazar"
+
+# ---------------------------------------------------------------------------
+# Delete dialog
+# ---------------------------------------------------------------------------
+delete_dialog.title: "Confirmar eliminación"
+delete_dialog.message: "¿Estás seguro de que quieres eliminar el elemento '{}'?"
+delete_dialog.traces_explanation: Este elemento o sus hijos son trazados por otros elementos. Si lo elimina, también se eliminarán las trazas. Compruebe a continuación todos los elementos que se actualizarán.
+delete_dialog.tree.header: Haz clic en cada ítem para ver los elementos que se actualizarán.
+
+# ---------------------------------------------------------------------------
 # Message boxes
 # ---------------------------------------------------------------------------
 # Asset copy warning
