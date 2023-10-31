@@ -25,7 +25,7 @@ from __future__ import annotations  # it has to be the first import
 import pathlib
 import os
 import logging
-from typing import List, NewType, Union
+from typing import List, NewType, Union, Dict
 import copy
 import shutil
 
@@ -381,6 +381,9 @@ class Object(AbstractObject):
         if self.state != ProteusState.FRESH:
             self.state = ProteusState.DIRTY
 
+        # Add the child id to the project ids
+        self.project.ids.add(child.id)
+
     # ----------------------------------------------------------------------
     # Method     : accept_descendant
     # Description: Checks if a child is accepted by a PROTEUS object.
@@ -463,11 +466,9 @@ class Object(AbstractObject):
     # Method     : clone_object
     # Description: It clones an element.
     # Date       : 24/04/2023
-    # Version    : 0.3
+    # Version    : 0.4
     # Author     : José María Delgado Sánchez
-    #              Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
-
     def clone_object(
         self, parent: Union[Object, Project], project: Project, position: int = None
     ) -> Object:
@@ -476,16 +477,52 @@ class Object(AbstractObject):
         save the object in the system but add it to the parent children so
         it will be saved when we save the project.
 
+        Traces cloning behaviour depends on the object. If an object is cloned
+        and it has traces, the traces will be cloned. If the traces are connected
+        to objects within the object descendants 'universe', traces will be
+        reconnected to the new cloned objects ids. This allows to keep track
+        of traces within the object and its descendants.
+
+        Traces that target an object not present in the project will be discarded.
+
         :param parent: Parent of the new object.
         :param project: Project where the object will be saved.
         :param position: Position in the children list where the child will be added.
+        :type parent: Union[Object,Project].
+        """
+        # Map with the ids of the objects that have been cloned and their new ids
+        ids_map: Dict[ProteusID, ProteusID] = dict()
+
+        # Clone the object
+        cloned_object: Object = self._clone_object(parent, project, ids_map, position)
+
+        # Recalculate traces
+        self._recalculate_traces(cloned_object, ids_map)
+
+        # Return the cloned object
+        return cloned_object
+
+    def _clone_object(
+        self,
+        parent: Union[Object, Project],
+        project: Project,
+        ids_map: dict,
+        position: int = None,
+    ) -> Object:
+        """
+        Private function for cloning an object in a new parent.
+
+        :param parent: Parent of the new object.
+        :param project: Project where the object will be saved.
+        :param position: Position in the children list where the child will be added.
+        :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
         :type parent: Union[Object,Project].
         """
 
         # ------------------------------------------------------------------
 
         # Helper function to assign a new id to the object
-        def generate_new_id(project: Project):
+        def generate_new_id(project: Project) -> ProteusID:
             """
             Helper function that generates a new id for the object.
             """
@@ -493,13 +530,13 @@ class Object(AbstractObject):
             new_id = ProteusID(shortuuid.random(length=12))
 
             # Check if the new id is already in use
-            if new_id in project.get_ids():
-                generate_new_id(project)
+            while new_id in project.ids:
+                new_id = ProteusID(shortuuid.random(length=12))
 
-            return new_id
+            return ProteusID(new_id)
 
         # Helper function to handle asset cloning
-        def handle_asset_clone(asset_property: Property):
+        def handle_asset_clone(asset_property: Property) -> None:
             """
             Helper function that handles the asset cloning.
             """
@@ -569,7 +606,9 @@ class Object(AbstractObject):
         new_object.state = ProteusState.FRESH
 
         # Assign a new id that is not in use
+        old_id: ProteusID = new_object.id
         new_object.id = generate_new_id(project)
+        ids_map[old_id] = new_object.id
 
         # Create file path
         project_objects_path = pathlib.Path(project.path).parent / OBJECTS_REPOSITORY
@@ -598,7 +637,9 @@ class Object(AbstractObject):
             # Clone the children
             for child in children:
                 # Clone the child
-                child.clone_object(new_object, project, len(new_object.children))
+                child._clone_object(
+                    new_object, project, ids_map, len(new_object.children)
+                )
 
                 # Remove the old child from the children list
                 new_object.children.remove(child)
@@ -610,6 +651,44 @@ class Object(AbstractObject):
 
         # Return the new object
         return new_object
+
+    def _recalculate_traces(self, object: Object, ids_map: dict) -> None:
+        """
+        Recalculate traces of an object and given a map with the ids correlation.
+        If a target is not found in the project, the trace will be discarded.
+        It works recursively, iterating over the object descendants.
+
+        :param object: Object to recalculate traces.
+        :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
+        """
+        # Iterate over traces
+        for trace in object.traces.values():
+            # Variable to store possible new targets list
+            new_targets: List[ProteusID] = []
+
+            # Iterate over targets
+            for target in trace.targets:
+                # If the target is in the conversion map, add the new id
+                if target in ids_map:
+                    new_targets.append(ids_map[target])
+                # If the target is in the project ids, add the target
+                elif target in self.project.ids:
+                    new_targets.append(target)
+                # If target not in conversion map or project ids, log error
+                else:
+                    log.error(
+                        f"Unexpected target '{target}' in trace '{trace.name}' during object '{object.id}' trace cloning. Target ProteusID was not found in the project and will be discarded."
+                    )
+
+            # If new_targets is different from the original targets, update the trace
+            if new_targets != trace.targets:
+                new_trace: Trace = trace.clone(new_targets)
+                object.traces[trace.name] = new_trace
+
+        # Iterate over children
+        for child in object.children:
+            # Recalculate traces
+            self._recalculate_traces(child, ids_map)
 
     # ----------------------------------------------------------------------
     # Method     : save

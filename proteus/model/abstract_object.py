@@ -17,7 +17,7 @@
 # --------------------------------------------------------------------------
 
 from enum import Enum
-from typing import Type, List
+from typing import Type, List, MutableSet
 from abc import ABC, abstractmethod
 
 # --------------------------------------------------------------------------
@@ -313,31 +313,32 @@ class AbstractObject(ABC):
 
         # return parent elmenent, i.e. <project> or <object>
         return parent_element
-
+    
     # ----------------------------------------------------------------------
     # Method     : get_ids
-    # Description: It returns a list with all the ids of the descendant.
+    # Description: It returns a set with all the ids of the project
     # Date       : 23/05/2023
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    def get_ids(self) -> list[ProteusID]:
+    def get_ids(self) -> MutableSet[ProteusID]:
         """
         Method that returns a list with all the ids of the descendant.
 
-        :return: A list with all the ids of the project.
+        :return: A set with all the ids of the object including its children.
         """
 
         # Initialize an empty list of ids
-        ids: list[ProteusID] = []
+        ids: MutableSet[ProteusID] = set()
 
         # For each document in the project, we get the ids of the document
         # and their children recursively
+        descendant: AbstractObject
         for descendant in self.get_descendants():
-            ids.extend(descendant.get_ids())
+            ids.update(descendant.get_ids())
 
-        ids.append(self.id)
+        ids.add(self.id)
 
         return ids
 

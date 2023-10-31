@@ -26,7 +26,7 @@ import os
 import pathlib
 import shutil
 import logging
-from typing import List
+from typing import List, MutableSet
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -158,6 +158,9 @@ class Project(AbstractObject):
         # Load project's properties using superclass method
         super().load_properties(root)
 
+        # Project's ids, this variable is set in get_ids method
+        self._ids: MutableSet[ProteusID] = None
+
         # Template list
         self.xsl_templates: List[str] = self.load_xsl_templates(root)
 
@@ -188,6 +191,29 @@ class Project(AbstractObject):
 
         # Return documents dictionary
         return self._documents
+
+    @property
+    def ids(self) -> MutableSet[ProteusID]:
+        """
+        Property ids getter. Loads all ids from the project on demand.
+
+        This property is updated when add_descendant method is called
+        in project and add_descendant in object.
+
+        Ids must be recalculated when the project is saved.
+
+        :return: ids set.
+        """
+        # Check if ids set is not initialized
+        if self._ids is None:
+            # Initialize ids set
+            self._ids: MutableSet[ProteusID] = set()
+
+            # Load ids from XML file
+            self._ids = self.get_ids()
+
+        # Return ids set
+        return self._ids
 
     # ----------------------------------------------------------------------
     # Method     : load_documents
@@ -334,6 +360,9 @@ class Project(AbstractObject):
         # Set dirty flag
         self.state = ProteusState.DIRTY
 
+        # Add the document id to the ids set
+        self.ids.add(document.id)
+
     # ----------------------------------------------------------------------
     # Method     : accept_descendant
     # Description: Checks if a child is accepted by a PROTEUS object.
@@ -425,6 +454,10 @@ class Project(AbstractObject):
                 self.path, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
             self.state = ProteusState.CLEAN
+
+        # Set the ids set to None to recalculate them when they are needed
+        # This is done to delete the ids of the deleted documents
+        self._ids = None
 
         log.info(f"Project saved successfully.")
 
