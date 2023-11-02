@@ -44,6 +44,9 @@ string_property_input.validator.error: "This field cannot be empty"
 float_property_input.validator.error: "This field must be a float number"
 integer_property_input.validator.error: "This field must be an integer number"
 
+property_input.inmutable_property_warning.title: "Warning, inmutable property"
+property_input.inmutable_property_warning.text: "This property is marked as inmutable, modify it at your own risk."
+
 #---------------------------------------------------------------------------
 # Main menu
 #---------------------------------------------------------------------------

@@ -301,17 +301,14 @@ class Controller:
         # Check object_id is not None
         assert object_id is not None, "Object id can not be None"
 
-        # Get parent
-        parent: Union[Project, Object] = self._project_service._get_element_by_id(
-            new_parent_id
-        )
+        # Check new_parent_id is not None
+        assert new_parent_id is not None, "New parent id can not be None"
 
-        # Get the object
-        object: Object = self._project_service._get_element_by_id(object_id)
-
-        # Check the object is accepted by the parent
-        assert parent.accept_descendant(
-            object
+        # Check the position change is possible
+        assert self._project_service.check_position_change(
+            object_id=object_id,
+            new_position=new_position,
+            new_parent_id=new_parent_id,
         ), f"Object {object_id} is not accepted by parent {new_parent_id}"
 
         # Push the command to the command stack

@@ -53,6 +53,7 @@ class FilePropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         file.
         """
+        self.input: AssetEdit
         return self.input.asset()
 
     # ----------------------------------------------------------------------
@@ -76,9 +77,11 @@ class FilePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: FileProperty) -> None:
+    @staticmethod
+    def create_input(property: FileProperty, *args, **kwargs) -> AssetEdit:
         """
-        Creates the input widget based on QLineEdit.
+        Creates the input widget based on PROTEUS AssetEdit.
         """
-        self.input: AssetEdit = AssetEdit()
-        self.input.setAsset(property.value)
+        input: AssetEdit = AssetEdit()
+        input.setAsset(property.value)
+        return input

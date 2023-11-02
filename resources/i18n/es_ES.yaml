@@ -44,6 +44,9 @@ string_property_input.validator.error: "Este campo no puede estar vacío"
 float_property_input.validator.error: "Este campo debe ser un número decimal"
 integer_property_input.validator.error: "Este campo debe ser un número entero"
 
+property_input.inmutable_property_warning.title: "Advertencia, propiedad inmutable"
+property_input.inmutable_property_warning.text: "Esta propiedad ha sido definida como inmutable, modificarla puede causar errores en la aplicación. Actúe bajo su propio riesgo."
+
 #---------------------------------------------------------------------------
 # Menú principal
 #---------------------------------------------------------------------------

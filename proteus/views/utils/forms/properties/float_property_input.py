@@ -50,6 +50,7 @@ class FloatPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         float.
         """
+        self.input: QLineEdit
         return float(self.input.text())
 
     # ----------------------------------------------------------------------
@@ -81,9 +82,11 @@ class FloatPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: FloatProperty) -> None:
+    @staticmethod
+    def create_input(property: FloatProperty, *args, **kwargs) -> QLineEdit:
         """
         Creates the input widget based on QLineEdit.
         """
-        self.input: QLineEdit = QLineEdit()
-        self.input.setText(str(property.value))
+        input: QLineEdit = QLineEdit()
+        input.setText(str(property.value))
+        return input

@@ -15,6 +15,7 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QLineEdit,
 )
@@ -51,6 +52,7 @@ class StringPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         string.
         """
+        self.input: QLineEdit
         return self.input.text()
 
     # ----------------------------------------------------------------------
@@ -82,9 +84,11 @@ class StringPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: StringProperty) -> None:
+    @staticmethod
+    def create_input(property: StringProperty, *args, **kwargs) -> QLineEdit:
         """
         Creates the input widget based on QLineEdit.
         """
-        self.input: QLineEdit = QLineEdit()
-        self.input.setText(property.value)
+        input: QLineEdit = QLineEdit()
+        input.setText(property.value)
+        return input

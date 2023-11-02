@@ -50,6 +50,7 @@ class MarkdownPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         markdown.
         """
+        self.input: QTextEdit
         return self.input.toPlainText()
 
     # ----------------------------------------------------------------------
@@ -73,9 +74,11 @@ class MarkdownPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: MarkdownProperty) -> None:
+    @staticmethod
+    def create_input(property: MarkdownProperty, *args, **kwargs) -> QTextEdit:
         """
         Creates the input widget based on QTextEdit.
         """
-        self.input: QTextEdit = QTextEdit()
-        self.input.setPlainText(property.value)
+        input: QTextEdit = QTextEdit()
+        input.setPlainText(property.value)
+        return input

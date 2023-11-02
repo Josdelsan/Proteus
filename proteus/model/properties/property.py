@@ -27,8 +27,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
-from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, INMUTABLE_ATTRIBUTE
 from proteus.model.properties import DEFAULT_NAME, DEFAULT_CATEGORY
 
 # logging configuration
@@ -57,6 +56,7 @@ class Property(ABC):
     name     : str = str(DEFAULT_NAME)
     category : str = str(DEFAULT_CATEGORY)
     value    : Any = str()
+    inmutable: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -74,6 +74,11 @@ class Property(ABC):
         if not self.category:
             # self.category = DEFAULT_CATEGORY cannot be used when frozen=True
             object.__setattr__(self, 'category', DEFAULT_CATEGORY)
+
+        # Inmutable validation
+        if not self.inmutable:
+            # self.inmutable = False cannot be used when frozen=True
+            object.__setattr__(self, 'inmutable', False)
 
         # Value -> string
         object.__setattr__(self, 'value', str(self.value))
@@ -98,6 +103,8 @@ class Property(ABC):
         property_element : ET._Element = ET.Element(self.element_tagname)
         property_element.set(NAME_ATTRIBUTE, self.name)
         property_element.set(CATEGORY_ATTRIBUTE, self.category)
+        if self.inmutable:
+            property_element.set(INMUTABLE_ATTRIBUTE, str(self.inmutable).lower())
         # generate_xml_value() is defined in subclasses
         property_element.text = self.generate_xml_value(property_element)
 

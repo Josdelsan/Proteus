@@ -133,6 +133,20 @@ class AssetEdit(QWidget):
         """
         self.input.setText(asset)
 
+    # ----------------------------------------------------------------------
+    # Method     : setEnabled
+    # Description: Sets the enabled state of the input widget.
+    # Date       : 17/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def setEnabled(self, enabled: bool) -> None:
+        """
+        Sets the input to enabled or disabled state modifying the browse
+        button.
+        """
+        self.browse_button.setEnabled(enabled)
+
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================

@@ -17,10 +17,14 @@ from typing import Union
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
+    QCheckBox,
     QVBoxLayout,
+    QHBoxLayout,
+    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
@@ -29,10 +33,12 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
+from proteus.model.trace import Trace
 from proteus.views.utils.translator import Translator
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: PropertyInput
@@ -44,32 +50,54 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 # TODO: This should be an abstract class but it has conflicts with the
 #       metaclass of QWidget.
+#       https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
 class PropertyInput(QWidget):
     """
     Property input widget that wraps a property input widget and adds a label
     to display errors.
     """
 
-    def __init__(self, property: Property, controller: Controller=None, *args, **kwargs):
+    def __init__(
+        self,
+        property: Union[Property, Trace],
+        controller: Controller = None,
+        *args,
+        **kwargs
+    ):
         super().__init__(*args, **kwargs)
 
         # Initialize controller
         self.controller: Controller = controller
 
         # Initialize input widget by calling the abstract method
-        self.input: QWidget = None
-        self.create_input(property)
+        self.input: QWidget = self.create_input(property, controller)
 
         # Initialize error label
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
         self.error_label.hide()
 
-        # Initialize layout
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.input)
-        self.layout.addWidget(self.error_label)
-        self.setLayout(self.layout)
+        # Horizontal layout
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.addWidget(self.input)
+
+        # Initialize inmutable checkbox, if the property is inmutable
+        # the checkbox will be shown and the input will be disabled
+        self.inmutable_checkbox: QCheckBox = None
+        if isinstance(property, Property):
+            inmutable: bool = property.inmutable
+            if inmutable:
+                self.inmutable_checkbox = QCheckBox()
+                self.inmutable_checkbox.setChecked(inmutable)
+                self.input.setEnabled(not inmutable)
+                self.inmutable_checkbox.stateChanged.connect(self._update_enabled)
+                horizontal_layout.addWidget(self.inmutable_checkbox)
+
+        # Vertical layout
+        vertical_layout = QVBoxLayout()
+        vertical_layout.addLayout(horizontal_layout)
+        vertical_layout.addWidget(self.error_label)
+        self.setLayout(vertical_layout)
 
     # ----------------------------------------------------------------------
     # Method     : has_errors
@@ -92,7 +120,7 @@ class PropertyInput(QWidget):
         else:
             self.error_label.hide()
             return False
-        
+
     # ----------------------------------------------------------------------
     # Method     : get_value (abstract)
     # Description: Returns the value of the input widget.
@@ -128,8 +156,41 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: Property) -> None:
+    def create_input(self, property: Property, *args, **kwargs) -> QWidget:
         """
         Creates the input widget based on the property type.
         """
         pass
+
+    # ======================================================================
+    # Slots
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_enabled (slot)
+    # Description: Updates the enabled state of the input widget.
+    # Date       : 02/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _update_enabled(self, check_state: Qt.CheckState) -> None:
+        """
+        Updates the enabled state of the input widget.
+
+        Only works for Property class properties.
+
+        :param check_state: Check state of the inmutable checkbox.
+        """
+        # Check the state of the checkbox
+        checked: bool = check_state == Qt.CheckState.Checked.value
+
+        # Update the enabled state of the input widget
+        self.input.setEnabled(not checked)
+
+        # Trigger inmutable property warning
+        if not checked:
+            QMessageBox.warning(
+                self,
+                Translator().text("property_input.inmutable_property_warning.title"),
+                Translator().text("property_input.inmutable_property_warning.text"),
+            )

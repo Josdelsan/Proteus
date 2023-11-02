@@ -54,6 +54,7 @@ class BooleanPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         boolean.
         """
+        self.input: QCheckBox
         return self.input.isChecked()
 
     # ----------------------------------------------------------------------
@@ -77,12 +78,14 @@ class BooleanPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: BooleanProperty) -> None:
+    @staticmethod
+    def create_input(property: BooleanProperty, *args, **kwargs) -> QCheckBox:
         """
         Creates the input widget based on QCheckBox.
         """
-        self.input: QCheckBox = QCheckBox()
+        input: QCheckBox = QCheckBox()
         state = (
             Qt.CheckState.Checked if bool(property.value) else Qt.CheckState.Unchecked
         )
-        self.input.setCheckState(state)
+        input.setCheckState(state)
+        return input

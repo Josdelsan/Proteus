@@ -440,11 +440,11 @@ class DocumentPage(QWebEnginePage):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent, translator: Translator, *args, **kargs) -> None:
+    def __init__(self, parent, translator: Translator, *args, **kwargs) -> None:
         """
         Initialize the class.
         """
-        super().__init__(parent, *args, **kargs)
+        super().__init__(parent, *args, **kwargs)
         self.translator: Translator = translator
 
     # ----------------------------------------------------------------------

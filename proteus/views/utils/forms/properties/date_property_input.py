@@ -51,6 +51,7 @@ class DatePropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         date.
         """
+        self.input: QDateEdit
         return self.input.date().toPyDate()
 
     # ----------------------------------------------------------------------
@@ -74,9 +75,11 @@ class DatePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: DateProperty) -> None:
+    @staticmethod
+    def create_input(property: DateProperty, *args, **kwargs) -> QDateEdit:
         """
         Creates the input widget based on QDateEdit.
         """
-        self.input: QDateEdit = QDateEdit()
-        self.input.setDate(property.value)
+        input: QDateEdit = QDateEdit()
+        input.setDate(property.value)
+        return input

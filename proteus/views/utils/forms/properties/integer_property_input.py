@@ -51,6 +51,7 @@ class IntegerPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         integer.
         """
+        self.input: QLineEdit
         return int(self.input.text())
 
     # ----------------------------------------------------------------------
@@ -82,9 +83,11 @@ class IntegerPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: IntegerProperty) -> None:
+    @staticmethod
+    def create_input(property: IntegerProperty, *args, **kwargs) -> QLineEdit:
         """
         Creates the input widget based on QLineEdit.
         """
-        self.input: QLineEdit = QLineEdit()
-        self.input.setText(str(property.value))
+        input: QLineEdit = QLineEdit()
+        input.setText(str(property.value))
+        return input

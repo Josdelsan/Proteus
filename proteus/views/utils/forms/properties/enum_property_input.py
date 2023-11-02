@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QLineEdit,
+    QComboBox,
 )
 
 # --------------------------------------------------------------------------
@@ -51,7 +51,8 @@ class EnumPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         enum.
         """
-        return self.input.text()
+        self.input: QComboBox
+        return self.input.currentText()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -74,9 +75,12 @@ class EnumPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: EnumProperty) -> None:
+    @staticmethod
+    def create_input(property: EnumProperty, *args, **kwargs) -> QComboBox:
         """
-        Creates the input widget based on QLineEdit.
+        Creates the input widget based on QComboBox.
         """
-        self.input: QLineEdit = QLineEdit()
-        self.input.setText(property.value)
+        input: QComboBox = QComboBox()
+        input.addItems(property.get_choices_as_set())
+        input.setCurrentText(property.value)
+        return input

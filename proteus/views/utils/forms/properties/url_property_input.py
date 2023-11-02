@@ -51,6 +51,7 @@ class UrlPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         url.
         """
+        self.input: QLineEdit
         return self.input.text()
 
     # ----------------------------------------------------------------------
@@ -74,9 +75,11 @@ class UrlPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: UrlProperty) -> None:
+    @staticmethod
+    def create_input(property: UrlProperty, *args, **kwargs) -> QLineEdit:
         """
         Creates the input widget based on QLineEdit.
         """
-        self.input: QLineEdit = QLineEdit()
-        self.input.setText(property.value)
+        input: QLineEdit = QLineEdit()
+        input.setText(property.value)
+        return input

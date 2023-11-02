@@ -14,13 +14,20 @@
 import logging
 from typing import Dict, List
 from pathlib import Path
+from PyQt6 import QtCore, QtGui
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QDropEvent, QIcon
+from PyQt6.QtGui import (
+    QDropEvent,
+    QIcon,
+    QDragEnterEvent,
+    QDragMoveEvent,
+    QDragLeaveEvent,
+)
 from PyQt6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
@@ -32,7 +39,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, ProteusClassTag
+from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
@@ -147,10 +154,6 @@ class DocumentTree(QTreeWidget):
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
 
-        # Connect drag and drop events
-        # TODO: Drag must show if drop is allowed for different objects types
-        self.dropEvent = self.drop_event
-
         # Get document structure and top level items
         top_level_object: Object = self._controller.get_element(self.element_id)
 
@@ -174,15 +177,12 @@ class DocumentTree(QTreeWidget):
         # Set context menu policy
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(
-            lambda position: ContextMenu.create_dialog(
-                self, self._controller, position
-            )
+            lambda position: ContextMenu.create_dialog(self, self._controller, position)
         )
 
         # Expand all items and disable double click expand
         self.expandAll()
         self.setExpandsOnDoubleClick(False)
-
 
     # ----------------------------------------------------------------------
     # Method     : delete_component
@@ -425,18 +425,22 @@ class DocumentTree(QTreeWidget):
     # Component slots methods (connected to the component signals)
     # ======================================================================
 
+    # ======================================================================
+    # Component overriden methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
-    # Method     : drop_event
+    # Method     : dropEvent
     # Description: Manage the drop event. Move the dropped object to the
     #              target position.
     # Date       : 14/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def drop_event(self, event: QDropEvent):
+    def dropEvent(self, event: QDropEvent):
         # Get the object that performs the drop
         # NOTE: When drop is performed across different documents, source
-        # reference is the source tree widget and this drop_event is called'
+        # reference is the source tree widget and this drop event is called'
         # from the target tree widget. This is necessary to get the dropped
         # item.
         source: QTreeWidget = event.source()
@@ -472,23 +476,26 @@ class DocumentTree(QTreeWidget):
             target_index: int = self.indexFromItem(target_item).row()
 
             # Get the parent id
+            parent_id: ProteusID = None
             try:
                 parent_id: ProteusID = target_item.parent().data(1, 0)
             except AttributeError:
-                log.warning(
-                    "Failed to get the parent id of the target item. The target item is a root item."
+                log.debug(
+                    f"Failed to get the parent id of the target item '{target_element_id}'. The target item is a root item (PROTEUS document)"
                 )
-                return
 
             try:
                 # Check the dropped item is different from the target item
-                assert dropped_element_id != target_element_id, (
-                    f"Cannot drop element {dropped_element_id} on itself."
-                )
+                assert (
+                    dropped_element_id != target_element_id
+                ), f"Cannot drop element {dropped_element_id} on itself."
 
                 # If in the 25% of the bottom of the target item, then add the
                 # dropped item as a sibling above the target item
-                if event.position().y() > rect_center.y() + rect_height / 4:
+                if (
+                    event.position().y() > rect_center.y() + rect_height / 4
+                    and parent_id
+                ):
                     log.info(
                         f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1} parent {parent_id}."
                     )
@@ -498,7 +505,10 @@ class DocumentTree(QTreeWidget):
 
                 # If in the 25% of the top of the target item, then add the
                 # dropped item as a sibling below the target item
-                elif event.position().y() < rect_center.y() - rect_height / 4:
+                elif (
+                    event.position().y() < rect_center.y() - rect_height / 4
+                    and parent_id
+                ):
                     log.info(
                         f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index} parent {parent_id}."
                     )
@@ -530,3 +540,35 @@ class DocumentTree(QTreeWidget):
                         "document_tree.drop_action.message_box.error.text"
                     ),
                 )
+
+    # ----------------------------------------------------------------------
+    # Method     : dragEnterEvent
+    # Description: Manage the drag enter event. Check if the dragged
+    #              QTreeWidgetItem is a :Proteus-document class, if so do
+    #              not allow the drag event.
+    # Date       : 02/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        """
+        Check if the dragged QTreeWidgetItem is a :Proteus-document class,
+        if so do not allow the drag event.
+        """
+        super().dragEnterEvent(event)
+        # Get the object that performs the drag
+        source: QTreeWidget = event.source()
+        source_item: QTreeWidgetItem = source.currentItem()
+        source_item_id: ProteusID = source_item.data(1, 0)
+
+        # Get the object
+        object: Object = self._controller.get_element(source_item_id)
+
+        # Check PROTEUS class
+        if PROTEUS_DOCUMENT in object.classes:
+            event.ignore()
+            return
+        else:
+            event.accept()
+            return
+

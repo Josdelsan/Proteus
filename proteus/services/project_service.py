@@ -660,16 +660,11 @@ class ProjectService:
         ]
 
         # If no position is given or the position is greater than the number of
-        # alive descendants, move the object to the end of the parent
+        # alive descendants, move the object to the end of the parent (None default position)
         if new_position is None or new_position >= len(alive_descendants):
             new_position = None
         # If position is given, calculate the real position using a reference sibling
         else:
-            # Check the new position is valid (different from current position and the following one)
-            assert (
-                new_position != current_position
-            ), f"Object {object_id} is already in position {new_position}."
-
             # Use a sibling as reference to calculate the real position relative to
             # non DEAD objects and once the object in current position is removed
             reference_sibling: Object = alive_descendants[new_position]
@@ -693,6 +688,81 @@ class ProjectService:
 
         # Add object to new parent descendants
         new_parent.add_descendant(object, new_position)
+
+    # ----------------------------------------------------------------------
+    # Method     : check_position_change
+    # Description: Check if an object can be moved to the given position.
+    # Date       : 02/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def check_position_change(
+        self,
+        object_id: ProteusID,
+        new_position: int,
+        new_parent_id: ProteusID,
+    ) -> bool:
+        """
+        Check if an object can be moved to the given position. Parent must
+        accept the object as a child and position must be different from
+        current position.
+
+        :param object_id: Id of the object to change position.
+        :param new_position: New position of the object.
+        :param new_parent: New parent of the object.
+        """
+        # TODO: This method should be refactored to not recieve the new position
+        #       relative to non DEAD objects, but relative to all objects. Since
+        #       this is a problem when redoing delete operations.
+
+        # Result variable
+        result: bool = True
+
+        # Check the object_id is valid
+        assert isinstance(object_id, str), f"Invalid object id {object_id}."
+
+        # Check the new_parent is valid
+        assert isinstance(new_parent_id, str), f"Invalid new parent id {new_parent_id}."
+
+        # Get new parent using helper method
+        new_parent: Union[Project, Object] = self._get_element_by_id(new_parent_id)
+
+        # Check the new_parent is valid
+        assert isinstance(
+            new_parent, (Project, Object)
+        ), f"Invalid new parent {new_parent}."
+
+        # Get object using helper method
+        object: Object = self._get_element_by_id(object_id)
+
+        # Check that the object is an object
+        assert isinstance(object, Object), f"Element with id {object} is not an object."
+
+        # Current position of the object in its parent
+        current_position: int = object.parent.get_descendants().index(object)
+
+        # The parent must accept the object as a child
+        if not new_parent.accept_descendant(object):
+            result = False
+        # If the position is changing within the same parent avoid same position
+        elif new_parent == object.parent:
+            # Position must be different from current position
+            if new_position == current_position:
+                result = False
+            # If no position specified (default last), the object must not be the last one
+            elif (
+                new_position is None
+                and current_position == len(object.parent.get_descendants()) - 1
+            ):
+                result = False
+            # Avoid new position to be last if the object is the last one
+            elif (
+                new_position >= len(object.parent.get_descendants())
+                and current_position == len(object.parent.get_descendants()) - 1
+            ):
+                result = False
+
+        return result
 
     # ----------------------------------------------------------------------
     # Method     : generate_document_xml
