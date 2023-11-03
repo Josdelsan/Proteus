@@ -23,7 +23,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-import pytest
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
@@ -122,9 +121,9 @@ def test_edit_project(app):
 
         # Check properties changed
         nonlocal current_name, current_version, current_description
-        current_name = dialog.input_widgets[NAME_PROP].get_value()
-        current_version = dialog.input_widgets[VERSION_PROP].get_value()
-        current_description = dialog.input_widgets[DESCRIPTION_PROP].get_value()
+        current_name = str(dialog.input_widgets[NAME_PROP].get_value())
+        current_version = str(dialog.input_widgets[VERSION_PROP].get_value())
+        current_description = str(dialog.input_widgets[DESCRIPTION_PROP].get_value())
         # Close the dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
 

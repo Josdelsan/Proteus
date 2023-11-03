@@ -23,13 +23,14 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtWidgets import QMessageBox, QApplication
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.views.main_window import MainWindow
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -71,12 +72,12 @@ def test_delete_document(app):
     # --------------------------------------------
     # Handle confirmation accept
     def handle_dialog():
-        dialog: QMessageBox = QApplication.activeModalWidget()
+        dialog: DeleteDialog = QApplication.activeModalWidget()
         while not dialog:
             dialog = QApplication.activeModalWidget()
 
         # Accept dialog
-        dialog.button(QMessageBox.StandardButton.Yes).click()
+        dialog.button_box.accepted.emit()
 
     # Delete document button click
     delete_document_button = main_window.main_menu.delete_document_button

@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
 from PyQt6.QtCore import QPoint, QTimer
 
 # --------------------------------------------------------------------------
@@ -36,6 +36,7 @@ from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
+from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
@@ -103,21 +104,33 @@ def test_delete_object(app, object_id, document_id):
     # Act
     # --------------------------------------------
 
+    # Handle delete confirmation
+    def handle_dialog():
+        dialog: DeleteDialog = QApplication.activeModalWidget()
+        while not dialog:
+            dialog = QApplication.activeModalWidget()
+
+        # Accept dialog
+        dialog.button_box.accepted.emit()
+
+    # Handle context menu
     def handle_menu():
         menu: ContextMenu = QApplication.activePopupWidget()
         while menu is None:
             menu = QApplication.activePopupWidget()
 
         # Click the clone action
+        QTimer.singleShot(100, handle_dialog)  # Wait for the dialog to be created
         menu.action_delete_object.trigger()
-
         # Manual trigger of actions does not close the menu
         menu.close()
+
 
     # Get element position
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
     document_tree.customContextMenuRequested.emit(element_position)
+
 
     # --------------------------------------------
     # Assert

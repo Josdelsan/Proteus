@@ -12,6 +12,7 @@
 
 import logging
 from typing import Union
+from datetime import date
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -128,7 +129,7 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> Union[str, list]:
+    def get_value(self) -> Union[str, int, float, bool, date, list]:
         """
         Returns the value of the input widget. The value is converted to a
         string.

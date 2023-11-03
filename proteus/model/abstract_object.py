@@ -324,15 +324,15 @@ class AbstractObject(ABC):
 
     def get_ids(self) -> MutableSet[ProteusID]:
         """
-        Method that returns a list with all the ids of the descendant.
+        Method that returns a set with all the ids of the descendant.
 
         :return: A set with all the ids of the object including its children.
         """
 
-        # Initialize an empty list of ids
+        # Initialize an empty set of ids
         ids: MutableSet[ProteusID] = set()
 
-        # For each document in the project, we get the ids of the document
+        # For each object in the project or object, we get the ids of the objects
         # and their children recursively
         descendant: AbstractObject
         for descendant in self.get_descendants():

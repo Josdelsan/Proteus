@@ -296,18 +296,9 @@ class ProjectService:
         :param object_id: Id of the object to check.
         :return: Dictionary with a set of sources ids pointing to each object.
         """
-
-        # Iterate over the children and create a set of their ids
-        def _get_children_ids(object: Object) -> Set[ProteusID]:
-            children_ids: Set[ProteusID] = set()
-            for child in object.get_descendants():
-                children_ids.update(_get_children_ids(child))
-            children_ids.add(object.id)
-            return children_ids
-
         # Get object using helper method
         object: Object = self._get_element_by_id(object_id)
-        children_ids: Set[ProteusID] = _get_children_ids(object)
+        children_ids: Set[ProteusID] = object.get_ids()
 
         # Dictionary to store the sources by object id
         traces_dependencies: Dict[ProteusID, Set] = self.get_traces_dependencies(
@@ -715,9 +706,6 @@ class ProjectService:
         #       relative to non DEAD objects, but relative to all objects. Since
         #       this is a problem when redoing delete operations.
 
-        # Result variable
-        result: bool = True
-
         # Check the object_id is valid
         assert isinstance(object_id, str), f"Invalid object id {object_id}."
 
@@ -741,28 +729,34 @@ class ProjectService:
         # Current position of the object in its parent
         current_position: int = object.parent.get_descendants().index(object)
 
+        # Variable to store the result
+        position_change_allowed: bool = True
+
         # The parent must accept the object as a child
         if not new_parent.accept_descendant(object):
-            result = False
+            position_change_allowed = False
         # If the position is changing within the same parent avoid same position
         elif new_parent == object.parent:
             # Position must be different from current position
             if new_position == current_position:
-                result = False
+                position_change_allowed = False
             # If no position specified (default last), the object must not be the last one
             elif (
                 new_position is None
                 and current_position == len(object.parent.get_descendants()) - 1
             ):
-                result = False
+                position_change_allowed = False
             # Avoid new position to be last if the object is the last one
             elif (
                 new_position >= len(object.parent.get_descendants())
                 and current_position == len(object.parent.get_descendants()) - 1
             ):
-                result = False
+                position_change_allowed = False
+        # An object cannot be moved to its own children
+        elif new_parent_id in object.get_ids():
+            position_change_allowed = False
 
-        return result
+        return position_change_allowed
 
     # ----------------------------------------------------------------------
     # Method     : generate_document_xml

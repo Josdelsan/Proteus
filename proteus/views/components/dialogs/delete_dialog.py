@@ -158,15 +158,15 @@ class DeleteDialog(QDialog):
             layout.addWidget(tree)
 
         # Create the button box -------------------------------------------------
-        button_box: QDialogButtonBox = QDialogButtonBox(
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No
         )
 
         # Connect the button box signals to the slots
-        button_box.accepted.connect(self.save_button_clicked)
-        button_box.rejected.connect(self.cancel_button_clicked)
+        self.button_box.accepted.connect(self.save_button_clicked)
+        self.button_box.rejected.connect(self.cancel_button_clicked)
 
-        layout.addWidget(button_box)
+        layout.addWidget(self.button_box)
 
     def create_tree_item(
         self, object_id: ProteusID, parent: Union[QTreeWidget, QTreeWidgetItem]
