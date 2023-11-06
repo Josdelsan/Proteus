@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object id="4wrwfDWFawd" classes="product-requirement use-case use-case-step" acceptedChildren=":Proteus-none" acceptedParents="use-case">
   <properties>
-    <stringProperty name="name">El sistema..</stringProperty>
+    <stringProperty name=":Proteus-name">El sistema..</stringProperty>
   </properties>
   <children/>
 </object>

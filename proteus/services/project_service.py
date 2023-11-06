@@ -32,6 +32,7 @@ from proteus.model import (
     DOCUMENT_TAG,
     ProteusClassTag,
     PROTEUS_ANY,
+    PROTEUS_NAME,
 )
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -117,7 +118,7 @@ class ProjectService:
         # Load traces index
         self._load_traces_index()
 
-        log.info(f"Project '{self.project.get_property('name').value}' loaded.")
+        log.info(f"Project '{self.project.get_property(PROTEUS_NAME).value}' loaded.")
 
     # ----------------------------------------------------------------------
     # Method     : _get_element

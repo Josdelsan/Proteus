@@ -30,6 +30,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.views.main_window import MainWindow
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
@@ -65,7 +66,7 @@ def test_edit_project(app):
 
     # Properties
     # NOTE: These are known existing properties
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     VERSION_PROP = "version"
     DESCRIPTION_PROP = "description"
 

@@ -19,10 +19,6 @@ from typing import List, Dict
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QMenu,
-    QApplication,
-    QTreeWidget,
-    QTreeWidgetItem,
-    QStyle,
 )
 
 
@@ -30,14 +26,12 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.views import ARCHETYPE_MENU_ICON_TYPE
 from proteus.config import Config
 from proteus.model.object import Object
-from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
 from proteus.views.utils.translator import Translator
-from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.utils.state_manager import StateManager
 
 
@@ -98,8 +92,7 @@ class ArchetypesMenuDropdown(QMenu):
             arch_class = archetype.classes[-1]
             clone_action = QAction(
                 # Name translation might not be needed for archetypes
-                # self.translator.text(archetype.get_property("name").value),
-                archetype.get_property("name").value,
+                archetype.get_property(PROTEUS_NAME).value,
             )
             icon: QIcon = QIcon(Config().get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix())
             clone_action.setIcon(icon)

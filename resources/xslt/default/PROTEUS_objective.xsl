@@ -95,7 +95,7 @@
                 <strong>
                     <xsl:value-of select="concat('[OBJ-',$label_number,']')" />
                     <xsl:text> </xsl:text>
-                    <xsl:value-of select="properties/stringProperty[@name='name']" />
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']" />
                 </strong>
                 <xsl:text> : </xsl:text>
                 <xsl:value-of select="properties/markdownProperty[@name='description']" />

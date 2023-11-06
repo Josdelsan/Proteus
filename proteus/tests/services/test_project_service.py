@@ -69,7 +69,7 @@ def mock_property(mocker):
     """
     It returns a new instance of the StringProperty class.
     """
-    # element = ET.Element('<StringProperty name="name">Value</StringProperty>')
+    # element = ET.Element('<stringProperty name=":Proteus-name">Value</StringProperty>')
     # property: Property = PropertyFactory.create(element)
     return mocker.MagicMock(spec=Property)
 

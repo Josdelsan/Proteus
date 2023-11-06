@@ -58,7 +58,7 @@
         <li>
             <xsl:value-of select="text"/><xsl:text> </xsl:text>
             <xsl:number count="//object[@classes='paragraph']" format="I"/>
-            <a href="#{@id}"><xsl:value-of select="properties/stringProperty[@name='name']"/></a>
+            <a href="#{@id}"><xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/></a>
         </li>
         <br/><br/>
     </xsl:template>

@@ -48,7 +48,7 @@
                 <xsl:attribute name="class">section</xsl:attribute>
                 <xsl:value-of select="$section_index"/>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name='name']"/><xsl:apply-templates select="name"/>
+                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
             </xsl:element>
 
             <!-- Apply templates to all section -->
@@ -74,7 +74,7 @@
         <li>
             <xsl:value-of select="$section_index"/>
             <xsl:text> </xsl:text>
-            <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name='name']"/></a>
+            <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/></a>
         </li>
         <xsl:if test="children/object[@classes='section']">
             <ul class="toc_list">

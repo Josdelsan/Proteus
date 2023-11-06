@@ -175,13 +175,13 @@ class ArchetypeService:
         return self._object_archetypes
 
     # ----------------------------------------------------------------------
-    # Method     : get_object_archetypes_types
-    # Description: Returns the list of object archetypes classes
+    # Method     : get_object_archetypes_groups
+    # Description: Returns the list of object archetypes groups
     # Date       : 04/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_types(self) -> List[str]:
+    def get_object_archetypes_groups(self) -> List[str]:
         """
         Returns the list of object archetypes types.
         """
@@ -189,16 +189,16 @@ class ArchetypeService:
 
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes_by_type
-    # Description: Returns the list of object archetypes for a given class
+    # Description: Returns the list of object archetypes for a given group
     # Date       : 04/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_by_type(self, _type: str) -> Dict[str, List[Object]]:
+    def get_object_archetypes_by_group(self, group: str) -> Dict[str, List[Object]]:
         """
         Returns the list of object archetypes for a given type.
         """
-        return self.get_object_archetypes()[_type]
+        return self.get_object_archetypes()[group]
 
     # ----------------------------------------------------------------------
     # Method     : get_first_level_object_archetypes
@@ -216,22 +216,22 @@ class ArchetypeService:
             str, Dict[str, List[Object]]
         ] = self.get_object_archetypes().copy()
 
-        # Iterate over the archetype types and classes
-        for _type in archetypes.keys():
+        # Iterate over the archetype groups and classes
+        for group in archetypes.keys():
 
             empty_keys: List[str] = []
 
-            for class_ in archetypes[_type].keys():
+            for _class in archetypes[group].keys():
                 # Remove the second level objects
-                for object in archetypes[_type][class_]:
+                for object in archetypes[group][_class]:
                     if PROTEUS_ANY not in object.acceptedParents:
-                        archetypes[_type][class_].remove(object)
-                        if len(archetypes[_type][class_]) == 0:
-                            empty_keys.append(class_)
+                        archetypes[group][_class].remove(object)
+                        if len(archetypes[group][_class]) == 0:
+                            empty_keys.append(_class)
 
             # Remove empty keys
             for key in empty_keys:
-                archetypes[_type].pop(key)
+                archetypes[group].pop(key)
 
         return archetypes
 
@@ -268,7 +268,10 @@ class ArchetypeService:
             # archetype class must be explicitly in acceptedChildren
             # NOTE: This is done to avoid showing all the accepted archetypes,
             # sections accept :Proteus-any so the list would be huge
-            condition_2: bool = archetype.classes[-1] in object.acceptedChildren
+            accepted_children_common_classes = [
+                c for c in object.acceptedChildren if c in archetype.classes
+            ]
+            condition_2: bool = len(accepted_children_common_classes) > 0
 
             # If BOTH conditions are met, add the archetype to its corresponding list
             if condition_1 and condition_2:

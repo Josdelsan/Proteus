@@ -29,7 +29,7 @@
                     <xsl:value-of select="properties/stringProperty[@name='id']"/>
                 </th>
                 <th class="name_column" colspan="{$span}">
-                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                     <xsl:if test="$postfix"><xsl:text> </xsl:text><xsl:value-of select="$postfix"/></xsl:if>
                 </th>
             </tr>

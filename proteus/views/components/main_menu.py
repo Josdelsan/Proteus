@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag, PROTEUS_ANY
+from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -577,8 +577,6 @@ class MainMenu(QDockWidget):
         """
         # Get the current document
         document_id: ProteusID = StateManager.get_current_document()
-        document: Object = self._controller.get_element(document_id)
-        document_name: str = document.get_property("name").value
 
         # Create the delete dialog
         DeleteDialog.create_dialog(
@@ -586,22 +584,3 @@ class MainMenu(QDockWidget):
             is_document=True,
             controller=self._controller,
         )
-
-        # Show a confirmation dialog
-        # self.confirmation_dialog = QMessageBox()
-        # self.confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-        # self.confirmation_dialog.setWindowTitle(
-        #     self.translator.text("main_menu.delete_document.title")
-        # )
-        # self.confirmation_dialog.setText(
-        #     self.translator.text("main_menu.delete_document.text", document_name)
-        # )
-        # self.confirmation_dialog.setStandardButtons(
-        #     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        # )
-        # self.confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
-        # self.confirmation_dialog.accepted.connect(
-        #     # Delete the document
-        #     lambda arg=document.id: self._controller.delete_document(arg)
-        # )
-        # self.confirmation_dialog.exec()

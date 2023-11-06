@@ -32,7 +32,7 @@ from proteus.model import (
     ID_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
-    ACCEPTED_PARENTS_ATTRIBUTE,
+    PROTEUS_NAME,
 )
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
@@ -300,7 +300,7 @@ def test_set_property(sample_object: Object):
     """
     # Create property
     (new_property, name, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
 
     # Set property

@@ -24,7 +24,6 @@ from PyQt6.QtWidgets import (
     QFrame,
     QSizePolicy,
     QDialogButtonBox,
-    QApplication,
 )
 
 
@@ -32,7 +31,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
@@ -110,7 +109,7 @@ class NewDocumentDialog(QDialog):
 
         archetype: Object = None
         for archetype in document_archetypes:
-            archetype_combo.addItem(archetype.properties["name"].value)
+            archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
 
         # Show the archetype description
         description_label: QLabel = QLabel(

@@ -350,9 +350,9 @@ def test_get_document_archetypes_duplicate_id(
 
 
 # test_get_object_archetypes -----------------------------------------------
-def test_get_object_archetypes_types(mocker, archetype_service: ArchetypeService):
+def test_get_object_archetypes_groups(mocker, archetype_service: ArchetypeService):
     """
-    It tests the get_object_archetypes_types method.
+    It tests the get_object_archetypes_groups method.
     """
     # Arrange -------------------------
     mock_object = mocker.MagicMock(spec=Object)
@@ -367,29 +367,29 @@ def test_get_object_archetypes_types(mocker, archetype_service: ArchetypeService
 
     # Act -----------------------------
     # Load the object archetypes types list
-    object_archetypes_types: List[str] = archetype_service.get_object_archetypes_types()
+    object_archetypes_groups: List[str] = archetype_service.get_object_archetypes_groups()
 
     # Assert --------------------------
     # Check that the object archetypes are loaded
     assert isinstance(
-        object_archetypes_types, list
-    ), f"object_archetypes should be a list, not {type(object_archetypes_types)}"
+        object_archetypes_groups, list
+    ), f"object_archetypes should be a list, not {type(object_archetypes_groups)}"
 
     # Check that ArchetypeManager.load_object_archetypes static method is called
     ArchetypeManager.load_object_archetypes.assert_called_once()
 
 
-def test_get_object_archetypes_by_type(mocker, archetype_service: ArchetypeService):
+def test_get_object_archetypes_by_group(mocker, archetype_service: ArchetypeService):
     """
-    It tests the get_object_archetypes_by_type method.
+    It tests the get_object_archetypes_by_group method.
     """
     # Arrange -------------------------
-    OBJECT_TYPE = "mock_type_1"
+    OBJECT_GROUP = "mock_type_1"
     OBJECT_CLASS = "mock_object_class_1"
     mock_object = mocker.MagicMock(spec=Object)
     mock_object.id = "mock_object_1"
 
-    mock_object_archetypes = {OBJECT_TYPE: {OBJECT_CLASS: [mock_object]}}
+    mock_object_archetypes = {OBJECT_GROUP: {OBJECT_CLASS: [mock_object]}}
     mocker.patch.object(
         ArchetypeManager,
         "load_object_archetypes",
@@ -400,7 +400,7 @@ def test_get_object_archetypes_by_type(mocker, archetype_service: ArchetypeServi
     # Load the object archetypes list
     object_archetypes_by_class: Dict[
         str, List[Object]
-    ] = archetype_service.get_object_archetypes_by_type(OBJECT_TYPE)
+    ] = archetype_service.get_object_archetypes_by_group(OBJECT_GROUP)
 
     # Assert --------------------------
     # Check that the object archetypes are loaded

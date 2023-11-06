@@ -24,12 +24,13 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
@@ -66,7 +67,7 @@ def test_edit_document(app):
 
     # Properties
     # NOTE: These are known existing properties
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     ACRONYM_PROP = "acronym"
 
     # New values

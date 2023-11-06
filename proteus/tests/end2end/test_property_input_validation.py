@@ -31,6 +31,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.views.main_window import MainWindow
 from proteus.views.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -53,8 +54,8 @@ PROJECT_NAME = "example_project"
 @pytest.mark.parametrize(
     "property_name, property_value, expected_error",
     [
-        ("name", "", "string_property_input.validator.error"),  # stringProperty
-        ("name", None, "string_property_input.validator.error"),
+        (PROTEUS_NAME, "", "string_property_input.validator.error"),  # stringProperty
+        (PROTEUS_NAME, None, "string_property_input.validator.error"),
         ("version", "", "float_property_input.validator.error"),  # floatProperty
         ("version", None, "float_property_input.validator.error"),
         ("version", "a", "float_property_input.validator.error"),

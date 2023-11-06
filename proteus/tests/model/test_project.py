@@ -32,7 +32,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_APP_PATH
-from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY
+from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY, PROTEUS_NAME
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
@@ -296,7 +296,7 @@ def test_set_property(sample_project: Project):
     """
     # Create property
     (new_property, name, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
 
     # Set property
@@ -334,7 +334,7 @@ def test_save_project(cloned_project: Project):
     """
     # Set a new name property value
     (new_property, _, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
     cloned_project.set_property(new_property)
 
@@ -372,7 +372,7 @@ def test_save_project_document_edit(cloned_project: Project):
 
     # Set a new name property value
     (new_property, _, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
     document.set_property(new_property)
 

@@ -112,8 +112,8 @@ class ArchetypeManager:
     def load_object_archetypes() -> Dict[str, Dict[str, List[Object]]]:
         """
         Method that loads the object archetypes.
-        :return: A dict with key archetype typr and value dict of
-        object lists by class.
+        :return: A dict with key archetype group type and value
+        dict of object lists by class.
         """
         log.info("ArchetypeManager - load object archetypes")
         # Build archetypes directory name from archetype type
@@ -136,13 +136,13 @@ class ArchetypeManager:
         # We create a dictionary to store the result
         object_arquetype_dict: Dict[str, Dict] = {}
 
-        # For each subdirectory, containing the archetypes of a given class
-        for subdir in subdirs:
+        # For each subdirectory, containing the archetypes of a given group
+        for group_subdir in subdirs:
             # Create dict to store the list of objects of the class
             object_arquetype_by_class: Dict[str, List[Object]] = {}
 
             # Build the full path to the subdirectory
-            object_archetype_class_path: str = join(archetypes_dir, subdir)
+            object_archetype_class_path: str = join(archetypes_dir, group_subdir)
 
             # Get object pointer file. Inside we find inside it the ids that
             # referes to the objects and omit the rest of children objects
@@ -153,16 +153,16 @@ class ArchetypeManager:
                 objects_pointer_file
             ), f"Object archetype file {objects_pointer_file} not found."
             assert isdir(
-                join(archetypes_dir, subdir, OBJECTS_REPOSITORY)
-            ), f"Objects directory not found in {join(archetypes_dir, subdir)}."
+                join(archetypes_dir, group_subdir, OBJECTS_REPOSITORY)
+            ), f"Objects directory not found in {join(archetypes_dir, group_subdir)}."
 
             # Check the arquetype structure is correct
             assert all(
                 [
                     (d in OBJECT_REPOSITORY_STRUCTURE)
-                    for d in listdir(join(archetypes_dir, subdir))
+                    for d in listdir(join(archetypes_dir, group_subdir))
                 ]
-            ), f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
+            ), f"Unexpected files or directories in {join(archetypes_dir, group_subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
             objects_pointer_xml: ET.Element = ET.parse(objects_pointer_file)
@@ -191,8 +191,13 @@ class ArchetypeManager:
                 else:
                     object_arquetype_by_class[object_class] = [object]
 
+            # Parse subdirectory name to get the group name
+            # NOTE: objects group directories are named as XX_name_of_the_group
+            # where XX is a number. This is done to order the groups.
+            group_subdir_name: str = group_subdir[3:]
+
             # We add the list to the dictionary
-            object_arquetype_dict[subdir] = object_arquetype_by_class
+            object_arquetype_dict[group_subdir_name] = object_arquetype_by_class
 
         return object_arquetype_dict
 

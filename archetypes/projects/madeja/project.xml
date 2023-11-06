@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project id="madeja-project-id">
   <properties>
-    <stringProperty name="name" category="general"><![CDATA[Proyecto MADEJA]]></stringProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Proyecto MADEJA]]></stringProperty>
     <stringProperty name="version" category="general"><![CDATA[0.1]]></stringProperty>
     <urlProperty name="url" category="general"><![CDATA[https://www.juntadeandalucia.es/servicios/madeja/]]></urlProperty>
-    <dateProperty name="date" category="general">2013-03-01</dateProperty>
+    <dateProperty name=":Proteus-date" category="general">2013-03-01</dateProperty>
     <stringProperty name="author" category="general"><![CDATA[José María Delgado]]></stringProperty>
     <markdownProperty name="description" category="detail"><![CDATA[Proyecto plantilla Marco de Desarrollo de la Junta de Andalucía]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[Este proyecto sirve como plantilla para el desarrollo de un proyecto dentro del Marco de Desarrollo de la Junta de Andalucía (MADEJA)]]></markdownProperty>

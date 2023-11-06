@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
-from typing import List, Dict, Union
+from typing import Dict, Union
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -33,7 +33,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusClassTag, ProteusID
+from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.views.utils.translator import Translator
@@ -112,7 +112,7 @@ class DeleteDialog(QDialog):
 
         # Get object name
         object: Object = self._controller.get_element(self.element_id)
-        object_name: str = object.get_property("name").value
+        object_name: str = object.get_property(PROTEUS_NAME).value
 
         # Create confirmation message
         message: str = self.translator.text("delete_dialog.message", object_name)
@@ -186,7 +186,7 @@ class DeleteDialog(QDialog):
         item: QTreeWidgetItem = QTreeWidgetItem(parent)
 
         # Set object name
-        object_name: str = object.get_property("name").value
+        object_name: str = object.get_property(PROTEUS_NAME).value
         item.setText(0, object_name)
 
         # Set icon

@@ -19,6 +19,8 @@ subobjective: "subobjetivo"
 #---------------------------------------------------------------------------
 
 # nombres
+:Proteus-name: "Nombre"
+:Proteus-date: "Fecha"
 acronym: "Acrónimo"
 name:  "Nombre"
 version: "Versión"
@@ -38,6 +40,7 @@ file: "Archivo"
 general: "General"
 detail: "Detalle"
 conditions: "Condiciones"
+traceability: "Trazabilidad"
 
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"

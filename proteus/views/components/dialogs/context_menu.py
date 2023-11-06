@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.config import Config
 from proteus.model.object import Object
@@ -323,7 +323,7 @@ class AvailableArchetypesMenu(QMenu):
         # Create the actions
         for archetype in self.archetype_list:
             action: QAction = QAction(
-                self.translator.text(archetype.get_property("name").value), self
+                self.translator.text(archetype.get_property(PROTEUS_NAME).value), self
             )
             icon: QIcon = QIcon(
                 Config().get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix()

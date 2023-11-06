@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag
+from proteus.model import ProteusID, ProteusClassTag, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
@@ -189,7 +189,7 @@ class TraceEdit(QWidget):
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
 
             # Set text and data (ProteusID)
-            trace_item.setText(object.get_property("name").value)
+            trace_item.setText(object.get_property(PROTEUS_NAME).value)
             trace_item.setData(Qt.ItemDataRole.UserRole, trace)
 
             # Set icon
@@ -234,7 +234,7 @@ class TraceEdit(QWidget):
 
             # Create QListWidgetItem
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
-            trace_item.setText(object.get_property("name").value)
+            trace_item.setText(object.get_property(PROTEUS_NAME).value)
             trace_item.setData(Qt.ItemDataRole.UserRole, trace)
 
             # Set icon
@@ -375,7 +375,7 @@ class TraceEditDialog(QDialog):
                 continue
 
             # Get object name
-            object_name: str = object.get_property("name").value
+            object_name: str = object.get_property(PROTEUS_NAME).value
 
             # Create QListWidgetItem
             object_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)

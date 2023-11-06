@@ -6,9 +6,9 @@
     acceptedParents=":Proteus-any"
 >
     <properties>
-        <stringProperty name="name">Use case</stringProperty>
+        <stringProperty name=":Proteus-name">Use case</stringProperty>
         <floatProperty name="version">0.1</floatProperty>
-        <dateProperty name="date">2020-05-16</dateProperty>
+        <dateProperty name=":Proteus-date">2020-05-16</dateProperty>
         <stringProperty name="author">José María Delgado</stringProperty>
         <markdownProperty name="description" category="detail">The system shall behave as described in the following use case when</markdownProperty>
         <markdownProperty name="precondition" category="conditions">System...</markdownProperty>

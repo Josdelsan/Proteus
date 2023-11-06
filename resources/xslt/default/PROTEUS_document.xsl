@@ -32,7 +32,7 @@
                 <title>
                     <xsl:value-of select="$proteus:lang_project"/>
                     <xsl:text> </xsl:text>
-                    <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name='name']"/>
+                    <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name=':Proteus-name']"/>
                  </title>
                  
                 <!-- <xsl:call-template name="style"/> -->

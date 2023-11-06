@@ -149,7 +149,7 @@
                             <xsl:for-each select="id(proteus:directlyAffects/@affected)">
                                 <li>
                                     <a href="#{@oid}">
-                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                                     </a>
                                 </li>
                             </xsl:for-each>
@@ -180,7 +180,7 @@
                             <xsl:for-each select="id(proteus:indirectlyAffects/@affected)">
                                 <li>
                                     <a href="#{@oid}">
-                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                                        [<xsl:value-of select="@oid"/>] <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                                     </a>
                                 </li>
                             </xsl:for-each>
@@ -246,7 +246,7 @@
                     <xsl:value-of select="$label"/>
                 </th>
                 <th class="name_column" colspan="{$span}">
-                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                     <xsl:if test="$postfix"><xsl:text> </xsl:text><xsl:value-of select="$postfix"/></xsl:if>
                 </th>
             </tr>

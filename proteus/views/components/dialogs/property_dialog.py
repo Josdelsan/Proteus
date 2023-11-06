@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.trace import Trace
@@ -148,7 +148,7 @@ class PropertyDialog(QDialog):
             properties_form_dict.update(self.object.traces)
 
         # Set the window name
-        window_name: str = self.object.get_property("name").value
+        window_name: str = self.object.get_property(PROTEUS_NAME).value
         self.setWindowTitle(window_name)
 
         # Create the form vertical layout and the tab widget

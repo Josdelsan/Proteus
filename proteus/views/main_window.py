@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.views import APP_ICON_TYPE
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
 
         project = self._controller.get_current_project()
         self.setWindowTitle(
-            f"{self.translator.text('main_window.title')} - {project.get_property('name').value}"
+            f"{self.translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
         )
 
     # ----------------------------------------------------------------------
@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
 
         # Get the selected object and its name
         selected_object: Object = self._controller.get_element(selected_object_id)
-        object_name = selected_object.properties["name"].value
+        object_name = selected_object.get_property(PROTEUS_NAME).value
 
         # Message to show in the status bar
         message: str = self.translator.text(
@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
         # Check if element id is project id
         if element_id == project.id:
             self.setWindowTitle(
-                f"{self.translator.text('main_window.title')} - {project.get_property('name').value}"
+                f"{self.translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
             )
 
     # ======================================================================

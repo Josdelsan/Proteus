@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object id="7s63wvxgekU6" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
-    <stringProperty name="name"><![CDATA[Section]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Section]]></stringProperty>
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
-	  <dateProperty name="date">2022-10-10</dateProperty>
+	  <dateProperty name=":Proteus-date">2022-10-10</dateProperty>
     <stringProperty name="author"><![CDATA[José María Delgado]]></stringProperty>	
     <markdownProperty name="comments" category="comments"><![CDATA[None]]></markdownProperty>	
   </properties>

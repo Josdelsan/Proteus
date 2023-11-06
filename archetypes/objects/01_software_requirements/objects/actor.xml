@@ -6,9 +6,9 @@
     acceptedParents=":Proteus-any"
 >
     <properties>
-        <stringProperty name="name" category="general">System actor</stringProperty>
+        <stringProperty name=":Proteus-name" category="general">System actor</stringProperty>
         <floatProperty name="version" category="general">0.1</floatProperty>
-        <dateProperty name="date" category="general">2023-05-16</dateProperty>
+        <dateProperty name=":Proteus-date" category="general">2023-05-16</dateProperty>
         <stringProperty name="author" category="general">José María Delgado</stringProperty>
         <stringProperty name="role" category="general">Product Owner</stringProperty>
         <markdownProperty name="description" category="detail">System actor...</markdownProperty>

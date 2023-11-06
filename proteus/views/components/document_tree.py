@@ -14,7 +14,6 @@
 import logging
 from typing import Dict, List
 from pathlib import Path
-from PyQt6 import QtCore, QtGui
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,8 +24,6 @@ from PyQt6.QtGui import (
     QDropEvent,
     QIcon,
     QDragEnterEvent,
-    QDragMoveEvent,
-    QDragLeaveEvent,
 )
 from PyQt6.QtWidgets import (
     QTreeWidget,
@@ -39,7 +36,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT
+from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
@@ -230,10 +227,10 @@ class DocumentTree(QTreeWidget):
         # Create the new item, if position is not None insert the item in
         # the given position
         if position is not None:
-            new_item = QTreeWidgetItem(None, [object.get_property("name").value])
+            new_item = QTreeWidgetItem(None, [object.get_property(PROTEUS_NAME).value])
             parent_item.insertChild(position, new_item)
         else:
-            new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
+            new_item = QTreeWidgetItem(parent_item, [object.get_property(PROTEUS_NAME).value])
 
         # Set the item color based on the object ProteusState
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
@@ -290,7 +287,7 @@ class DocumentTree(QTreeWidget):
         object: Object = self._controller.get_element(element_id)
 
         # Update the tree item
-        tree_item.setText(0, object.get_property("name").value)
+        tree_item.setText(0, object.get_property(PROTEUS_NAME).value)
         tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
     # ----------------------------------------------------------------------
@@ -571,4 +568,3 @@ class DocumentTree(QTreeWidget):
         else:
             event.accept()
             return
-

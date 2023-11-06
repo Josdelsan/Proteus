@@ -74,18 +74,18 @@ def test_document_archetype():
 def test_object_archetype():
     # Get the number of objects arquetypes clases
     dir_path = str(Config().archetypes_directory / "objects")
-    archetype_types = os.listdir(dir_path)
+    archetype_groups = os.listdir(dir_path)
     
     # Check if load object function return all the classes
     objects : dict[str, dict[str, list(Object)]] = ArchetypeManager.load_object_archetypes()
-    for archetype_type in archetype_types:
+    for archetype_group in archetype_groups:
 
-        # Check if the class is in the objects dictionary
-        assert archetype_type in objects.keys(), \
-            f"Archetype type {archetype_type} not found in objects"
+        # Check if the class is in the objects dictionary (parsed to remove order prefix)
+        assert archetype_group[3:] in objects.keys(), \
+            f"Archetype group {archetype_group} not found in objects"
         
         # Parse the objects.xml file of the class
-        objects_pointer_xml : ET.Element = ET.parse(f"{dir_path}/{archetype_type}/objects.xml")
+        objects_pointer_xml : ET.Element = ET.parse(f"{dir_path}/{archetype_group}/objects.xml")
 
         # Get the number of objects in the objects.xml file ignoring children objects
         objects_id_list : list[str] = [child.attrib["id"] for child in objects_pointer_xml.getroot()]
@@ -93,11 +93,11 @@ def test_object_archetype():
 
         # Check if the number of objects in the class is correct
         objects_list: list[Object] = []
-        for object in objects[archetype_type].values():
+        for object in objects[archetype_group[3:]].values():
             objects_list.extend(object)
 
         assert len(objects_list) == number_of_objects_expected, \
-            f"Number of objects in type {archetype_type} do not match with the number of objects in the directory"
+            f"Number of objects in group {archetype_group} do not match with the number of objects in the directory"
         
         # Check if the objects are Object objects
         for object in objects_list:
@@ -105,5 +105,5 @@ def test_object_archetype():
                 f"Archetype object {object} is not a Object object"
 
     # Check if the number of classes in the directory is correct
-    assert len(objects.keys()) == len(archetype_types), \
-        f"Number of object archetype types not match with the number of types in the directory"
+    assert len(objects.keys()) == len(archetype_groups), \
+        f"Number of object archetype groups not match with the number of groups in the directory"

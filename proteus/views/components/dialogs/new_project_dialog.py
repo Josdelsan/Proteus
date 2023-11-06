@@ -33,7 +33,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.views.utils.forms.directory_edit import DirectoryEdit
 from proteus.views.utils.translator import Translator
@@ -117,7 +117,7 @@ class NewProjectDialog(QDialog):
 
         archetype: Project = None
         for archetype in project_archetypes:
-            self.archetype_combo.addItem(archetype.properties["name"].value)
+            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
 
         # Show the archetype description
         description_label: QLabel = QLabel(
@@ -220,7 +220,7 @@ class NewProjectDialog(QDialog):
                 self.translator.text("new_project_dialog.error.no_archetype_selected")
             )
             return
-        
+
         if os.path.exists(f"{path}/{name}"):
             self.error_label.setText(
                 self.translator.text("new_project_dialog.error.folder_already_exists")

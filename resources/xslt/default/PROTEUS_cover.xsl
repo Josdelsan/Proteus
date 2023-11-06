@@ -25,7 +25,7 @@
             <div id="project_name">
                 <xsl:value-of select="$proteus:lang_project"/>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name='name']"/>
+                <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name=':Proteus-name']"/>
             </div>
     
             <div id="document_logo">
@@ -33,7 +33,7 @@
             </div>
     
             <div id="document_name">
-                <xsl:apply-templates select="properties/stringProperty[@name='name']"/>
+                <xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/>
             </div>
     
             <div id="document_version">
@@ -45,7 +45,7 @@
             <div id="document_date">
                 <xsl:value-of select="$proteus:lang_date"/>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/dateProperty[@name='date']"/>
+                <xsl:value-of select="properties/dateProperty[@name=':Proteus-date']"/>
             </div>
     
     

@@ -36,6 +36,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.views.utils.translator import Translator
@@ -101,7 +102,7 @@ class ExportDialog(QDialog):
             current_view = StateManager().get_current_view()
             document: Object = self._controller.get_element(current_document)
             default_file_name: str = (
-                f"{document.get_property('name').value}-{current_view}.{file_format}"
+                f"{document.get_property(PROTEUS_NAME).value}-{current_view}.{file_format}"
             )
 
             # Open the file dialog and set the default file name

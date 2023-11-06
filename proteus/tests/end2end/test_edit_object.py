@@ -35,6 +35,7 @@ from PyQt6.QtCore import QPoint, QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
@@ -103,7 +104,7 @@ def test_edit_object(app, object_id, document_id):
     # Emit set current item, accessed in context menu
     document_tree.setCurrentItem(tree_element)
 
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     NEW_NAME = "new name"
 
     # --------------------------------------------

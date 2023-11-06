@@ -56,7 +56,7 @@
             <tr>
                 <td style="background-color: lightgray;">
                     <strong>
-                        <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                        <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                     </strong>
                 </td>
 
