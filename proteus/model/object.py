@@ -28,6 +28,7 @@ import logging
 from typing import List, NewType, Union, Dict
 import copy
 import shutil
+import datetime
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -42,6 +43,7 @@ import shortuuid
 
 from proteus.model import (
     ProteusID,
+    PROTEUS_DATE,
     ID_ATTRIBUTE,
     NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
@@ -53,12 +55,11 @@ from proteus.model import (
     CHILD_TAG,
     TRACES_TAG,
     TRACE_PROPERTY_TAG,
-    TRACE_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property, FileProperty
+from proteus.model.properties import Property, FileProperty, DateProperty
 from proteus.model.trace import Trace
 
 
@@ -202,7 +203,7 @@ class Object(AbstractObject):
         self.traces: dict[str, Trace] = dict[str, Trace]()
         self.load_traces(root=root)
 
-        # Children dictionary (will be loaded on demand)
+        # Children list (will be loaded on demand)
         self._children: List[Object] = None
 
     # ----------------------------------------------------------------------
@@ -217,17 +218,17 @@ class Object(AbstractObject):
     def children(self) -> List[Object]:
         """
         Property children getter. Loads children from XML file on demand.
-        :return: Dictionary of children objects
+        :return: List of children objects
         """
-        # Check if children dictionary is not initialized
+        # Check if children list is not initialized
         if self._children is None:
-            # Initialize children dictionary
+            # Initialize children list
             self._children: List[Object] = []
 
             # Load children from XML file
             self.load_children()
 
-        # Return children dictionary
+        # Return children list
         return self._children
 
     # ----------------------------------------------------------------------
@@ -410,16 +411,30 @@ class Object(AbstractObject):
             child.id != self.id
         ), f"Object cannot be its own child. {child.id} is the same as object id {self.id}."
 
-        # Condition 1 - child accepted parents must be PROTEUS_ANY or contain the object class
+        # --------------------------------------------------------
+        # Condition 1 - child accepted parents must be PROTEUS_ANY
+        # or contain one of the object class
+
+        accepted_parent_common_classes = [
+            c for c in child.acceptedParents if c in self.classes
+        ]
+
         condition_1 = (
             PROTEUS_ANY in child.acceptedParents
-            or self.classes[-1] in child.acceptedParents
+            or accepted_parent_common_classes
         )
 
-        # Condition 2 - self accepted children must be PROTEUS_ANY or contain the child class
+        # --------------------------------------------------------
+        # Condition 2 - self accepted children must be PROTEUS_ANY
+        # or contain one of the child class
+
+        accepted_children_common_classes = [
+            c for c in self.acceptedChildren if c in child.classes
+        ]
+
         condition_2 = (
             PROTEUS_ANY in self.acceptedChildren
-            or child.classes[-1] in self.acceptedChildren
+            or accepted_children_common_classes
         )
 
         # BOTH conditions must be true
@@ -579,7 +594,9 @@ class Object(AbstractObject):
             if target_asset_file_path != asset_file_path:
                 # Copy the asset file to the target assets path
                 shutil.copy(asset_file_path, target_asset_file_path)
-                log.debug(f"Asset {asset_property.value} copied from {asset_file_path} to {target_asset_file_path}.")
+                log.debug(
+                    f"Asset {asset_property.value} copied from {asset_file_path} to {target_asset_file_path}."
+                )
 
         # ------------------------------------------------------------------
 
@@ -595,6 +612,9 @@ class Object(AbstractObject):
             parent, Object
         ), f"Parent must be instance of Object or Project"
 
+        # -------------------------------------------------------
+        # Object base clonation
+        # -------------------------------------------------------
         # We use standart clone instead of deepcopy to avoid unnecessary copies of project and children
         # This improves performance but It is necessary to manually deepcopy properties and traces
         new_object = copy.copy(self)
@@ -620,12 +640,22 @@ class Object(AbstractObject):
         # Add the new object to the parent children and set the parent
         parent.add_descendant(new_object, position)
 
-        # Clone assets using auxiliary function
+        # -------------------------------------------------------
+        # Handle special properties (Date, Code, FileProperties)
+        # -------------------------------------------------------
         for property in new_object.properties.values():
+            # Handle FileProperty Assets cloning
             if isinstance(property, FileProperty):
                 _handle_asset_clone(property)
+            # Set current date to :Proteus-date DateProperty
+            elif isinstance(property, DateProperty) and property.name == PROTEUS_DATE:
+                current_date = datetime.date.today()
+                new_date_property = property.clone(current_date)
+                new_object.set_property(new_date_property)
 
-        # Children clone ---------------------------------------------------
+        # -------------------------------------------------------
+        # Children clone
+        # -------------------------------------------------------
         # If the object has children we clone them
         for child in self.get_descendants():
             # Clone the child
@@ -636,6 +666,9 @@ class Object(AbstractObject):
                 position=len(new_object.children),
             )
 
+        # -------------------------------------------------------
+        # Checks and return
+        # -------------------------------------------------------
         # Check the new object is valid
         assert isinstance(
             new_object, Object

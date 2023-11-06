@@ -150,7 +150,7 @@ class Project(AbstractObject):
         # Check root tag is <project>
         assert (
             root.tag == PROJECT_TAG
-        ), f"PROTUES project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
+        ), f"PROTEUS project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
 
         # Get project ID from XML
         self.id = ProteusID(root.attrib[ID_ATTRIBUTE])
@@ -164,7 +164,7 @@ class Project(AbstractObject):
         # Template list
         self.xsl_templates: List[str] = self.load_xsl_templates(root)
 
-        # Documents dictionary
+        # Documents list
         self._documents: List[Object] = None
 
     # ----------------------------------------------------------------------
@@ -179,9 +179,9 @@ class Project(AbstractObject):
     def documents(self) -> List[Object]:
         """
         Property documents getter. Loads documents from XML file on demand.
-        :return: documents dictionary.
+        :return: documents list.
         """
-        # Check if documents dictionary is not initialized
+        # Check if documents list is not initialized
         if self._documents is None:
             # Initialize documents dictionary
             self._documents: List[Object] = []
@@ -189,9 +189,17 @@ class Project(AbstractObject):
             # Load documents from XML file
             self.load_documents()
 
-        # Return documents dictionary
+        # Return documents list
         return self._documents
 
+    # ----------------------------------------------------------------------
+    # Property   : ids
+    # Description: Property ids getter. Loads all ids from the project on
+    #              demand.
+    # Date       : 06/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     @property
     def ids(self) -> MutableSet[ProteusID]:
         """

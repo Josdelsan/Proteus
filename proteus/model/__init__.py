@@ -54,7 +54,6 @@ NAME_ATTRIBUTE              = str('name')
 INMUTABLE_ATTRIBUTE         = str('inmutable')
 CATEGORY_ATTRIBUTE          = str('category')
 TARGET_ATTRIBUTE            = str('target')
-CHOICES_ATTRIBUTE           = str('choices')
 
 # Default values
 DEFAULT_TRACE_NAME     = str('trace')
@@ -68,6 +67,11 @@ ProteusClassTag = NewType('ProteusClassTag', str)
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
 PROTEUS_ANY      = ProteusClassTag(':Proteus-any')
 PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
+
+# Some predefined attribute names
+PROTEUS_CODE = str(':Proteus-code')
+PROTEUS_NAME = str(':Proteus-name')
+PROTEUS_DATE = str(':Proteus-date')
 
 # Type for UUIDs in Proteus
 ProteusID = NewType('ProteusID', str)
