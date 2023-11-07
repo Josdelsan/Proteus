@@ -98,6 +98,10 @@ class ProteusApplication:
         error_dialog.setInformativeText(tb)
         error_dialog.exec()
 
+        # Override closeEvent in main window to avoid asking for confirmation
+        # when closing the application
+        self.main_window.closeEvent = lambda event: event.accept()
+
         self.handle_critical_error()
 
     # TODO: Find a way to store application state before quitting
