@@ -116,7 +116,7 @@ class Translator:
 
         # Read the translations file
         with open(translation_file, "r", encoding="utf-8") as file:
-            self._translations: Dict[str, str] = yaml.safe_load(file)
+            self._translations: Dict[str, str] = yaml.full_load(file)
 
     # --------------------------------------------------------------------------
     # Method: text

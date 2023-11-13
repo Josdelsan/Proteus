@@ -16,9 +16,13 @@ from typing import Union, List, Dict, Any
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
+    QLabel,
     QVBoxLayout,
+    QHBoxLayout,
     QTabWidget,
     QDialogButtonBox,
     QFormLayout,
@@ -29,11 +33,13 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.config import Config
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property
+from proteus.views import APP_ICON_TYPE, TREE_MENU_ICON_TYPE
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 from proteus.views.utils.forms.properties.property_input_factory import (
     PropertyInputFactory,
@@ -147,13 +153,32 @@ class PropertyDialog(QDialog):
             # Merge object's traces with properties dict
             properties_form_dict.update(self.object.traces)
 
+            # Object icon
+            dialog_icon: QIcon = QIcon(
+                Config().get_icon(TREE_MENU_ICON_TYPE, self.object.classes[-1]).as_posix()
+            )
+        else:
+            # Proteus icon
+            dialog_icon: QIcon = QIcon(
+                Config().get_icon(APP_ICON_TYPE, "proteus_icon").as_posix()
+            )
+
+        # Set the dialog icon
+        self.setWindowIcon(dialog_icon)
+
         # Set the window name
         window_name: str = self.object.get_property(PROTEUS_NAME).value
         self.setWindowTitle(window_name)
 
+        # Create layout to hold tabbed widgets and buttons
+        window_layout: QHBoxLayout = QHBoxLayout(self)
+
+        # Create buttons layout
+        buttons_layout: QVBoxLayout = QVBoxLayout()
+
         # Create the form vertical layout and the tab widget
         # to organize the properties by category
-        form_layout: QVBoxLayout = QVBoxLayout(self)
+        tabbed_layout: QVBoxLayout = QVBoxLayout()
         tab_widget: QTabWidget = QTabWidget()
 
         # Create a dictionary to hold category widgets
@@ -191,18 +216,31 @@ class PropertyDialog(QDialog):
             tab_widget.addTab(category_widget, category)
 
         # Add the tab widget to the main form layout
-        form_layout.addWidget(tab_widget)
+        tabbed_layout.addWidget(tab_widget)
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
+        self.button_box.setOrientation(Qt.Orientation.Vertical)
         self.button_box.accepted.connect(self.save_button_clicked)
         self.button_box.rejected.connect(self.cancel_button_clicked)
-        form_layout.addWidget(self.button_box)
+        buttons_layout.addWidget(self.button_box)
 
-        self.setLayout(form_layout)
+        # Add US logo to the buttons layour and push it to the bottom
+        us_logo: QIcon = QIcon(Config().get_icon(APP_ICON_TYPE, "US-digital").as_posix())
+        us_logo_label: QLabel = QLabel()
+        us_logo_label.setPixmap(us_logo.pixmap(80, 80))
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(us_logo_label)
+        
+
+        # Add the layouts to the main layout
+        window_layout.addLayout(tabbed_layout)
+        window_layout.addLayout(buttons_layout)
+
+        self.setLayout(window_layout)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)

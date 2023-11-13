@@ -54,14 +54,13 @@ NAME_ATTRIBUTE              = str('name')
 INMUTABLE_ATTRIBUTE         = str('inmutable')
 CATEGORY_ATTRIBUTE          = str('category')
 TARGET_ATTRIBUTE            = str('target')
-
-# Default values
-DEFAULT_TRACE_NAME     = str('trace')
-DEFAULT_TRACE_CATEGORY = str('traceability')
-
+TRACE_TYPE_ATTRIBUTE        = str('traceType')
 
 # Type for Class tags in Proteus
 ProteusClassTag = NewType('ProteusClassTag', str)
+
+# Type for UUIDs in Proteus
+ProteusID = NewType('ProteusID', str)
 
 # Some predefined class tags
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
@@ -73,5 +72,13 @@ PROTEUS_CODE = str(':Proteus-code')
 PROTEUS_NAME = str(':Proteus-name')
 PROTEUS_DATE = str(':Proteus-date')
 
-# Type for UUIDs in Proteus
-ProteusID = NewType('ProteusID', str)
+# Some predefined traceability types
+PROTEUS_DEPENDENCY = str(':Proteus-dependency')
+PROTEUS_AUTHOR = str(':Proteus-author')
+PROTEUS_INFORMATION_SOURCE = str(':Proteus-information-source')
+
+# Default values
+DEFAULT_TRACE_NAME     = str('trace')
+DEFAULT_TRACE_CATEGORY = str('traceability')
+DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
+

@@ -19,8 +19,9 @@ subobjective: "subobjetivo"
 #---------------------------------------------------------------------------
 
 # nombres
-:Proteus-name: "Nombre"
-:Proteus-date: "Fecha"
+':proteus-name': "Nombre"
+':proteus-date': "Fecha"
+':proteus-code': "Código"
 acronym: "Acrónimo"
 name:  "Nombre"
 version: "Versión"
@@ -49,6 +50,10 @@ integer_property_input.validator.error: "Este campo debe ser un número entero"
 
 property_input.inmutable_property_warning.title: "Advertencia, propiedad inmutable"
 property_input.inmutable_property_warning.text: "Esta propiedad ha sido definida como inmutable, modificarla puede causar errores en la aplicación. Actúe bajo su propio riesgo."
+
+code_property_input.validator.error.prefix: "El prefijo no puede estar vacío"
+code_property_input.validator.error.number_type: "El número debe ser un número entero positivo"
+code_property_input.validator.error.number_value: "El número debe ser mayor que 0"
 
 #---------------------------------------------------------------------------
 # Menú principal

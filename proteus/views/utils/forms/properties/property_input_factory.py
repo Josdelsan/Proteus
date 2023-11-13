@@ -39,6 +39,7 @@ from proteus.model.properties.enum_property import EnumProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
+from proteus.model.properties.code_property import CodeProperty
 
 # Property input imports
 from proteus.views.utils.forms.properties.trace_input import TraceInput
@@ -62,6 +63,7 @@ from proteus.views.utils.forms.properties.float_property_input import (
 from proteus.views.utils.forms.properties.enum_property_input import EnumPropertyInput
 from proteus.views.utils.forms.properties.file_property_input import FilePropertyInput
 from proteus.views.utils.forms.properties.url_property_input import UrlPropertyInput
+from proteus.views.utils.forms.properties.code_property_input import CodePropertyInput
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -93,6 +95,7 @@ class PropertyInputFactory:
         EnumProperty: EnumPropertyInput,
         FileProperty: FilePropertyInput,
         UrlProperty: UrlPropertyInput,
+        CodeProperty: CodePropertyInput,
     }
 
     # ----------------------------------------------------------------------

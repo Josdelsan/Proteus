@@ -19,8 +19,9 @@ subobjective: "Subobjective"
 #---------------------------------------------------------------------------
 
 # names
-:Proteus-name: "Name"
-:Proteus-date: "Date"
+':proteus-name': "Name"
+':proteus-date': "Date"
+':proteus-code': "Code"
 acronym: "Acronym"
 name: "Name"
 version: "Version"
@@ -49,6 +50,10 @@ integer_property_input.validator.error: "This field must be an integer number"
 
 property_input.inmutable_property_warning.title: "Warning, inmutable property"
 property_input.inmutable_property_warning.text: "This property is marked as inmutable, modify it at your own risk."
+
+code_property_input.validator.error.prefix: "The prefix cannot be an empty string"
+code_property_input.validator.error.number_type: "The number must be a positive integer"
+code_property_input.validator.error.number_value: "The number must be greater than 0"
 
 #---------------------------------------------------------------------------
 # Main menu

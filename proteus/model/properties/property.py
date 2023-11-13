@@ -81,7 +81,7 @@ class Property(ABC):
             object.__setattr__(self, 'inmutable', False)
 
         # Value -> string
-        object.__setattr__(self, 'value', str(self.value))
+        # object.__setattr__(self, 'value', str(self.value))
 
     def clone(self, new_value=None) -> 'Property':
         """
@@ -93,7 +93,7 @@ class Property(ABC):
         if new_value is None:
             return replace(self)
         
-        return replace(self, value=str(new_value))
+        return replace(self, value=new_value)
 
     def generate_xml(self) -> ET._Element:
         """

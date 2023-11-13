@@ -60,6 +60,7 @@ from proteus.model import (
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import Property, FileProperty, DateProperty
+from proteus.model.properties.code_property import ProteusCode, CodeProperty
 from proteus.model.trace import Trace
 
 
@@ -505,6 +506,7 @@ class Object(AbstractObject):
         :param position: Position in the children list where the child will be added.
         :type parent: Union[Object,Project].
         """
+        #TODO: Refactor this dictionary for better readability
         # Map with the ids of the objects that have been cloned and their new ids
         ids_map: Dict[ProteusID, ProteusID] = dict()
 
@@ -531,7 +533,8 @@ class Object(AbstractObject):
         :param project: Project where the object will be saved.
         :param position: Position in the children list where the child will be added.
         :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
-        :type parent: Union[Object,Project].
+        :return: Cloned object.
+        :rtype: Object
         """
 
         # ------------------------------------------------------------------
@@ -598,6 +601,34 @@ class Object(AbstractObject):
                     f"Asset {asset_property.value} copied from {asset_file_path} to {target_asset_file_path}."
                 )
 
+        # Helper function to handle codeProperty cloning
+        def _handle_code_clone(code_property: CodeProperty) -> CodeProperty:
+            """
+            Helper function that handles the code cloning.
+            """
+            _code_map = self._calculate_biggest_code(project)
+
+            new_property: CodeProperty = code_property
+
+            # Get the prefix
+            prefix = code_property.value.prefix
+
+            # Check if the prefix is in the code map
+            if prefix in _code_map:
+                # Get the biggest code for the prefix
+                biggest_code = _code_map[prefix]
+
+                # Get the next code
+                next_code = biggest_code.next()
+
+                # Update the code map
+                _code_map[prefix] = next_code
+
+                # Update the new property
+                new_property = code_property.clone(next_code)
+
+            return new_property
+
         # ------------------------------------------------------------------
 
         # Check if project is not None
@@ -652,19 +683,23 @@ class Object(AbstractObject):
                 current_date = datetime.date.today()
                 new_date_property = property.clone(current_date)
                 new_object.set_property(new_date_property)
+            elif isinstance(property, CodeProperty):
+                new_code_property = _handle_code_clone(property)
+                new_object.set_property(new_code_property)
 
         # -------------------------------------------------------
         # Children clone
         # -------------------------------------------------------
         # If the object has children we clone them
         for child in self.get_descendants():
-            # Clone the child
-            child._clone_object(
-                parent=new_object,
-                project=project,
-                ids_map=ids_map,
-                position=len(new_object.children),
-            )
+            # Clone the child if not dead
+            if child.state != ProteusState.DEAD:
+                child._clone_object(
+                    parent=new_object,
+                    project=project,
+                    ids_map=ids_map,
+                    position=len(new_object.children),
+                )
 
         # -------------------------------------------------------
         # Checks and return
@@ -716,6 +751,43 @@ class Object(AbstractObject):
         for child in object.children:
             # Recalculate traces
             self._recalculate_traces(child, ids_map, project)
+
+    def _calculate_biggest_code(self, project: Project) -> Dict[str, ProteusCode]:
+        """
+        Calculates the biggest code for each prefix in the project universe.
+        It stores the ProteusCode instances in a dictionary with the prefix as key.
+        It works recursively, iterating over the object or project descendants.
+
+        :return: Dictionary with the biggest ProteusCode instances for each prefix.
+        :rtype: Dict[str, ProteusCode]
+        """
+        def _calculate_biggest_code_private(element: Union[Project, Object], code_map: Dict[str, ProteusCode]) -> Dict[str, ProteusCode]:
+            # Iterate over children
+            for child in element.get_descendants():
+                if child.state != ProteusState.DEAD:
+                    code_map = _calculate_biggest_code_private(child, code_map)
+
+            # Iterate over properties
+            for property in element.properties.values():
+                if isinstance(property, CodeProperty):
+                    # Get the prefix
+                    prefix = property.value.prefix
+
+                    # If the prefix is not in the code map, add it
+                    if prefix not in code_map:
+                        code_map[prefix] = property.value
+                    # If the prefix is in the code map, check if the current code is bigger
+                    else:
+                        if int(property.value.number) > int(code_map[prefix].number):
+                            code_map[prefix] = property.value
+
+            return code_map
+
+        # Call the private function
+        code_map = dict()
+        code_map = _calculate_biggest_code_private(project, code_map)
+        
+        return code_map
 
     # ----------------------------------------------------------------------
     # Method     : save

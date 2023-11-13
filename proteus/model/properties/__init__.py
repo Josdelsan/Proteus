@@ -70,8 +70,12 @@ ENUM_PROPERTY_TAG       = str('enumProperty')
 URL_PROPERTY_TAG        = str('urlProperty')
 FILE_PROPERTY_TAG       = str('fileProperty')
 CLASSLIST_PROPERTY_TAG  = str('classListProperty')
+CODE_PROPERTY_TAG       = str('codeProperty')
 
 CLASS_TAG               = str('class')
+PREFIX_TAG              = str('prefix')
+NUMBER_TAG              = str('number')
+SUFFIX_TAG              = str('suffix')
 CHOICES_ATTRIBUTE       = str('choices')
 
 DEFAULT_NAME            = str('unnamed')

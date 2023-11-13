@@ -48,6 +48,7 @@ class EnumProperty(Property):
     """
     # XML element tag name for this class of property (class attribute)
     element_tagname : ClassVar[str] = ENUM_PROPERTY_TAG
+    value           : str
 
     # dataclass instance attributes
     choices: str = str()
@@ -58,6 +59,7 @@ class EnumProperty(Property):
         """
         # Superclass validation        
         super().__post_init__()
+        object.__setattr__(self, 'value', str(self.value))
 
         # Parse choices set
         # use split() without arguments to get an empty list if string is empty

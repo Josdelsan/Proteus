@@ -43,3 +43,4 @@ class MarkdownProperty(StringProperty):
     """
     # XML element tag name for this class of property (class attribute)
     element_tagname : ClassVar[str] = MARKDOWN_PROPERTY_TAG
+    value           : str

@@ -38,10 +38,18 @@ from proteus.model.properties.enum_property import EnumProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
+from proteus.model.properties.code_property import CodeProperty, ProteusCode
 
 from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, INMUTABLE_ATTRIBUTE
 
-from proteus.model.properties import CLASS_TAG, DEFAULT_CATEGORY, CHOICES_ATTRIBUTE
+from proteus.model.properties import (
+    CLASS_TAG,
+    DEFAULT_CATEGORY,
+    CHOICES_ATTRIBUTE,
+    PREFIX_TAG,
+    NUMBER_TAG,
+    SUFFIX_TAG,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -75,6 +83,7 @@ class PropertyFactory:
         FileProperty.element_tagname: FileProperty,
         UrlProperty.element_tagname: UrlProperty,
         ClassListProperty.element_tagname: ClassListProperty,
+        CodeProperty.element_tagname: CodeProperty,
     }
 
     @classmethod
@@ -118,6 +127,12 @@ class PropertyFactory:
                 )
             else:
                 value = str()
+        elif property_class is CodeProperty:
+            # We need to collect its prefix, number and suffix
+            prefix = element.find(PREFIX_TAG).text
+            number = element.find(NUMBER_TAG).text
+            suffix = element.find(SUFFIX_TAG).text
+            value = ProteusCode(prefix, number, suffix)
         else:
             # Value could be empty
             value = str(element.text)

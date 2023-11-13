@@ -32,9 +32,11 @@ from proteus.model import (
     TARGET_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
     TRACE_PROPERTY_TAG,
+    TRACE_TYPE_ATTRIBUTE,
     TRACE_TAG,
     DEFAULT_TRACE_NAME,
     DEFAULT_TRACE_CATEGORY,
+    DEFAULT_TRACE_TYPE,
     PROTEUS_ANY,
 )
 
@@ -60,6 +62,7 @@ class Trace:
     name: str = str(DEFAULT_TRACE_NAME)
     category: str = str(DEFAULT_TRACE_CATEGORY)
     acceptedTargets: List[ProteusClassTag] = field(default_factory=list)
+    type: str = str(DEFAULT_TRACE_TYPE)
     targets: List[ProteusID] = field(default_factory=list)
 
     # --------------------------------------------------------------------------
@@ -94,6 +97,11 @@ class Trace:
             )
             # self.acceptedTargets = list() cannot be used when frozen=True
             object.__setattr__(self, "acceptedTargets", list().append(PROTEUS_ANY))
+
+        # Type validation
+        if not self.type:
+            # self.type = DEFAULT_TYPE cannot be used when frozen=True
+            object.__setattr__(self, "type", DEFAULT_TRACE_TYPE)
 
         # Value validation
         if not isinstance(self.targets, list):
@@ -138,11 +146,13 @@ class Trace:
         trace_property_element.set(NAME_ATTRIBUTE, self.name)
         trace_property_element.set(CATEGORY_ATTRIBUTE, self.category)
         trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, "".join(self.acceptedTargets))
+        trace_property_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
 
         # Create each trace tag and set its attribute
         for target in self.targets:
             trace_element: ET._Element = ET.Element(TRACE_TAG)
             trace_element.set(TARGET_ATTRIBUTE, target)
+            trace_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
             trace_property_element.append(trace_element)
 
         return trace_property_element
@@ -174,8 +184,13 @@ class Trace:
 
         # Get accepted targets
         accepted_targets: List | None = trace_property_element.attrib.get(
-            ACCEPTED_TARGETS_ATTRIBUTE, "".join(PROTEUS_ANY)
+            ACCEPTED_TARGETS_ATTRIBUTE, [PROTEUS_ANY]
         ).split()
+
+        # Get type
+        type: AnyStr | None = trace_property_element.attrib.get(
+            TRACE_TYPE_ATTRIBUTE, DEFAULT_TRACE_TYPE
+        )
 
         # Get targets
         traces = list()
@@ -195,4 +210,5 @@ class Trace:
             category=category,
             targets=traces,
             acceptedTargets=accepted_targets,
+            type=type,
         )
