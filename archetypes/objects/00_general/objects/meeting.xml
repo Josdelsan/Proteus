@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="meeting" classes="meeting" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name=":Proteus-name"><![CDATA[Meeting]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="details">2000-12-31</dateProperty>
+    <timeProperty name="time" category="details">12:00:00</timeProperty>
+    <stringProperty name="place" category="details"><![CDATA[Proteus St]]></stringProperty>
+    <markdownProperty name="results" category="results"><![CDATA[Meeting results]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children />
+  <traces>
+    <traceProperty name="attenders" category="general" acceptedTargets="stakeholder organization" traceType=":Proteus-information-source"/>
+  </traces>
+</object>

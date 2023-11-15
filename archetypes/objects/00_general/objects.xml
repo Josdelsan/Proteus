@@ -5,4 +5,7 @@
     <object id="empty-section" />
     <object id="external-resource" />
     <object id="graphic-file" />
+    <object id="organization" />
+    <object id="stakeholder" />
+    <object id="meeting" />
 </objects>

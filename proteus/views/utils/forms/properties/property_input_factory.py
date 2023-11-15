@@ -51,6 +51,7 @@ from proteus.views.utils.forms.properties.boolean_property_input import (
     BooleanPropertyInput,
 )
 from proteus.views.utils.forms.properties.date_property_input import DatePropertyInput
+from proteus.views.utils.forms.properties.time_property_input import TimePropertyInput
 from proteus.views.utils.forms.properties.markdown_property_input import (
     MarkdownPropertyInput,
 )
@@ -88,6 +89,7 @@ class PropertyInputFactory:
         Trace: TraceInput,
         StringProperty: StringPropertyInput,
         DateProperty: DatePropertyInput,
+        TimeProperty: TimePropertyInput,
         MarkdownProperty: MarkdownPropertyInput,
         BooleanProperty: BooleanPropertyInput,
         FloatProperty: FloatPropertyInput,
