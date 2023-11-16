@@ -107,15 +107,15 @@ class DeleteObjectCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager.notify(
+            EventManager().notify(
                 Event.MODIFY_OBJECT, element_id=source, update_view=False
             )
 
         # Deselect the object in case it was selected to avoid errors
-        StateManager.deselect_object(self.object.id)
+        StateManager().deselect_object(self.object.id)
 
         # Emit the event to update the view
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.object.id)
+        EventManager().notify(Event.DELETE_OBJECT, element_id=self.object.id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -151,12 +151,12 @@ class DeleteObjectCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager.notify(
+            EventManager().notify(
                 Event.MODIFY_OBJECT, element_id=source, update_view=False
             )
 
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_OBJECT, object=self.object)
+        EventManager().notify(Event.ADD_OBJECT, object=self.object)
 
     # ----------------------------------------------------------------------
     # Method     : calculate_traces_changes

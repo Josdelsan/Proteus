@@ -109,12 +109,12 @@ def test_clone_archetype(app, archetype_id, archetype_class, parent_id, document
     # Check application state
     # NOTE: This is done to detect StateManager inconsistencies and test correct behaviour
     assert (
-        StateManager.get_current_document() == document_id
-    ), f"Current document must be '{document_id}' but it is '{StateManager.current_document}'"
+        StateManager().get_current_document() == document_id
+    ), f"Current document must be '{document_id}' but it is '{StateManager().current_document}'"
 
     assert (
-        StateManager.get_current_object() == parent_id
-    ), f"Current object must be '{parent_id}' but it is '{StateManager.current_object}'"
+        StateManager().get_current_object() == parent_id
+    ), f"Current object must be '{parent_id}' but it is '{StateManager().current_object}'"
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)

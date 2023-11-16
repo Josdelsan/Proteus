@@ -111,7 +111,7 @@ class CloneObjectCommand(QUndoCommand):
             parent.state: ProteusState = self.after_clone_parent_state
 
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_OBJECT, object=self.cloned_object)
+        EventManager().notify(Event.ADD_OBJECT, object=self.cloned_object)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -135,7 +135,7 @@ class CloneObjectCommand(QUndoCommand):
         parent.state: ProteusState = self.before_clone_parent_state
 
         # Deselect the object in case it was selected to avoid errors
-        StateManager.deselect_object(self.cloned_object.id)
+        StateManager().deselect_object(self.cloned_object.id)
 
         # Emit the event to update the view
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.cloned_object.id)
+        EventManager().notify(Event.DELETE_OBJECT, element_id=self.cloned_object.id)

@@ -10,6 +10,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from functools import wraps
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -24,7 +26,7 @@ from PyQt6.QtWidgets import QApplication
 
 
 # --------------------------------------------------------------------------
-# Function: proteus_action
+# Decorator: proteus_action
 # Description: Handles application state when an action is performed by the
 # user. It sets the cursor to wait shape.
 # Date: 12/09/2023
@@ -49,3 +51,7 @@ def proteus_action(func):
 
         return func_result
     return wrapper
+
+
+    
+    

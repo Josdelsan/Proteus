@@ -42,6 +42,7 @@ from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
 from proteus.views.utils.event_manager import EventManager, Event
+from proteus.views.utils.state_manager import StateManager
 from proteus.views.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -365,7 +366,7 @@ class Controller:
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
 
     # ----------------------------------------------------------------------
     # Method     : delete_document
@@ -417,6 +418,7 @@ class Controller:
         """
         log.info(f"Loading project from path: {project_path}")
         self._project_service.load_project(project_path)
+        StateManager().clear()
         EventManager().notify(event=Event.OPEN_PROJECT)
 
     # ----------------------------------------------------------------------
@@ -619,11 +621,11 @@ class Controller:
         self._project_service.add_project_template(template_name)
 
         # Trigger ADD_VIEW event notifying the new template
-        EventManager.notify(Event.ADD_VIEW, xslt_name=template_name)
+        EventManager().notify(Event.ADD_VIEW, xslt_name=template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
 
     # ----------------------------------------------------------------------
     # Method     : delete_project_template
@@ -645,11 +647,11 @@ class Controller:
         self._project_service.delete_project_template(template_name)
 
         # Trigger REMOVE_VIEW event
-        EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
+        EventManager().notify(Event.DELETE_VIEW, xslt_name=template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
 
     # ======================================================================
     # Archetype methods

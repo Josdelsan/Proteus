@@ -120,7 +120,7 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
             parent.state = self.after_clone_parent_state
 
         # Emit the event to update the view
-        EventManager.notify(Event.ADD_DOCUMENT, document=self.cloned_object)
+        EventManager().notify(Event.ADD_DOCUMENT, document=self.cloned_object)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -144,4 +144,4 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
         parent.state = self.before_clone_parent_state
 
         # Emit the event to update the view
-        EventManager.notify(Event.DELETE_DOCUMENT, element_id=self.cloned_object.id)
+        EventManager().notify(Event.DELETE_DOCUMENT, element_id=self.cloned_object.id)

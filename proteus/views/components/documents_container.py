@@ -13,28 +13,25 @@
 from typing import Dict, List
 import logging
 from pathlib import Path
-from PyQt6 import QtGui
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QTabWidget
-from PyQt6.QtGui import QIcon, QDragEnterEvent, QDragMoveEvent
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.views import ACRONYM_ICON_TYPE
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.event_manager import Event
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
-from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -48,7 +45,7 @@ log = logging.getLogger(__name__)
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentsContainer(QTabWidget):
+class DocumentsContainer(QTabWidget, ProteusComponent):
     """
     Documents tab menu component for the PROTEUS application. It is used to
     display the documents of the project in a tab menu. It manages the
@@ -63,9 +60,7 @@ class DocumentsContainer(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -74,12 +69,7 @@ class DocumentsContainer(QTabWidget):
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the documents container component"
-        self._controller: Controller = controller
+        super(DocumentsContainer, self).__init__(*args, **kwargs)
 
         # Tabs dictionary
         self.tabs: Dict[ProteusID, DocumentTree] = {}
@@ -88,9 +78,7 @@ class DocumentsContainer(QTabWidget):
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.ADD_DOCUMENT, self.update_on_add_document, self)
-        EventManager.attach(Event.DELETE_DOCUMENT, self.update_on_delete_document, self)
-        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
+        self.subscribe()
 
         # Call the current document changed method to update the document for the
         # first time
@@ -144,7 +132,9 @@ class DocumentsContainer(QTabWidget):
         tree).
         """
         # Tree widget --------------------------------------------------------
-        tab: DocumentTree = DocumentTree(self, document.id, self._controller)
+        tab: DocumentTree = DocumentTree(
+            element_id=document.id, parent=self, controller=self._controller
+        )
 
         # Add tab to the dictionary with the document id as key
         self.tabs[document.id] = tab
@@ -157,38 +147,39 @@ class DocumentsContainer(QTabWidget):
             tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
-        icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
+        icon_path: Path = self._config.get_icon(ACRONYM_ICON_TYPE, document_acronym)
         self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
 
         # Drop configuration to allow objects moves between tabs
         tabbar = self.tabBar()
         tabbar.setChangeCurrentOnDrag(True)
         tabbar.setAcceptDrops(True)
-        
+
     # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the component and its children components.
-    # Date       : 09/08/2023
+    # Method     : subscribe
+    # Description: Subscribe the component to the events.
+    # Date       : 15/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_component(self) -> None:
+    def subscribe(self) -> None:
         """
-        Delete the component and its children components.
-        Handle the detachment from the event manager.
+        Subscribe the component to the events.
+
+        DocumentsContainer component subscribes to the following events:
+            - Event.ADD_DOCUMENT    | update_on_add_document
+            - Event.DELETE_DOCUMENT | update_on_delete_document
+            - Event.MODIFY_OBJECT   | update_on_modify_object
         """
-        # Detach from the event manager
-        EventManager.detach(self)
-
-        # Delete its children components
-        for tab in self.tabs.values():
-            tab.delete_component()
-
-        # Delete the component
-        self.setParent(None)
-        self.deleteLater()
-
-        log.info("Documents container tab component deleted")
+        self._event_manager.attach(
+            Event.ADD_DOCUMENT, self.update_on_add_document, self
+        )
+        self._event_manager.attach(
+            Event.DELETE_DOCUMENT, self.update_on_delete_document, self
+        )
+        self._event_manager.attach(
+            Event.MODIFY_OBJECT, self.update_on_modify_object, self
+        )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -290,9 +281,8 @@ class DocumentsContainer(QTabWidget):
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
-            icon_path: Path = Config().get_icon(ACRONYM_ICON_TYPE, document_acronym)
+            icon_path: Path = self._config.get_icon(ACRONYM_ICON_TYPE, document_acronym)
             self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
-            
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -323,11 +313,11 @@ class DocumentsContainer(QTabWidget):
             ]
 
         # Update current document in the state manager
-        StateManager.set_current_document(document_id)
+        self._state_manager.set_current_document(document_id)
 
     def tab_moved(self, new_index: int, old_index: int) -> None:
         # Get the current document id
-        document_id: ProteusID = StateManager.get_current_document()
+        document_id: ProteusID = self._state_manager.get_current_document()
 
         # Get the project
         project = self._controller.get_current_project()
@@ -339,5 +329,3 @@ class DocumentsContainer(QTabWidget):
             new_index += 1
 
         self._controller.change_document_position(document_id, new_index)
-
-    

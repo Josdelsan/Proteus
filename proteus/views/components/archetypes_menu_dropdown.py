@@ -28,11 +28,8 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.views import ARCHETYPE_MENU_ICON_TYPE
-from proteus.config import Config
 from proteus.model.object import Object
-from proteus.controller.command_stack import Controller
-from proteus.views.utils.translator import Translator
-from proteus.views.utils.state_manager import StateManager
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -42,9 +39,14 @@ from proteus.views.utils.state_manager import StateManager
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ArchetypesMenuDropdown(QMenu):
+class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     """
-    Class for the PROTEUS application context menu.
+    Class for the PROTEUS archetypes dropdown menu. It is used to create
+    a dropdown menu given a list of archetypes. The dropdown menus will
+    be shown in the main menu. Each archetype will be shown as an action.
+
+    Clone action is connected to each archetype in the list. They will
+    be cloned in the current selected object.
     """
 
     # ----------------------------------------------------------------------
@@ -56,20 +58,18 @@ class ArchetypesMenuDropdown(QMenu):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, archetype_list: List[Object], *args, **kwargs
+        self, archetype_list: List[Object], *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
-        the component. Store the page object and the controller instance.
+        the component.
+
+        :param archetype_list: List of archetypes to be shown in the dropdown menu.
         """
-        super().__init__(*args, **kwargs)
+        super(ArchetypesMenuDropdown, self).__init__(*args, **kwargs)
 
-        assert controller is not None, "Controller cannot be None"
-
-        # Dependencies
-        self._controller = controller
+        # Store the archetype list
         self._archetype_list = archetype_list
-        self.translator = Translator()
 
         # Store actions by archetype id
         self.actions: Dict[ProteusID, QAction] = {}
@@ -94,11 +94,11 @@ class ArchetypesMenuDropdown(QMenu):
                 # Name translation might not be needed for archetypes
                 archetype.get_property(PROTEUS_NAME).value,
             )
-            icon: QIcon = QIcon(Config().get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix())
+            icon: QIcon = QIcon(self._config.get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix())
             clone_action.setIcon(icon)
             clone_action.triggered.connect(
                 lambda checked, arg=archetype.id: self._controller.create_object(
-                    archetype_id=arg, parent_id=StateManager.get_current_object()
+                    archetype_id=arg, parent_id=self._state_manager.get_current_object()
                 )
             )
             self.addAction(clone_action)

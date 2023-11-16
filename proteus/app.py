@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from proteus.config import Config
 from proteus.views.main_window import MainWindow
 from proteus.views.utils.translator import Translator
+from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -76,7 +77,7 @@ class ProteusApplication:
             self.app.setStyleSheet(_stylesheet)
 
         # Create the main window
-        self.main_window = MainWindow(parent=None)
+        self.main_window = MainWindow(parent=None, controller=Controller())
         self.main_window.show()
 
         # Execute the application

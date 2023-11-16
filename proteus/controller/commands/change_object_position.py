@@ -101,8 +101,8 @@ class ChangeObjectPositionCommand(QUndoCommand):
         )
 
         # Notify a deletion and add object event
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.object.id)
-        EventManager.notify(Event.ADD_OBJECT, object=self.object)
+        EventManager().notify(Event.DELETE_OBJECT, element_id=self.object.id)
+        EventManager().notify(Event.ADD_OBJECT, object=self.object)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -141,5 +141,5 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.new_parent.state = self.new_parent_state
 
         # Notify a deletion and add object event
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.object.id)
-        EventManager.notify(Event.ADD_OBJECT, object=self.object)
+        EventManager().notify(Event.DELETE_OBJECT, element_id=self.object.id)
+        EventManager().notify(Event.ADD_OBJECT, object=self.object)

@@ -25,17 +25,14 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.views import APP_ICON_TYPE
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.translator import Translator
-from proteus.controller.command_stack import Controller
+from proteus.views.utils.event_manager import Event
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -48,7 +45,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, ProteusComponent):
     """
     Main window for the PROTEUS application. It is used to display the main
     menu and the documents tab menu. Update the main window when a new
@@ -68,23 +65,13 @@ class MainWindow(QMainWindow):
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
         """
-        super().__init__(*args, **kwargs)
-        # Create Controller instance
-        self._controller: Controller = Controller()
-
-        # Get the translator instance
-        self.translator = Translator()
-
-        # Create the configuration instance
-        self.config = Config()
+        super(MainWindow, self).__init__(*args, **kwargs)
 
         # Create the component
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.OPEN_PROJECT, self.update_on_project_open, self)
-        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
-        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
+        self.subscribe()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -98,17 +85,17 @@ class MainWindow(QMainWindow):
         Create the main window for the PROTEUS application.
         """
         # Set the window title
-        self.setWindowTitle(self.translator.text("main_window.title"))
+        self.setWindowTitle(self._translator.text("main_window.title"))
 
         # Set the window icon
-        proteus_icon: Path = self.config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Set the window size
         self.resize(1200, 800)
 
         # Create main menu
-        self.main_menu = MainMenu(self, self._controller)
+        self.main_menu = MainMenu(parent=self, controller=self._controller)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.main_menu)
 
         # Create document list menu
@@ -119,6 +106,32 @@ class MainWindow(QMainWindow):
         self.statusBar().showNormal()
 
         log.info("Main window component created")
+
+    # ---------------------------------------------------------------------
+    # Method     : subscribe
+    # Description: Subscribe the component to the events.
+    # Date       : 15/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def subscribe(self) -> None:
+        """
+        Subscribe the component to the events.
+
+        MainMenu component subscribes to the following events:
+            - Event.OPEN_PROJECT    | update_on_project_open
+            - Event.SELECT_OBJECT   | update_on_select_object
+            - Event.MODIFY_OBJECT   | update_on_modify_object
+        """
+        self._event_manager.attach(
+            Event.OPEN_PROJECT, self.update_on_project_open, self
+        )
+        self._event_manager.attach(
+            Event.SELECT_OBJECT, self.update_on_select_object, self
+        )
+        self._event_manager.attach(
+            Event.MODIFY_OBJECT, self.update_on_modify_object, self
+        )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -138,20 +151,21 @@ class MainWindow(QMainWindow):
 
         Triggered by: Event.OPEN_PROJECT
         """
-        # Delete the existing document list widget or container
+        # Delete the existing widget or container
         if self.project_container.__class__ == QWidget:
             self.project_container.setParent(None)
         elif self.project_container.__class__ == ProjectContainer:
             self.project_container.delete_component()
 
-
         # Create document list menu
-        self.project_container = ProjectContainer(self, self._controller)
+        self.project_container = ProjectContainer(
+            parent=self, controller=self._controller
+        )
         self.setCentralWidget(self.project_container)
 
         project = self._controller.get_current_project()
         self.setWindowTitle(
-            f"{self.translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
+            f"{self._translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
         )
 
     # ----------------------------------------------------------------------
@@ -174,7 +188,7 @@ class MainWindow(QMainWindow):
         # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qstatusbar.html#qstatusbar-permanent-message
 
         # Get the selected object id
-        selected_object_id: ProteusID = StateManager.get_current_object()
+        selected_object_id: ProteusID = self._state_manager.get_current_object()
 
         # If there is no selected object, return
         if selected_object_id is None:
@@ -185,7 +199,7 @@ class MainWindow(QMainWindow):
         object_name = selected_object.get_property(PROTEUS_NAME).value
 
         # Message to show in the status bar
-        message: str = self.translator.text(
+        message: str = self._translator.text(
             "main_window.statusbar.text.selected_object",
             selected_object_id,
             object_name,
@@ -221,7 +235,7 @@ class MainWindow(QMainWindow):
         # Check if element id is project id
         if element_id == project.id:
             self.setWindowTitle(
-                f"{self.translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
+                f"{self._translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
             )
 
     # ======================================================================
@@ -282,10 +296,10 @@ class MainWindow(QMainWindow):
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
             confirmation_dialog.setWindowTitle(
-                self.translator.text("main_window.exit_dialog.title")
+                self._translator.text("main_window.exit_dialog.title")
             )
             confirmation_dialog.setText(
-                self.translator.text("main_window.exit_dialog.text")
+                self._translator.text("main_window.exit_dialog.text")
             )
             confirmation_dialog.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No

@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from enum import Enum
+import logging
 from typing import List, Dict, Tuple
 
 # --------------------------------------------------------------------------
@@ -23,6 +24,9 @@ from PyQt6.QtWidgets import QWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Enum: Event
@@ -72,9 +76,45 @@ class EventManager:
     of the frontend when an event is triggered.
     """
 
-    # Class attributes
-    _events: Dict[Event, List[Tuple[callable, QWidget]]] = {}
-    _subscribed_components: Dict[QWidget, List[callable]] = {}
+    # Singleton instance
+    __instance = None
+
+    # --------------------------------------------------------------------------
+    # Method: __new__
+    # Description: Singleton constructor for EventManager class.
+    # Date: 16/11/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def __new__(cls, *args, **kwargs):
+        """
+        It creates a singleton instance for EventManager class.
+        """
+        if not cls.__instance:
+            log.info("Creating EventManager instance")
+            cls.__instance = super(EventManager, cls).__new__(cls)
+            cls.__instance._initialized = False
+        return cls.__instance
+    
+    # --------------------------------------------------------------------------
+    # Method: __init__
+    # Description: Constructor for EventManager class.
+    # Date: 16/11/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def __init__(self):
+        """
+        It initializes the EventManager class.
+        """
+        # Check if the instance has been initialized
+        if self._initialized:
+            return
+        self._initialized = True
+
+        # Instance variables
+        self._events: Dict[Event, List[Tuple[callable, QWidget]]] = {}
+        self._subscribed_components: Dict[QWidget, List[callable]] = {}
 
     # ----------------------------------------------------------------------
     # Method     : attach
@@ -83,7 +123,6 @@ class EventManager:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def attach(cls, event: Event, method: callable, component: QWidget):
         """
         Attach a component to an event.
@@ -107,7 +146,6 @@ class EventManager:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def detach(cls, component: QWidget):
         """
         Detach all the methods of a component from all the events.
@@ -134,7 +172,6 @@ class EventManager:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def notify(cls, event: Event, *args, **kwargs):
         """
         Notify the components of an event. Adittionally, it passes the
@@ -154,7 +191,6 @@ class EventManager:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @classmethod
     def clear(cls):
         """
         Clear the event manager.

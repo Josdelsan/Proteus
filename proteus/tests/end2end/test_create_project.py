@@ -197,7 +197,7 @@ def test_create_project_negative(
     main_window: MainWindow = app
 
     # Translator instace to translate error messages
-    translator = main_window.translator
+    translator = main_window._translator
 
     # Variables to later checking
     # NOTE: Assertions cannot be done inside nested functions

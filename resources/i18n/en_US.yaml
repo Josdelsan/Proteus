@@ -127,6 +127,9 @@ archetype_menu_button.use-case: "Use case"
 archetype_menu_button.actor: "System actor"
 archetype_menu_button.information-requirement: "Information"
 archetype_menu_button.objective: "Objective"
+archetype_menu_button.organization: "Organization"
+archetype_menu_button.stakeholder: "Stakeholder"
+archetype_menu_button.meeting: "Meeting"
 
 # Open project dialog
 main_menu.open_project.caption: "Select project directory"

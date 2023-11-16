@@ -16,14 +16,13 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QHBoxLayout, QSizePolicy, QSplitter
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.controller.command_stack import Controller
-from proteus.views.utils.event_manager import EventManager
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.views_container import ViewsContainer
 
@@ -38,7 +37,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ProjectContainer(QWidget):
+class ProjectContainer(ProteusComponent):
     """
     Container for the project information. It contains a tab widget with the
     documents of the project and a tab widget with the project views.
@@ -52,9 +51,7 @@ class ProjectContainer(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -63,12 +60,7 @@ class ProjectContainer(QWidget):
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the project container component"
-        self._controller: Controller = controller
+        super(ProjectContainer, self).__init__(*args, **kwargs)
 
         # Children components
         self.documents_container: DocumentsContainer = None
@@ -97,14 +89,18 @@ class ProjectContainer(QWidget):
         splitter: QSplitter = QSplitter()
 
         # DocumentsContainer -------------------------------------------------
-        self.documents_container: DocumentsContainer = DocumentsContainer(self, self._controller)
+        self.documents_container: DocumentsContainer = DocumentsContainer(
+            parent=self, controller=self._controller
+        )
         self.documents_container.setSizePolicy(
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
         )
         self.documents_container.setMinimumWidth(200)
 
         # ViewsContainer -----------------------------------------------------
-        self.views_container: ViewsContainer = ViewsContainer(self, self._controller)
+        self.views_container: ViewsContainer = ViewsContainer(
+            parent=self, controller=self._controller
+        )
         self.views_container.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
         )
@@ -123,30 +119,6 @@ class ProjectContainer(QWidget):
         self.setLayout(tab_layout)
 
         log.info("Project container component created")
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the project container component and its children
-    #              components.
-    # Date       : 09/08/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_component(self) -> None:
-        """
-        Delete the project container component and its children components.
-        Handle the detachment from the event manager.
-        """
-        # Detach from the event manager
-        EventManager.detach(self)
-
-        # Delete children components
-        self.documents_container.delete_component()
-        self.views_container.delete_component()
-
-        # Delete component
-        self.setParent(None)
-        self.deleteLater()
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)

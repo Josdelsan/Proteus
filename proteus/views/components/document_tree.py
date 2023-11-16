@@ -35,18 +35,15 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
 from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.object import Object
-from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.translator import Translator
+from proteus.views.utils.event_manager import Event
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
-from proteus.controller.command_stack import Controller
+
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -72,7 +69,7 @@ TREE_ITEM_COLOR = {
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentTree(QTreeWidget):
+class DocumentTree(QTreeWidget, ProteusComponent):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
@@ -89,9 +86,7 @@ class DocumentTree(QTreeWidget):
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        parent=None,
-        element_id=None,
-        controller: Controller = None,
+        element_id: ProteusID = None,
         *args,
         **kwargs,
     ) -> None:
@@ -103,15 +98,7 @@ class DocumentTree(QTreeWidget):
         tree items dictionary to make easier the access to the tree items
         on update events using the element id.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the document tree component"
-        self._controller: Controller = controller
-
-        # Translator instance
-        self.translator = Translator()
+        super(DocumentTree, self).__init__(*args, **kwargs)
 
         # Set tree document id
         self.element_id: ProteusID = element_id
@@ -124,10 +111,7 @@ class DocumentTree(QTreeWidget):
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
-        EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
-        EventManager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
-        EventManager.attach(Event.DELETE_OBJECT, self.update_on_delete_object, self)
+        self.subscribe()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -166,7 +150,7 @@ class DocumentTree(QTreeWidget):
 
         # Connect click to object selection
         self.itemClicked.connect(
-            lambda item: StateManager.set_current_object(
+            lambda item: self._state_manager.set_current_object(
                 object_id=item.data(1, 0), document_id=self.element_id
             )
         )
@@ -182,26 +166,32 @@ class DocumentTree(QTreeWidget):
         self.setExpandsOnDoubleClick(False)
 
     # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the document tree component.
-    # Date       : 05/06/2023
+    # Method     : subscribe
+    # Description: Subscribe to events.
+    # Date       : 15/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_component(self, *args, **kwargs) -> None:
+    def subscribe(self) -> None:
         """
-        Manage the deletion of the document tree component. Detach from
-        events and delete the component.
+        Subscribe the component to the events.
 
-        This method must be called by the parent component in order to
-        delete the document tree before deleting the parent (document tab)
+        DocumentTree component subscribes to the following events:
+            - Event.ADD_OBJECT      | update_on_add_object
+            - Event.MODIFY_OBJECT   | update_on_modify_object
+            - Event.SAVE_PROJECT    | update_on_save_project
+            - Event.DELETE_OBJECT   | update_on_delete_object
         """
-        # Detach from events
-        EventManager.detach(self)
-
-        # Delete the component
-        self.setParent(None)
-        self.deleteLater()
+        self._event_manager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
+        self._event_manager.attach(
+            Event.MODIFY_OBJECT, self.update_on_modify_object, self
+        )
+        self._event_manager.attach(
+            Event.SAVE_PROJECT, self.update_on_save_project, self
+        )
+        self._event_manager.attach(
+            Event.DELETE_OBJECT, self.update_on_delete_object, self
+        )
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree
@@ -230,14 +220,16 @@ class DocumentTree(QTreeWidget):
             new_item = QTreeWidgetItem(None, [object.get_property(PROTEUS_NAME).value])
             parent_item.insertChild(position, new_item)
         else:
-            new_item = QTreeWidgetItem(parent_item, [object.get_property(PROTEUS_NAME).value])
+            new_item = QTreeWidgetItem(
+                parent_item, [object.get_property(PROTEUS_NAME).value]
+            )
 
         # Set the item color based on the object ProteusState
         new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
         # Set the icon based on the object last class
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
         new_item.setIcon(0, QIcon(icon_path.as_posix()))
 
         # Set the item data to store the object id
@@ -530,10 +522,10 @@ class DocumentTree(QTreeWidget):
                 # Show a message box to the user
                 QMessageBox.warning(
                     self,
-                    self.translator.text(
+                    self._translator.text(
                         "document_tree.drop_action.message_box.error.title"
                     ),
-                    self.translator.text(
+                    self._translator.text(
                         "document_tree.drop_action.message_box.error.text"
                     ),
                 )

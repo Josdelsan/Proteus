@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
@@ -46,10 +47,7 @@ from proteus.views.components.archetypes_menu_dropdown import (
 )
 from proteus.views.utils import buttons
 from proteus.views.utils.buttons import ArchetypeMenuButton
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.translator import Translator
-from proteus.controller.command_stack import Controller
+from proteus.views.utils.event_manager import Event
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -62,7 +60,7 @@ log = logging.getLogger(__name__)
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class MainMenu(QDockWidget):
+class MainMenu(QDockWidget, ProteusComponent):
     """
     Main menu component for the PROTEUS application. It is used to
     display the main option tab and object archetypes separated by
@@ -77,9 +75,7 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -88,15 +84,7 @@ class MainMenu(QDockWidget):
         buttons (save, undo, redo, etc.) and the tab widget to display the
         different menus.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the main menu component"
-        self._controller: Controller = controller
-
-        # Get translator instance
-        self.translator = Translator()
+        super(MainMenu, self).__init__(*args, **kwargs)
 
         # Main menu buttons
         self.new_button: QToolButton = None
@@ -121,19 +109,7 @@ class MainMenu(QDockWidget):
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
-        EventManager.attach(
-            Event.REQUIRED_SAVE_ACTION, self.update_on_required_save_action, self
-        )
-        EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
-        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
-        EventManager.attach(Event.CURRENT_DOCUMENT_CHANGED, self.update_on_select_object, self)
-        EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
-        EventManager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED,
-            self.update_on_current_document_changed,
-            self,
-        )
+        self.subscribe()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -159,7 +135,7 @@ class MainMenu(QDockWidget):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab(self.translator.text("main_menu.tab.home.name"))
+        self.add_main_tab(self._translator.text("main_menu.tab.home.name"))
 
         # Get the object archetypes
         object_archetypes_dict: Dict[
@@ -366,7 +342,51 @@ class MainMenu(QDockWidget):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, self.translator.text(tab_name_code))
+        self.tab_widget.addTab(tab_widget, self._translator.text(tab_name_code))
+
+    # ---------------------------------------------------------------------
+    # Method     : subscribe
+    # Description: Subscribe the component to the events.
+    # Date       : 15/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def subscribe(self) -> None:
+        """
+        Subscribe the component to the events.
+
+        MainMenu component subscribes to the following events:
+            - Event.STACK_CHANGED               | update_on_stack_changed
+            - Event.REQUIRED_SAVE_ACTION        | update_on_required_save_action
+            - Event.SAVE_PROJECT                | update_on_save_project
+            - Event.SELECT_OBJECT               | update_on_select_object
+            - Event.CURRENT_DOCUMENT_CHANGED    | update_on_select_object
+            - Event.CURRENT_DOCUMENT_CHANGED    | update_on_current_document_changed
+            - Event.OPEN_PROJECT                | update_on_open_project
+        """
+        self._event_manager.attach(
+            Event.STACK_CHANGED, self.update_on_stack_changed, self
+        )
+        self._event_manager.attach(
+            Event.SAVE_PROJECT, self.update_on_save_project, self
+        )
+        self._event_manager.attach(
+            Event.SELECT_OBJECT, self.update_on_select_object, self
+        )
+        self._event_manager.attach(
+            Event.OPEN_PROJECT, self.update_on_open_project, self
+        )
+        self._event_manager.attach(
+            Event.REQUIRED_SAVE_ACTION, self.update_on_required_save_action, self
+        )
+        self._event_manager.attach(
+            Event.CURRENT_DOCUMENT_CHANGED, self.update_on_select_object, self
+        )
+        self._event_manager.attach(
+            Event.CURRENT_DOCUMENT_CHANGED,
+            self.update_on_current_document_changed,
+            self,
+        )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -443,7 +463,7 @@ class MainMenu(QDockWidget):
         Triggered by: Event.SELECT_OBJECT
         """
         # Get the selected object id and check if it is None
-        selected_object_id: ProteusID = StateManager.get_current_object()
+        selected_object_id: ProteusID = self._state_manager.get_current_object()
 
         # If the selected object is None, disable all the archetype buttons
         if selected_object_id is None:
@@ -534,7 +554,7 @@ class MainMenu(QDockWidget):
         # Open the file dialog
         self.directory_dialog: QFileDialog = QFileDialog(self)
         directory_path: str = self.directory_dialog.getExistingDirectory(
-            None, self.translator.text("main_menu.open_project.caption"), ""
+            None, self._translator.text("main_menu.open_project.caption"), ""
         )
 
         # Load the project from the selected directory
@@ -548,10 +568,10 @@ class MainMenu(QDockWidget):
                 error_dialog = QMessageBox()
                 error_dialog.setIcon(QMessageBox.Icon.Critical)
                 error_dialog.setWindowTitle(
-                    self.translator.text("main_menu.open_project.error.title")
+                    self._translator.text("main_menu.open_project.error.title")
                 )
                 error_dialog.setText(
-                    self.translator.text("main_menu.open_project.error.text")
+                    self._translator.text("main_menu.open_project.error.text")
                 )
 
                 informative_text: str = str(e)
@@ -570,13 +590,15 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # NOTE: This is in a separated method to improve readability, it could
+    # be inlined in the signal using a lambda function.
     def delete_current_document(self):
         """
         Manage the delete current document action, delete the current
         document. Use a confirmation dialog to confirm the action.
         """
         # Get the current document
-        document_id: ProteusID = StateManager.get_current_document()
+        document_id: ProteusID = self._state_manager.get_current_document()
 
         # Create the delete dialog
         DeleteDialog.create_dialog(

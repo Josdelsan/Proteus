@@ -127,7 +127,10 @@ archetype_menu_button.graphic-file: "Archivo gráfico"
 archetype_menu_button.use-case: "Caso de uso"
 archetype_menu_button.external-resource: "Recurso externo"
 archetype_menu_button.information-requirement: "Información"
-archetype_menu_button.objective: "Objective"
+archetype_menu_button.objective: "Objetivo"
+archetype_menu_button.organization: "Organización"
+archetype_menu_button.stakeholder: "Parte interesada"
+archetype_menu_button.meeting: "Reunión"
 
 
 # Diálogo de abrir proyecto

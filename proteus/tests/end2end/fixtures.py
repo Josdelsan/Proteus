@@ -58,7 +58,7 @@ def app(qtbot, mocker):
     mock_views_container(mocker)
 
     # Create the main window
-    main_window = MainWindow(parent=None)
+    main_window = MainWindow(parent=None, controller=Controller())
     
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
@@ -92,10 +92,10 @@ def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
     """
-    EventManager.clear()
-    StateManager.current_document = None
-    StateManager.current_object = {}
-    StateManager.current_view = None
+    EventManager().clear()
+    StateManager().current_document = None
+    StateManager().current_object = {}
+    StateManager().current_view = None
 
 
 def mock_views_container(mocker):

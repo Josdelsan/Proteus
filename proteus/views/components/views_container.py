@@ -24,10 +24,8 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QWidget,
-    QVBoxLayout,
     QPushButton,
     QTabWidget,
-    QStyle,
     QMessageBox,
     QTabBar,
 )
@@ -37,13 +35,11 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.config import Config
 from proteus.views import APP_ICON_TYPE
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
+from proteus.views.utils.event_manager import Event
 from proteus.views.utils.translator import Translator
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
-from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -56,7 +52,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ViewsContainer(QTabWidget):
+class ViewsContainer(QTabWidget, ProteusComponent):
     """
     Views container component for the PROTEUS application. It contains
     a browser for each project view. Displays the current document
@@ -71,22 +67,12 @@ class ViewsContainer(QTabWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the views container component"
-        self._controller: Controller = controller
-
-        # Translator instance
-        self.translator = Translator()
+        super(ViewsContainer, self).__init__(*args, **kwargs)
 
         # Dict of stored browsers for each view. The way the dict is updated
         # the index of the browser is the same as the index of the tab.
@@ -109,14 +95,7 @@ class ViewsContainer(QTabWidget):
         self.tabCloseRequested.connect(self.close_tab)
 
         # Connect update methods to the events
-        EventManager.attach(Event.MODIFY_OBJECT, self.update_component, self)
-        EventManager.attach(Event.ADD_OBJECT, self.update_component, self)
-        EventManager.attach(Event.DELETE_OBJECT, self.update_component, self)
-        EventManager.attach(Event.CURRENT_DOCUMENT_CHANGED, self.update_component, self)
-        EventManager.attach(Event.CURRENT_VIEW_CHANGED, self.update_component, self)
-        EventManager.attach(Event.ADD_VIEW, self.update_on_add_view, self)
-        EventManager.attach(Event.DELETE_VIEW, self.update_on_delete_view, self)
-        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
+        self.subscribe()
 
         # Call the current view changed method to update the document for the
         # first time if there are views
@@ -142,7 +121,7 @@ class ViewsContainer(QTabWidget):
             self.add_view(xsl_template)
 
         # Create a button to add new views
-        icon_path: Path = Config().get_icon(APP_ICON_TYPE, "add_view_icon")
+        icon_path: Path = self._config.get_icon(APP_ICON_TYPE, "add_view_icon")
         add_view_button: QPushButton = QPushButton()
         button_icon = QIcon()
         button_icon.addFile(icon_path.as_posix())
@@ -180,7 +159,7 @@ class ViewsContainer(QTabWidget):
         # Create document page using subclass
         # NOTE: This subclass is needed for external links handling
         document_page: DocumentPage = DocumentPage(
-            parent=browser, translator=self.translator
+            parent=browser, translator=self._translator
         )
 
         browser.setPage(document_page)
@@ -192,31 +171,46 @@ class ViewsContainer(QTabWidget):
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
-        self.addTab(browser, self.translator.text(tab_code_name))
+        self.addTab(browser, self._translator.text(tab_code_name))
 
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser
 
     # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the component and its children components.
-    # Date       : 09/08/2023
+    # Method     : subscribe
+    # Description: Subscribe the component to the events.
+    # Date       : 15/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_component(self) -> None:
+    def subscribe(self) -> None:
         """
-        Delete the component and its children components.
-        Handle the detachment from the event manager.
+        Subscribe the component to the events.
+
+        MainMenu component subscribes to the following events:
+            - Event.MODIFY_OBJECT               | update_component
+            - Event.ADD_OBJECT                  | update_component
+            - Event.DELETE_OBJECT               | update_component
+            - Event.ADD_VIEW                    | update_on_add_view
+            - Event.DELETE_VIEW                 | update_on_delete_view
+            - Event.CURRENT_DOCUMENT_CHANGED    | update_component
+            - Event.CURRENT_VIEW_CHANGED        | update_component
+            - Event.SELECT_OBJECT               | update_on_select_object
         """
-        # Detach from the event manager
-        EventManager.detach(self)
-
-        # Delete the component
-        self.setParent(None)
-        self.deleteLater()
-
-        log.info("Views container component deleted")
+        self._event_manager.attach(Event.MODIFY_OBJECT, self.update_component, self)
+        self._event_manager.attach(Event.ADD_OBJECT, self.update_component, self)
+        self._event_manager.attach(Event.DELETE_OBJECT, self.update_component, self)
+        self._event_manager.attach(Event.ADD_VIEW, self.update_on_add_view, self)
+        self._event_manager.attach(Event.DELETE_VIEW, self.update_on_delete_view, self)
+        self._event_manager.attach(
+            Event.CURRENT_DOCUMENT_CHANGED, self.update_component, self
+        )
+        self._event_manager.attach(
+            Event.CURRENT_VIEW_CHANGED, self.update_component, self
+        )
+        self._event_manager.attach(
+            Event.SELECT_OBJECT, self.update_on_select_object, self
+        )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -244,8 +238,8 @@ class ViewsContainer(QTabWidget):
             return
 
         # Get the current document id and the current view
-        current_document_id: ProteusID = StateManager.get_current_document()
-        current_view: str = StateManager.get_current_view()
+        current_document_id: ProteusID = self._state_manager.get_current_document()
+        current_view: str = self._state_manager.get_current_view()
 
         # If the current view is not in the browsers dict, ignore the update
         if current_view not in self.tabs:
@@ -322,8 +316,8 @@ class ViewsContainer(QTabWidget):
         Triggered by: Event.SELECT_OBJECT
         """
         # Get the selected object id
-        selected_object_id: ProteusID = StateManager.get_current_object()
-        current_view: str = StateManager.get_current_view()
+        selected_object_id: ProteusID = self._state_manager.get_current_object()
+        current_view: str = self._state_manager.get_current_view()
 
         # If there is no selected object or the document is not the current
         # document, do nothing
@@ -417,7 +411,7 @@ class ViewsContainer(QTabWidget):
             view_name = list(self.tabs.keys())[list(self.tabs.values()).index(view_tab)]
 
         # Update current document in the state manager
-        StateManager.set_current_view(view_name)
+        self._state_manager.set_current_view(view_name)
 
 
 # --------------------------------------------------------------------------
