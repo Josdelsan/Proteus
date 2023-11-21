@@ -135,6 +135,8 @@ archetype_menu_button.meeting: "Meeting"
 main_menu.open_project.caption: "Select project directory"
 main_menu.open_project.error.title: "Error opening project"
 main_menu.open_project.error.text: "The project could not be opened"
+main_menu.open_project.save.title: "Save project before opening new project"
+main_menu.open_project.save.text: "Do you want to save changes before opening the new selected project?"
 
 # Delete document dialog
 main_menu.delete_document.title: "Delete document"

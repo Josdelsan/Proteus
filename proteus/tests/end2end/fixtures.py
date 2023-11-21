@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.main_window import MainWindow
 from proteus.views.utils.event_manager import EventManager
 from proteus.views.utils.state_manager import StateManager
@@ -73,7 +73,7 @@ def app(qtbot, mocker):
 
 def load_project(
     main_window: MainWindow,
-    project_path: str = PROTEUS_TEST_SAMPLE_DATA_PATH,
+    project_path: str = PROTEUS_SAMPLE_DATA_PATH,
     project_name: str = TEST_PROJECT_NAME,
 ):
     """

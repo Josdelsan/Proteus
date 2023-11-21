@@ -30,16 +30,18 @@ import lxml.etree as ET
 
 from proteus.model import (
     ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
     PROTEUS_NAME,
 )
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
+from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH, sample_data
 from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
@@ -48,9 +50,9 @@ from proteus.tests import fixtures
 
 # NOTE: This is a sample project that is used for testing purposes. The
 #       sample object id was selected from this project.
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
-SAMPLE_OBJECT_ID = "64xM8FLyxtaE"
-SAMPLE_DOCUMENT_ID = "3fKhMAkcEe2C"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_OBJECT_ID = sample_data["example_project"]["complete_object"]
+SAMPLE_DOCUMENT_ID = sample_data["example_project"]["document_with_children"]
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -75,7 +77,19 @@ def sample_archetype_document() -> Object:
     Fixture that returns a PROTEUS sample archetype document object.
     """
     archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
-    return archetype_list[1]
+    return archetype_list[0]
+
+@pytest.fixture
+def sample_archetype_object() -> Object:
+    """
+    Fixture that returns a PROTEUS sample archetype object object.
+    """
+    archetype_type_dict = ArchetypeManager.load_object_archetypes()
+    # Known archetype type general (00_general directory)
+    archetype_class_dict = archetype_type_dict["general"]
+    # Known archetype class (section)
+    archetype_list = archetype_class_dict["section"]
+    return archetype_list[0]
 
 
 @pytest.fixture
@@ -221,6 +235,36 @@ def test_load_children(test_object: Object, request):
         Children in object: {test_object_children_ids}"
 
 
+def test_load_traces(sample_object: Object):
+    """
+    Test Object load_traces method
+    """
+    # Get root element of the xml file
+    root: ET.Element = fixtures.get_root(sample_object.path)
+
+    # Get traces of the xml file and store them in a list
+    traces = root.find("traces")
+    traces_list: list = []
+    for trace in traces:
+        traces_list.append(trace.attrib[NAME_ATTRIBUTE])
+
+    # Call method to load traces
+    sample_object.load_traces(root)
+
+    # Check that Object contains all the traces of the xml
+    test_object_traces_name = [trace_name for trace_name in sample_object.traces.keys()]
+    assert all(
+        trace in test_object_traces_name for trace in traces_list
+    ), f"Object does not contain all the traces of the xml file.                 \
+        Traces in xml file: {traces_list}                                       \
+        Traces in object: {test_object_traces_name}"
+
+    # Check that all traces are Trace object
+    assert all(
+        isinstance(trace, Trace) for trace in sample_object.traces.values()
+    ), "Not all traces are of type Trace"
+
+
 def test_generate_xml(sample_object: Object):
     """
     Test Object generate_xml method
@@ -245,7 +289,7 @@ def test_generate_xml(sample_object: Object):
     assert expected_xml == actual_xml
 
 
-# TODO: Test clone object -> object
+# TODO: Test clone object      -> object
 #                  arch_object -> object
 @pytest.mark.parametrize(
     "test_object_to_clone, test_parent",
@@ -255,6 +299,10 @@ def test_generate_xml(sample_object: Object):
         (
             pytest.lazy_fixture("sample_archetype_document"),
             pytest.lazy_fixture("sample_project"),
+        ),
+        (
+            pytest.lazy_fixture("sample_archetype_object"),
+            pytest.lazy_fixture("sample_document"),
         ),
     ],
 )
@@ -284,6 +332,18 @@ def test_clone_object(
     assert (
         new_object.id in parent_descendants_ids
     ), f"Object {new_object.id} was not found in {parent_descendants_ids}"
+
+    # Check properties are cloned
+    assert (
+        test_object_to_clone.properties.keys() == new_object.properties.keys()
+    ), f"Properties were not cloned. Expected: {test_object_to_clone.properties.keys()} \
+        Actual: {new_object.properties.keys()}"
+
+    # Check traces are cloned
+    assert (
+        test_object_to_clone.traces.keys() == new_object.traces.keys()
+    ), f"Traces were not cloned. Expected: {test_object_to_clone.traces.keys()} \
+        Actual: {new_object.traces.keys()}"
 
     # Check the children are in the new object
     # NOTE: This will not work if we clone an object into itself

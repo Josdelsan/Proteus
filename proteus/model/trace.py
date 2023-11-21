@@ -91,12 +91,12 @@ class Trace:
             object.__setattr__(self, "category", DEFAULT_TRACE_CATEGORY)
 
         # Accepted targets validation
-        if not isinstance(self.acceptedTargets, list):
+        if not isinstance(self.acceptedTargets, list) or len(self.acceptedTargets) == 0:
             log.warning(
                 f"PROTEUS trace '{self.name}' must have a list of accepted targets -> assigning :Proteus-any as accepted targets"
             )
             # self.acceptedTargets = list() cannot be used when frozen=True
-            object.__setattr__(self, "acceptedTargets", list().append(PROTEUS_ANY))
+            object.__setattr__(self, "acceptedTargets", [PROTEUS_ANY])
 
         # Type validation
         if not self.type:
@@ -184,7 +184,7 @@ class Trace:
 
         # Get accepted targets
         accepted_targets: List | None = trace_property_element.attrib.get(
-            ACCEPTED_TARGETS_ATTRIBUTE, [PROTEUS_ANY]
+            ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
         ).split()
 
         # Get type

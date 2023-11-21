@@ -545,11 +545,12 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    # TODO: Consider moving this dialog to a separate class
     def open_project(self):
         """
         Manage the open project action, open a project using a file dialog
-        and loads it.
+        and loads it. If there is already a project open with unsaved
+        changes, ask the user if he wants to save them before opening the
+        new project.
         """
         # Open the file dialog
         self.directory_dialog: QFileDialog = QFileDialog(self)
@@ -557,8 +558,43 @@ class MainMenu(QDockWidget, ProteusComponent):
             None, self._translator.text("main_menu.open_project.caption"), ""
         )
 
-        # Load the project from the selected directory
+        # If a directory was selected, check if there is already a project
+        # open with unsaved changes and ask the user if he wants to save
+        # them before opening the new project
         if directory_path:
+            # Check unsaved changes ---------------------
+            # Check if the project has unsaved changes
+            unsaved_changes: bool = not self._controller.stack.isClean()
+
+            # Workaround to check when non undoable actions were not saved
+            save_button_enabled: bool = False
+            try:
+                save_button_enabled = self.save_button.isEnabled()
+            except AttributeError:
+                pass
+
+            # Unsaved changes confirmation dialog ---------------------
+            if unsaved_changes or save_button_enabled:
+                # Show a confirmation dialog
+                confirmation_dialog = QMessageBox()
+                confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+                confirmation_dialog.setWindowTitle(
+                    self._translator.text("main_menu.open_project.save.title")
+                )
+                confirmation_dialog.setText(
+                    self._translator.text("main_menu.open_project.save.text")
+                )
+                confirmation_dialog.setStandardButtons(
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+                # Connect save_project method to the yes button
+                confirmation_dialog.button(
+                    QMessageBox.StandardButton.Yes
+                ).clicked.connect(lambda: self._controller.save_project())
+                confirmation_dialog.exec()
+
+            # Project load ---------------------
             try:
                 self._controller.load_project(project_path=directory_path)
             except Exception as e:

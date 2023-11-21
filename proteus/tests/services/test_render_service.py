@@ -29,7 +29,7 @@ from proteus.model.object import Object
 from proteus.model.properties import Property, PropertyFactory
 from proteus.services.project_service import ProjectService
 from proteus.services.render_service import RenderService
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -52,7 +52,7 @@ def example_xml() -> ET.Element:
     Fixture for example XML. XML was created from EXAMPLE document
     from example_project.
     """
-    xml_path = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
+    xml_path = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
     return ET.parse(xml_path)
 
 @pytest.fixture(scope="module")
@@ -61,7 +61,7 @@ def example_html() -> str:
     Fixture for example HTML. HTML was created from EXAMPLE document
     from example_project. Generated with default template.
     """
-    html_path = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project_example_doc_default_template.html"
+    html_path = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc_default_template.html"
     with open(html_path, "r", encoding="utf-8") as f:
         html_string = f.read()
     return html_string

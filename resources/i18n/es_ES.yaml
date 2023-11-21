@@ -137,6 +137,8 @@ archetype_menu_button.meeting: "Reunión"
 main_menu.open_project.caption: "Seleccione una carpeta de proyecto"
 main_menu.open_project.error.title: "Error al abrir el proyecto"
 main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
+main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 
 # Diálogo de eliminar documento
 main_menu.delete_document.title: "Eliminar documento"

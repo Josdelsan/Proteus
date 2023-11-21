@@ -38,7 +38,7 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property, STRING_PROPERTY_TAG
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
@@ -46,7 +46,7 @@ from proteus.tests import fixtures
 # --------------------------------------------------------------------------
 
 # NOTE: This is a sample project that is used for testing purposes.
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
 ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "archetypes"
 
 # --------------------------------------------------------------------------
@@ -78,7 +78,7 @@ def cloned_project(sample_project: Project) -> Project:
     """
     # Path to the cloned project
     new_project_dir_name = "cloned_project"
-    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    clone_path = PROTEUS_SAMPLE_DATA_PATH
     cloned_project_path = clone_path / new_project_dir_name
 
     # Remove cloned project if it exists
@@ -92,7 +92,7 @@ def cloned_project(sample_project: Project) -> Project:
 
     # Remove cloned project
     if os.path.exists(cloned_project_path):
-        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        os.chdir(PROTEUS_SAMPLE_DATA_PATH)
         shutil.rmtree(cloned_project_path)
 
 
@@ -257,7 +257,7 @@ def test_clone(test_project: Project):
     """
     # Path to the cloned project
     new_project_dir_name = "cloned_project"
-    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    clone_path = PROTEUS_SAMPLE_DATA_PATH
     cloned_project_path = clone_path / new_project_dir_name
 
     # Remove cloned project if it exists
@@ -286,7 +286,7 @@ def test_clone(test_project: Project):
 
     # Clean up cloned project directory
     if os.path.exists(cloned_project_path):
-        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        os.chdir(PROTEUS_SAMPLE_DATA_PATH)
         shutil.rmtree(cloned_project_path)
 
 

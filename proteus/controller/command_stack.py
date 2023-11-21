@@ -81,11 +81,12 @@ class Controller:
         render_service: RenderService = None,
     ) -> None:
         """
-        Initialize the Controller object.
+        Initialize the Controller object. It allows to inject the services.
+
+        NOTE: ProjectService is initialized when the project is loaded. Its
+        lifecycle depends on the project lidecycle.
         """
         # Dependency injection ------------------
-        if project_service is None:
-            project_service = ProjectService()
         if archetype_service is None:
             archetype_service = ArchetypeService()
         if render_service is None:
@@ -409,7 +410,8 @@ class Controller:
     @proteus_action
     def load_project(self, project_path: str) -> None:
         """
-        Load a project from a given path.
+        Load a project from a given path. It initializes a new the project
+        service and clears command stack and state manager.
 
         Notify the frontend components when the command is executed. OPEN_PROJECT
         event is triggered.
@@ -417,7 +419,20 @@ class Controller:
         :param project_path: The path of the project to load.
         """
         log.info(f"Loading project from path: {project_path}")
+
+        # Initialize the project service
+        self._project_service = ProjectService()
+
+        # Load the project
         self._project_service.load_project(project_path)
+
+        # Clear the command stack
+        # This triggers the STACK_CHANGED event
+        self.stack.clear()
+
+        # TODO: Consider if this is the right place to clear the StateManager.
+        # It must be done before notifying the OPEN_PROJECT event to avoid
+        # inconsistencies in the subscribed components.
         StateManager().clear()
         EventManager().notify(event=Event.OPEN_PROJECT)
 

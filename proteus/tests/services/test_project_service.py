@@ -29,16 +29,16 @@ from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import Property
 from proteus.services.project_service import ProjectService
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
 SAMPLE_OBJECT_ID = "3fKhMAkcEe2C"
 SAMPLE_DOCUMENT_ID = "56i4dHSDSppX"
-EXAMPLE_XML_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
+EXAMPLE_XML_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
 
 
 @pytest.fixture

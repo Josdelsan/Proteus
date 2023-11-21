@@ -34,7 +34,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.main_window import MainWindow
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.tests.end2end.fixtures import app
@@ -44,7 +44,7 @@ from proteus.tests.end2end.fixtures import app
 # --------------------------------------------------------------------------
 
 PROJECT_NAME = "Aceptance test dummy empty project"
-PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH
+PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH
 
 # --------------------------------------------------------------------------
 # End to end "create project" tests
