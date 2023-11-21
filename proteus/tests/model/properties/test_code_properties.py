@@ -54,11 +54,11 @@ def code_property_element() -> ET.Element:
     code_element.set(CATEGORY_ATTRIBUTE, DUMMY_CATEGORY)
     # Add subelements
     prefix_element = ET.SubElement(code_element, PREFIX_TAG)
-    prefix_element.text = DUMMY_PREFIX
+    prefix_element.text = ET.CDATA(DUMMY_PREFIX)
     number_element = ET.SubElement(code_element, NUMBER_TAG)
     number_element.text = DUMMY_NUMBER
     suffix_element = ET.SubElement(code_element, SUFFIX_TAG)
-    suffix_element.text = DUMMY_SUFFIX
+    suffix_element.text = ET.CDATA(DUMMY_SUFFIX)
     return code_element
 
 @pytest.fixture

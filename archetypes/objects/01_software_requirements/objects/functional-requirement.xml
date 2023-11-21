@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="information-requirement"
-    classes="software-requirement information-requirement"
-    acceptedChildren="specific-data"
+    id="functional-requirement"
+    classes="software-requirement functional-requirement"
+    acceptedChildren=":Proteus-none"
     acceptedParents=":Proteus-any"
 >
     <properties>
       <codeProperty name=":Proteus-code" category="general" inmutable="true">
-        <prefix><![CDATA[IQR-]]></prefix>
+        <prefix><![CDATA[FRQ-]]></prefix>
         <number>0001</number>
         <suffix><![CDATA[]]></suffix>
       </codeProperty>
-      <stringProperty name=":Proteus-name" category="general">Information requirement</stringProperty>
+      <stringProperty name=":Proteus-name" category="general">Functional requirement</stringProperty>
       <dateProperty name=":Proteus-date">2000-12-31</dateProperty>
       <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
       <markdownProperty name="description" category="details"><![CDATA[TBD]]></markdownProperty>

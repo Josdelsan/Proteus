@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views.utils.translator import Translator
 from proteus.model.properties.enum_property import EnumProperty
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 
@@ -52,7 +53,7 @@ class EnumPropertyInput(PropertyInput):
         enum.
         """
         self.input: QComboBox
-        return self.input.currentText()
+        return self.input.currentData()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -81,6 +82,10 @@ class EnumPropertyInput(PropertyInput):
         Creates the input widget based on QComboBox.
         """
         input: QComboBox = QComboBox()
-        input.addItems(property.get_choices_as_set())
-        input.setCurrentText(property.value)
+        choices = property.get_choices_as_set()
+        # Add choices translated
+        for choice in choices:
+            input.addItem(Translator().text(choice), choice)
+        # Set current choice
+        input.setCurrentText(Translator().text(property.value))
         return input

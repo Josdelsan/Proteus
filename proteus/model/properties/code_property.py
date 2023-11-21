@@ -181,12 +181,12 @@ class CodeProperty(Property):
         It generates the value of the property for its XML element.
         """
         prefix_element = ET.SubElement(property_element, PREFIX_TAG)
-        prefix_element.text = self.value.prefix
+        prefix_element.text = ET.CDATA(self.value.prefix)
 
         number_element = ET.SubElement(property_element, NUMBER_TAG)
         number_element.text = str(self.value.number)
 
         suffix_element = ET.SubElement(property_element, SUFFIX_TAG)
-        suffix_element.text = self.value.suffix
+        suffix_element.text = ET.CDATA(self.value.suffix)
 
         return str()

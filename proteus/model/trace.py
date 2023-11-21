@@ -145,7 +145,7 @@ class Trace:
         trace_property_element: ET._Element = ET.Element(TRACE_PROPERTY_TAG)
         trace_property_element.set(NAME_ATTRIBUTE, self.name)
         trace_property_element.set(CATEGORY_ATTRIBUTE, self.category)
-        trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, "".join(self.acceptedTargets))
+        trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets))
         trace_property_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
 
         # Create each trace tag and set its attribute

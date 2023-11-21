@@ -668,9 +668,6 @@ class Object(AbstractObject):
         project_objects_path = pathlib.Path(project.path).parent / OBJECTS_REPOSITORY
         new_object.path = project_objects_path / f"{new_object.id}.xml"
 
-        # Add the new object to the parent children and set the parent
-        parent.add_descendant(new_object, position)
-
         # -------------------------------------------------------
         # Handle special properties (Date, Code, FileProperties)
         # -------------------------------------------------------
@@ -686,6 +683,12 @@ class Object(AbstractObject):
             elif isinstance(property, CodeProperty):
                 new_code_property = _handle_code_clone(property)
                 new_object.set_property(new_code_property)
+
+        # -------------------------------------------------------
+        # Parent children update
+        # -------------------------------------------------------
+        # Add the new object to the parent children and set the parent
+        parent.add_descendant(new_object, position)
 
         # -------------------------------------------------------
         # Children clone
