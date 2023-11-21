@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="89wAfmbp8r6P" classes="software-requirement use-case use-case-step" acceptedChildren=":Proteus-none" acceptedParents="use-case">
+  <properties>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[dummy]]></stringProperty>
+    <markdownProperty name="description" category="general"><![CDATA[]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children/>
+  <traces/>
+</object>

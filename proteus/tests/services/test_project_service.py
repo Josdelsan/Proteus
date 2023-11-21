@@ -30,15 +30,18 @@ from proteus.model.object import Object
 from proteus.model.properties import Property
 from proteus.services.project_service import ProjectService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests.fixtures import SampleData
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
-SAMPLE_OBJECT_ID = "3fKhMAkcEe2C"
-SAMPLE_DOCUMENT_ID = "56i4dHSDSppX"
 EXAMPLE_XML_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
+SAMPLE_OBJECT_ID = SampleData.get("section_dl_2")
+SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
+RENDER_DOCUMENT_ID = SampleData.get("document_to_render")
+
 
 
 @pytest.fixture
@@ -67,10 +70,8 @@ def basic_project_service():
 @pytest.fixture
 def mock_property(mocker):
     """
-    It returns a new instance of the StringProperty class.
+    It returns a mock property.
     """
-    # element = ET.Element('<stringProperty name=":Proteus-name">Value</StringProperty>')
-    # property: Property = PropertyFactory.create(element)
     return mocker.MagicMock(spec=Property)
 
 
@@ -179,13 +180,13 @@ def test_generate_document_xml(
     # Get the example document xml
     example_xml: ET.Element = ET.parse(EXAMPLE_XML_PATH, parser=parser).getroot()
     example_xml_string: bytes = ET.tostring(
-        example_xml, xml_declaration=False, encoding="utf-8", pretty_print=True
+        example_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
     # Act -----------------------------
-    document_xml: ET.Element = project_service.generate_document_xml(SAMPLE_DOCUMENT_ID)
+    document_xml: ET.Element = project_service.generate_document_xml(RENDER_DOCUMENT_ID)
     document_xml_string: bytes = ET.tostring(
-        document_xml, xml_declaration=False, encoding="utf-8", pretty_print=True
+        document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
     # Assert --------------------------
@@ -373,14 +374,6 @@ def test_get_element_by_id_negative(
         basic_project_service._populate_index.call_count == 1
     ), f"_populate_index should be called once"
 
-
-# TODO: test _get_element_by_id
-# TODO: test _populate_index
-# TODO: test change_state
-# TODO: test delete object
-# TODO: test clone_object
-# TODO: test change_object_position
-# TODO: test delete_project_template
 
 
 # NOTE: test save_project might not be necessary because it is a simple call

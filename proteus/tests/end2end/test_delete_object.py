@@ -31,19 +31,21 @@ from PyQt6.QtCore import QPoint, QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
+from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
+from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "example_project"
 
 # --------------------------------------------------------------------------
 # End to end "delete object" tests
@@ -51,13 +53,14 @@ PROJECT_NAME = "example_project"
 
 
 @pytest.mark.parametrize(
-    "object_id, document_id",
+    "object_name, document_name",
     [
-        ("64xM8FLyxtaB", "3fKhMAkcEe2C"),
-        ("7s63wvxgekU6", "3fKhMAkcEe2D"),
+        ("simple_paragraph", "document_1"),
+        ("info_req_dl_1", "document_1"),
+        ("objective_dl_2", "document_1"),
     ],
 )
-def test_delete_object(app, object_id, document_id):
+def test_delete_object(app, object_name, document_name):
     """
     Test the delete object use case. Delete an existing object.
     It tests the following steps:
@@ -71,7 +74,10 @@ def test_delete_object(app, object_id, document_id):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    object_id = SampleData.get(object_name)
+    document_id = SampleData.get(document_name)
+
+    load_project(main_window=main_window)
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -99,6 +105,11 @@ def test_delete_object(app, object_id, document_id):
     old_objects_number = len(document_tree.tree_items)
     parent_element: QTreeWidgetItem = tree_element.parent()
     old_parent_children_number = parent_element.childCount()
+
+    # Calculate number of objects cloned (including children)
+    object_to_delete_id: ProteusID = tree_element.data(1,0)
+    object_to_delete: Object = main_window._controller.get_element(object_to_delete_id)
+    objects_deleted_number = len(object_to_delete.get_ids())
 
     # --------------------------------------------
     # Act
@@ -148,13 +159,13 @@ def test_delete_object(app, object_id, document_id):
 
     # Check the new number of objects in the document
     assert (
-        len(document_tree.tree_items) == old_objects_number - 1
-    ), f"Number of objects in the document must be '{old_objects_number} - 1' but it is '{len(document_tree.tree_items)}'"
+        len(document_tree.tree_items) == old_objects_number - objects_deleted_number
+    ), f"Number of objects in the document must be '{old_objects_number} - {objects_deleted_number}' but it is '{len(document_tree.tree_items)}'"
 
     # Check the new object was added to the parent tree item
     assert (
         parent_element.childCount() == old_parent_children_number - 1
-    ), f"Number of children in the parent tree item must be '{old_parent_children_number} - 1' but it is '{parent_element.childCount()}'"
+    ), f"Number of children in the parent tree item must be '{old_parent_children_number} - {1}' but it is '{parent_element.childCount()}'"
 
     # Check the object was deleted from the tree items dictionary
     assert (

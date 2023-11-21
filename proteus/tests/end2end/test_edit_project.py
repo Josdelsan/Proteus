@@ -23,7 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------

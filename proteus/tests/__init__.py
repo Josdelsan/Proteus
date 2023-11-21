@@ -12,8 +12,6 @@
 #   data directory path.
 # ==========================================================================
 
-import yaml
-
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
@@ -27,6 +25,3 @@ PROTEUS_SAMPLE_DATA_PATH = PROTEUS_TEST_PATH / "sample_data"
 
 # Sample data mapping file
 PROTEUS_SAMPLE_DATA_FILE = PROTEUS_SAMPLE_DATA_PATH / "sample_data_map.yaml"
-sample_data: dict = None
-with open(PROTEUS_SAMPLE_DATA_FILE, "r") as f:
-    sample_data = yaml.safe_load(f)

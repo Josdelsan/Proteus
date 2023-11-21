@@ -14,10 +14,9 @@
     <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
   </properties>
   <documents>
-    <document id="3fKhMAkcEe2C"/>
-    <document id="56i4dHSDSppX"/>
-    <document id="3fKhMAkcEe2D"/>
-    <document id="3fKhMAkcEe2E"/>
+    <document id="SS2yr44xAPqq"/>
+    <document id="7hadM59iCS5g"/>
+    <document id="722GfFiezi5F"/>
   </documents>
   <xsl-templates>
     <xsl-template name="default"/>

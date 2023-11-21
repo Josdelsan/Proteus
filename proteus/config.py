@@ -156,7 +156,7 @@ class Config:
             self.config.set(SETTINGS, setting, settings[setting])
 
         # Save settings
-        with open(Path.cwd() / CONFIG_FILE, "w") as configfile:
+        with open(self.config_file_path, "w") as configfile:
             self.config.write(configfile)
 
     def get_icon(self, type: str, name: str) -> Path:
@@ -283,6 +283,10 @@ class Config:
 
         config_parser: ConfigParser = ConfigParser()
         config_parser.read(CONFIG_FILE_EXEC_PATH)
+
+        # Variable to store init file path
+        # This is required to avoid loosing track if cwd changes
+        self.config_file_path: Path = CONFIG_FILE_EXEC_PATH
 
         return config_parser
 

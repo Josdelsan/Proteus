@@ -35,14 +35,14 @@ from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "one_doc_project"
-DOCUMENT_ID = "3fKhMAkcEe2C"  # Known document id from one_doc_project
+DOCUMENT_ID = SampleData.get("document_1")
 
 # --------------------------------------------------------------------------
 # End to end "edit document" tests
@@ -63,7 +63,7 @@ def test_edit_document(app):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Properties
     # NOTE: These are known existing properties
@@ -98,9 +98,7 @@ def test_edit_document(app):
     document_tree: DocumentTree = documents_container.tabs[
         DOCUMENT_ID
     ]
-    doc_tree_element: QTreeWidgetItem = documents_container.tabs[
-        DOCUMENT_ID
-    ].tree_items[DOCUMENT_ID]
+    doc_tree_element: QTreeWidgetItem = document_tree.tree_items[DOCUMENT_ID]
 
     # Wait for the dialog to be created
     QTimer.singleShot(5, handle_dialog)
@@ -146,7 +144,10 @@ def test_edit_document(app):
         doc_tree_element.text(0) == new_name
     ), f"Document tree item name must be '{new_name}' but it is '{doc_tree_element.text(0)}'"
 
+    # Get tabbar index
+    tab_index = documents_container.indexOf(document_tree)
+
     # Check tab acronym changed
     assert (
-        documents_container.tabBar().tabText(0) == new_acronym
-    ), f"Document tab acronym must be '{new_acronym}' but it is '{documents_container.tabBar().tabText(0)}'"
+        documents_container.tabBar().tabText(tab_index) == new_acronym
+    ), f"Document tab acronym must be '{new_acronym}' but it is '{documents_container.tabBar().tabText(tab_index)}'"

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="6jKD9WCYAn4S" classes="external-resource" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Simple external resource]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="general">2023-11-21</dateProperty>
+    <floatProperty name="version" category="general">1.0</floatProperty>
+    <urlProperty name="url" category="general"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children/>
+  <traces>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource" traceType=":Proteus-dependency"/>
+  </traces>
+</object>

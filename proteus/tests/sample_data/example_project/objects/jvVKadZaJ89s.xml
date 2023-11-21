@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="jvVKadZaJ89s" classes="software-requirement objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
+  <properties>
+    <codeProperty name=":Proteus-code" category="general" inmutable="true"><prefix><![CDATA[OBJ-]]></prefix><number>0006</number><suffix><![CDATA[]]></suffix></codeProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[dummy]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="general">2023-11-21</dateProperty>
+    <floatProperty name="version" category="general">1.0</floatProperty>
+    <markdownProperty name="description" category="details"><![CDATA[TBD]]></markdownProperty>
+    <enumProperty name="importance" category="priority" choices="vital important">vital</enumProperty>
+    <enumProperty name="urgency" category="priority" choices="immediately pressure">immediately</enumProperty>
+    <enumProperty name="development-status" category="priority" choices="developing pending">developing</enumProperty>
+    <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children/>
+  <traces>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
+  </traces>
+</object>

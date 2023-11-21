@@ -41,8 +41,6 @@ from proteus.tests.end2end.fixtures import app, load_project
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "example_project"
-
 # --------------------------------------------------------------------------
 # End to end property input validation tests
 # --------------------------------------------------------------------------
@@ -83,7 +81,7 @@ def test_property_input_validation(app, property_name, property_value, expected_
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Error message variable
     error_message: str = None

@@ -17,18 +17,21 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Dict
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 import lxml.etree as ET
+import yaml
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE
-
+from proteus.tests import PROTEUS_SAMPLE_DATA_FILE
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, ProteusID
 from proteus.model.properties import \
     Property,                      \
     DEFAULT_NAME,                  \
@@ -91,3 +94,44 @@ def get_root(path) -> ET.Element:
     parser = ET.XMLParser(strip_cdata=False)
     element = ET.parse(path, parser = parser)
     return element.getroot()
+
+class SampleData:
+    """
+    SampleData class provides an interface to access the sample data used in
+    the tests. Objects are accessed using an intuitive name instead of the
+    ProteusID. This is done by mapping the ProteusIDs with a new verbose name
+    when creating the sample data.
+
+    By default, all the objects and documents are located in the same project
+    example_project. 
+    """
+
+    sample_data: Dict[str, Dict[str, str]] = None
+
+    @classmethod
+    def load(cls) -> None:
+        """
+        Load the yaml file containing the sample data.
+        """
+        with open(PROTEUS_SAMPLE_DATA_FILE, "r") as f:
+            cls.sample_data = yaml.safe_load(f)
+
+    @classmethod
+    def get(cls, name: str, project_name="example_project") -> ProteusID:
+        """
+        Get the ProteusID of the object or document with the given name.
+
+        If no project name is given, the default project is 'example_project'.
+
+        :param name: Name of the object or document.
+        :param project_name: Name of the project.
+        :return: ProteusID of the object or document.
+        """
+        if cls.sample_data is None:
+            cls.load()
+
+        try:
+            return ProteusID(cls.sample_data[project_name][name])
+        except KeyError:
+            raise KeyError(f"Object or document with name '{name}' not found in project '{project_name}' in sample data file.")
+        

@@ -41,7 +41,8 @@ from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH, sample_data
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
@@ -51,8 +52,8 @@ from proteus.tests import fixtures
 # NOTE: This is a sample project that is used for testing purposes. The
 #       sample object id was selected from this project.
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
-SAMPLE_OBJECT_ID = sample_data["example_project"]["complete_object"]
-SAMPLE_DOCUMENT_ID = sample_data["example_project"]["document_with_children"]
+SAMPLE_OBJECT_ID = SampleData.get("section_with_dependencies_outside_and_inside")
+SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -349,7 +350,7 @@ def test_clone_object(
     # NOTE: This will not work if we clone an object into itself
     # however, this is not a valid use case at the moment
     assert (
-        test_object_to_clone.children.__len__() == new_object.children.__len__()
+        test_object_to_clone.get_ids().__len__() == new_object.get_ids().__len__()
     ), f"Object {new_object.id} does not have the same number of children as \
         the original object {test_object_to_clone.id}"
 

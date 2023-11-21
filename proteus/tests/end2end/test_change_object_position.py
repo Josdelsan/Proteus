@@ -23,7 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
 from PyQt6.QtCore import QPoint, QTimer
 
 # --------------------------------------------------------------------------
@@ -34,21 +34,23 @@ from proteus.views.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
+from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "example_project"
-DOCUMENT_ID = "56i4dHSDSppX" # 'EXAMPLE' document from example project
-OBJECT_ID = "4Etjfs7bAYgX" # 'Objective' object from 'EXAMPLE' document
+DOCUMENT_ID = SampleData.get('document_1')
+OBJECT_ID = SampleData.get('simple_section')
 
 # --------------------------------------------------------------------------
 # End to end "change object position" tests
 # --------------------------------------------------------------------------
-# NOTE: Move up and down actions are tested. Drag and drop testing is not
-# implemented yet.
+# NOTE: Move up and down actions are tested using a section placed in the
+# second position of the document.
+# TODO: Drag and drop actions (limited by pytest-qt)
+# TODO: Move while dead objects between target position
 
 def test_change_object_position_up(app):
     """
@@ -62,7 +64,7 @@ def test_change_object_position_up(app):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Buttons that should change state when an object is moved
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -144,7 +146,7 @@ def test_change_object_position_down(app):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Buttons that should change state when an object is moved
     save_button_state = main_window.main_menu.save_button.isEnabled()

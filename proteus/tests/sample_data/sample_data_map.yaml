@@ -1,7 +1,45 @@
+# ===================================================================
+# File: sample_data_map.yaml
+# Description: This file contains information about the sample data
+#              used in the tests
+# Date: 21/11/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ===================================================================
+
 empty_project:
 
-example_project:
-  complete_object: 64xM8FLyxtaE # Object(Use case) with one child and some properties and trace properties
-  document_with_children: 3fKhMAkcEe2C 
-
 one_doc_project:
+  empty_document: 3fKhMAkcEe2C
+
+example_project:
+  # Empty document with no objects ----------------------------------
+  empty_document: 7hadM59iCS5g 
+
+  # Document with multiple objects to test rendering ----------------
+  document_to_render: 722GfFiezi5F
+
+  # Simple document 1 with multiple objects -------------------------
+  document_1: SS2yr44xAPqq
+
+  # Objects with no children or traces dependencies
+  simple_paragraph: 4wZ83G7yfYag
+  simple_section: 6bunudH7u9Qy
+  simple_external_resource: 6jKD9WCYAn4S
+  simple_use_case: 4VcsmExNNn8K
+  simple_information_req: 47y7gcbz4c8n
+  simple_objective: 5ND5HhYmadja
+
+  # Objects with different depth levels, no traces dependencies
+  section_dl_1: 85xnhSdzNmMB
+  section_dl_2: BhFgGsLrtpJi
+  objective_dl_1: 7taTUT7QDZQb
+  objective_dl_2: 79CLgbNAJ5Qq
+  info_req_dl_1: 4PM4sSwKTCBa
+  use_case_dl_1: AhLbeKSfPBLN
+
+  # Objects with dependencies
+  dependant_paragraph: 6yW8XcDnGNLs # Has a trace to an object
+  section_with_dependencies_inside: 6NQ2mbFAfHF7 # One of its children has a trace to another child
+  section_with_dependencies_outside_and_inside: 5FAJMfi8YdhY # One of its children has a trace to an object outside and inside the section
+

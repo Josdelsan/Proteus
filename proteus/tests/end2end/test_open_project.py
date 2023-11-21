@@ -126,10 +126,13 @@ def test_open_project(mocker, app):
         documents_container.__class__.__name__ == "DocumentsContainer"
     ), f"Expected documents container to be a DocumentsContainer, got {documents_container.__class__.__name__}"
 
+    # Expected documents
+    expected_doc_number: int = main_window._controller.get_current_project().get_descendants().__len__()
+
     # Check documents container tabs and tree chidlren correspond
     assert (
-        documents_container.tabs.keys().__len__() == 4
-    ), f"Expected 3 tabs, got {documents_container.tabs.keys().__len__()}"
+        documents_container.tabs.keys().__len__() == expected_doc_number
+    ), f"Expected {expected_doc_number} tabs, got {documents_container.tabs.keys().__len__()}"
 
     # Check each document tree has at least one tree item
     for document_tree in documents_container.tabs.values():

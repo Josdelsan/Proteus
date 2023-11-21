@@ -79,6 +79,8 @@ def load_project(
     """
     Handle the creation of the app and example project opening.
 
+    By default, 'example_project' is loaded.
+
     NOTE: Avoids opening the project using the dialog. Instead, uses
     the controller method directly.
     """
