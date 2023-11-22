@@ -38,8 +38,13 @@ example_project:
   info_req_dl_1: 4PM4sSwKTCBa
   use_case_dl_1: AhLbeKSfPBLN
 
-  # Objects with dependencies
+  # Objects with traces or being traced
   dependant_paragraph: 6yW8XcDnGNLs # Has a trace to an object
   section_with_dependencies_inside: 6NQ2mbFAfHF7 # One of its children has a trace to another child
   section_with_dependencies_outside_and_inside: 5FAJMfi8YdhY # One of its children has a trace to an object outside and inside the section
+
+  target_with_2_sources_1: L2mCm58NgUpj # This object is being targeted by 2 objects (one inside the same parent and another outside)
+  target_with_2_sources_2: NkrkRpCHFPQS # This object is being targeted by 2 objects (one inside the same parent and another outside)
+  section_with_2_children_targeted: 5LAgscVHRg5J # This section has 2 children being targeted inside and outside (two object above)
+
 

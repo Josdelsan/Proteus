@@ -43,7 +43,6 @@ SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
 RENDER_DOCUMENT_ID = SampleData.get("document_to_render")
 
 
-
 @pytest.fixture
 def project_service():
     """
@@ -87,25 +86,42 @@ def test_load_project(project_service: ProjectService):
 
     NOTE: load_project method is called in the project_service fixture.
     """
-    # Arrange -------------------------
+    # Assert --------------------------
     # Check that the project service is initialized
     assert isinstance(
         project_service.project, Project
     ), "Project should be instance of Project"
 
-    # Act -----------------------------
     # Get all ids from the project
     project_ids: List[ProteusID] = project_service.project.get_ids()
 
     # Get ids present in the index
     index_ids: List[ProteusID] = project_service.project_index.keys()
 
-    # Assert --------------------------
+    # Get project traced objects ids
+    def get_traced_ids(object: Object):
+        traced_ids = set()
+        for trace in object.traces.values():
+            traced_ids.update(set(trace.targets))
+        for child in object.get_descendants():
+            traced_ids.update(get_traced_ids(child))
+        return traced_ids
+
+    traced_ids = set()
+    for object in project_service.project.get_descendants():
+        traced_ids.update(get_traced_ids(object))
+
     # Check that all ids are present in the index
     assert set(index_ids) == set(project_ids), (
         f"Some ids are not present in the index"
         f"\n\tProject ids: {project_ids}"
         f"\n\tIndex ids: {index_ids}"
+    )
+
+    # Check that the traces index was populated with the correct traced ids
+    assert set(project_service.traces_index.keys()) == traced_ids, (
+        f"Traces index should not be empty"
+        f"\n\tTraces index: {project_service.traces_index}"
     )
 
 
@@ -247,6 +263,99 @@ def test_add_project_template_negative(
     ), f"Project template list should not contain {NON_EXISTING_TEMPLATE} template, current list: {project_service.project.xsl_templates}"
 
 
+@pytest.mark.parametrize(
+    "object_name, expected_traced_objects, expected_sources_for_each_object",
+    [
+        ("target_with_2_sources_1", 1, 2),
+        ("target_with_2_sources_2", 1, 2),
+        ("section_with_2_children_targeted", 2, 2),
+    ],
+)
+def test_get_traces_dependencies(
+    project_service: ProjectService,
+    object_name,
+    expected_traced_objects,
+    expected_sources_for_each_object,
+):
+    """
+    Tests get_traces_dependencies method. Uses example project data
+    to check different scenarios.
+
+    NOTE: For easier testing, data is fixed so every traced object
+    will have same number of sources (object pointing to them).
+
+    TODO: Find a way to test more complex scenarios.
+    """
+    # Arrange -------------------------
+    object_id = SampleData.get(object_name)
+
+    # Act -----------------------------
+    traced_objects = project_service.get_traces_dependencies(object_id)
+
+    # Assert --------------------------
+    # Check is a dict
+    assert isinstance(
+        traced_objects, dict
+    ), f"Traced objects should be a dict but it is {type(traced_objects)}"
+
+    # Check number of traced objects
+    assert (
+        len(traced_objects.keys()) == expected_traced_objects
+    ), f"Traced objects should be {expected_traced_objects} but it is {len(traced_objects.keys())}"
+
+    # Check number of sources for each traced object
+    for traced_object in traced_objects.values():
+        assert (
+            len(traced_object) == expected_sources_for_each_object
+        ), f"Traced object should have {expected_sources_for_each_object} sources but it has {len(traced_object)}"
+
+
+@pytest.mark.parametrize(
+    "object_name, expected_traced_objects, expected_sources_for_each_object",
+    [
+        ("target_with_2_sources_1", 1, 2),
+        ("target_with_2_sources_2", 1, 2),
+        ("section_with_2_children_targeted", 2, 1),
+    ],
+)
+def test_get_traces_dependencies(
+    project_service: ProjectService,
+    object_name,
+    expected_traced_objects,
+    expected_sources_for_each_object,
+):
+    """
+    Tests get_traces_dependencies_outside method. Uses example project data
+    to check different scenarios.
+
+    NOTE: For easier testing, data is fixed so every traced object
+    will have same number of sources (object pointing to them).
+
+    TODO: Find a way to test more complex scenarios.
+    """
+    # Arrange -------------------------
+    object_id = SampleData.get(object_name)
+
+    # Act -----------------------------
+    traced_objects = project_service.get_traces_dependencies_outside(object_id)
+
+    # Assert --------------------------
+    # Check is a dict
+    assert isinstance(
+        traced_objects, dict
+    ), f"Traced objects should be a dict but it is {type(traced_objects)}"
+
+    # Check number of traced objects
+    assert (
+        len(traced_objects.keys()) == expected_traced_objects
+    ), f"Traced objects should be {expected_traced_objects} but it is {len(traced_objects.keys())}"
+
+    # Check number of sources for each traced object
+    for traced_object in traced_objects.values():
+        assert (
+            len(traced_object) == expected_sources_for_each_object
+        ), f"Traced object should have {expected_sources_for_each_object} sources but it has {len(traced_object)}"
+
 # --------------------------------------------------------------------------
 # Unit tests
 # --------------------------------------------------------------------------
@@ -373,7 +482,6 @@ def test_get_element_by_id_negative(
     assert (
         basic_project_service._populate_index.call_count == 1
     ), f"_populate_index should be called once"
-
 
 
 # NOTE: test save_project might not be necessary because it is a simple call

@@ -268,8 +268,9 @@ class ProjectService:
             return sources
 
         # Check if the object has traces pointing to it
+        # IMPORTANT: Copy set to avoid modifying the original set of self.traces_index
         if object_id in self.traces_index:
-            sources[object_id] = self.traces_index[object_id]
+            sources[object_id] = self.traces_index[object_id].copy()
 
         # Check if the object has children, for each child check
         # if it has traces pointing to it calling recursively
@@ -519,10 +520,11 @@ class ProjectService:
     # ----------------------------------------------------------------------
     def get_project_structure(self) -> List[Object]:
         """
-        Returns the project structure one depth level. Each element is
-        represented by a dictionary with the following structure: {id: id, ...}
+        Returns the project structure one depth level. Documents are returned
+        as a list of objects.
 
         :return: List with the project documents.
+        :rtype: List[Object]
         """
         return self.project.get_descendants()
 

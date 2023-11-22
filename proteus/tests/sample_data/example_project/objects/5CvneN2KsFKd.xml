@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<object id="5FAJMfi8YdhY" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
+<object id="5CvneN2KsFKd" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
-    <stringProperty name=":Proteus-name" category="general"><![CDATA[Dependencies outside/inside]]></stringProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[We are targeting targets above]]></stringProperty>
     <booleanProperty name="is-appendix" category="general">false</booleanProperty>
     <markdownProperty name="comments" category="general"><![CDATA[No comments.]]></markdownProperty>
   </properties>
   <children>
-    <child id="7ueneKNsW63F"/>
-    <child id="6LhFSGus5F7A"/>
+    <child id="5uPtLCfwLWXA"/>
+    <child id="64hQxpqYrN9g"/>
   </children>
   <traces/>
 </object>
