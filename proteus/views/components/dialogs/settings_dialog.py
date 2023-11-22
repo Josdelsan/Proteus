@@ -30,8 +30,9 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config, LANGUAGE
-from proteus.views.utils.translator import Translator
+from proteus.config import LANGUAGE
+from proteus.controller.command_stack import Controller
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -41,7 +42,7 @@ from proteus.views.utils.translator import Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class SettingsDialog(QDialog):
+class SettingsDialog(QDialog, ProteusComponent):
     """
     Settings dialog component class for the PROTEUS application. It provides a
     dialog form to change the application settings.
@@ -55,15 +56,12 @@ class SettingsDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, parent=None, *args, **kwargs) -> None:
+    def __init__(self, controller: Controller, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
         """
-        super().__init__(parent, *args, **kwargs)
-
-        self.translator = Translator()
-        self.config = Config()
+        super(SettingsDialog, self).__init__(controller, *args, **kwargs)
 
         # Create the component
         self.create_component()
@@ -80,19 +78,19 @@ class SettingsDialog(QDialog):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle(self.translator.text("settings_dialog.title"))
+        self.setWindowTitle(self._translator.text("settings_dialog.title"))
 
         # -------------------------------------------
         # Language settings
         # -------------------------------------------
 
         # Get available languages from i18n directory
-        i18n_dir: Path = self.config.i18n_directory
+        i18n_dir: Path = self._config.i18n_directory
         languages: List[str] = [lang.stem for lang in i18n_dir.glob("*.yaml")]
 
         # Create a combo box with the available views
         lang_label: QLabel = QLabel(
-            self.translator.text("settings_dialog.language.label")
+            self._translator.text("settings_dialog.language.label")
         )
         view_combo: QComboBox = QComboBox()
 
@@ -100,7 +98,7 @@ class SettingsDialog(QDialog):
         #       are different from the current configuration
         # Add the languages to the combo box
         for lang in languages:
-            view_combo.addItem(self.translator.text(lang), lang)
+            view_combo.addItem(self._translator.text(lang), lang)
 
         # -------------------------------------------
         # Component general setup
@@ -122,7 +120,7 @@ class SettingsDialog(QDialog):
         self.error_label.setObjectName("error_label")
 
         # Setting message label
-        setting_info_label: QLabel = QLabel(self.translator.text("settings_dialog.info.label"))
+        setting_info_label: QLabel = QLabel(self._translator.text("settings_dialog.info.label"))
         setting_info_label.setStyleSheet("font-weight: bold")
 
         # Add the widgets to the layout
@@ -151,13 +149,13 @@ class SettingsDialog(QDialog):
         """
         if combo_text is None:
             self.error_label.setText(
-                self.translator.text("settings_dialog.error.invalid_language")
+                self._translator.text("settings_dialog.error.invalid_language")
             )
             return
 
         # Save the current settings to the config file
         settings: Dict[str, str] = {LANGUAGE: combo_text}
-        self.config.save_user_settings(settings)
+        self._config.save_user_settings(settings)
 
         # Close the form window
         self.close()
@@ -191,9 +189,10 @@ class SettingsDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog() -> None:
+    def create_dialog(controller: Controller) -> "SettingsDialog":
         """
         Create a settings dialog and show it
         """
-        dialog = SettingsDialog()
+        dialog = SettingsDialog(controller)
         dialog.exec()
+        return dialog

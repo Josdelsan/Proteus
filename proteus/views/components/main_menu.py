@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
+from proteus.controller.command_stack import Controller
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -75,7 +76,9 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self, controller: Controller, parent: QWidget, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -83,8 +86,14 @@ class MainMenu(QDockWidget, ProteusComponent):
         Manage the creation of the instace variables to store updatable
         buttons (save, undo, redo, etc.) and the tab widget to display the
         different menus.
+
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent: Parent widget.
         """
-        super(MainMenu, self).__init__(*args, **kwargs)
+        super(MainMenu, self).__init__(controller, parent, *args, **kwargs)
 
         # Main menu buttons
         self.new_button: QToolButton = None
@@ -261,7 +270,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ---------
         # Settings action
         self.settings_button: QToolButton = buttons.settings_button(self)
-        self.settings_button.clicked.connect(SettingsDialog.create_dialog)
+        self.settings_button.clicked.connect(
+            lambda: SettingsDialog.create_dialog(self._controller)
+        )
 
         # Information action
         self.information_button: QToolButton = buttons.info_button(self)

@@ -16,6 +16,7 @@ from typing import List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import QPoint
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QMenu,
@@ -31,12 +32,11 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID, PROTEUS_NAME
-from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.config import Config
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
-from proteus.views.utils.translator import Translator
+from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 
@@ -48,9 +48,11 @@ from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ContextMenu(QMenu):
+class ContextMenu(QMenu, ProteusComponent):
     """
-    Class for the PROTEUS application context menu.
+    Class for the PROTEUS application objects context menu. The menu shows
+    the available actions for the selected object. It also shows a submenu
+    with the available archetypes to clone in the selected object if needed.
     """
 
     # ----------------------------------------------------------------------
@@ -62,21 +64,27 @@ class ContextMenu(QMenu):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, tree_widget: QTreeWidget, controller: Controller, *args, **kwargs
+        self, controller: Controller, tree_widget: QTreeWidget, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
-        the component. Store the page object and the controller instance.
-        """
-        super().__init__(*args, **kwargs)
+        the component. Store the tree widget and initialize all the action
+        buttons.
 
-        assert tree_widget is not None, "Tree widget cannot be None"
-        assert controller is not None, "Controller cannot be None"
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param tree_widget: QTreeWidget instance.
+        """
+        super(ContextMenu, self).__init__(controller, *args, **kwargs)
+
+        assert isinstance(
+            tree_widget, QTreeWidget
+        ), f"tree_widget must be a QTreeWidget instance, not {type(tree_widget)}"
 
         # Dependencies
         self.tree_widget = tree_widget
-        self._controller = controller
-        self.translator = Translator()
 
         # Action buttons
         self.action_edit_object: QAction = None
@@ -123,7 +131,7 @@ class ContextMenu(QMenu):
 
         # Create the edit action --------------------------------------------
         self.action_edit_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.edit"), self
+            self._translator.text("document_tree.menu.action.edit"), self
         )
         self.action_edit_object.triggered.connect(
             lambda: PropertyDialog.create_dialog(
@@ -137,7 +145,7 @@ class ContextMenu(QMenu):
 
         # Create the delete action ------------------------------------------
         self.action_delete_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.delete"), self
+            self._translator.text("document_tree.menu.action.delete"), self
         )
         self.action_delete_object.triggered.connect(
             lambda: DeleteDialog.create_dialog(
@@ -151,7 +159,7 @@ class ContextMenu(QMenu):
 
         # Create clone action -----------------------------------------------
         self.action_clone_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.clone"), self
+            self._translator.text("document_tree.menu.action.clone"), self
         )
         self.action_clone_object.triggered.connect(
             lambda: self._controller.clone_object(selected_item_id)
@@ -163,7 +171,7 @@ class ContextMenu(QMenu):
 
         # Create move up action ---------------------------------------------
         self.action_move_up_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.move_up"), self
+            self._translator.text("document_tree.menu.action.move_up"), self
         )
         self.action_move_up_object.triggered.connect(
             lambda: self._controller.change_object_position(
@@ -177,7 +185,7 @@ class ContextMenu(QMenu):
 
         # Create move down action -------------------------------------------
         self.action_move_down_object: QAction = QAction(
-            self.translator.text("document_tree.menu.action.move_down"), self
+            self._translator.text("document_tree.menu.action.move_down"), self
         )
         # TODO: Fix change position method to avoid using +2
         self.action_move_down_object.triggered.connect(
@@ -241,12 +249,15 @@ class ContextMenu(QMenu):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(tree_widget: QTreeWidget, controller: Controller, position):
+    def create_dialog(
+        controller: Controller, tree_widget: QTreeWidget, position: QPoint
+    ) -> 'ContextMenu':
         """
         Handle the creation and display of the form window.
         """
         menu = ContextMenu(tree_widget=tree_widget, controller=controller)
         menu.exec(tree_widget.viewport().mapToGlobal(position))
+        return menu
 
 
 # --------------------------------------------------------------------------
@@ -256,9 +267,12 @@ class ContextMenu(QMenu):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class AvailableArchetypesMenu(QMenu):
+class AvailableArchetypesMenu(QMenu, ProteusComponent):
     """
-    Class for the PROTEUS application context menu.
+    Class for the PROTEUS application archetypes context menu. The menu
+    shows available archetypes to clone in the selected object. Do not
+    show all the posible archetypes, only the explicitly accepted by the
+    selected object.
     """
 
     # ----------------------------------------------------------------------
@@ -271,27 +285,31 @@ class AvailableArchetypesMenu(QMenu):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        controller: Controller,
         parent_id: ProteusID,
         class_name: str,
         archetype_list: List[Object],
-        controller: Controller,
         *args,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the page object and the controller instance.
-        """
-        super().__init__(*args, **kwargs)
 
-        assert controller is not None, "Controller cannot be None"
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent_id: Parent object id.
+        :param class_name: Class name.
+        :param archetype_list: List of available archetypes.
+        """
+        super(AvailableArchetypesMenu, self).__init__(controller, *args, **kwargs)
 
         # Dependencies
         self.archetype_list = archetype_list
         self.parent_id = parent_id
         self.class_name = class_name
-        self._controller = controller
-        self.translator = Translator()
 
         # Action buttons
         self.action_buttons: Dict[ProteusID, QAction] = {}
@@ -311,11 +329,11 @@ class AvailableArchetypesMenu(QMenu):
         Create the component.
         """
         icon: QIcon = QIcon(
-            Config().get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix()
+            self._config.get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix()
         )
         self.setIcon(icon)
         self.setTitle(
-            self.translator.text(
+            self._translator.text(
                 "document_tree.menu.action.add_archetype", self.class_name
             )
         )
@@ -323,10 +341,10 @@ class AvailableArchetypesMenu(QMenu):
         # Create the actions
         for archetype in self.archetype_list:
             action: QAction = QAction(
-                self.translator.text(archetype.get_property(PROTEUS_NAME).value), self
+                self._translator.text(archetype.get_property(PROTEUS_NAME).value), self
             )
             icon: QIcon = QIcon(
-                Config().get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix()
+                self._config.get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix()
             )
             action.setIcon(icon)
             action.triggered.connect(

@@ -33,8 +33,8 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
-from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -44,7 +44,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewDocumentDialog(QDialog):
+class NewDocumentDialog(QDialog, ProteusComponent):
     """
     New document component class for the PROTEUS application. It provides a
     dialog form to create new documents from document archetypes.
@@ -58,21 +58,17 @@ class NewDocumentDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, controller: Controller, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
-        """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the new document dialog"
-        self._controller: Controller = controller
 
-        self.translator = Translator()
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        """
+        super(NewDocumentDialog, self).__init__(controller, *args, **kwargs)
 
         # Properties for creating a new document
         self._archetype_id: ProteusID = None
@@ -92,7 +88,7 @@ class NewDocumentDialog(QDialog):
         self.setLayout(layout)
 
         # Set the window title
-        self.setWindowTitle(self.translator.text("new_document_dialog.title"))
+        self.setWindowTitle(self._translator.text("new_document_dialog.title"))
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -103,7 +99,7 @@ class NewDocumentDialog(QDialog):
         document_archetypes: List[Object] = self._controller.get_document_archetypes()
         # Create a combo box with the document archetypes
         archetype_label: QLabel = QLabel(
-            self.translator.text("new_document_dialog.combobox.label")
+            self._translator.text("new_document_dialog.combobox.label")
         )
         archetype_combo: QComboBox = QComboBox()
 
@@ -113,7 +109,7 @@ class NewDocumentDialog(QDialog):
 
         # Show the archetype description
         description_label: QLabel = QLabel(
-            self.translator.text("new_document_dialog.archetype.description")
+            self._translator.text("new_document_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
 
@@ -181,7 +177,7 @@ class NewDocumentDialog(QDialog):
         """
         if self._archetype_id is None:
             self.error_label.setText(
-                self.translator.text("new_document_dialog.error.no_archetype_selected")
+                self._translator.text("new_document_dialog.error.no_archetype_selected")
             )
             return
 
@@ -220,9 +216,10 @@ class NewDocumentDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller) -> None:
+    def create_dialog(controller: Controller) -> "NewDocumentDialog":
         """
         Create a new document dialog and show it
         """
         dialog = NewDocumentDialog(controller=controller)
         dialog.exec()
+        return dialog

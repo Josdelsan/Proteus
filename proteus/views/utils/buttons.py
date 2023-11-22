@@ -419,7 +419,9 @@ def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
 # MainMenu component when the application is initialized.
 class ArchetypeMenuButton(QToolButton):
     """
-    Class that implements a button for the archetype menu.
+    Class that creates a button for the archetype menu. The dropdown menu
+    is created in the MainMenu component using the ArchetypesMenuDropdown
+    class.
     """
 
     def __init__(self, parent: QWidget, object_class: ProteusClassTag) -> None:

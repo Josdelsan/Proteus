@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.views import ARCHETYPE_MENU_ICON_TYPE
 from proteus.model.object import Object
+from proteus.controller.command_stack import Controller
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -47,6 +48,9 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
 
     Clone action is connected to each archetype in the list. They will
     be cloned in the current selected object.
+
+    This class is only responsible for the dropdown menu, the button that
+    will show the dropdown menu is created in the MainMenu component.
     """
 
     # ----------------------------------------------------------------------
@@ -58,15 +62,19 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, archetype_list: List[Object], *args, **kwargs
+        self, controller: Controller, archetype_list: List[Object], *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
 
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
         :param archetype_list: List of archetypes to be shown in the dropdown menu.
         """
-        super(ArchetypesMenuDropdown, self).__init__(*args, **kwargs)
+        super(ArchetypesMenuDropdown, self).__init__(controller, *args, **kwargs)
 
         # Store the archetype list
         self._archetype_list = archetype_list
@@ -86,7 +94,12 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the component.
+        Create the component. Using the provided archetype list, create
+        a dropdown menu with each archetype as an action.
+
+        Each action is connected to the clone_object method of the controller.
+        The cloned object parent will be the current selected object. By
+        default, every object will use class icon as the action icon.
         """
         for archetype in self._archetype_list:
             arch_class = archetype.classes[-1]
@@ -94,7 +107,9 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
                 # Name translation might not be needed for archetypes
                 archetype.get_property(PROTEUS_NAME).value,
             )
-            icon: QIcon = QIcon(self._config.get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix())
+            icon: QIcon = QIcon(
+                self._config.get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix()
+            )
             clone_action.setIcon(icon)
             clone_action.triggered.connect(
                 lambda checked, arg=archetype.id: self._controller.create_object(
@@ -111,6 +126,3 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     # ======================================================================
     # Component static methods (create and show the form window)
     # ======================================================================
-
-
-

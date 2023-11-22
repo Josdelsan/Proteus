@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.views.utils.translator import Translator
 
+
 # --------------------------------------------------------------------------
 # Class: InformationDialog
 # Description: Class for the PROTEUS application information dialog.
@@ -34,6 +35,9 @@ from proteus.views.utils.translator import Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
+# NOTE: Due to the simplicity of this component, it is not necessary to
+# inherit from the ProteusComponent class. It will access the translator
+# singleton directly.
 class InformationDialog(QDialog):
     """
     Class for the PROTEUS application information dialog.
@@ -80,17 +84,13 @@ class InformationDialog(QDialog):
 
         # App description
         app_description = QLabel(
-            self.translator.text(
-                "information_dialog.description.text"
-            )
+            self.translator.text("information_dialog.description.text")
         )
         app_description.setWordWrap(True)
         app_description.setContentsMargins(0, 0, 0, 20)
 
         # License
-        license = QLabel(
-            self.translator.text("information_dialog.license.text")
-        )
+        license = QLabel(self.translator.text("information_dialog.license.text"))
         license.setWordWrap(True)
         license.setContentsMargins(0, 0, 0, 20)
 
@@ -110,12 +110,9 @@ class InformationDialog(QDialog):
         important_notes.setContentsMargins(0, 0, 0, 20)
 
         # Icons8 attribution
-        icons8_attribution = QLabel(
-            "Icons by <a href='https://icons8.com'>Icons8</a>"
-        )
+        icons8_attribution = QLabel("Icons by <a href='https://icons8.com'>Icons8</a>")
         icons8_attribution.setOpenExternalLinks(True)
         icons8_attribution.setContentsMargins(0, 0, 0, 20)
-
 
         # layout
         layout = QVBoxLayout()
@@ -129,12 +126,10 @@ class InformationDialog(QDialog):
 
         # Set the layout
         self.setLayout(layout)
-    
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)
     # ======================================================================
-
 
     # ======================================================================
     # Dialog static methods (create and show the form window)
@@ -148,12 +143,11 @@ class InformationDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog():
+    def create_dialog() -> "InformationDialog":
         """
         Handle the creation and display of the form window.
         """
         # Create the form window
         form_window = InformationDialog()
-
-        # Show the form window
         form_window.exec()
+        return form_window

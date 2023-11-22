@@ -12,12 +12,14 @@
 
 import logging
 from abc import ABC, abstractmethod
+from typing import Type
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QDialog
+import PyQt6.sip
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -68,6 +70,15 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
     (controller, config, translator, event_manager and state_manager).
     Performs the validation of the parameters and initializes the variables
     with default values if needed.
+
+    When a component inherits from ProteusComponent, if it also inherits
+    from other QWidget subclass, ProteusComponent must be placed after
+    it to avoid metaclass conflicts.
+    
+    Example of class with multiple inheritance:
+        - class MyComponent(QDialog, ProteusComponent):
+        - class mro(MyComponent): [MyComponent, QDialog, ProteusComponent, QWidget,
+        QObject, sip.wrapper, QPaintDevice, sip.simplewrapper, ABC, object]
     """
 
     # ----------------------------------------------------------------------
@@ -79,8 +90,8 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        controller: Controller,
         parent: QWidget | None = None,
-        controller: Controller = None,
         config: Config = None,
         translator: Translator = None,
         event_manager: EventManager = None,
@@ -95,8 +106,8 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
         and raises exceptions if needed. Some parameters will be initialized
         if they are not provided.
 
-        :param parent: Parent QWidget.
         :param controller: Controller instance.
+        :param parent: Parent QWidget.
         :param config: App configuration instance.
         :param translator: Translator instance.
         :param event_manager: Event manager instance.

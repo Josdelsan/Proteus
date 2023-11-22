@@ -18,7 +18,7 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QTabWidget
+from PyQt6.QtWidgets import QTabWidget, QWidget
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
 
@@ -28,6 +28,7 @@ from PyQt6.QtCore import QSize
 
 from proteus.model import ProteusID
 from proteus.model.object import Object
+from proteus.controller.command_stack import Controller
 from proteus.views import ACRONYM_ICON_TYPE
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.abstract_component import ProteusComponent
@@ -60,7 +61,9 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self, controller: Controller, parent: QWidget, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -68,8 +71,14 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         Store the tabs for each document in a dictionary to access them
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
+
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent: Parent widget.
         """
-        super(DocumentsContainer, self).__init__(*args, **kwargs)
+        super(DocumentsContainer, self).__init__(controller, parent, *args, **kwargs)
 
         # Tabs dictionary
         self.tabs: Dict[ProteusID, DocumentTree] = {}

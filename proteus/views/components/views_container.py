@@ -35,6 +35,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views.utils.event_manager import Event
 from proteus.views.utils.translator import Translator
@@ -67,12 +68,22 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, controller: Controller, parent: QWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
+
+        Store the browsers in a dict to access them by the view name. Using
+        multiple browsers is a solution to use QTabWidget since a QWebEngineView
+        cannot be added to multiple parents.
+
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent: Parent widget.
         """
-        super(ViewsContainer, self).__init__(*args, **kwargs)
+        super(ViewsContainer, self).__init__(controller, parent, *args, **kwargs)
 
         # Dict of stored browsers for each view. The way the dict is updated
         # the index of the browser is the same as the index of the tab.

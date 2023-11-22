@@ -26,6 +26,7 @@ from PyQt6.QtGui import (
     QDragEnterEvent,
 )
 from PyQt6.QtWidgets import (
+    QWidget,
     QTreeWidget,
     QTreeWidgetItem,
     QMessageBox,
@@ -38,6 +39,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
+from proteus.controller.command_stack import Controller
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.views.utils.event_manager import Event
 from proteus.views.components.abstract_component import ProteusComponent
@@ -86,6 +88,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        controller: Controller,
+        parent: QWidget,
         element_id: ProteusID = None,
         *args,
         **kwargs,
@@ -97,8 +101,15 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         Store the document id reference. Create the tree widget and the
         tree items dictionary to make easier the access to the tree items
         on update events using the element id.
+
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent: Parent QWidget.
+        :param element_id: The document id reference.
         """
-        super(DocumentTree, self).__init__(*args, **kwargs)
+        super(DocumentTree, self).__init__(controller, parent, *args, **kwargs)
 
         # Set tree document id
         self.element_id: ProteusID = element_id
@@ -158,7 +169,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Set context menu policy
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(
-            lambda position: ContextMenu.create_dialog(self, self._controller, position)
+            lambda position: ContextMenu.create_dialog(
+                tree_widget=self, controller=self._controller, position=position
+            )
         )
 
         # Expand all items and disable double click expand

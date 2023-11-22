@@ -16,12 +16,13 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QHBoxLayout, QSizePolicy, QSplitter
+from PyQt6.QtWidgets import QHBoxLayout, QSizePolicy, QSplitter, QWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.controller.command_stack import Controller
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.views_container import ViewsContainer
@@ -51,7 +52,9 @@ class ProjectContainer(ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self, controller: Controller, parent: QWidget, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -59,8 +62,14 @@ class ProjectContainer(ProteusComponent):
         Store the tabs for each document in a dictionary to access them
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
+
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param parent: Parent widget.
         """
-        super(ProjectContainer, self).__init__(*args, **kwargs)
+        super(ProjectContainer, self).__init__(controller, parent, *args, **kwargs)
 
         # Children components
         self.documents_container: DocumentsContainer = None

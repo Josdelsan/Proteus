@@ -36,8 +36,8 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.views.utils.forms.directory_edit import DirectoryEdit
-from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -47,7 +47,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectDialog(QDialog):
+class NewProjectDialog(QDialog, ProteusComponent):
     """
     New project component class for the PROTEUS application. It provides a
     dialog form to create new projects from project archetypes.
@@ -62,20 +62,18 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
+        self, controller: Controller = None, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new project data.
-        """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the new project dialog"
-        self._controller: Controller = controller
 
-        self.translator = Translator()
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        """
+        super(NewProjectDialog, self).__init__(controller, *args, **kwargs)
 
         # Properties for creating a new project
         self._name: str = None
@@ -100,7 +98,7 @@ class NewProjectDialog(QDialog):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle(self.translator.text("new_project_dialog.title"))
+        self.setWindowTitle(self._translator.text("new_project_dialog.title"))
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -111,7 +109,7 @@ class NewProjectDialog(QDialog):
         project_archetypes: List[Project] = self._controller.get_project_archetypes()
         # Create a combo box with the project archetypes
         archetype_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.combobox.label")
+            self._translator.text("new_project_dialog.combobox.label")
         )
         self.archetype_combo: QComboBox = QComboBox()
 
@@ -121,17 +119,17 @@ class NewProjectDialog(QDialog):
 
         # Show the archetype description
         description_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.archetype.description")
+            self._translator.text("new_project_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
 
         # Create the name input widget
-        name_label = QLabel(self.translator.text("new_project_dialog.input.name"))
+        name_label = QLabel(self._translator.text("new_project_dialog.input.name"))
         self.name_input: QLineEdit = QLineEdit()
 
         # Create the path input widget
         path_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.input.path")
+            self._translator.text("new_project_dialog.input.path")
         )
         self.path_input: DirectoryEdit = DirectoryEdit()
 
@@ -205,25 +203,25 @@ class NewProjectDialog(QDialog):
         #       Create a proper validator and
         if name is None or name == "":
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.invalid_name")
+                self._translator.text("new_project_dialog.error.invalid_name")
             )
             return
 
         if path is None or path == "" or not os.path.exists(path):
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.invalid_path")
+                self._translator.text("new_project_dialog.error.invalid_path")
             )
             return
 
         if self._archetype_id is None:
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.no_archetype_selected")
+                self._translator.text("new_project_dialog.error.no_archetype_selected")
             )
             return
 
         if os.path.exists(f"{path}/{name}"):
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.folder_already_exists")
+                self._translator.text("new_project_dialog.error.folder_already_exists")
             )
             return
 
@@ -262,10 +260,11 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller) -> None:
+    def create_dialog(controller: Controller) -> "NewProjectDialog":
         """
         Create a new project dialog and show it
         """
         # Create the dialog
         dialog = NewProjectDialog(controller=controller)
         dialog.exec()
+        return dialog

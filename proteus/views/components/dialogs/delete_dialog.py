@@ -32,11 +32,10 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
 from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.views.utils.translator import Translator
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 
 
@@ -47,7 +46,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DeleteDialog(QDialog):
+class DeleteDialog(QDialog, ProteusComponent):
     """
     Delete dialog component for the PROTEUS application. It provides a
     confirmation dialog to delete an object. It shows the object traces
@@ -64,24 +63,24 @@ class DeleteDialog(QDialog):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        controller: Controller = None,
         element_id: ProteusID = None,
         is_document: bool = False,
-        controller: Controller = None,
         *args,
         **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
-        """
-        super().__init__(*args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the new view dialog"
-        self._controller: Controller = controller
 
-        self.translator = Translator()
+        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
+        they can still be passed as keyword arguments.
+
+        :param controller: Controller instance.
+        :param element_id: Element id to delete.
+        :param is_document: True if the element is a document.
+        """
+        super(DeleteDialog, self).__init__(controller, *args, **kwargs)
 
         self.element_id: ProteusID = element_id
         self.is_document: bool = is_document
@@ -101,7 +100,7 @@ class DeleteDialog(QDialog):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle(self.translator.text("delete_dialog.title"))
+        self.setWindowTitle(self._translator.text("delete_dialog.title"))
 
         # Set maximum width and warning system icon
         warning_icon: QIcon = self.style().standardIcon(
@@ -115,7 +114,7 @@ class DeleteDialog(QDialog):
         object_name: str = object.get_property(PROTEUS_NAME).value
 
         # Create confirmation message
-        message: str = self.translator.text("delete_dialog.message", object_name)
+        message: str = self._translator.text("delete_dialog.message", object_name)
         message_label: QLabel = QLabel(message)
         layout.addWidget(message_label)
 
@@ -131,7 +130,7 @@ class DeleteDialog(QDialog):
             layout.addStretch()
 
             # Explanation message
-            message_traces: str = self.translator.text(
+            message_traces: str = self._translator.text(
                 "delete_dialog.traces_explanation"
             )
             message_traces_label: QLabel = QLabel(message_traces)
@@ -142,7 +141,7 @@ class DeleteDialog(QDialog):
             # Create the tree widget
             tree: QTreeWidget = QTreeWidget()
             # Set header label
-            header_message: str = self.translator.text("delete_dialog.tree.header")
+            header_message: str = self._translator.text("delete_dialog.tree.header")
             tree.setHeaderLabel(header_message)
             # Disable selection
             tree.setSelectionMode(QTreeWidget.SelectionMode.NoSelection)
@@ -191,7 +190,7 @@ class DeleteDialog(QDialog):
 
         # Set icon
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
         item.setIcon(0, QIcon(icon_path.as_posix()))
         return item
 
@@ -250,8 +249,10 @@ class DeleteDialog(QDialog):
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
-        element_id: ProteusID, is_document: bool = False, controller: Controller = None
-    ) -> None:
+        controller: Controller,
+        element_id: ProteusID,
+        is_document: bool = False,
+    ) -> "DeleteDialog":
         """
         Create a delete dialog dialog and show it
         """
@@ -259,3 +260,4 @@ class DeleteDialog(QDialog):
             element_id=element_id, is_document=is_document, controller=controller
         )
         dialog.exec()
+        return dialog
