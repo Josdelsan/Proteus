@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project id="QSDQUqqQh8NrCdrSL3QYVA">
   <properties>
-    <stringProperty name=":Proteus-name" category="general"><![CDATA[Proyecto Proteus]]></stringProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Print project]]></stringProperty>
     <floatProperty name="version" category="general">0.1</floatProperty>
     <urlProperty name="google" category="general"><![CDATA[https://google.com]]></urlProperty>
     <dateProperty name=":Proteus-date" category="general">2022-08-10</dateProperty>

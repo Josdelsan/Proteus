@@ -538,6 +538,12 @@ class ProjectService:
     def get_objects(self, classes: List[ProteusClassTag] = []) -> List[Object]:
         """
         Get the objects of the current project. They can be filtered by classes.
+        If classes is empty, is None or contains :Proteus-any, return all objects.
+
+        :param classes: List of classes to filter objects.
+        :type classes: List[ProteusClassTag]
+        :return: List of objects.
+        :rtype: List[Object]
         """
 
         # Variable initialization

@@ -24,9 +24,11 @@ from lxml import etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.config import Config
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_ANY
+from proteus.model.trace import Trace
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.model.abstract_object import ProteusState
 from proteus.model.properties import Property
 from proteus.services.project_service import ProjectService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
@@ -40,7 +42,10 @@ SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
 EXAMPLE_XML_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
 SAMPLE_OBJECT_ID = SampleData.get("section_dl_2")
 SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
-RENDER_DOCUMENT_ID = SampleData.get("document_to_render")
+
+# Render test data
+ONE_DOC_PROJECT = "one_doc_project"
+RENDER_DOCUMENT_ID = SampleData.get("document_to_render", ONE_DOC_PROJECT)
 
 
 @pytest.fixture
@@ -72,6 +77,13 @@ def mock_property(mocker):
     It returns a mock property.
     """
     return mocker.MagicMock(spec=Property)
+
+@pytest.fixture
+def mock_trace(mocker):
+    """
+    It returns a mock trace.
+    """
+    return mocker.MagicMock(spec=Trace)
 
 
 # --------------------------------------------------------------------------
@@ -184,12 +196,14 @@ def test_get_object_structure(project_service: ProjectService):
 
 # test generate_document_xml ------------------------------------------------------
 def test_generate_document_xml(
-    project_service: ProjectService,
+    basic_project_service: ProjectService,
 ):
     """
     Test the generate_document_xml method.
     """
     # Arrange -------------------------
+    basic_project_service.load_project(PROTEUS_SAMPLE_DATA_PATH / ONE_DOC_PROJECT)
+
     # Create parser
     # NOTE: CDATA is not stripped because it is needed for the comparison.
     parser = ET.XMLParser(remove_blank_text=True, strip_cdata=False)
@@ -200,7 +214,7 @@ def test_generate_document_xml(
     )
 
     # Act -----------------------------
-    document_xml: ET.Element = project_service.generate_document_xml(RENDER_DOCUMENT_ID)
+    document_xml: ET.Element = basic_project_service.generate_document_xml(RENDER_DOCUMENT_ID)
     document_xml_string: bytes = ET.tostring(
         document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
@@ -356,6 +370,7 @@ def test_get_traces_dependencies(
             len(traced_object) == expected_sources_for_each_object
         ), f"Traced object should have {expected_sources_for_each_object} sources but it has {len(traced_object)}"
 
+
 # --------------------------------------------------------------------------
 # Unit tests
 # --------------------------------------------------------------------------
@@ -435,6 +450,84 @@ def test_update_properties_negative(
     ), f"set_property should not be called"
 
 
+def test_update_traces(mocker, basic_project_service: ProjectService):
+    """
+    Test the update_traces method.
+    """
+    # Arrange -------------------------
+    # Mock _load_traces_index method
+    mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
+
+    # Create object and mock the _get_element_by_id method
+    mock_element = mocker.MagicMock(spec=Object)
+    mock_element.state = ProteusState.CLEAN
+    mock_element.traces = {}
+    mocker.patch.object(
+        basic_project_service, "_get_element_by_id", return_value=mock_element
+    )
+
+    # Create trace and mock name variable value
+    mock_trace = mocker.MagicMock(spec=Trace)
+    mock_trace.name = "mock_trace_name"
+
+    # Act -----------------------------
+    basic_project_service.update_traces("id", [mock_trace])
+
+    # Assert --------------------------
+    # Check that _load_traces_index is called
+    assert (
+        basic_project_service._load_traces_index.call_count == 1
+    ), f"_load_traces_index should be called once"
+
+    # Check that _get_element_by_id is called
+    assert (
+        basic_project_service._get_element_by_id.call_count == 1
+    ), f"_get_element_by_id should be called once"
+
+    # Check that the trace is added to the object
+    assert (
+        mock_element.traces["mock_trace_name"] == mock_trace
+    ), f"Trace should be added to the object"
+
+    # Check mock_element state is updated
+    assert (
+        mock_element.state == ProteusState.DIRTY
+    ), f"Object state should be DIRTY"
+
+
+@pytest.mark.parametrize(
+    "trace_list",
+    [
+        (None),
+        ("invalid list"),
+        ([1, 2, 3]),
+        (pytest.lazy_fixture("mock_trace")),
+        # ([None, pytest.lazy_fixture("mock_trace")]),
+        # ([pytest.lazy_fixture("mock_trace"), 1, 2, 3]),
+    ],
+)
+def test_update_traces_negative(
+    mocker,
+    trace_list,
+    basic_project_service: ProjectService,
+):
+    """
+    Test the update_traces method with invalid traces parameters.
+    """
+    # Arrange -------------------------
+    mocker.patch.object(
+        basic_project_service, "_get_element_by_id", return_value=None
+    )
+
+    # Act | Assert --------------------
+    with pytest.raises(AssertionError):
+        basic_project_service.update_traces("id", trace_list)
+
+    # Check that the _get_element_by_id method is not called
+    assert (
+        basic_project_service._get_element_by_id.call_count == 0
+    ), f"_get_element_by_id should not be called"
+
 # test_get_element_by_id ---------------------------------------------------
 def test_get_element_by_id(
     mocker,
@@ -483,6 +576,100 @@ def test_get_element_by_id_negative(
         basic_project_service._populate_index.call_count == 1
     ), f"_populate_index should be called once"
 
+@pytest.mark.parametrize(
+    "selected_classes",
+    [
+        (["a"]),
+        (["a", "b"]),
+        (["b", "c"]),
+        (["a", "b", "c", "d"]),
+        (["d"]),
+    ]
+)
+@pytest.mark.parametrize(
+    "classes_1, classes2, classes_3",
+    [
+        ("a", "b", "c"),
+        ("a b", "a", "a c"),
+        ("a b c", "b", "a"),
+    ]
+)
+def test_get_objects(mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3):
+    """
+    Test get_objects method with different selected classes. Classes for dummy objects are
+    passed as strings and converted to lists in the test for simplicity.
+
+    Do not tests :Proteus-any/empty classes or death objects
+    """
+    # Arrange -------------------------
+    # Mock the project_index.values()
+    project_index = {}
+    for index, classes in enumerate([classes_1, classes2, classes_3]):
+        mock_object = mocker.MagicMock(spec=Object)
+        mock_object.classes = classes.split()
+        mock_object.state = ProteusState.CLEAN
+        project_index[index] = mock_object
+    
+    basic_project_service.project_index = project_index
+
+    # Calculate expected objects
+    # In the original method selected classes are iterated for each object
+    # because there are much more objects than selected classes. In this test
+    # is done differently to simplify the test.
+    expected_objects = set()
+    for c in selected_classes:
+        for o in project_index.values():
+            if c in o.classes:
+                expected_objects.add(o)
+
+
+    # Act -----------------------------
+    objects = basic_project_service.get_objects(selected_classes)
+
+    # Assert --------------------------
+    # Check that the objects are the expected
+    assert set(objects) == expected_objects, \
+        f"Expected {len(expected_objects)} objects but got {len(objects)}."
+
+
+@pytest.mark.parametrize(
+    "selected_classes",
+    [
+        ([PROTEUS_ANY]),
+        (None),
+        ([]),
+        (["a", PROTEUS_ANY]),
+    ]
+)
+@pytest.mark.parametrize(
+    "classes_1, classes2, classes_3",
+    [
+        ("a", "b", "c"),
+        ("a b", "a", "a c"),
+        ("a b c", "b", "a"),
+    ]
+)
+def test_get_objects_any(mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3):
+    """
+    Test get_objects method where all objects are expected to be returned.
+    """
+    # Arrange -------------------------
+    # Mock the project_index.values()
+    project_index = {}
+    for index, classes in enumerate([classes_1, classes2, classes_3]):
+        mock_object = mocker.MagicMock(spec=Object)
+        mock_object.classes = classes.split()
+        mock_object.state = ProteusState.CLEAN
+        project_index[index] = mock_object
+    
+    basic_project_service.project_index = project_index
+
+    # Act -----------------------------
+    objects = basic_project_service.get_objects(selected_classes)
+
+    # Assert --------------------------
+    assert set(objects) == set(project_index.values()), \
+        f"Expected {len(project_index.values())} objects but got {len(objects)}."
 
 # NOTE: test save_project might not be necessary because it is a simple call
 # to the project save method, which is tested in the project model tests.

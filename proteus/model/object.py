@@ -422,7 +422,7 @@ class Object(AbstractObject):
 
         condition_1 = (
             PROTEUS_ANY in child.acceptedParents
-            or accepted_parent_common_classes
+            or len(accepted_parent_common_classes) > 0
         )
 
         # --------------------------------------------------------
@@ -435,7 +435,7 @@ class Object(AbstractObject):
 
         condition_2 = (
             PROTEUS_ANY in self.acceptedChildren
-            or accepted_children_common_classes
+            or len(accepted_children_common_classes) > 0
         )
 
         # BOTH conditions must be true

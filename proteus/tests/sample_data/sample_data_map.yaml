@@ -10,14 +10,12 @@
 empty_project:
 
 one_doc_project:
-  empty_document: 3fKhMAkcEe2C
+  # Document with multiple objects to test rendering
+  document_to_render: 722GfFiezi5F
 
 example_project:
   # Empty document with no objects ----------------------------------
   empty_document: 7hadM59iCS5g 
-
-  # Document with multiple objects to test rendering ----------------
-  document_to_render: 722GfFiezi5F
 
   # Simple document 1 with multiple objects -------------------------
   document_1: SS2yr44xAPqq
