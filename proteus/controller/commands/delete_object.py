@@ -65,7 +65,13 @@ class DeleteObjectCommand(QUndoCommand):
         # Command attributes
         self.before_delete_parent_state: ProteusState = None
         self.object: Object = self.project_service._get_element_by_id(object_id)
-        self.old_object_state: ProteusState = self.object.state
+        self.old_object_states: Dict[ProteusID, ProteusState] = {}
+
+        # Populate the old_object_states dictionary
+        for id in self.object.get_ids():
+            self.old_object_states[id] = self.project_service._get_element_by_id(
+                id
+            ).state
 
         # Atributed related to traces management
         self.new_sources_traces: Dict[ProteusID, List[Trace]] = {}
@@ -133,7 +139,9 @@ class DeleteObjectCommand(QUndoCommand):
         self.setText(f"Revert delete object {self.object.id}")
 
         # Change the state of the cloned object and his children to the old state
-        self.project_service.change_state(self.object.id, self.old_object_state)
+        for id in self.object.get_ids():
+            object: Object = self.project_service._get_element_by_id(id)
+            object.state = self.old_object_states[id]
 
         # Set the parent state to the old state
         self.object.parent.state = self.before_delete_parent_state

@@ -65,13 +65,18 @@ class UpdatePropertiesCommand(QUndoCommand):
         ), "Must provide a project service instance to the command"
         self.project_service = project_service
 
+        # Check new properties
+        assert isinstance(
+            new_properties, List
+        ), "The new properties must be provided as a list"
+
         # Create a list of properties and a list of traces
         self.new_properties: List[Property] = []
         self.new_traces: List[Trace] = []
         for prop in new_properties:
             if isinstance(prop, Trace):
                 self.new_traces.append(prop)
-            else:
+            elif isinstance(prop, Property):
                 self.new_properties.append(prop)
 
         # Get the element to update
