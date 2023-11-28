@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: test_delete_object.py
-# Description: pytest file for the PROTEUS delete object command
-# Date: 27/11/2023
+# File: test_delete_document.py
+# Description: pytest file for the PROTEUS delete document command
+# Date: 28/11/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -27,7 +27,9 @@ from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.views.utils.state_manager import StateManager
-from proteus.controller.commands.delete_object import DeleteObjectCommand
+from proteus.controller.commands.delete_document import (
+    DeleteDocumentCommand,
+)
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests.fixtures import SampleData
 
@@ -53,37 +55,34 @@ def sample_project_service():
 
 
 @pytest.mark.parametrize(
-    "object_name",
+    "document_name",
     [
-        ("simple_paragraph"),
-        ("section_dl_1"),
-        ("section_dl_2"),
-        ("target_with_2_sources_1"),
-        ("section_with_2_children_targeted"),
+        ("empty_document"),
+        ("document_1"),
+        ("document_with_traced_objects"),
     ],
 )
 def test_delete_object_command_redo(
     sample_project_service: ProjectService,
-    object_name,
+    document_name,
 ):
     """
-    Test that the redo method of the DeleteObjectCommand class works as
+    Test that the redo method of the DeleteDocumentCommand class works as
     expected.
 
-    Check object and children are marked as DEAD and parent as DIRTY.
+    Check document and children are marked as DEAD and parent as DIRTY.
     Check sources are marked as DIRTY.
     Check sources specific traces have been updated (less targets than before).
-    Check object is deselected.
     Do not check events are emitted.
 
-    Parametrized with multiple objects to test different children depths and
+    Parametrized with multiple documents to test different children depths and
     traces dependencies.
     """
     # Arrange -------------------------
-    object_id = SampleData.get(object_name)
+    document_id = SampleData.get(document_name)
 
     # Store ids of the object and its children to check their state later
-    object = sample_project_service._get_element_by_id(object_id)
+    object = sample_project_service._get_element_by_id(document_id)
     object_and_children_ids = object.get_ids()
 
     # Find objects that are tracing the object or its children (sources)
@@ -112,7 +111,7 @@ def test_delete_object_command_redo(
         sources_traces_before[source_id] = source_dict
 
     # Act -----------------------------
-    delete_object_command = DeleteObjectCommand(object_id, sample_project_service)
+    delete_object_command = DeleteDocumentCommand(document_id, sample_project_service)
 
     delete_object_command.redo()
 
@@ -152,36 +151,29 @@ def test_delete_object_command_redo(
                 Previous targets: {trace.targets}\
                 Ids: {object_and_children_ids}"
 
-    # Check deselect object has been called
-    assert (
-        StateManager().get_current_object() is None
-    ), f"Current object must be None but it is {StateManager().current_object}"
-
 
 @pytest.mark.parametrize(
-    "object_name",
+    "document_name",
     [
-        ("simple_paragraph"),
-        ("section_dl_1"),
-        ("section_dl_2"),
-        ("target_with_2_sources_1"),
-        ("section_with_2_children_targeted"),
+        ("empty_document"),
+        ("document_1"),
+        ("document_with_traced_objects"),
     ],
 )
 def test_delete_object_command_undo(
     sample_project_service: ProjectService,
-    object_name,
+    document_name,
 ):
     """
-    Test that the undo method of the DeleteObjectCommand class works as
+    Test that the undo method of the DeleteDocumentCommand class works as
     expected.
 
-    Check object, children and parent are restored to their previous state.
+    Check document, children and parent are restored to their previous state.
     Check sources are restored to their previous state.
     Check sources specific traces have been restored.
     Do not check events are emitted.
 
-    Parametrized with multiple objects to test different children depths and
+    Parametrized with multiple documents to test different children depths and
     traces dependencies.
 
     NOTE: This test is not independent from redo function. If redo does not
@@ -189,10 +181,10 @@ def test_delete_object_command_undo(
     test output to ensure this test is working properly.
     """
     # Arrange -------------------------
-    object_id = SampleData.get(object_name)
+    document_id = SampleData.get(document_name)
 
     # Store ids of the object and its children to check their state later
-    object = sample_project_service._get_element_by_id(object_id)
+    object = sample_project_service._get_element_by_id(document_id)
     object_and_children_ids = object.get_ids()
 
     # Store previous parent and object/children states
@@ -201,7 +193,6 @@ def test_delete_object_command_undo(
     for id in object_and_children_ids:
         object_states_before = sample_project_service._get_element_by_id(id)
         objects_states_before[id] = object_states_before.state
-
 
     # Find objects that are tracing the object or its children (sources)
     sources_ids = set()
@@ -235,7 +226,7 @@ def test_delete_object_command_undo(
         sources_traces_before[source_id] = source_dict
 
     # Act -----------------------------
-    delete_object_command = DeleteObjectCommand(object_id, sample_project_service)
+    delete_object_command = DeleteDocumentCommand(document_id, sample_project_service)
     delete_object_command.redo()
     delete_object_command.undo()
 
@@ -267,9 +258,10 @@ def test_delete_object_command_undo(
             # Get source trace
             source = sample_project_service._get_element_by_id(source_id)
             source_updated_trace = source.traces[trace_name]
-            assert source_updated_trace.targets == trace.targets, f"Updated trace {trace_name} of source {source_id} must be the same as before redo \
+            assert (
+                source_updated_trace.targets == trace.targets
+            ), f"Updated trace {trace_name} of source {source_id} must be the same as before redo \
                 (before: {trace.targets}, after: {source_updated_trace.targets}) \
                 Current targets: {source_updated_trace.targets} \
                 Previous targets: {trace.targets}\
                 Ids: {object_and_children_ids}"
-            

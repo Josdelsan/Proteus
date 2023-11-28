@@ -88,6 +88,9 @@ def mock_project_service(mocker, mock_object):
 # --------------------------------------------------------------------------
 # Unit tests
 # --------------------------------------------------------------------------
+# NOTE: Unit tests aproach is chosen because update_properties_command relies
+# heavily on ProjectService methods that are already tested in other modules.
+
 def test_update_properties_command_init_empty_properties(
     mock_object, mock_project_service
 ):

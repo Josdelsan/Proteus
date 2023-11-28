@@ -17,6 +17,9 @@ example_project:
   # Empty document with no objects ----------------------------------
   empty_document: 7hadM59iCS5g 
 
+  # Document with traced elements from other document ---------------
+  document_with_traced_objects: 4PDqmhx9rXqS
+
   # Simple document 1 with multiple objects -------------------------
   document_1: SS2yr44xAPqq
 
