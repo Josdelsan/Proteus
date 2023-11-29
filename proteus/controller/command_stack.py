@@ -362,7 +362,7 @@ class Controller:
         )
         # Call ProjectService method
         self._project_service.change_object_position(
-            document.id, new_position, self._project_service.project
+            document.id, new_position, self._project_service.project.id
         )
 
         # Notify that this action requires saving even if the command is not

@@ -97,7 +97,7 @@ class ChangeObjectPositionCommand(QUndoCommand):
 
         # Call ProjectService method
         self.project_service.change_object_position(
-            self.object.id, self.new_position, self.new_parent
+            self.object.id, self.new_position, self.new_parent.id
         )
 
         # Notify a deletion and add object event

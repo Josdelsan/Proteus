@@ -616,8 +616,8 @@ class ProjectService:
     def change_object_position(
         self,
         object_id: ProteusID,
-        new_position: int,
-        new_parent: Union[Project, Object],
+        new_position: int | None,
+        new_parent_id: ProteusID,
     ) -> None:
         """
         Changes the position of the object with the given id. If position is
@@ -628,66 +628,78 @@ class ProjectService:
         :param new_position: New position of the object.
         :param new_parent: New parent of the object.
         """
-        # TODO: This method should be refactored to not recieve the new position
-        #       relative to non DEAD objects, but relative to all objects. Since
-        #       this is a problem when redoing delete operations.
-
-        # Check the object_id is valid
+        # Check the object_id and new_parent are valid
         assert isinstance(object_id, str), f"Invalid object id {object_id}."
+        assert isinstance(new_parent_id, str), f"Invalid new parent id {new_parent_id}."
 
-        # Check the new_parent is valid
+        # Get object and new parent using helper method
+        object: Object = self._get_element_by_id(object_id)
+        new_parent: Union[Project, Object] = self._get_element_by_id(new_parent_id)
+
+        # Check that the object is an object and the new parent is an object or project
+        assert isinstance(
+            object, Object
+        ), f"Element with id {object_id} is not an object but a {type(object)}."
         assert isinstance(
             new_parent, (Project, Object)
-        ), f"Invalid new parent {new_parent}."
-
-        # Get object using helper method
-        object: Object = self._get_element_by_id(object_id)
-
-        # Check that the object is an object
-        assert isinstance(object, Object), f"Element with id {object} is not an object."
+        ), f"Element with id {new_parent_id} is not an object or project."
 
         # Set old parent to change its state later
         old_parent: Union[Project, Object] = object.parent
 
-        # Store the current position of the object in its parent to later drop it
-        current_position: int = old_parent.get_descendants().index(object)
+        # Reorder descendants list in new and old parent to push all DEAD objects to the end
+        def _reorder_descendants_list(parent: Union[Project, Object]) -> None:
+            """
+            Reorder object/project descendants pushing all DEAD objects to the end.
 
-        # Descendants lists, one with the dead objects and one without them
-        # to calculate position relative to non DEAD objects
-        new_parent_descendants: List[Object] = new_parent.get_descendants()
-        alive_descendants: List[Object] = [
-            d for d in new_parent_descendants if d.state != ProteusState.DEAD
-        ]
+            :param parent: Parent object.
+            """
+            # Auxiliary lists
+            non_dead_descendants: List[Object] = []
+            dead_descendants: List[Object] = []
 
-        # If no position is given or the position is greater than the number of
-        # alive descendants, move the object to the end of the parent (None default position)
-        if new_position is None or new_position >= len(alive_descendants):
-            new_position = None
-        # If position is given, calculate the real position using a reference sibling
+            for o in parent.get_descendants():
+                if o.state == ProteusState.DEAD:
+                    dead_descendants.append(o)
+                else:
+                    non_dead_descendants.append(o)
+
+            new_parent_descendants: List[Object] = (
+                non_dead_descendants + dead_descendants
+            )
+            if isinstance(parent, Project):
+                parent._documents = new_parent_descendants
+            elif isinstance(parent, Object):
+                parent._children = new_parent_descendants
+
+        _reorder_descendants_list(old_parent)
+        _reorder_descendants_list(new_parent)
+
+        # If new and old parent are the same, extra checks are needed
+        if new_parent.id == old_parent.id:
+            # Index will return the first occurrence of the object, we need to ensure
+            # that the removed object is the one in the old position. This can be
+            # achieved by starting the search from the current position
+            # if the new position is lower than the current position (would appear
+            # before and push the object one position forward)
+            current_position: int = old_parent.get_descendants().index(object)
+            start_looking_position: int = 0
+            if new_position < current_position:
+                start_looking_position = current_position
+
+            new_parent.add_descendant(object, new_position)
+            current_position_after_move: int = old_parent.get_descendants().index(
+                object, start_looking_position
+            )
+            old_parent.get_descendants().pop(current_position_after_move)
+        # If new and old parent are not the same, just move the object and remove it from the old parent
         else:
-            # Use a sibling as reference to calculate the real position relative to
-            # non DEAD objects and once the object in current position is removed
-            reference_sibling: Object = alive_descendants[new_position]
+            old_parent.get_descendants().remove(object)
+            new_parent.add_descendant(object, new_position)
 
-            # If the new parent is the same as the old parent, take into account
-            # the object in current position is going to be removed
-            if old_parent == new_parent:
-                # Simulate the removal of the object in current position
-                descendants_copy: List[Object] = new_parent_descendants.copy()
-                descendants_copy.pop(current_position)
-                new_position = descendants_copy.index(reference_sibling)
-            else:
-                new_position = new_parent_descendants.index(reference_sibling)
-
-        # Change the old parent state to DIRTY if not FRESH
-        if old_parent.state != ProteusState.FRESH:
-            old_parent.state = ProteusState.DIRTY
-
-        # Remove object from current parent descendants
-        old_parent.get_descendants().pop(current_position)
-
-        # Add object to new parent descendants
-        new_parent.add_descendant(object, new_position)
+            # Change state of old parent if it was CLEAN
+            if old_parent.state == ProteusState.CLEAN:
+                old_parent.state = ProteusState.DIRTY
 
     # ----------------------------------------------------------------------
     # Method     : check_position_change
@@ -747,13 +759,10 @@ class ProjectService:
         # If the position is changing within the same parent avoid same position
         elif new_parent == object.parent:
             # Position must be different from current position
-            if new_position == current_position:
+            if new_position == current_position or new_position == current_position + 1:
                 position_change_allowed = False
-            # If no position specified (default last), the object must not be the last one
-            elif (
-                new_position is None
-                and current_position == len(object.parent.get_descendants()) - 1
-            ):
+            # If no position specified (default last) do not allow drop in the same parent
+            elif new_position is None:
                 position_change_allowed = False
             # Avoid new position to be last if the object is the last one
             elif (

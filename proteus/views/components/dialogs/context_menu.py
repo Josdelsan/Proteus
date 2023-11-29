@@ -187,7 +187,6 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_move_down_object: QAction = QAction(
             self._translator.text("document_tree.menu.action.move_down"), self
         )
-        # TODO: Fix change position method to avoid using +2
         self.action_move_down_object.triggered.connect(
             lambda: self._controller.change_object_position(
                 selected_item_id, position_index + 2, parent_id

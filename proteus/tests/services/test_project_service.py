@@ -78,6 +78,7 @@ def mock_property(mocker):
     """
     return mocker.MagicMock(spec=Property)
 
+
 @pytest.fixture
 def mock_trace(mocker):
     """
@@ -214,7 +215,9 @@ def test_generate_document_xml(
     )
 
     # Act -----------------------------
-    document_xml: ET.Element = basic_project_service.generate_document_xml(RENDER_DOCUMENT_ID)
+    document_xml: ET.Element = basic_project_service.generate_document_xml(
+        RENDER_DOCUMENT_ID
+    )
     document_xml_string: bytes = ET.tostring(
         document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
@@ -371,6 +374,245 @@ def test_get_traces_dependencies(
         ), f"Traced object should have {expected_sources_for_each_object} sources but it has {len(traced_object)}"
 
 
+@pytest.mark.parametrize(
+    "object_name, new_parent_name, new_position, expected_current_position",
+    [
+        ("simple_paragraph", "document_1", 2, 0),
+        ("simple_paragraph", "document_1", 3, 0),
+        ("simple_paragraph", "document_1", 8, 0),  # Move to the last position
+        ("simple_objective", "document_1", 0, 5),  # Move to the first position
+    ],
+)
+def test_change_object_position_same_parent(
+    project_service: ProjectService,
+    object_name: str,
+    new_parent_name: str,
+    new_position: int,
+    expected_current_position: int,
+):
+    """
+    NOTE: DEAD objects are pushed to the end of the list to calculate the
+    position relative to non-DEAD objects.
+    """
+    # Arrange -------------------------
+    # Object
+    object_id = SampleData.get(object_name)
+    object = project_service._get_element_by_id(object_id)
+    old_parent = object.parent
+    old_parent_descendants = [
+        o for o in old_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    current_position = old_parent_descendants.index(object)
+
+    # Check test data is correct
+    assert (
+        current_position == expected_current_position
+    ), f"Test data is not correct. Current position is {current_position} and expected {expected_current_position}"
+
+    # New parent
+    new_parent_id = SampleData.get(new_parent_name)
+    new_parent = project_service._get_element_by_id(new_parent_id)
+
+    # Act -----------------------------
+    project_service.change_object_position(object_id, new_position, new_parent_id)
+
+    # Assert --------------------------
+    # Check object appears in the new parent
+    new_parent_descendants_updated = [
+        o for o in new_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    assert (
+        object in new_parent_descendants_updated
+    ), f"Object {object.id} should be in parent {new_parent.id} but it was not found."
+
+    # Calculate expected position. If new_position is greater than the current position, we must decrease it by 1
+    # to compensate the fact that the 'old' object is removed from the parent after being inserted.
+    expected_position = new_position
+    if new_position > current_position:
+        expected_position = new_position - 1
+
+    assert (
+        new_parent_descendants_updated.index(object) == expected_position
+    ), f"Object {object.id} should be in position {expected_position} in parent {new_parent.id} but it is in position \
+        {new_parent_descendants_updated.index(object)}"
+
+    # Check both parents are the same
+    assert (
+        object.parent == new_parent == old_parent
+    ), f"Object {object.id} parent {object.parent.id} should be equal to new parent {new_parent.id} and old parent {old_parent.id}"
+
+    # Check parent state is DIRTY
+    assert (
+        old_parent.state == ProteusState.DIRTY
+        and new_parent.state == ProteusState.DIRTY
+    ), f"Old parent state should be DIRTY, but it is {old_parent.state}"
+
+
+@pytest.mark.parametrize(
+    "object_name, new_parent_name, new_position, expected_current_position",
+    [
+        (
+            "simple_paragraph",
+            "section_dl_1",
+            0,
+            0,
+        ),
+        (
+            "simple_paragraph",
+            "section_dl_1",
+            1,
+            0,
+        ),
+    ],
+)
+def test_change_object_position_different_parent(
+    project_service: ProjectService,
+    object_name: str,
+    new_parent_name: str,
+    new_position: int,
+    expected_current_position: int,
+):
+    """
+    NOTE: DEAD objects are pushed to the end of the list to calculate the
+    position relative to non-DEAD objects.
+    """
+    # Arrange -------------------------
+    # Object
+    object_id = SampleData.get(object_name)
+    object = project_service._get_element_by_id(object_id)
+    old_parent = object.parent
+    old_parent_descendants = [
+        o for o in old_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    current_position = old_parent_descendants.index(object)
+
+    # Check test data is correct
+    assert (
+        current_position == expected_current_position
+    ), f"Test data is not correct. Current position is {current_position} and expected {expected_current_position}"
+
+    # New parent
+    new_parent_id = SampleData.get(new_parent_name)
+    new_parent = project_service._get_element_by_id(new_parent_id)
+
+    # Act -----------------------------
+    project_service.change_object_position(object_id, new_position, new_parent_id)
+
+    # Assert --------------------------
+    # Check object appears in the new parent
+    new_parent_descendants_updated = [
+        o for o in new_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    assert (
+        object in new_parent_descendants_updated
+    ), f"Object {object.id} should be in parent {new_parent.id} but it was not found."
+
+    # Check the object is in the new position
+    assert (
+        new_parent_descendants_updated.index(object) == new_position
+    ), f"Object {object.id} should be in position {new_position} in parent {new_parent.id} but it is in position \
+        {new_parent_descendants_updated.index(object)}"
+
+    # Check the new parent is the correct
+    assert (
+        object.parent == new_parent and object.parent != old_parent
+    ), f"Object {object.id} parent {object.parent.id} should be equal to new parent {new_parent.id} and different from old parent {old_parent.id}"
+
+    # Check old and new parent state are DIRTY
+    assert (
+        old_parent.state == ProteusState.DIRTY
+    ), f"Old parent state should be DIRTY, but it is {old_parent.state}"
+
+    assert (
+        new_parent.state == ProteusState.DIRTY
+    ), f"New parent state should be DIRTY, but it is {new_parent.state}"
+
+    # Check that the object is not in the old parent
+    assert (
+        object not in old_parent.get_descendants()
+    ), f"Object {object.id} should not be in old parent {old_parent.id} but it was found."
+
+
+@pytest.mark.parametrize(
+    "object_name, new_parent_name, new_position, expected_current_position",
+    [
+        (
+            "simple_paragraph",
+            "section_dl_1",
+            None,
+            0,
+        ),
+    ],
+)
+def test_change_object_position_different_parent_none(
+    project_service: ProjectService,
+    object_name: str,
+    new_parent_name: str,
+    new_position: int,
+    expected_current_position: int,
+):
+    """
+    NOTE: DEAD objects are pushed to the end of the list to calculate the
+    position relative to non-DEAD objects.
+    """
+    # Arrange -------------------------
+    # Object
+    object_id = SampleData.get(object_name)
+    object = project_service._get_element_by_id(object_id)
+    old_parent = object.parent
+    old_parent_descendants = [
+        o for o in old_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    current_position = old_parent_descendants.index(object)
+
+    # Check test data is correct
+    assert (
+        current_position == expected_current_position
+    ), f"Test data is not correct. Current position is {current_position} and expected {expected_current_position}"
+
+    # New parent
+    new_parent_id = SampleData.get(new_parent_name)
+    new_parent = project_service._get_element_by_id(new_parent_id)
+
+    # Act -----------------------------
+    project_service.change_object_position(object_id, new_position, new_parent_id)
+
+    # Assert --------------------------
+    # Check object appears in the new parent
+    new_parent_descendants_updated = [
+        o for o in new_parent.get_descendants().copy() if o.state != ProteusState.DEAD
+    ]
+    assert (
+        object in new_parent_descendants_updated
+    ), f"Object {object.id} should be in parent {new_parent.id} but it was not found."
+
+    # Check the object is in the new position (last position)
+    last_position = len(new_parent_descendants_updated) - 1
+    assert (
+        new_parent_descendants_updated.index(object) == last_position
+    ), f"Object {object.id} should be in position {last_position} in parent {new_parent.id} but it is in position \
+        {new_parent_descendants_updated.index(object)}"
+
+    # Check the new parent is the correct
+    assert (
+        object.parent == new_parent and object.parent != old_parent
+    ), f"Object {object.id} parent {object.parent.id} should be equal to new parent {new_parent.id} and different from old parent {old_parent.id}"
+
+    # Check old and new parent state are DIRTY
+    assert (
+        old_parent.state == ProteusState.DIRTY
+    ), f"Old parent state should be DIRTY, but it is {old_parent.state}"
+
+    assert (
+        new_parent.state == ProteusState.DIRTY
+    ), f"New parent state should be DIRTY, but it is {new_parent.state}"
+
+    # Check that the object is not in the old parent
+    assert (
+        object not in old_parent.get_descendants()
+    ), f"Object {object.id} should not be in old parent {old_parent.id} but it was found."
+
+
 # --------------------------------------------------------------------------
 # Unit tests
 # --------------------------------------------------------------------------
@@ -490,9 +732,7 @@ def test_update_traces(mocker, basic_project_service: ProjectService):
     ), f"Trace should be added to the object"
 
     # Check mock_element state is updated
-    assert (
-        mock_element.state == ProteusState.DIRTY
-    ), f"Object state should be DIRTY"
+    assert mock_element.state == ProteusState.DIRTY, f"Object state should be DIRTY"
 
 
 @pytest.mark.parametrize(
@@ -515,9 +755,7 @@ def test_update_traces_negative(
     Test the update_traces method with invalid traces parameters.
     """
     # Arrange -------------------------
-    mocker.patch.object(
-        basic_project_service, "_get_element_by_id", return_value=None
-    )
+    mocker.patch.object(basic_project_service, "_get_element_by_id", return_value=None)
 
     # Act | Assert --------------------
     with pytest.raises(AssertionError):
@@ -527,6 +765,7 @@ def test_update_traces_negative(
     assert (
         basic_project_service._get_element_by_id.call_count == 0
     ), f"_get_element_by_id should not be called"
+
 
 # test_get_element_by_id ---------------------------------------------------
 def test_get_element_by_id(
@@ -576,6 +815,7 @@ def test_get_element_by_id_negative(
         basic_project_service._populate_index.call_count == 1
     ), f"_populate_index should be called once"
 
+
 @pytest.mark.parametrize(
     "selected_classes",
     [
@@ -584,7 +824,7 @@ def test_get_element_by_id_negative(
         (["b", "c"]),
         (["a", "b", "c", "d"]),
         (["d"]),
-    ]
+    ],
 )
 @pytest.mark.parametrize(
     "classes_1, classes2, classes_3",
@@ -592,9 +832,11 @@ def test_get_element_by_id_negative(
         ("a", "b", "c"),
         ("a b", "a", "a c"),
         ("a b c", "b", "a"),
-    ]
+    ],
 )
-def test_get_objects(mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3):
+def test_get_objects(
+    mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3
+):
     """
     Test get_objects method with different selected classes. Classes for dummy objects are
     passed as strings and converted to lists in the test for simplicity.
@@ -609,7 +851,7 @@ def test_get_objects(mocker, basic_project_service, selected_classes, classes_1,
         mock_object.classes = classes.split()
         mock_object.state = ProteusState.CLEAN
         project_index[index] = mock_object
-    
+
     basic_project_service.project_index = project_index
 
     # Calculate expected objects
@@ -622,14 +864,14 @@ def test_get_objects(mocker, basic_project_service, selected_classes, classes_1,
             if c in o.classes:
                 expected_objects.add(o)
 
-
     # Act -----------------------------
     objects = basic_project_service.get_objects(selected_classes)
 
     # Assert --------------------------
     # Check that the objects are the expected
-    assert set(objects) == expected_objects, \
-        f"Expected {len(expected_objects)} objects but got {len(objects)}."
+    assert (
+        set(objects) == expected_objects
+    ), f"Expected {len(expected_objects)} objects but got {len(objects)}."
 
 
 @pytest.mark.parametrize(
@@ -639,7 +881,7 @@ def test_get_objects(mocker, basic_project_service, selected_classes, classes_1,
         (None),
         ([]),
         (["a", PROTEUS_ANY]),
-    ]
+    ],
 )
 @pytest.mark.parametrize(
     "classes_1, classes2, classes_3",
@@ -647,9 +889,11 @@ def test_get_objects(mocker, basic_project_service, selected_classes, classes_1,
         ("a", "b", "c"),
         ("a b", "a", "a c"),
         ("a b c", "b", "a"),
-    ]
+    ],
 )
-def test_get_objects_any(mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3):
+def test_get_objects_any(
+    mocker, basic_project_service, selected_classes, classes_1, classes2, classes_3
+):
     """
     Test get_objects method where all objects are expected to be returned.
     """
@@ -661,15 +905,17 @@ def test_get_objects_any(mocker, basic_project_service, selected_classes, classe
         mock_object.classes = classes.split()
         mock_object.state = ProteusState.CLEAN
         project_index[index] = mock_object
-    
+
     basic_project_service.project_index = project_index
 
     # Act -----------------------------
     objects = basic_project_service.get_objects(selected_classes)
 
     # Assert --------------------------
-    assert set(objects) == set(project_index.values()), \
-        f"Expected {len(project_index.values())} objects but got {len(objects)}."
+    assert set(objects) == set(
+        project_index.values()
+    ), f"Expected {len(project_index.values())} objects but got {len(objects)}."
+
 
 # NOTE: test save_project might not be necessary because it is a simple call
 # to the project save method, which is tested in the project model tests.
