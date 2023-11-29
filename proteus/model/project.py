@@ -317,7 +317,7 @@ class Project(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_descendants(self) -> List:
+    def get_descendants(self) -> List[Object]:
         """
         It returns a list with all the documents of a project.
         :return: list with all the documents of a project.
