@@ -16,7 +16,7 @@ from typing import List, Dict
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QPoint
+from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QMenu,
@@ -114,7 +114,7 @@ class ContextMenu(QMenu, ProteusComponent):
             return
 
         # Get the selected item id
-        selected_item_id: ProteusID = selected_item.data(1, 0)
+        selected_item_id: ProteusID = selected_item.data(1, Qt.ItemDataRole.UserRole)
 
         # Do not show context menu for document root item
         # NOTE: Elements stored in the tree items dictionary are always
@@ -127,7 +127,7 @@ class ContextMenu(QMenu, ProteusComponent):
         # Get selected item index and parent item id to handle object
         # position changes.
         position_index: int = self.tree_widget.indexFromItem(selected_item).row()
-        parent_id: ProteusID = selected_item.parent().data(1, 0)
+        parent_id: ProteusID = selected_item.parent().data(1, Qt.ItemDataRole.UserRole)
 
         # Create the edit action --------------------------------------------
         self.action_edit_object: QAction = QAction(
@@ -250,7 +250,7 @@ class ContextMenu(QMenu, ProteusComponent):
     @staticmethod
     def create_dialog(
         controller: Controller, tree_widget: QTreeWidget, position: QPoint
-    ) -> 'ContextMenu':
+    ) -> "ContextMenu":
         """
         Handle the creation and display of the form window.
         """
@@ -343,7 +343,9 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
                 self._translator.text(archetype.get_property(PROTEUS_NAME).value), self
             )
             icon: QIcon = QIcon(
-                self._config.get_icon(TREE_MENU_ICON_TYPE, archetype.classes[-1]).as_posix()
+                self._config.get_icon(
+                    TREE_MENU_ICON_TYPE, archetype.classes[-1]
+                ).as_posix()
             )
             action.setIcon(icon)
             action.triggered.connect(

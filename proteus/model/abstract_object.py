@@ -168,21 +168,15 @@ class AbstractObject(ABC):
     #              Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def get_property(self, key: str) -> Property:
+    def get_property(self, key: str) -> Property | None:
         """
         It returns an object's property given its name.
-        It aborts if there is no property with that name.
-        TODO: return None in that case?
+        If property is not found by name, it returns None.
 
         :param key: the name of the property to be returned.
         :return: the property with the given name.
         """
-        assert (
-            key in self.properties.keys()
-        ), f"Property {key} not found in {self.id} properties."
-
-        # using self.properties.get(key,default) we can return a default value
-        return self.properties[key]
+        return self.properties.get(key, None)
 
     # ----------------------------------------------------------------------
     # Method     : set_property
@@ -313,7 +307,7 @@ class AbstractObject(ABC):
 
         # return parent elmenent, i.e. <project> or <object>
         return parent_element
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_ids
     # Description: It returns a set with all the ids of the project

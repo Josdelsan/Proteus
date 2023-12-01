@@ -36,9 +36,17 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag, PROTEUS_DOCUMENT, PROTEUS_NAME
+from proteus.model import (
+    ProteusID,
+    ProteusClassTag,
+    PROTEUS_DOCUMENT,
+    PROTEUS_NAME,
+    PROTEUS_CODE,
+)
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
+from proteus.model.properties.code_property import ProteusCode
+from proteus.model.properties.property import Property
 from proteus.controller.command_stack import Controller
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.views.utils.event_manager import Event
@@ -155,14 +163,16 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Connect double click to object properties form
         self.itemDoubleClicked.connect(
             lambda item: PropertyDialog.create_dialog(
-                element_id=item.data(1, 0), controller=self._controller
+                element_id=item.data(1, Qt.ItemDataRole.UserRole),
+                controller=self._controller,
             )
         )
 
         # Connect click to object selection
         self.itemClicked.connect(
             lambda item: self._state_manager.set_current_object(
-                object_id=item.data(1, 0), document_id=self.element_id
+                object_id=item.data(1, Qt.ItemDataRole.UserRole),
+                document_id=self.element_id,
             )
         )
 
@@ -230,23 +240,13 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Create the new item, if position is not None insert the item in
         # the given position
         if position is not None:
-            new_item = QTreeWidgetItem(None, [object.get_property(PROTEUS_NAME).value])
+            new_item = QTreeWidgetItem()
             parent_item.insertChild(position, new_item)
         else:
-            new_item = QTreeWidgetItem(
-                parent_item, [object.get_property(PROTEUS_NAME).value]
-            )
+            new_item = QTreeWidgetItem(parent_item)
 
-        # Set the item color based on the object ProteusState
-        new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
-
-        # Set the icon based on the object last class
-        object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
-        new_item.setIcon(0, QIcon(icon_path.as_posix()))
-
-        # Set the item data to store the object id
-        new_item.setData(1, 0, object.id)
+        # Setup the new item with object information
+        self.tree_item_setup(new_item, object)
 
         # Add the new item to the tree items dictionary
         self.tree_items[object.id] = new_item
@@ -256,6 +256,62 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             self.populate_tree(new_item, child)
 
         new_item.setExpanded(True)
+
+    # ----------------------------------------------------------------------
+    # Method     : tree_item_setup
+    # Description: Setup the tree item for the given object.
+    # Date       : 01/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def tree_item_setup(self, tree_item: QTreeWidgetItem, object: Object) -> None:
+        """
+        Given an object, update the tree item properties to match the object
+        properties and state.
+
+        :param tree_item: The tree item to update
+        :param object: The object to match
+        """
+        # Set the background color based on the object ProteusState
+        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+
+        # Set the icon based on the object last class
+        object_class: ProteusClassTag = object.classes[-1]
+        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
+        tree_item.setIcon(0, QIcon(icon_path.as_posix()))
+
+        # Set the item data to store the object id
+        tree_item.setData(1, Qt.ItemDataRole.UserRole, object.id)
+
+        # Create item string from object properties
+        name_str = ""
+        code_str = ""
+
+        # Check for PROTEUS_CODE property
+        if object.get_property(PROTEUS_CODE) is not None:
+            code: ProteusCode = object.get_property(PROTEUS_CODE).value
+
+            # If not instance of ProteusCode, cast to string and log warning
+            if isinstance(code, ProteusCode):
+                code_str = f"[{code.to_string()}]"
+            else:
+                log.warning(
+                    f"PROTEUS_CODE property of object {object.id} is not instance of ProteusCode, casting to string."
+                )
+                code_str = f"[{str(code)}]"
+
+        # Check for PROTEUS_NAME property
+        name_property = object.get_property(PROTEUS_NAME)
+
+        assert isinstance(
+            name_property, Property
+        ), f"Every object must have a PROTEUS_NAME property. Check object {object.id} properties, current return type is {type(name_property)}"
+
+        name_str = str(name_property.value)
+
+        # Build the name string
+        item_string = f"{code_str} {name_str}".strip()
+        tree_item.setText(0, item_string)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -291,9 +347,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Get the object
         object: Object = self._controller.get_element(element_id)
 
-        # Update the tree item
-        tree_item.setText(0, object.get_property(PROTEUS_NAME).value)
-        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+        # Update the tree item with the object information
+        self.tree_item_setup(tree_item, object)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
@@ -397,7 +452,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             item.parent().removeChild(item)
 
             # Remove the item from the tree items dictionary
-            self.tree_items.pop(item.data(1, 0))
+            self.tree_items.pop(item.data(1, Qt.ItemDataRole.UserRole))
 
         # Get the deleted object id
         element_id: ProteusID = kwargs.get("element_id")
@@ -416,7 +471,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # NOTE: Parent will always be an Object. Project cannot be selected
         #       as parent to trigger DELETE_OBJECT event. When deleting object
         #       with Project parent DELETE_DOCUMENT event is triggered.
-        parent_id: ProteusID = tree_item.parent().data(1, 0)
+        parent_id: ProteusID = tree_item.parent().data(1, Qt.ItemDataRole.UserRole)
         parent_object: Object = self._controller.get_element(parent_id)
         tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
@@ -449,7 +504,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Get dropped element_id
         dropped_item = source.currentItem()
-        dropped_element_id: ProteusID = dropped_item.data(1, 0)
+        dropped_element_id: ProteusID = dropped_item.data(1, Qt.ItemDataRole.UserRole)
 
         # Drop position
         point: QPoint = event.position().toPoint()
@@ -457,7 +512,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Get target element_id
         target_item = self.itemAt(point)
         try:
-            target_element_id: ProteusID = target_item.data(1, 0)
+            target_element_id: ProteusID = target_item.data(1, Qt.ItemDataRole.UserRole)
         except AttributeError:
             log.warning(f"Target item not found at position {point}.")
             return
@@ -480,7 +535,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             # Get the parent id
             parent_id: ProteusID = None
             try:
-                parent_id: ProteusID = target_item.parent().data(1, 0)
+                parent_id: ProteusID = target_item.parent().data(
+                    1, Qt.ItemDataRole.UserRole
+                )
             except AttributeError:
                 log.debug(
                     f"Failed to get the parent id of the target item '{target_element_id}'. The target item is a root item (PROTEUS document)"
@@ -561,7 +618,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Get the object that performs the drag
         source: QTreeWidget = event.source()
         source_item: QTreeWidgetItem = source.currentItem()
-        source_item_id: ProteusID = source_item.data(1, 0)
+        source_item_id: ProteusID = source_item.data(1, Qt.ItemDataRole.UserRole)
 
         # Get the object
         object: Object = self._controller.get_element(source_item_id)

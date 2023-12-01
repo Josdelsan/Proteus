@@ -30,7 +30,7 @@ from proteus.model.properties.property_factory import PropertyFactory
 # Fixtures
 # --------------------------------------------------------------------------
 DUMMY_PREFIX = "prefix"
-DUMMY_NUMBER = "0001"
+DUMMY_NUMBER = "001"
 DUMMY_SUFFIX = "suffix"
 DUMMY_NAME = "test name"
 DUMMY_CATEGORY = "test category"

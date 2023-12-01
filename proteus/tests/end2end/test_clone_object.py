@@ -24,6 +24,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
 from PyQt6.QtCore import QPoint, QTimer
 
@@ -105,7 +106,7 @@ def test_clone_object(app, object_name, document_name):
     old_parent_children_number = parent_element.childCount()
 
     # Calculate number of objects cloned (including children)
-    object_to_clone_id: ProteusID = tree_element.data(1,0)
+    object_to_clone_id: ProteusID = tree_element.data(1,Qt.ItemDataRole.UserRole)
     object_to_clone: Object = main_window._controller.get_element(object_to_clone_id)
     objects_cloned_number = len(object_to_clone.get_ids())
 

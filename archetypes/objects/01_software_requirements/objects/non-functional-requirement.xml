@@ -8,7 +8,7 @@
     <properties>
       <codeProperty name=":Proteus-code" category="general" inmutable="true">
         <prefix><![CDATA[NFR-]]></prefix>
-        <number>0001</number>
+        <number>001</number>
         <suffix><![CDATA[]]></suffix>
       </codeProperty>
       <stringProperty name=":Proteus-name" category="general">Non functional requirement</stringProperty>

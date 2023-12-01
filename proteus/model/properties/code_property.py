@@ -48,7 +48,7 @@ class ProteusCode:
     """
     Class for PROTEUS code objects. It is used to represent a code in a
     sequence. The codes are composed by prefix, identifier and optional
-    suffix. Identifier is an integer that is padded with 4 zeros to the left.
+    suffix. Identifier is an integer that is padded with 3 zeros to the left.
 
     ProteusCode objects can calculate the next code in the sequence. The
     identifier is incremented by one and the prefix and suffix are kept.
@@ -85,24 +85,24 @@ class ProteusCode:
             self.suffix, str
         ), f"ProteusCode suffix must be string but it is {type(self.suffix)}"
 
-        # Normalize number to have 4 digits if less than 4
+        # Normalize number to have 3 digits if less than 3
         try:
             number = int(self.number)
 
             assert number > 0, "ProteusCode number must be greater than zero"
 
-            self.number = f"{number:04d}"
+            self.number = f"{number:03d}"
         except ValueError:
             log.warning(
                 f"ProteusCode number must be composed by digits but it is '{self.number}' -> assigning default value 1"
             )
-            self.number = "1".zfill(4)
+            self.number = "1".zfill(3)
 
 
     def to_string(self) -> str:
         """
         Returns the string representation of the PROTEUS code. The number is converted to string
-        and padded with zeros to the left to have a length of 4 characters.
+        and padded with zeros to the left to have a length of 3 characters.
         """
         return f"{self.prefix}{self.number}{self.suffix}"
 
@@ -112,7 +112,7 @@ class ProteusCode:
         and suffix are kept.
         """
         next_number = int(self.number) + 1
-        return ProteusCode(self.prefix, f"{next_number:04d}", self.suffix)
+        return ProteusCode(self.prefix, f"{next_number:03d}", self.suffix)
 
     def __eq__(self, other):
         """

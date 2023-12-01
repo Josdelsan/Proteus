@@ -6,6 +6,11 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
+import logging
 from pathlib import Path
 from typing import List
 
@@ -30,13 +35,18 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag, PROTEUS_NAME
+from proteus.model import ProteusID, ProteusClassTag, PROTEUS_NAME, PROTEUS_CODE
 from proteus.model.object import Object
+from proteus.model.properties.property import Property
+from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views import TREE_MENU_ICON_TYPE
 from proteus.config import Config
 from proteus.views.utils.translator import Translator
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------
@@ -186,16 +196,9 @@ class TraceEdit(QWidget):
                 object, Object
             ), f"Trace must be a reference to an object, id '{trace}' is not a reference to an object but to a '{type(object)}' type."
 
+            # Create QListWidgetItem
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
-
-            # Set text and data (ProteusID)
-            trace_item.setText(object.get_property(PROTEUS_NAME).value)
-            trace_item.setData(Qt.ItemDataRole.UserRole, trace)
-
-            # Set icon
-            object_class: ProteusClassTag = object.classes[-1]
-            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
-            trace_item.setIcon(QIcon(icon_path.as_posix()))
+            _list_item_setup(trace_item, object)
 
             self.list_widget.addItem(trace_item)
 
@@ -234,13 +237,7 @@ class TraceEdit(QWidget):
 
             # Create QListWidgetItem
             trace_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
-            trace_item.setText(object.get_property(PROTEUS_NAME).value)
-            trace_item.setData(Qt.ItemDataRole.UserRole, trace)
-
-            # Set icon
-            object_class: ProteusClassTag = object.classes[-1]
-            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
-            trace_item.setIcon(QIcon(icon_path.as_posix()))
+            _list_item_setup(trace_item, object)
 
             # Add item to the QListWidget
             self.list_widget.addItem(trace_item)
@@ -293,6 +290,10 @@ class TraceEditDialog(QDialog):
     Dialog to select a trace from a list of available objects. It shows
     only objects from the given object class. Discard objects that are
     already traced.
+
+    TODO: Hide the object itself from the list of available objects and
+    allow the user to select it by clicking on a checkbox.
+    TODO: Add a search bar to filter objects by name.
     """
 
     # ----------------------------------------------------------------------
@@ -374,17 +375,9 @@ class TraceEditDialog(QDialog):
             if object.id in self.targets:
                 continue
 
-            # Get object name
-            object_name: str = object.get_property(PROTEUS_NAME).value
-
             # Create QListWidgetItem
             object_item: QListWidgetItem = QListWidgetItem(parent=self.list_widget)
-            object_item.setText(object_name)
-            object_item.setData(Qt.ItemDataRole.UserRole, object.id)
-            # Set icon
-            object_class: ProteusClassTag = object.classes[-1]
-            icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
-            object_item.setIcon(QIcon(icon_path.as_posix()))
+            _list_item_setup(object_item, object)
 
             # Add item to the QListWidget
             self.list_widget.addItem(object_item)
@@ -486,3 +479,56 @@ class TraceEditDialog(QDialog):
             trace = dialog.selected_object
 
         return trace
+
+
+# --------------------------------------------------------------------------
+# Function: _list_item_setup
+# Description: Setup the list item with the information of the object.
+# Date: 01/12/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+def _list_item_setup(list_item: QListWidgetItem, object: Object) -> None:
+    """
+    Helper function to setup the list item with the information of the object.
+
+    :param list_item: QListWidgetItem to setup.
+    :param object: Object to get the information from.
+    """
+    # Create item string from object properties
+    name_str = ""
+    code_str = ""
+
+    # Check for PROTEUS_CODE property
+    if object.get_property(PROTEUS_CODE) is not None:
+        code: ProteusCode = object.get_property(PROTEUS_CODE).value
+
+        # If not instance of ProteusCode, cast to string and log warning
+        if isinstance(code, ProteusCode):
+            code_str = f"[{code.to_string()}]"
+        else:
+            log.warning(
+                f"PROTEUS_CODE property of object {object.id} is not instance of ProteusCode, casting to string."
+            )
+            code_str = f"[{str(code)}]"
+
+    # Check for PROTEUS_NAME property
+    name_property = object.get_property(PROTEUS_NAME)
+
+    assert isinstance(
+        name_property, Property
+    ), f"Every object must have a PROTEUS_NAME property. Check object {object.id} properties, current return type is {type(name_property)}"
+
+    name_str = str(name_property.value)
+
+    # Build the name string
+    item_string = f"{code_str} {name_str}".strip()
+    list_item.setText(item_string)
+
+    # Set data (ProteusID)
+    list_item.setData(Qt.ItemDataRole.UserRole, object.id)
+
+    # Set icon
+    object_class: ProteusClassTag = object.classes[-1]
+    icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+    list_item.setIcon(QIcon(icon_path.as_posix()))
