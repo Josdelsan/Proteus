@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_actor.xsl                              -->
-<!-- Content : PROTEUS XSLT for subjects at US - actor        -->
+<!-- File    : PROTEUS_functional_requirement.xsl             -->
+<!-- Content : PROTEUS XSLT for subjects at US - func_req     -->
 <!-- Author  : José María Delgado Sánchez                     -->
-<!-- Date    : 2023/06/07                                     -->
+<!-- Date    : 2023/12/02                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 
@@ -20,16 +20,16 @@
 >
 
     <!-- ============================================= -->
-    <!-- proteus:actor template                        -->
+    <!-- proteus:functional_requirement template       -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='software-requirement actor']">
-        <table class="actor remus_table" id="{@id}">
+    <xsl:template match="object[@classes='software-requirement functional-requirement']">
+        <table class="functional_requirement remus_table" id="{@id}">
 
             <!-- Header, version, authors and sources -->
             <xsl:call-template name="generate_software_requirement_expanded_header">
                 <xsl:with-param name="label"   select="properties/codeProperty[@name=':Proteus-code']"/>
-                <xsl:with-param name="class"   select="'actor'"/>
+                <xsl:with-param name="class"   select="'functionalRequirement'"/>
             </xsl:call-template>
 
             <!-- Description -->

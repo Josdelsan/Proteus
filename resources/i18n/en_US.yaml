@@ -52,13 +52,33 @@ importance: "Importance"
 urgency: "Urgency"
 development-status: "Status"
 stability: "Stability"
+source: "Source"
+works-for: "Works for"
+prepared-by: "Prepared by"
+prepared-for: "Prepared for"
 
 # categories
 general: "General"
 details: "Details"
 conditions: "Conditions"
-traceability: "Traceability"
 priority: "Priority"
+
+# Choices
+nd: "Not defined"
+developer: "Developer"
+user: "User"
+customer: "Customer"
+vital: "Vital"
+important: "Important"
+immediately: "Immediately"
+pressure: "Pressure"
+developing: "Developing"
+pending: "Pending"
+high: "High"
+medium: "Medium"
+low: "Low"
+
+
 
 # Properties validation messages
 string_property_input.validator.error: "This field cannot be empty"

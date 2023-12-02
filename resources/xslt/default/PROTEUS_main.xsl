@@ -41,5 +41,8 @@
     <xsl:include href="PROTEUS_information_requirement.xsl" />
     <xsl:include href="PROTEUS_objective.xsl" />
     <xsl:include href="PROTEUS_use_case.xsl" />
+    <xsl:include href="PROTEUS_constraint.xsl" />
+    <xsl:include href="PROTEUS_functional_requirement.xsl" />
+    <xsl:include href="PROTEUS_nonfunctional_requirement.xsl" />
 
 </xsl:stylesheet>

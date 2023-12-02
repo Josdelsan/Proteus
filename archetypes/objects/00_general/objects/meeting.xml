@@ -10,6 +10,7 @@
   </properties>
   <children />
   <traces>
-    <traceProperty name="attenders" category="general" acceptedTargets="stakeholder organization" traceType=":Proteus-information-source"/>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="attenders" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
   </traces>
 </object>

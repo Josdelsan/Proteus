@@ -194,9 +194,7 @@ class Config:
             type_dictionary: Dict[str, Path] = {}
 
             # Store default icon
-            type_dictionary["default"] = (
-                self.icons_directory / type.attrib["default"]
-            )
+            type_dictionary["default"] = self.icons_directory / type.attrib["default"]
 
             # Iterate over icons tag children icon
             for icon in type:
@@ -280,7 +278,6 @@ class Config:
             # Copy proteus.ini file to execution path
             shutil.copy(CONFIG_FILE_PATH, CONFIG_FILE_EXEC_PATH)
 
-
         config_parser: ConfigParser = ConfigParser()
         config_parser.read(CONFIG_FILE_EXEC_PATH)
 
@@ -300,15 +297,17 @@ class Config:
             PROTEUS_LOGGING_DIR.mkdir()
 
         # Define a formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
         # Create a TimedRotatingFileHandler to create log files based on date and time
-        log_filename = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
+        log_filename = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
         file_handler = TimedRotatingFileHandler(
-            filename=f'{PROTEUS_LOGGING_DIR}/{log_filename}',
-            when='midnight',
+            filename=f"{PROTEUS_LOGGING_DIR}/{log_filename}",
+            when="midnight",
             interval=1,
-            backupCount=PROTEUS_MAX_LOG_FILES
+            backupCount=PROTEUS_MAX_LOG_FILES,
         )
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
@@ -318,7 +317,7 @@ class Config:
 
         # Clean logs
         # This is required because TimedRotatingFileHandler does not delete old log files
-        log_files = [str(log_file) for log_file in PROTEUS_LOGGING_DIR.glob('*.log')]
+        log_files = [str(log_file) for log_file in PROTEUS_LOGGING_DIR.glob("*.log")]
         log_files.sort(key=os.path.getmtime, reverse=True)
 
         for old_log_file in log_files[PROTEUS_MAX_LOG_FILES:]:

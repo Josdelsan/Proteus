@@ -76,9 +76,10 @@ PROTEUS_DATE = str(':Proteus-date')
 PROTEUS_DEPENDENCY = str(':Proteus-dependency')
 PROTEUS_AUTHOR = str(':Proteus-author')
 PROTEUS_INFORMATION_SOURCE = str(':Proteus-information-source')
+PROTEUS_WORKS_FOR = str(':Proteus-works-for')
 
 # Default values
 DEFAULT_TRACE_NAME     = str('trace')
-DEFAULT_TRACE_CATEGORY = str('traceability')
+DEFAULT_TRACE_CATEGORY = str('dependencies')
 DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 

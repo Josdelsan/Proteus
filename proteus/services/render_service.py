@@ -119,6 +119,7 @@ class RenderService:
             # Create the transformer from the xsl file
             transform = ET.XSLT(ET.parse(XSL_TEMPLATE))
 
+            # NOTE: Comment this line to make XSLT debugging easier
             # Store the transformation object for future use
             self._transformations[xslt_name] = transform
 
@@ -136,7 +137,11 @@ class RenderService:
         Render the given xml using the xslt_name template.
         """
         transform = self._get_xslt(xslt_name)
-        result_tree = transform(xml)
+        try:
+            result_tree = transform(xml)
+        except:
+            for error in transform.error_log:
+                log.error(f"Error found while rendering xml using template {xslt_name}, line {error.line}, column {error.column}: {error.message}")
         html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True, method="html")
         return html_string
 

@@ -45,10 +45,6 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
     for element in markdown_element:
         markdown_text += element.text
 
-    # TODO: Loading markdown extensions generate tons of innecesary logs.
-    # This is caused by markdown library using logging module. Check
-    # alternatives to avoid this.
-    # https://github.com/Python-Markdown/markdown/issues/954
     result: str = markdown.markdown(
         markdown_text,
         extensions=[

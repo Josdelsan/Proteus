@@ -52,12 +52,30 @@ importance: "Importancia"
 urgency: "Urgencia"
 development-status: "Estado"
 stability: "Estabilidad"
+source: "Fuente"
+works-for: "Trabaja para"
+prepared-by: "Preparado por"
+prepared-for: "Preparado para"
 
 # categories
 general: "General"
 details: "Detalles"
 conditions: "Condiciones"
-traceability: "Trazabilidad"
+
+# Choices
+nd: "No definido"
+developer: "Desarrollador"
+user: "Usuario"
+customer: "Cliente"
+vital: "Vital"
+important: "Importante"
+immediately: "Inmediatamente"
+pressure: "Presión"
+developing: "Desarrollando"
+pending: "Pendiente"
+high: "Alta"
+medium: "Media"
+low: "Baja"
 
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"
