@@ -44,5 +44,7 @@
     <xsl:include href="PROTEUS_constraint.xsl" />
     <xsl:include href="PROTEUS_functional_requirement.xsl" />
     <xsl:include href="PROTEUS_nonfunctional_requirement.xsl" />
+    <xsl:include href="PROTEUS_organization.xsl" />
+    <xsl:include href="PROTEUS_stakeholder.xsl" />
 
 </xsl:stylesheet>

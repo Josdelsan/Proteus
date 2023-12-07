@@ -48,11 +48,34 @@
                 <xsl:value-of select="properties/dateProperty[@name=':Proteus-date']"/>
             </div>
     
+            <div id="document_prepared_for">
+                <xsl:value-of select="$proteus:lang_prepared_for"/>
+                <xsl:text> </xsl:text>
+
+                <xsl:choose>
+                    <xsl:when test="not(traces/traceProperty[@name='prepared-for']/trace)">
+                        <p class="tbd">?</p>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-for']">
+                            <xsl:with-param name="list_mode" select="false()"/>
+                        </xsl:apply-templates>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </div>
     
             <div id="document_prepared_by">
                 <xsl:value-of select="$proteus:lang_prepared_by"/>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name='author']"/>
+
+                <xsl:choose>
+                    <xsl:when test="not(traces/traceProperty[@name='prepared-by']/trace)">
+                        <p class="tbd">?</p>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-by']"/>
+                    </xsl:otherwise>
+                </xsl:choose>
             </div>
     
         </div>

@@ -10,7 +10,7 @@
   </properties>
   <children />
   <traces>
-    <traceProperty name="prepared-by" category="details" acceptedTargets="organization" traceType=":Proteus-author"/>
     <traceProperty name="prepared-for" category="details" acceptedTargets="organization" traceType=":Proteus-dependency"/>
+    <traceProperty name="prepared-by" category="details" acceptedTargets="organization" traceType=":Proteus-author"/>
   </traces>
 </object>

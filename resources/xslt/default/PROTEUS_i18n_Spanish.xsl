@@ -30,6 +30,7 @@
 <xsl:variable name="proteus:lang_attribute">Atributo</xsl:variable>
 <xsl:variable name="proteus:lang_authors">Autores</xsl:variable>
 <xsl:variable name="proteus:lang_average">Medio</xsl:variable>
+<xsl:variable name="proteus:lang_category">Categoría</xsl:variable>
 <xsl:variable name="proteus:lang_comments">Comentarios</xsl:variable>
 <xsl:variable name="proteus:lang_components">Componentes</xsl:variable>
 <xsl:variable name="proteus:lang_condition">Condición</xsl:variable>

@@ -301,18 +301,29 @@
     <!-- traceProperty                                 -->
     <!-- ============================================= -->
     <xsl:template match="traceProperty">
+        <xsl:param name="list_mode" select="true()"/>
+
         <xsl:for-each select="trace">
             <xsl:variable name="targetId" select="@target" />
             <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
 
             <xsl:if test="$targetObject">
-                <xsl:variable name="targetName" select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-
-                <li>
-                    <a href="#{$targetId}">
-                        <xsl:value-of select="$targetName" />
-                    </a>
-                </li>
+                <xsl:choose>
+                    <xsl:when test="$list_mode">
+                        <li>
+                            <a href="#{$targetId}">
+                                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                            </a>
+                        </li>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <p>
+                            <a href="#{$targetId}">
+                                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                            </a>
+                        </p>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
