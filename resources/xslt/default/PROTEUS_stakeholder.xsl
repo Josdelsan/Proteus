@@ -32,6 +32,25 @@
                 <xsl:with-param name="class"   select="'stakeholder'"/>
             </xsl:call-template>
 
+            <!-- Organization -->
+            <xsl:variable name="organization_content" select="traces/traceProperty[@name='works-for']" />
+            <xsl:choose>
+                <xsl:when test="$organization_content/trace">
+                    <xsl:call-template name="generate_trace_row">
+                        <xsl:with-param name="label"   select="$proteus:lang_organization"/>
+                        <xsl:with-param name="content" select="$organization_content"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <tr>
+                        <th><xsl:value-of select="$proteus:lang_organization"/></th>
+                        <td>
+                            <span><xsl:value-of select="$proteus:lang_freelance"/></span>
+                        </td>
+                    </tr>
+                </xsl:otherwise>
+            </xsl:choose>
+
             <!-- Role -->
             <xsl:call-template name="generate_simple_row">
                 <xsl:with-param name="label"     select="$proteus:lang_role"/>
@@ -40,13 +59,12 @@
             </xsl:call-template>
 
             <!-- Category -->
-            <!-- <xsl:if test="properties/enumProperty[@name='category'] != 'nd'">
+            <xsl:if test="properties/enumProperty[@name='category'] != 'nd'">
                 <xsl:call-template name="generate_simple_row">
                     <xsl:with-param name="label"   select="$proteus:lang_category"/>
                     <xsl:with-param name="content" select="properties/enumProperty[@name='category']"/>
-                    <xsl:with-param name="span"    select="$span"/>
                 </xsl:call-template>
-            </xsl:if> -->
+            </xsl:if>
 
             <!-- Comments -->
             <xsl:call-template name="generate_markdown_row">

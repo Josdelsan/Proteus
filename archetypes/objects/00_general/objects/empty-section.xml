@@ -3,7 +3,7 @@
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Empty section]]></stringProperty>
     <booleanProperty name="is-appendix">false</booleanProperty>
-    <markdownProperty name="comments"><![CDATA[No comments.]]></markdownProperty>	
+    <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
   </properties>
   <children />
   <traces />

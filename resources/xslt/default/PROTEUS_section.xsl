@@ -40,9 +40,21 @@
             </xsl:variable>
 
             <!-- Calculate section index -->
-            <xsl:variable name="section_index">
-                <xsl:number level="multiple" count="object[@classes='section']" />
-            </xsl:variable>
+            <xsl:variable name="section_index"/>
+            <xsl:choose>
+                <xsl:when test="properties/booleanProperty[@name = 'is-appendix' and text() = 'false']">
+                    <!-- <xsl:variable name="section_index">
+                        <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]" />
+                    </xsl:variable> -->
+                </xsl:when>
+                <xsl:otherwise>
+                    <!-- <xsl:variable name="section_index">
+                        <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]" />
+                    </xsl:variable> -->
+                </xsl:otherwise>
+            </xsl:choose>
+
+            
             <xsl:element name="h{$header_level}">
                 <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
                 <xsl:attribute name="class">section</xsl:attribute>

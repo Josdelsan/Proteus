@@ -7,7 +7,7 @@
     <stringProperty name="address" category="details"><![CDATA[Proteus St]]></stringProperty>
     <stringProperty name="phone-number" category="details"><![CDATA[700100100]]></stringProperty>
     <stringProperty name="fax" category="details"><![CDATA[900100100]]></stringProperty>
-    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />
   <traces>

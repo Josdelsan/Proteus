@@ -71,7 +71,7 @@ class StringPropertyInput(PropertyInput):
         text = self.input.text()
 
         # Check if the input is valid
-        if not text:
+        if text is None:
             return "string_property_input.validator.error"
 
         # Return None if the input is valid
