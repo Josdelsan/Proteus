@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
+from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
 from proteus.views.utils.translator import Translator
 
@@ -72,6 +73,7 @@ class PropertyInput(QWidget):
 
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller)
+        self.property: Union[Property, Trace] = property
 
         # Initialize error label
         self.error_label: QLabel = QLabel()
@@ -129,7 +131,7 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> Union[str, int, float, bool, date, list]:
+    def get_value(self) -> Union[str, int, float, bool, date, list, ProteusCode]:
         """
         Returns the value of the input widget. The value is converted to a
         string.
@@ -157,7 +159,8 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_input(self, property: Property, *args, **kwargs) -> QWidget:
+    @staticmethod
+    def create_input(property: Property, *args, **kwargs) -> QWidget:
         """
         Creates the input widget based on the property type.
         """

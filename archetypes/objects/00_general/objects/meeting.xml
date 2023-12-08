@@ -4,7 +4,7 @@
     <stringProperty name=":Proteus-name"><![CDATA[Meeting]]></stringProperty>
     <dateProperty name=":Proteus-date" category="details">2000-12-31</dateProperty>
     <timeProperty name="time" category="details">12:00:00</timeProperty>
-    <stringProperty name="place" category="details"><![CDATA[Proteus St]]></stringProperty>
+    <stringProperty name="place" category="details"><![CDATA[]]></stringProperty>
     <markdownProperty name="results" category="results"><![CDATA[]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>

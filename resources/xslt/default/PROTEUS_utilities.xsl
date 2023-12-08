@@ -243,7 +243,7 @@
                         </xsl:when>
                         <xsl:otherwise>
                             <ul class="stakeholders">
-                                <xsl:apply-templates select="$content"/>
+                                <xsl:apply-templates select="$content" mode="list"/>
                             </ul>
                         </xsl:otherwise>
                     </xsl:choose>
@@ -300,30 +300,37 @@
     <!-- ============================================= -->
     <!-- traceProperty                                 -->
     <!-- ============================================= -->
-    <xsl:template match="traceProperty">
-        <xsl:param name="list_mode" select="true()"/>
+
+    <!-- List mode -->
+    <xsl:template match="traceProperty" mode="list">
 
         <xsl:for-each select="trace">
             <xsl:variable name="targetId" select="@target" />
             <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
 
             <xsl:if test="$targetObject">
-                <xsl:choose>
-                    <xsl:when test="$list_mode">
-                        <li>
-                            <a href="#{$targetId}">
-                                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-                            </a>
-                        </li>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <p>
-                            <a href="#{$targetId}">
-                                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-                            </a>
-                        </p>
-                    </xsl:otherwise>
-                </xsl:choose>
+                <li>
+                    <a href="#{$targetId}">
+                        <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                    </a>
+                </li>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+
+    <!-- Normal mode -->
+    <xsl:template match="traceProperty">
+
+        <xsl:for-each select="trace">
+            <xsl:variable name="targetId" select="@target" />
+            <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
+
+            <xsl:if test="$targetObject">
+                <p>
+                    <a href="#{$targetId}">
+                        <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                    </a>
+                </p>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>

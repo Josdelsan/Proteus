@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.model.properties.string_property import StringProperty
 from proteus.views.utils.forms.properties.property_input import PropertyInput
 
@@ -70,8 +71,11 @@ class StringPropertyInput(PropertyInput):
         # Get the input text
         text = self.input.text()
 
+        # Get Property or Trace name
+        name = self.property.name
+
         # Check if the input is valid
-        if text is None:
+        if text is None or (name == PROTEUS_NAME and text == ""):
             return "string_property_input.validator.error"
 
         # Return None if the input is valid

@@ -46,5 +46,6 @@
     <xsl:include href="PROTEUS_nonfunctional_requirement.xsl" />
     <xsl:include href="PROTEUS_organization.xsl" />
     <xsl:include href="PROTEUS_stakeholder.xsl" />
+    <xsl:include href="PROTEUS_meeting.xsl" />
 
 </xsl:stylesheet>
