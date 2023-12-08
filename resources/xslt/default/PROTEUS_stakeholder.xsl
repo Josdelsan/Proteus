@@ -52,7 +52,7 @@
             </xsl:choose>
 
             <!-- Role -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"     select="$proteus:lang_role"/>
                 <xsl:with-param name="content"   select="properties/stringProperty[@name='role']"/>
                 <xsl:with-param name="mandatory" select="'true'"/>
@@ -60,14 +60,14 @@
 
             <!-- Category -->
             <xsl:if test="properties/enumProperty[@name='category'] != 'nd'">
-                <xsl:call-template name="generate_simple_row">
+                <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"   select="$proteus:lang_category"/>
                     <xsl:with-param name="content" select="properties/enumProperty[@name='category']"/>
                 </xsl:call-template>
             </xsl:if>
 
             <!-- Comments -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_comments"/>
                 <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
             </xsl:call-template>

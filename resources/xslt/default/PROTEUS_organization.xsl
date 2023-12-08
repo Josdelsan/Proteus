@@ -33,26 +33,26 @@
             </xsl:call-template>
 
             <!-- Address -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"     select="$proteus:lang_address"/>
                 <xsl:with-param name="content"   select="properties/stringProperty[@name='address']"/>
                 <xsl:with-param name="mandatory" select="'true'"/>
             </xsl:call-template>
 
             <!-- phone-number -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"     select="$proteus:lang_telephone"/>
                 <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
             </xsl:call-template>
 
             <!-- fax -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"     select="$proteus:lang_fax"/>
                 <xsl:with-param name="content"   select="properties/stringProperty[@name='fax']"/>
             </xsl:call-template>
 
             <!-- Comments -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_comments"/>
                 <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
             </xsl:call-template>

@@ -54,6 +54,11 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
             "markdown.extensions.toc",
         ],
     )
+
+    # Remove the first <p> tag and the last </p> tag
+    result = result.replace("<p>", "", 1)
+    result = result[::-1].replace("</p>", "", 1)[::-1]
+
     return result
 
 

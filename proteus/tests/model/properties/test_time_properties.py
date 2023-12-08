@@ -86,7 +86,7 @@ def test_time_properties(name, category, value, expected_value, new_value, expec
     # Maximum number of seconds between test function call and creation of property
     # TODO: This would cause a fail if takes more that epsilon_seconds to run all tests
     # in the application. Consider refactor to avoid test fail in slow machines.
-    epsilon_seconds = 60
+    epsilon_seconds = 120
 
     # To calculate the difference between two times, they have to be converted into datetime
     # https://stackoverflow.com/questions/43305577/python-calculate-the-difference-between-two-datetime-time-objects

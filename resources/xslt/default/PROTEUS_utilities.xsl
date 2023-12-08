@@ -42,10 +42,10 @@
 
 
     <!-- ============================================= -->
-    <!-- generate_markdown_row template                -->
+    <!-- generate_property_row template                -->
     <!-- ============================================= -->
 
-    <xsl:template name="generate_markdown_row">
+    <xsl:template name="generate_property_row">
         <xsl:param name="id" />
         <xsl:param name="label" />
         <xsl:param name="content" />
@@ -65,9 +65,7 @@
                             <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:call-template name="generate_markdown">
-                                <xsl:with-param name="content" select="$content"/>
-                            </xsl:call-template>
+                            <xsl:apply-templates select="$content"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </td>
@@ -76,24 +74,21 @@
     </xsl:template>
 
     <!-- ============================================= -->
-    <!-- generate_simple_row template (no markdown)    -->
+    <!-- generate_trace_row template                   -->
     <!-- ============================================= -->
 
-    <xsl:template name="generate_simple_row">
-        <xsl:param name="id" />
+    <xsl:template name="generate_trace_row">
         <xsl:param name="label" />
         <xsl:param name="content" />
         <xsl:param name="mandatory" select="false()"/>
-        <xsl:param name="span"      select="1"/>
+        <xsl:param name="span">1</xsl:param>
 
-        <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
-
-        <xsl:if test="$nonempty_content or $mandatory">
-            <tr id="{$id}">
+        <xsl:if test="$content/trace or $mandatory">
+            <tr>
                 <th><xsl:value-of select="$label"/></th>
                 <td colspan="{$span}">
                     <xsl:choose>
-                        <xsl:when test="not($nonempty_content)">
+                        <xsl:when test="not($content/trace)">
                             <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
                         </xsl:when>
                         <xsl:otherwise>
@@ -104,7 +99,6 @@
             </tr>
         </xsl:if>
     </xsl:template>
-
 
     <!-- ============================================= -->
     <!-- generate_header template                      -->
@@ -171,33 +165,6 @@
         </xsl:call-template>
     </xsl:template>
 
-    <!-- ============================================= -->
-    <!-- generate_expanded_header template             -->
-    <!-- ============================================= -->
-
-    <xsl:template name="generate_expanded_header">
-        <xsl:param name="class"   select="default"/>
-        <xsl:param name="label"/>
-        <xsl:param name="postfix"/>
-        <xsl:param name="span" select="1"/>
-
-        <xsl:call-template name="generate_header">
-            <xsl:with-param name="class"   select="$class"/>
-            <xsl:with-param name="label"   select="$label"/>
-            <xsl:with-param name="postfix" select="$postfix"/>
-            <xsl:with-param name="span"    select="$span"/>
-        </xsl:call-template>
-
-        <xsl:call-template name="generate_version_row">
-            <xsl:with-param name="span"    select="$span"/>
-        </xsl:call-template>
-
-        <xsl:call-template name="generate_trace_row">
-            <xsl:with-param name="label"   select="$proteus:lang_authors"/>
-            <xsl:with-param name="content" select="traces/traceProperty[@name='created-by']"/>
-            <xsl:with-param name="span"    select="$span"/>
-        </xsl:call-template>
-    </xsl:template>
 
     <!-- =============================================================== -->
     <!-- Special rows templates                                          -->
@@ -224,35 +191,6 @@
     </xsl:template>
 
     <!-- ============================================= -->
-    <!-- generate_trace_row template                   -->
-    <!-- ============================================= -->
-
-    <xsl:template name="generate_trace_row">
-        <xsl:param name="label" />
-        <xsl:param name="content" />
-        <xsl:param name="mandatory" select="false()"/>
-        <xsl:param name="span">1</xsl:param>
-
-        <xsl:if test="$content/trace or $mandatory">
-            <tr>
-                <th><xsl:value-of select="$label"/></th>
-                <td colspan="{$span}">
-                    <xsl:choose>
-                        <xsl:when test="not($content/trace)">
-                            <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <ul class="stakeholders">
-                                <xsl:apply-templates select="$content" mode="list"/>
-                            </ul>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </td>
-            </tr>
-        </xsl:if>
-    </xsl:template>
-
-    <!-- ============================================= -->
     <!-- generate_priority_rows template               -->
     <!-- ============================================= -->
 
@@ -260,7 +198,7 @@
         <xsl:param name="span" select="1"/>
 
         <xsl:if test="properties/enumProperty[@name='importance'] != 'nd'">
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_importance"/>
                 <xsl:with-param name="content" select="properties/enumProperty[@name='importance']"/>
                 <xsl:with-param name="span"    select="$span"/>
@@ -268,7 +206,7 @@
         </xsl:if>
 
         <xsl:if test="properties/enumProperty[@name='urgency'] != 'nd'">
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_urgency"/>
                 <xsl:with-param name="content" select="properties/enumProperty[@name='urgency']"/>
                 <xsl:with-param name="span"    select="$span"/>
@@ -276,7 +214,7 @@
         </xsl:if>
 
         <xsl:if test="properties/enumProperty[@name='development-status'] != 'nd'">
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_status"/>
                 <xsl:with-param name="content" select="properties/enumProperty[@name='development-status']"/>
                 <xsl:with-param name="span"    select="$span"/>
@@ -284,7 +222,7 @@
         </xsl:if>
 
         <xsl:if test="properties/enumProperty[@name='stability'] != 'nd'">
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_stability"/>
                 <xsl:with-param name="content" select="properties/enumProperty[@name='stability']"/>
                 <xsl:with-param name="span"    select="$span"/>
@@ -293,46 +231,5 @@
 
     </xsl:template>
 
-    <!-- =============================================================== -->
-    <!-- Template match for proteus properties                           -->
-    <!-- =============================================================== -->
-
-    <!-- ============================================= -->
-    <!-- traceProperty                                 -->
-    <!-- ============================================= -->
-
-    <!-- List mode -->
-    <xsl:template match="traceProperty" mode="list">
-
-        <xsl:for-each select="trace">
-            <xsl:variable name="targetId" select="@target" />
-            <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
-
-            <xsl:if test="$targetObject">
-                <li>
-                    <a href="#{$targetId}">
-                        <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-                    </a>
-                </li>
-            </xsl:if>
-        </xsl:for-each>
-    </xsl:template>
-
-    <!-- Normal mode -->
-    <xsl:template match="traceProperty">
-
-        <xsl:for-each select="trace">
-            <xsl:variable name="targetId" select="@target" />
-            <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
-
-            <xsl:if test="$targetObject">
-                <p>
-                    <a href="#{$targetId}">
-                        <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-                    </a>
-                </p>
-            </xsl:if>
-        </xsl:for-each>
-    </xsl:template>
 
 </xsl:stylesheet>

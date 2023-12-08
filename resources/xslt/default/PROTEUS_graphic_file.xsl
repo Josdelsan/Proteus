@@ -47,9 +47,23 @@
             </xsl:choose>
         </xsl:variable>
 
+        <!-- Get the image width percentage -->
+        <xsl:variable name="image_width_percentage">
+            <xsl:choose>
+                <xsl:when test="properties/integerProperty[@name='width']">
+                    <xsl:value-of select="properties/integerProperty[@name='width']"/>
+                </xsl:when>
+                <xsl:otherwise>50</xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
         <img class="figure_image">
             <xsl:attribute name="src">
                 <xsl:value-of select="concat($src_prefix, $image)" disable-output-escaping="yes"/>
+            </xsl:attribute>
+
+            <xsl:attribute name="style">
+                <xsl:value-of select="concat('width:', $image_width_percentage, '%')"/>
             </xsl:attribute>
         </img>
 

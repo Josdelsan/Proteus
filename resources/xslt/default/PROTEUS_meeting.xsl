@@ -33,19 +33,19 @@
             </xsl:call-template>
 
             <!-- Date -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_date"/>
                 <xsl:with-param name="content" select="properties/dateProperty[@name=':Proteus-date']"/>
             </xsl:call-template>
 
             <!-- Time -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_time"/>
                 <xsl:with-param name="content" select="properties/timeProperty[@name='time']"/>
             </xsl:call-template>
 
             <!-- Place -->
-            <xsl:call-template name="generate_simple_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_place"/>
                 <xsl:with-param name="content" select="properties/stringProperty[@name='place']"/>
                 <xsl:with-param name="mandatory" select="'true'"/>
@@ -59,14 +59,14 @@
             </xsl:call-template>
 
             <!-- Results -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_results"/>
                 <xsl:with-param name="content" select="properties/markdownProperty[@name='results']"/>
                 <xsl:with-param name="mandatory" select="'true'"/>
             </xsl:call-template>
 
             <!-- Comments -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_comments"/>
                 <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
             </xsl:call-template>

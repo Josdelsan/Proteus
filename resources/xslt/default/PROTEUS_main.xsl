@@ -29,8 +29,9 @@
 
     <!-- Template includes -->
     <!-- <xsl:include href="PROTEUS_style.xsl" /> -->
-    <xsl:include href="PROTEUS_cover.xsl" />
     <xsl:include href="PROTEUS_utilities.xsl" />
+    <xsl:include href="PROTEUS_properties.xsl" />
+    <xsl:include href="PROTEUS_cover.xsl" />
     <xsl:include href="PROTEUS_section.xsl" />
     <xsl:include href="PROTEUS_document.xsl" />
     <xsl:include href="PROTEUS_paragraph.xsl" />

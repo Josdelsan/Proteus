@@ -57,9 +57,7 @@
                         <p class="tbd">?</p>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-for']">
-                            <xsl:with-param name="list_mode" select="false()"/>
-                        </xsl:apply-templates>
+                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-for']" mode="paragraph"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </div>
@@ -73,7 +71,7 @@
                         <p class="tbd">?</p>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-by']"/>
+                        <xsl:apply-templates select="traces/traceProperty[@name='prepared-by']" mode="paragraph"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </div>

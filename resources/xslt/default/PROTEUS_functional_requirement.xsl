@@ -33,7 +33,7 @@
             </xsl:call-template>
 
             <!-- Description -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"     select="$proteus:lang_description"/>
                 <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
                 <xsl:with-param name="mandatory" select="'true'"/>
@@ -43,7 +43,7 @@
             <xsl:call-template name="generate_priority_rows"/>
 
             <!-- Comments -->
-            <xsl:call-template name="generate_markdown_row">
+            <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_comments"/>
                 <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
             </xsl:call-template>

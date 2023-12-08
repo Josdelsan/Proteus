@@ -30,12 +30,25 @@
         <!-- Get file link -->
         <xsl:variable name="file-link" select="properties/urlProperty[@name='url']"/>
 
+        <!-- Get the image width percentage -->
+        <xsl:variable name="image_width_percentage">
+            <xsl:choose>
+                <xsl:when test="properties/integerProperty[@name='width']">
+                    <xsl:value-of select="properties/integerProperty[@name='width']"/>
+                </xsl:when>
+                <xsl:otherwise>50</xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+
         <img class="figure_image">
             <xsl:attribute name="src">
                 <xsl:value-of select="$file-link" disable-output-escaping="yes"/>
             </xsl:attribute>
-        </img>
 
+            <xsl:attribute name="style">
+                <xsl:value-of select="concat('width:', $image_width_percentage, '%')"/>
+            </xsl:attribute>
+        </img>
 
         <p class="figure_caption">
             <span class="figure_caption_label">
