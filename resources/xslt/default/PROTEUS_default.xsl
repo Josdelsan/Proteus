@@ -16,7 +16,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
     <!-- Match any object -->
     <xsl:template match="object">
-        <div id="{@id}">
+        <div id="{@id}" class="proteus-area">
             <!-- Display properties in a table -->
             <table class="remus_table">
                 <tr style="background-color: powderblue;">

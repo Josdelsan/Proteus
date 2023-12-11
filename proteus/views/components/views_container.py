@@ -18,9 +18,11 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QByteArray, QUrl
+from PyQt6 import QtCore
+from PyQt6.QtCore import Qt, QByteArray, QUrl, pyqtSlot
 from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebChannel import QWebChannel
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QWidget,
@@ -40,6 +42,7 @@ from proteus.views import APP_ICON_TYPE
 from proteus.views.utils.event_manager import Event
 from proteus.views.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.web_channel_object import WebChannelObject
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 
 # logging configuration
@@ -98,6 +101,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         #       Multiple browsers are a solution to QTabWidget since a
         #       QWebEngineView cannot be added to multiple parents.
         self.tabs: Dict[str, QWebEngineView] = {}
+        self.channels: Dict[str, QWebChannel] = {}
 
         # Create the component
         self.create_component()
@@ -170,10 +174,15 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Create document page using subclass
         # NOTE: This subclass is needed for external links handling
         document_page: DocumentPage = DocumentPage(
-            parent=browser, translator=self._translator
+           parent=browser, translator=self._translator
         )
-
         browser.setPage(document_page)
+
+        # QWebChannel setup
+        channel_object = WebChannelObject(self._controller, parent=browser)
+        channel: QWebChannel = QWebChannel(browser)
+        browser.page().setWebChannel(channel)
+        channel.registerObject("channelObject", channel_object)
 
         # Build the tab code name
         # NOTE: The tab code name is used to access the tab name internationalization
@@ -258,17 +267,17 @@ class ViewsContainer(QTabWidget, ProteusComponent):
                 f"View {current_view} not found in the views container component"
             )
             return
+        
+        # Get the browser for the current view
+        browser: QWebEngineView = self.tabs[current_view]
 
         # If there is no current document, clear the browser
         if current_document_id is None:
-            browser: QWebEngineView = self.tabs[current_view]
             browser.page().setContent(QByteArray(), "text/html")
             return
 
         # Update the current view browser with the content of the current document
         if current_view in self.tabs and current_document_id is not None:
-            browser: QWebEngineView = self.tabs[current_view]
-
             # Get html from controller
             html_str: str = self._controller.get_document_view(
                 document_id=current_document_id, xslt_name=current_view
@@ -278,7 +287,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             # NOTE: This is done to avoid 2mb limit on setHtml method
             # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
             html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-            browser.page().setContent(html_array, "text/html")
+            browser.page().setContent(html_array, "text/html")            
 
             # Connect to load finished signal to update the object list
             # NOTE: This is necessary to run the script after the page is loaded.
@@ -286,6 +295,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             # a way to run the script only once.
             # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
             browser.page().loadFinished.connect(self.update_on_select_object)
+        
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -496,3 +506,4 @@ class DocumentPage(QWebEnginePage):
                 return False
 
         return super().acceptNavigationRequest(url, _type, isMainFrame)
+

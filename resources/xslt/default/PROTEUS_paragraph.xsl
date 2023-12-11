@@ -24,7 +24,7 @@
     <!-- =========================================================== -->
 
     <xsl:template match="object[@classes='paragraph']">
-        <div id="{@id}">
+        <div id="{@id}" class="proteus-area">
             <xsl:choose>
                 <xsl:when test="properties/booleanProperty[@name='is-glossary'] = 'true'">
                     <xsl:call-template name="create_glossary_item"/>

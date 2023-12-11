@@ -24,7 +24,7 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='stakeholder']">
-        <table class="stakeholder remus_table" id="{@id}">
+        <table class="proteus-area stakeholder remus_table" id="{@id}">
 
             <!-- Header -->
             <xsl:call-template name="generate_header">

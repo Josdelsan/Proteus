@@ -21,8 +21,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import (
     QWidget,
     QToolButton,
-    QStyle,
-    QApplication,
+    QScrollArea,
     QFrame,
     QGridLayout,
     QLabel,
@@ -51,7 +50,7 @@ def new_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     new_button = QToolButton(parent)
-    new_button.setFixedWidth(55)
+    new_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "new-project")
@@ -80,7 +79,7 @@ def open_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     open_button = QToolButton(parent)
-    open_button.setFixedWidth(55)
+    open_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "open-project")
@@ -109,7 +108,7 @@ def save_project_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     save_button = QToolButton(parent)
-    save_button.setFixedWidth(55)
+    save_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "save")
@@ -141,7 +140,7 @@ def undo_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     undo_button = QToolButton(parent)
-    undo_button.setFixedWidth(55)
+    undo_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "undo")
@@ -173,7 +172,7 @@ def redo_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     redo_button = QToolButton(parent)
-    redo_button.setFixedWidth(55)
+    redo_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "redo")
@@ -205,7 +204,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     properties_button = QToolButton(parent)
-    properties_button.setFixedWidth(55)
+    properties_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "edit")
@@ -239,7 +238,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     add_button = QToolButton(parent)
-    add_button.setFixedWidth(55)
+    add_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = (
@@ -273,7 +272,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     delete_button = QToolButton(parent)
-    delete_button.setFixedWidth(55)
+    delete_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = (
@@ -304,7 +303,7 @@ def settings_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     settings_button = QToolButton(parent)
-    settings_button.setFixedWidth(55)
+    settings_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = (
@@ -331,7 +330,7 @@ def export_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     export_button = QToolButton(parent)
-    export_button.setFixedWidth(55)
+    export_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = (
@@ -361,7 +360,7 @@ def info_button(parent: QWidget) -> QToolButton:
     """
     # Create button with parent
     info_button = QToolButton(parent)
-    info_button.setFixedWidth(55)
+    info_button.setMinimumWidth(55)
 
     # Set file icon
     icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "info")
@@ -428,7 +427,7 @@ class ArchetypeMenuButton(QToolButton):
         super().__init__(parent)
 
         # Button settings
-        self.setFixedWidth(80)
+        self.setMinimumWidth(80)
 
         # Set icon
         archetype_icon = QIcon()

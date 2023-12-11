@@ -26,7 +26,7 @@
 
 <xsl:template match="object[@classes='external-resource']">
 
-    <div id="{@id}" class="figure">
+    <div id="{@id}" class="proteus-area figure">
         <!-- Get file link -->
         <xsl:variable name="file-link" select="properties/urlProperty[@name='url']"/>
 

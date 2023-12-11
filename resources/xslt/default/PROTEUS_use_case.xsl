@@ -27,7 +27,7 @@
     <xsl:template match="object[@classes='software-requirement use-case']">
         <xsl:variable name="span" select="2" />
 
-        <table class="use_case remus_table" id="{@id}">
+        <table class="proteus-area use_case remus_table" id="{@id}">
 
             <!-- Header, version, authors and sources -->
             <xsl:call-template name="generate_software_requirement_expanded_header">

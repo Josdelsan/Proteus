@@ -24,7 +24,7 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='software-requirement constraint']">
-        <table class="constraint_requirement remus_table" id="{@id}">
+        <table class="proteus-area constraint_requirement remus_table" id="{@id}">
 
             <!-- Header, version, authors and sources -->
             <xsl:call-template name="generate_software_requirement_expanded_header">

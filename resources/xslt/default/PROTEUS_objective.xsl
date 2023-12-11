@@ -27,7 +27,7 @@
     <xsl:template match="object[@classes='software-requirement objective']">
         <xsl:variable name="span" select="2" />
 
-        <table class="objective remus_table" id="{@id}">
+        <table class="proteus-area objective remus_table" id="{@id}">
 
             <!-- Header, version, authors and sources -->
             <xsl:call-template name="generate_software_requirement_expanded_header">
@@ -89,7 +89,7 @@
             <xsl:value-of select="properties/codeProperty[@name = ':Proteus-code']/suffix" />
         </xsl:variable>
 
-        <div id="{@id}">
+        <div id="{@id}" class="">
             <!-- Current objective -->
             <xsl:variable name="description" select="properties/markdownProperty[@name='description']" />
 

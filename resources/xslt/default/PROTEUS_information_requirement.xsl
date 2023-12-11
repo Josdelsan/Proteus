@@ -27,7 +27,7 @@
     <xsl:template match="object[@classes='software-requirement information-requirement']">
         <xsl:variable name="span" select="2"/>
 
-        <table class="information_requirement remus_table" id="{@id}">
+        <table class="proteus-area information_requirement remus_table" id="{@id}">
 
             <!-- Header, version, authors and sources -->
             <xsl:call-template name="generate_software_requirement_expanded_header">
@@ -81,7 +81,7 @@
     <!-- ============================================== -->
 
     <xsl:template name="generate_specificdata">
-        <div id="{@id}">
+        <div id="{@id}" class="">
             <xsl:variable name="description" select="properties/markdownProperty[@name='description']" />
 
             <li>

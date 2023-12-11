@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ProjectContainer(ProteusComponent):
+class ProjectContainer(QWidget, ProteusComponent):
     """
     Container for the project information. It contains a tab widget with the
     documents of the project and a tab widget with the project views.

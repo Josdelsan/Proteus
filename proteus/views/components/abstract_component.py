@@ -12,14 +12,13 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Type
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QWidget, QDialog
-import PyQt6.sip
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -44,11 +43,11 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 # NOTE: Workaround to allow multiple inheritance from QWidget and ABC
 # https://stackoverflow.com/questions/28720217/multiple-inheritance-metaclass-conflict
-class AbstractWidgetMeta(type(QWidget), type(ABC)):
+class AbstractObjectMeta(type(QObject), type(ABC)):
     """
     Metaclass for ProteusComponent class. It defines the metaclass for
     ProteusComponent class. It is used to create an abstract class that
-    inherits from QWidget and ABC.
+    inherits from QObject and ABC.
     """
 
     pass
@@ -61,7 +60,7 @@ class AbstractWidgetMeta(type(QWidget), type(ABC)):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
+class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
     """
     ProteusComponent abstract class. It is the base class for all the
     components in the PROTEUS application.
@@ -72,12 +71,12 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
     with default values if needed.
 
     When a component inherits from ProteusComponent, if it also inherits
-    from other QWidget subclass, ProteusComponent must be placed after
+    from other QObject subclass, ProteusComponent must be placed after
     it to avoid metaclass conflicts.
     
     Example of class with multiple inheritance:
         - class MyComponent(QDialog, ProteusComponent):
-        - class mro(MyComponent): [MyComponent, QDialog, ProteusComponent, QWidget,
+        - class mro(MyComponent): [MyComponent, QDialog, ProteusComponent,
         QObject, sip.wrapper, QPaintDevice, sip.simplewrapper, ABC, object]
     """
 
@@ -99,7 +98,6 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
         *args,
         **kwargs,
     ) -> None:
-        super(ProteusComponent, self).__init__(parent, *args, **kwargs)
         """
         Class constructor for ProteusComponent class. It manage the dependency
         injection. Validates the parameters showing logs messages
@@ -113,6 +111,8 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
         :param event_manager: Event manager instance.
         :param state_manager: State manager instance.
         """
+        super(ProteusComponent, self).__init__(parent, *args, **kwargs)
+
         # Controller --------------
         assert isinstance(
             controller, Controller
@@ -178,7 +178,6 @@ class ProteusComponent(QWidget, ABC, metaclass=AbstractWidgetMeta):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    @abstractmethod
     def create_component(self) -> None:
         """
         Create the component interface and setup logic. This method must be

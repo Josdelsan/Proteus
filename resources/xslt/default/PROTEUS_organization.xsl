@@ -24,7 +24,7 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='organization']">
-        <table class="organization remus_table" id="{@id}">
+        <table class="proteus-area organization remus_table" id="{@id}">
 
             <!-- Header-->
             <xsl:call-template name="generate_header">

@@ -26,7 +26,7 @@
 
 <xsl:template match="object[@classes='graphic-file']">
 
-    <div id="{@id}" class="figure">
+    <div id="{@id}" class="proteus-area figure">
         <!-- Get file name with extension -->
         <xsl:variable name="file_name" select="properties/fileProperty[@name='file']"/>
         <!-- Get the file extension -->

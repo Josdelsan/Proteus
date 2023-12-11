@@ -44,13 +44,13 @@
                 <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]" />
             </xsl:variable>
             
-            <xsl:element name="h{$header_level}">
-                <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
-                <xsl:attribute name="class">section</xsl:attribute>
-                <xsl:value-of select="$section_index"/>
-                <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
-            </xsl:element>
+            <div id="{@id}" class="proteus-area">
+                <xsl:element name="h{$header_level}">
+                    <xsl:value-of select="$section_index"/>
+                    <xsl:text> </xsl:text>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
+                </xsl:element>
+            </div>
 
             <!-- Apply templates to all section -->
             <xsl:apply-templates select="children/object">
@@ -69,7 +69,7 @@
         <!-- Nest level -->
         <xsl:param name="nest_level" select="1"/>
 
-        <div id="{@id}">
+        <div>
 
             <!-- Calculate the normalized header level -->
             <xsl:variable name="header_level">
@@ -86,13 +86,13 @@
                 <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]" format="A" />
             </xsl:variable>
             
-            <xsl:element name="h{$header_level}">
-                <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
-                <xsl:attribute name="class">section</xsl:attribute>
-                <xsl:value-of select="$section_index"/>
-                <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
-            </xsl:element>
+            <div id="{@id}" class="proteus-area">
+                <xsl:element name="h{$header_level}">
+                    <xsl:value-of select="$section_index"/>
+                    <xsl:text> </xsl:text>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
+                </xsl:element>
+            </div>
 
             <!-- Apply templates to all section -->
             <xsl:apply-templates select="children/object">
