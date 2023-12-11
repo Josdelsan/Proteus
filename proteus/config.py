@@ -30,6 +30,7 @@ from logging.handlers import TimedRotatingFileHandler
 # --------------------------------------------------------------------------
 
 from lxml import etree as ET
+from PyQt6 import QtCore
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -121,6 +122,9 @@ class Config:
         self.i18n_directory: Path = (
             self.resources_directory / self.directories[I18N_DIRECTORY]
         )
+
+        # Configure PyQt search paths --------------------------------------
+        QtCore.QDir.addSearchPath("resources", self.resources_directory.as_posix())
 
         # Application settings ---------------------------------------------
         self.settings = self.config[SETTINGS]
