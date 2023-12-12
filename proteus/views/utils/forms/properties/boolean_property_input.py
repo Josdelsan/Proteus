@@ -28,6 +28,7 @@ from PyQt6.QtCore import (
 
 from proteus.model.properties.boolean_property import BooleanProperty
 from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.views.utils.forms.boolean_edit import BooleanEdit
 
 
 # --------------------------------------------------------------------------
@@ -54,8 +55,8 @@ class BooleanPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         boolean.
         """
-        self.input: QCheckBox
-        return self.input.isChecked()
+        self.input: BooleanEdit
+        return self.input.checked()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -79,13 +80,10 @@ class BooleanPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: BooleanProperty, *args, **kwargs) -> QCheckBox:
+    def create_input(property: BooleanProperty, *args, **kwargs) -> BooleanEdit:
         """
         Creates the input widget based on QCheckBox.
         """
-        input: QCheckBox = QCheckBox()
-        state = (
-            Qt.CheckState.Checked if bool(property.value) else Qt.CheckState.Unchecked
-        )
-        input.setCheckState(state)
+        input: BooleanEdit = BooleanEdit(tooltip=property.tooltip)
+        input.setChecked(property.value)
         return input

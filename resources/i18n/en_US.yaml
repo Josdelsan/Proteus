@@ -80,6 +80,10 @@ high: "High"
 medium: "Medium"
 low: "Low"
 
+# Tooltips
+property.is-appendix.tooltip: "Check if the document is an appendix."
+property.is-glossary.tooltip: "Check if the document is a glossary item."
+
 
 
 # Properties validation messages
@@ -248,7 +252,7 @@ new_view_dialog.error.duplicated_view: "The view already exists"
 # ---------------------------------------------------------------------------
 # Settings dialog
 # ---------------------------------------------------------------------------
-settings_dialog.title: "Proteus - settings"
+settings_dialog.title: "Proteus settings"
 settings_dialog.language.label: "Select language:"
 settings_dialog.error.invalid_language: "Please select a valid language"
 settings_dialog.info.label: "The changes will be applied when you restart the application"
@@ -274,7 +278,7 @@ export_dialog.error.invalid_extension: "File extension must match with the selec
 # ---------------------------------------------------------------------------
 # Information dialog
 # ---------------------------------------------------------------------------
-information_dialog.title: "PROTEUS - Information"
+information_dialog.title: "Proteus information"
 information_dialog.description.text: "PROTEUS is a tool for general purpose projects management. It is based on the concept of Archetypes. The user create elements cloning existing objects called archetypes to create new objects. The archetypes are defined by the administrator of the application. The application was developed by the University of Seville."
 information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "This software do not collect any personal information. The software is provided 'as is', without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software."

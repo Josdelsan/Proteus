@@ -79,6 +79,10 @@ high: "Alta"
 medium: "Media"
 low: "Baja"
 
+# Tooltips
+property.is-appendix.tooltip: "Indica si el documento es un apéndice."
+property.is-glossary.tooltip: "Indica si el documento es un elemento de glosario."
+
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"
 float_property_input.validator.error: "Este campo debe ser un número decimal"
@@ -246,7 +250,7 @@ new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
 # ---------------------------------------------------------------------------
 # Settings dialog
 # ---------------------------------------------------------------------------
-settings_dialog.title: "Proteus - Configuración"
+settings_dialog.title: "Proteus configuración"
 settings_dialog.language.label: "Seleccione un idioma:"
 settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido"
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
@@ -272,7 +276,7 @@ export_dialog.error.invalid_extension: "La extensión del archivo debe coincidir
 # ---------------------------------------------------------------------------
 # Information dialog
 # ---------------------------------------------------------------------------
-information_dialog.title: "PROTEUS - Información"
+information_dialog.title: "Proteus información"
 information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
 information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."

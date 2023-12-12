@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: code_edit.py
-# Description: Code edit input widget for forms.
-# Date: 10/11/2023
+# File: boolean_edit.py
+# Description: Boolean edit input widget for forms.
+# Date: 12/12/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -16,11 +16,11 @@
 
 from PyQt6.QtCore import (
     Qt,
-    QSize,
 )
 from PyQt6.QtWidgets import (
     QWidget,
-    QLineEdit,
+    QCheckBox,
+    QLabel,
     QHBoxLayout,
     QSizePolicy,
 )
@@ -29,18 +29,20 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views.utils.translator import Translator
+
 
 # --------------------------------------------------------------------------
-# Class: CodeEdit
-# Description: Code edit input widget for forms.
-# Date: 10/11/2023
+# Class: BooleanEdit
+# Description: Boolean edit input widget for forms.
+# Date: 12/12/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class CodeEdit(QWidget):
+class BooleanEdit(QWidget):
     """
-    Code edit input widget for forms. It is composed by a multiples QLineEdit
-    widgets to let the user input prefix, number and suffix separately.
+    Boolean edit input widget for forms. It is composed by a QCheckBox and a
+    QLabel that shows the tooltip if any.
 
     Similar to PyQt6 QLineEdit, QTextEdit, etc. It is used to retrieve the
     value of the user input.
@@ -49,29 +51,33 @@ class CodeEdit(QWidget):
     # ----------------------------------------------------------------------
     # Method     : __init__
     # Description: Object initialization.
-    # Date       : 10/11/2023
+    # Date       : 12/12/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
+    def __init__(self, tooltip: str = "", *args, **kwargs):
         """
         Object initialization.
         """
         super().__init__(*args, **kwargs)
 
-        # Initialize widgets
-        self.prefix_input: QLineEdit = None
-        self.number_input: QLineEdit = None
-        self.suffix_input: QLineEdit = None
+        # Initialize widgets variables
+        self.checkbox: QCheckBox = None
+        self.label: QLabel = None
+
+        # Initialize variables
+        self.tooltip_str: str = tooltip
+
+        # Translator
+        self._translator = Translator()
 
         # Create input widget
         self.create_input()
 
-
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
-    # Date       : 10/11/2023
+    # Date       : 12/12/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -81,30 +87,16 @@ class CodeEdit(QWidget):
         """
 
         # Widgets creation --------------------------------------------------
-        self.prefix_input = QLineEdit()
-        self.number_input = QLineEdit()
-        self.suffix_input = QLineEdit()
-
-        # Set QLineEdit alignments
-        self.prefix_input.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.number_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
- 
-        # Reimplement sizeHint to set a minimun width of 35px
-        # NOTE: Recomended in https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qwidget.html
-        self.prefix_input.sizeHint = lambda: QSize(35, 0)
-        self.number_input.sizeHint = lambda: QSize(15, 0)
-        self.suffix_input.sizeHint = lambda: QSize(35, 0)
-
-        # Set size policy
-        self.prefix_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.number_input.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-        self.suffix_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.checkbox = QCheckBox()
+        self.label = QLabel()
+        self.label.setText(self._translator.text(self.tooltip_str))
+        self.label.setWordWrap(True)
+        self.label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
         # Layout setup -----------------------------------------------------
         layout = QHBoxLayout()
-        layout.addWidget(self.prefix_input)
-        layout.addWidget(self.number_input)
-        layout.addWidget(self.suffix_input)
+        layout.addWidget(self.checkbox)
+        layout.addWidget(self.label)
 
         # Set alignment for the layout
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -112,54 +104,47 @@ class CodeEdit(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
+    # ----------------------------------------------------------------------
+    # Method     : checked
+    # Description: Returns the checked state of the checkbox.
+    # Date       : 12/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def checked(self) -> bool:
+        """
+        Returns the checked state of the checkbox.
+        """
+        return self.checkbox.isChecked()
 
     # ----------------------------------------------------------------------
-    # Method     : code
-    # Description: Returns the code.
-    # Date       : 17/10/2023
+    # Method     : setChecked
+    # Description: Sets the checked state of the checkbox.
+    # Date       : 12/12/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def code(self) -> (str, str, str):
+    def setChecked(self, checked: bool) -> None:
         """
-        Returns the prefix, number and suffix of the code.
+        Sets the checked state of the checkbox.
         """
-        prefix: str = self.prefix_input.text()
-        number: str = self.number_input.text()
-        suffix: str = self.suffix_input.text()
-        return prefix, number, suffix
-    
-    # ----------------------------------------------------------------------
-    # Method     : setCode
-    # Description: Sets the code.
-    # Date       : 10/11/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def setCode(self, prefix: str, number: str, suffix: str) -> None:
-        """
-        Sets the code.
-        """
-        self.prefix_input.setText(prefix)
-        self.number_input.setText(number)
-        self.suffix_input.setText(suffix)
+        state = Qt.CheckState.Checked if bool(checked) else Qt.CheckState.Unchecked
+        self.checkbox.setCheckState(state)
 
     # ----------------------------------------------------------------------
     # Method     : setEnabled
     # Description: Sets the enabled state of the inputs widget.
-    # Date       : 10/11/2023
+    # Date       : 12/12/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def setEnabled(self, enabled: bool) -> None:
         """
-        Sets the input to enabled or disabled state modifying QLineEdit widgets.
+        Sets the input to enabled or disabled state modifying the browse
+        button.
         """
-        self.prefix_input.setEnabled(enabled)
-        self.number_input.setEnabled(enabled)
-        self.suffix_input.setEnabled(enabled)
+        self.checkbox.setEnabled(enabled)
 
-    
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================

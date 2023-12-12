@@ -53,6 +53,7 @@ CLASSES_ATTRIBUTE           = str('classes')
 NAME_ATTRIBUTE              = str('name')
 INMUTABLE_ATTRIBUTE         = str('inmutable')
 CATEGORY_ATTRIBUTE          = str('category')
+TOOLTIP_ATTRIBUTE           = str('tooltip')
 TARGET_ATTRIBUTE            = str('target')
 TRACE_TYPE_ATTRIBUTE        = str('traceType')
 

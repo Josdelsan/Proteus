@@ -18,7 +18,7 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QDialog,
     QDialogButtonBox,
+    QSizePolicy,
 )
 
 # --------------------------------------------------------------------------
@@ -118,8 +119,12 @@ class TraceEdit(QWidget):
         # Widgets creation --------------------------------------------------
         # Create a QListWidget
         self.list_widget = QListWidget(self)
-        self.list_widget.setFixedHeight(80)
         self.list_widget.setMovement(QListWidget.Movement.Static)
+        self.list_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+
+        # Reimplement sizeHint to set a minimun height of 80px
+        # NOTE: Recomended in https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qwidget.html
+        self.list_widget.sizeHint = lambda: QSize(0, 80)
 
         # Create QPushButtons
         self.add_button = QPushButton()

@@ -13,6 +13,7 @@
 import logging
 from typing import Union
 from datetime import date
+from abc import ABC, abstractmethod
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -43,6 +44,25 @@ log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------
+# Class: AbstractWidgetMeta
+# Description: Metaclass for PropertyInput class
+# Date: 12/12/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+# NOTE: Workaround to allow multiple inheritance from QObject and ABC
+# https://stackoverflow.com/questions/28720217/multiple-inheritance-metaclass-conflict
+# https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
+class AbstractWidgetMeta(type(QWidget), type(ABC)):
+    """
+    Metaclass for PropertyInput class. It defines the metaclass for
+    PropertyInput class. It is used to create an abstract class that
+    inherits from QWidget and ABC.
+    """
+    pass
+
+
+# --------------------------------------------------------------------------
 # Class: PropertyInput
 # Description: Implementation of a property input widget that wraps a
 #              property input widget and adds a label to display errors.
@@ -50,13 +70,11 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-# TODO: This should be an abstract class but it has conflicts with the
-#       metaclass of QWidget.
-#       https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
-class PropertyInput(QWidget):
+class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
     """
-    Property input widget that wraps a property input widget and adds a label
-    to display errors.
+    Property input widget that wraps a property input widget. Adds a label
+    to display errors and a checkbox to edit the inmutable property if the
+    property is inmutable.
     """
 
     def __init__(
@@ -71,6 +89,9 @@ class PropertyInput(QWidget):
         # Initialize controller
         self.controller: Controller = controller
 
+        # Translator variable
+        self._translator: Translator = Translator()
+
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller)
         self.property: Union[Property, Trace] = property
@@ -79,6 +100,10 @@ class PropertyInput(QWidget):
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
         self.error_label.hide()
+
+        # Set tooltip
+        if property.tooltip and property.tooltip != "":
+            self.setToolTip(self._translator.text(property.tooltip))
 
         # Horizontal layout
         horizontal_layout = QHBoxLayout()
@@ -116,7 +141,7 @@ class PropertyInput(QWidget):
         """
         error: str = self.validate()
         if error:
-            error_msg: str = Translator().text(error)
+            error_msg: str = self._translator.text(error)
             self.error_label.setText(error_msg)
             self.error_label.show()
             return True
@@ -131,6 +156,7 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @abstractmethod
     def get_value(self) -> Union[str, int, float, bool, date, list, ProteusCode]:
         """
         Returns the value of the input widget. The value is converted to a
@@ -145,6 +171,7 @@ class PropertyInput(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @abstractmethod
     def validate(self) -> Union[str, None]:
         """
         Validates the input widget. Returns an error message if the input
@@ -160,6 +187,7 @@ class PropertyInput(QWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
+    @abstractmethod
     def create_input(property: Property, *args, **kwargs) -> QWidget:
         """
         Creates the input widget based on the property type.
@@ -195,6 +223,8 @@ class PropertyInput(QWidget):
         if not checked:
             QMessageBox.warning(
                 self,
-                Translator().text("property_input.inmutable_property_warning.title"),
-                Translator().text("property_input.inmutable_property_warning.text"),
+                self._translator.text(
+                    "property_input.inmutable_property_warning.title"
+                ),
+                self._translator.text("property_input.inmutable_property_warning.text"),
             )

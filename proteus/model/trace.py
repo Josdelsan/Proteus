@@ -30,6 +30,7 @@ from proteus.model import (
     NAME_ATTRIBUTE,
     CATEGORY_ATTRIBUTE,
     TARGET_ATTRIBUTE,
+    TOOLTIP_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
     TRACE_PROPERTY_TAG,
     TRACE_TYPE_ATTRIBUTE,
@@ -62,6 +63,7 @@ class Trace:
     name: str = str(DEFAULT_TRACE_NAME)
     category: str = str(DEFAULT_TRACE_CATEGORY)
     acceptedTargets: List[ProteusClassTag] = field(default_factory=list)
+    tooltip: str = str()
     type: str = str(DEFAULT_TRACE_TYPE)
     targets: List[ProteusID] = field(default_factory=list)
 
@@ -97,6 +99,11 @@ class Trace:
             )
             # self.acceptedTargets = list() cannot be used when frozen=True
             object.__setattr__(self, "acceptedTargets", [PROTEUS_ANY])
+
+        # Tooltip validation
+        if not self.tooltip:
+            # self.tooltip = str() cannot be used when frozen=True
+            object.__setattr__(self, "tooltip", str())
 
         # Type validation
         if not self.type:
@@ -148,6 +155,10 @@ class Trace:
         trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets))
         trace_property_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
 
+        # Create tooltip tag and set its attribute
+        if self.tooltip and self.tooltip != "":
+            trace_property_element.set(TOOLTIP_ATTRIBUTE, self.tooltip)
+
         # Create each trace tag and set its attribute
         for target in self.targets:
             trace_element: ET._Element = ET.Element(TRACE_TAG)
@@ -187,6 +198,11 @@ class Trace:
             ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
         ).split()
 
+        # Get tooltip
+        tooltip: AnyStr | None = trace_property_element.attrib.get(
+            TOOLTIP_ATTRIBUTE, str()
+        )
+
         # Get type
         type: AnyStr | None = trace_property_element.attrib.get(
             TRACE_TYPE_ATTRIBUTE, DEFAULT_TRACE_TYPE
@@ -210,5 +226,6 @@ class Trace:
             category=category,
             targets=traces,
             acceptedTargets=accepted_targets,
+            tooltip=tooltip,
             type=type,
         )

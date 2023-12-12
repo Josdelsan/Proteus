@@ -35,21 +35,21 @@ log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------
-# Class: AbstractWidgetMeta
+# Class: AbstractObjectMeta
 # Description: Metaclass for ProteusComponent class
 # Date: 15/11/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-# NOTE: Workaround to allow multiple inheritance from QWidget and ABC
+# NOTE: Workaround to allow multiple inheritance from QObject and ABC
 # https://stackoverflow.com/questions/28720217/multiple-inheritance-metaclass-conflict
+# https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
 class AbstractObjectMeta(type(QObject), type(ABC)):
     """
     Metaclass for ProteusComponent class. It defines the metaclass for
     ProteusComponent class. It is used to create an abstract class that
     inherits from QObject and ABC.
     """
-
     pass
 
 
@@ -180,8 +180,8 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the component interface and setup logic. This method must be
-        implemented in the child class.
+        Create the component interface and setup logic. Must be overriden in
+        the child class.
         """
         pass
 

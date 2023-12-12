@@ -112,6 +112,9 @@ class PropertyFactory:
         inmutable_str = element.attrib.get(INMUTABLE_ATTRIBUTE, "false")
         inmutable: bool = True if inmutable_str.lower() == "true" else False
 
+        # Get tooltip (checked in property constructors)
+        tooltip = element.attrib.get("tooltip", str())
+
         # Get value (checked in property constructors)
         if property_class is ClassListProperty:
             # We need to collect the list of class names,
@@ -143,7 +146,7 @@ class PropertyFactory:
         if property_class is EnumProperty:
             # We need to collect its choices
             choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
-            return EnumProperty(name, category, value, inmutable, choices)
+            return EnumProperty(name, category, value, tooltip, inmutable, choices)
 
         # Ordinary case: rest of property classes
-        return property_class(name, category, value, inmutable)
+        return property_class(name, category, value, tooltip, inmutable)
