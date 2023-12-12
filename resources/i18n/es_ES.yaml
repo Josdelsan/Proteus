@@ -80,8 +80,8 @@ medium: "Media"
 low: "Baja"
 
 # Tooltips
-property.is-appendix.tooltip: "Indica si el documento es un apéndice."
-property.is-glossary.tooltip: "Indica si el documento es un elemento de glosario."
+property.is-appendix.tooltip: "Indica si es un apéndice."
+property.is-glossary.tooltip: "Indica si es un elemento de glosario."
 
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"

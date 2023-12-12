@@ -13,6 +13,7 @@
 # --------------------------------------------------------------------------
 
 import logging
+import re
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -66,4 +67,17 @@ class StringProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return ET.CDATA(self.value)
+        # XML 1.0 valid characters: https://www.w3.org/TR/xml/#charsets
+        # Remove any character that does not match this pattern
+        pattern = re.compile(
+            "["
+            "\U00000009\U0000000A\U0000000D"
+            "\U00000020-\U0000D7FF"
+            "\U0000E000-\U0000FFFD"
+            "\U00010000-\U0010FFFF"
+            "]+",
+            re.UNICODE,
+        )
+        sanitized_value = "".join(pattern.findall(self.value))
+
+        return ET.CDATA(sanitized_value)

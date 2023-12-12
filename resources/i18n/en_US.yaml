@@ -81,8 +81,8 @@ medium: "Medium"
 low: "Low"
 
 # Tooltips
-property.is-appendix.tooltip: "Check if the document is an appendix."
-property.is-glossary.tooltip: "Check if the document is a glossary item."
+property.is-appendix.tooltip: "Check if is an appendix."
+property.is-glossary.tooltip: "Check if is a glossary item."
 
 
 

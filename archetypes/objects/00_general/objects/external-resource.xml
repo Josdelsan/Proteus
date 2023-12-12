@@ -6,7 +6,7 @@
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
 		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
     <integerProperty name="width">20</integerProperty>
-    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="description" category="details"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />

@@ -312,6 +312,7 @@ class Config:
             when="midnight",
             interval=1,
             backupCount=PROTEUS_MAX_LOG_FILES,
+            encoding="utf-8",
         )
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
