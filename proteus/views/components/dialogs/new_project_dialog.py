@@ -12,11 +12,14 @@
 
 from typing import List
 import os
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -24,7 +27,6 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QLineEdit,
     QFrame,
-    QSizePolicy,
     QDialogButtonBox,
 )
 
@@ -37,6 +39,7 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.views.utils.forms.directory_edit import DirectoryEdit
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -97,8 +100,13 @@ class NewProjectDialog(QDialog, ProteusComponent):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Set the dialog title
+        # Set the dialog title and sizeHint
         self.setWindowTitle(self._translator.text("new_project_dialog.title"))
+        self.sizeHint = lambda: QSize(350, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -122,6 +130,7 @@ class NewProjectDialog(QDialog, ProteusComponent):
             self._translator.text("new_project_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
+        description_output.setWordWrap(True)
 
         # Create the name input widget
         name_label = QLabel(self._translator.text("new_project_dialog.input.name"))
@@ -158,13 +167,6 @@ class NewProjectDialog(QDialog, ProteusComponent):
         layout.addWidget(self.error_label)
 
         layout.addWidget(self.button_box)
-
-        # Set fixed width for the window
-        self.setFixedWidth(400)
-        # Allow vertical expansion for the description
-        description_output.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
 
         # ---------------------------------------------
         # Actions

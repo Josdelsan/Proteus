@@ -63,6 +63,7 @@ width: "Ancho (%)"
 general: "General"
 details: "Detalles"
 conditions: "Condiciones"
+priority: "Prioridad"
 
 # Choices
 nd: "No definido"

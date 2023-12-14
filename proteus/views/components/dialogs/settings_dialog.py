@@ -17,6 +17,7 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -32,6 +33,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.config import LANGUAGE
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -79,6 +81,10 @@ class SettingsDialog(QDialog, ProteusComponent):
 
         # Set the dialog title
         self.setWindowTitle(self._translator.text("settings_dialog.title"))
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # -------------------------------------------
         # Language settings

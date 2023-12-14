@@ -10,10 +10,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from pathlib import Path
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QVBoxLayout,
     QDialog,
@@ -25,7 +28,10 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.utils.translator import Translator
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -38,7 +44,7 @@ from proteus.views.utils.translator import Translator
 # NOTE: Due to the simplicity of this component, it is not necessary to
 # inherit from the ProteusComponent class. It will access the translator
 # singleton directly.
-class InformationDialog(QDialog):
+class InformationDialog(QDialog, ProteusComponent):
     """
     Class for the PROTEUS application information dialog.
     """
@@ -51,12 +57,12 @@ class InformationDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, controller: Controller, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the page object and the controller instance.
         """
-        super().__init__(*args, **kwargs)
+        super(InformationDialog, self).__init__(controller, *args, **kwargs)
         self.translator = Translator()
         self.create_component()
 
@@ -73,6 +79,10 @@ class InformationDialog(QDialog):
         """
         # Set the dialog title
         self.setWindowTitle(self.translator.text("information_dialog.title"))
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # App name and version
         app_name = QLabel("PROTEUS")
@@ -143,11 +153,13 @@ class InformationDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog() -> "InformationDialog":
+    def create_dialog(controller: Controller) -> "InformationDialog":
         """
         Handle the creation and display of the form window.
+
+        :param controller: The application controller.
         """
         # Create the form window
-        form_window = InformationDialog()
+        form_window = InformationDialog(controller)
         form_window.exec()
         return form_window

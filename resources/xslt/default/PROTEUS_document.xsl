@@ -59,8 +59,7 @@
                 </style>
 
                 <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-                <script type="text/javascript">
-
+                <script type="text/javascript"> 
                     var channelObject = null;
                     window.onload = function()
                     {
@@ -74,24 +73,24 @@
                     }
                 </script>
                 <script>
-                        function handleDoubleClick(event) {
-                            var clickedElement = event.target;
-                            var closestProteusArea = clickedElement.closest('.proteus-area');
-                            var id = closestProteusArea.id;
+                    function handleDoubleClick(event) {
+                        var clickedElement = event.target;
+                        var closestProteusArea = clickedElement.closest('.proteus-area');
+                        var id = closestProteusArea.id;
 
-                            if (id == "" || id == null) {
-                                console.error("No id found in clicked element");
-                            } else {
-                                channelObject.open_properties_dialog(id);
-                            }
+                        if (id == "" || id == null) {
+                            console.error("No id found in clicked element");
+                        } else {
+                            channelObject.open_properties_dialog(id);
                         }
+                    }
 
-                        document.addEventListener('DOMContentLoaded', function () {
-                            var proteusElements = document.querySelectorAll('.proteus-area');
-                            proteusElements.forEach(function (element) {
-                                element.addEventListener('dblclick', handleDoubleClick);
-                            });
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var proteusElements = document.querySelectorAll('.proteus-area');
+                        proteusElements.forEach(function (element) {
+                            element.addEventListener('dblclick', handleDoubleClick);
                         });
+                    });
                 </script>
             </head>
             <body>

@@ -363,6 +363,10 @@ class TraceEditDialog(QDialog):
         title: str = Translator().text("trace_edit_dialog.title")
         self.setWindowTitle(title)
 
+        # Set window icon
+        proteus_icon: Path = Config().get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+
         # Create a QListWidget
         self.list_widget = QListWidget(self)
         self.list_widget.setMovement(QListWidget.Movement.Static)

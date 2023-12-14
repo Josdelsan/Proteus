@@ -276,7 +276,9 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Information action
         self.information_button: QToolButton = buttons.info_button(self)
-        self.information_button.clicked.connect(InformationDialog.create_dialog)
+        self.information_button.clicked.connect(
+            lambda: InformationDialog.create_dialog(controller=self._controller)
+        )
 
         # Add the buttons to the aplication menu widget
         aplication_menu: QWidget = buttons.button_group(

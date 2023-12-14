@@ -11,11 +11,14 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -30,6 +33,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 
 # --------------------------------------------------------------------------
@@ -81,8 +85,13 @@ class NewViewDialog(QDialog, ProteusComponent):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Set the dialog title
+        # Set the dialog title and width
         self.setWindowTitle(self._translator.text("new_view_dialog.title"))
+        self.sizeHint = lambda: QSize(300, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Get available xls templates to create a new view
         xls_templates: List[str] = self._controller.get_available_xslt()
@@ -98,6 +107,7 @@ class NewViewDialog(QDialog, ProteusComponent):
 
         # Create view message label
         info_label: QLabel = QLabel(self._translator.text("new_view_dialog.info_text"))
+        info_label.setWordWrap(True)
 
         # Create Save and Cancel buttons
         button_box: QDialogButtonBox = QDialogButtonBox(

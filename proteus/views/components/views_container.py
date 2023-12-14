@@ -18,8 +18,7 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, QByteArray, QUrl, pyqtSlot
+from PyQt6.QtCore import Qt, QByteArray, QUrl
 from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel

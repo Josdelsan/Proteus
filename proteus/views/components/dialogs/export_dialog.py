@@ -11,13 +11,14 @@
 # --------------------------------------------------------------------------
 
 import os
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QByteArray, QMarginsF
-from PyQt6.QtGui import QPageLayout, QPageSize
+from PyQt6.QtCore import QByteArray, QMarginsF, QSize
+from PyQt6.QtGui import QPageLayout, QPageSize, QIcon
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QVBoxLayout,
@@ -39,6 +40,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -134,7 +136,11 @@ class ExportDialog(QDialog, ProteusComponent):
 
         # Set the dialog title and width
         self.setWindowTitle(self._translator.text("export_dialog.title"))
-        self.setFixedWidth(400)
+        self.sizeHint = lambda: QSize(400, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Export format selector
         export_format_label = QLabel(

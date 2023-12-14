@@ -11,18 +11,19 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QFrame,
-    QSizePolicy,
     QDialogButtonBox,
 )
 
@@ -34,6 +35,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -90,6 +92,10 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         # Set the window title
         self.setWindowTitle(self._translator.text("new_document_dialog.title"))
 
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+
         # Create a separator widget
         separator: QFrame = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
@@ -112,6 +118,7 @@ class NewDocumentDialog(QDialog, ProteusComponent):
             self._translator.text("new_document_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
+        description_output.setWordWrap(True)
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
@@ -135,12 +142,6 @@ class NewDocumentDialog(QDialog, ProteusComponent):
 
         layout.addWidget(self.button_box)
 
-        # Set fixed width for the window
-        self.setFixedWidth(400)
-        # Allow vertical expansion for the description
-        description_output.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
 
         # ---------------------------------------------
         # Actions

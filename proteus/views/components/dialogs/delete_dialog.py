@@ -17,6 +17,7 @@ from typing import Dict, Union
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QDialog,
@@ -26,6 +27,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QTreeWidget,
     QTreeWidgetItem,
+    QSizePolicy,
 )
 
 # --------------------------------------------------------------------------
@@ -102,12 +104,12 @@ class DeleteDialog(QDialog, ProteusComponent):
         # Set the dialog title
         self.setWindowTitle(self._translator.text("delete_dialog.title"))
 
-        # Set maximum width and warning system icon
+        # Set warning system icon
         warning_icon: QIcon = self.style().standardIcon(
             QStyle.StandardPixmap.SP_MessageBoxWarning
         )
         self.setWindowIcon(warning_icon)
-        self.setMaximumWidth(500)
+
 
         # Get object name
         object: Object = self._controller.get_element(self.element_id)
@@ -127,8 +129,7 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         # Skipped if the object has no traces dependencies
         if traces_dependencies:
-            layout.addStretch()
-
+        
             # Explanation message
             message_traces: str = self._translator.text(
                 "delete_dialog.traces_explanation"
@@ -138,8 +139,12 @@ class DeleteDialog(QDialog, ProteusComponent):
             message_traces_label.setStyleSheet("font-weight: bold; background: #eee;")
             layout.addWidget(message_traces_label)
 
-            # Create the tree widget
+            # Create the tree widget and set expand policy
             tree: QTreeWidget = QTreeWidget()
+            tree.setSizePolicy(
+                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            )
+
             # Set header label
             header_message: str = self._translator.text("delete_dialog.tree.header")
             tree.setHeaderLabel(header_message)
@@ -166,6 +171,7 @@ class DeleteDialog(QDialog, ProteusComponent):
         self.button_box.rejected.connect(self.cancel_button_clicked)
 
         layout.addWidget(self.button_box)
+
 
     def create_tree_item(
         self, object_id: ProteusID, parent: Union[QTreeWidget, QTreeWidgetItem]
