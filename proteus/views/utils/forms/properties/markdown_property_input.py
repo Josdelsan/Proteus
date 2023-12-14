@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model.properties.markdown_property import MarkdownProperty
 from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.views.utils.forms.markdown_edit import MarkdownEdit
 
 # --------------------------------------------------------------------------
 # Class: MarkdownPropertyInput
@@ -47,11 +48,10 @@ class MarkdownPropertyInput(PropertyInput):
     # ----------------------------------------------------------------------
     def get_value(self) -> str:
         """
-        Returns the value of the input widget. The value is converted to a
-        markdown.
+        Returns the value of the input widget.
         """
-        self.input: QTextEdit
-        return self.input.toPlainText()
+        self.input: MarkdownEdit
+        return self.input.markdown()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -75,10 +75,10 @@ class MarkdownPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: MarkdownProperty, *args, **kwargs) -> QTextEdit:
+    def create_input(property: MarkdownProperty, *args, **kwargs) -> MarkdownEdit:
         """
-        Creates the input widget based on QTextEdit.
+        Creates the input widget based on MarkdownEdit.
         """
-        input: QTextEdit = QTextEdit()
-        input.setPlainText(property.value)
+        input: MarkdownEdit = MarkdownEdit()
+        input.setMarkdown(property.value)
         return input

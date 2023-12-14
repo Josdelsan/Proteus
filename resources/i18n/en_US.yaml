@@ -306,6 +306,12 @@ asset_edit.warning.title: "Warning"
 asset_edit.warning.text: "There is already a file with the same name in the assets folder. Do you want to replace it?"
 
 # ---------------------------------------------------------------------------
+# Markdown edit
+# ---------------------------------------------------------------------------
+markdown_edit.preview: "Show preview"
+markdown_edit.edit: "Edit text"
+
+# ---------------------------------------------------------------------------
 # App critical error
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS has encountered a critical error"

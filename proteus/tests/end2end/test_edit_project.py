@@ -95,7 +95,7 @@ def test_edit_project(app):
         # NOTE: inputs types are known so we can use setText and setPlainText
         dialog.input_widgets[NAME_PROP].input.setText(new_name)
         dialog.input_widgets[VERSION_PROP].input.setText(new_version)
-        dialog.input_widgets[DESCRIPTION_PROP].input.setPlainText(new_description)
+        dialog.input_widgets[DESCRIPTION_PROP].input.setMarkdown(new_description)
 
         # Accept dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()

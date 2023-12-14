@@ -304,6 +304,12 @@ asset_edit.warning.title: "Advertencia"
 asset_edit.warning.text: "Ya existe un archivo con ese nombre en la carpeta de recursos 'assets', ¿desea sobreescribirlo?"
 
 # ---------------------------------------------------------------------------
+# Markdown edit
+# ---------------------------------------------------------------------------
+markdown_edit.preview: "Previsualizar"
+markdown_edit.edit: "Editar texto"
+
+# ---------------------------------------------------------------------------
 # App critical error
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS ha encontrado un error crítico"
