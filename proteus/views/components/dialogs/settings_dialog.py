@@ -100,11 +100,15 @@ class SettingsDialog(QDialog, ProteusComponent):
         )
         view_combo: QComboBox = QComboBox()
 
-        # TODO: Set the current configuration and only update the values that
-        #       are different from the current configuration
+        # TODO: Only update the values that are different from the current configuration
         # Add the languages to the combo box
         for lang in languages:
             view_combo.addItem(self._translator.text(lang), lang)
+        
+        # Set the current language
+        current_lang: str = self._config.language
+        index: int = view_combo.findData(current_lang)
+        view_combo.setCurrentIndex(index)
 
         # -------------------------------------------
         # Component general setup
@@ -149,18 +153,18 @@ class SettingsDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     # TODO: This method will handle more settings in the future
-    def save_button_clicked(self, combo_text: str) -> None:
+    def save_button_clicked(self, combo_data: str) -> None:
         """
         Manage the save button clicked event. It saves the current settings
         """
-        if combo_text is None:
+        if combo_data is None:
             self.error_label.setText(
                 self._translator.text("settings_dialog.error.invalid_language")
             )
             return
 
         # Save the current settings to the config file
-        settings: Dict[str, str] = {LANGUAGE: combo_text}
+        settings: Dict[str, str] = {LANGUAGE: combo_data}
         self._config.save_user_settings(settings)
 
         # Close the form window
