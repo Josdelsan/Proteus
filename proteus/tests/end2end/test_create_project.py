@@ -169,8 +169,11 @@ def test_create_project(app):
     [
         ("", "Project name", "new_project_dialog.error.invalid_path"),
         (None, "Project name", "new_project_dialog.error.invalid_path"),
-        (PROJECT_PATH, "", "new_project_dialog.error.invalid_name"),
-        (PROJECT_PATH, None, "new_project_dialog.error.invalid_name"),
+        (PROJECT_PATH, "", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, None, "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "/test", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "1:0test", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "test?", "new_project_dialog.error.invalid_folder_name"),
         (
             PROJECT_PATH,
             "example_project",

@@ -14,6 +14,7 @@ from pathlib import Path
 import sys
 import logging
 import traceback
+import shutil
 
 # --------------------------------------------------------------------------
 # Third party imports
@@ -25,6 +26,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus import PROTEUS_LOGGING_DIR
 from proteus.config import Config
 from proteus.views.main_window import MainWindow
 from proteus.views.utils.translator import Translator
@@ -111,5 +113,27 @@ class ProteusApplication:
         """
         Handle a critical error in the application quitting the application.
         """
+        # Before quitting, try to disconnect signals
+        try:
+            self.main_window._controller.stack.canRedoChanged.disconnect()
+            self.main_window._controller.stack.canUndoChanged.disconnect()
+            self.main_window._controller.stack.cleanChanged.disconnect()
+            self.main_window._controller.stack.clear()
+            self.main_window._controller.stack.deleteLater()
+        except Exception as e:
+            log.critical(f"Error clearing the undo stack: {e}")
+
+        # Select last log file
+        log_files = sorted(PROTEUS_LOGGING_DIR.glob("*.log"))
+        log_file = log_files[-1]
+
+        # Build new crash report file name
+        log_file_name = log_file.name
+        crash_report_file_name = f"proteus_crash_report-{log_file_name}"
+        
+        # Copy log file to cwd with new name
+        crash_report_file = Path.cwd() / crash_report_file_name
+        shutil.copy(log_file, crash_report_file)
+
         # Quit the application
         self.app.quit()

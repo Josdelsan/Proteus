@@ -12,6 +12,7 @@
 
 from typing import List
 import os
+import re
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -201,11 +202,9 @@ class NewProjectDialog(QDialog, ProteusComponent):
         name: str = self.name_input.text()
         path: str = self.path_input.directory()
 
-        # TODO: This is a temporal solution for testing purposes.
-        #       Create a proper validator and
-        if name is None or name == "":
+        if name is None or name == "" or not is_valid_folder_name(name):
             self.error_label.setText(
-                self._translator.text("new_project_dialog.error.invalid_name")
+                self._translator.text("new_project_dialog.error.invalid_folder_name")
             )
             return
 
@@ -270,3 +269,38 @@ class NewProjectDialog(QDialog, ProteusComponent):
         dialog = NewProjectDialog(controller=controller)
         dialog.exec()
         return dialog
+    
+# ======================================================================
+# Helper methods
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Function   : is_valid_folder_name
+# Description: Check if a folder name is valid for the current operating
+#              system.
+# Date       : 05/06/2023
+# Version    : 0.1
+# Author     : José María Delgado Sánchez
+# ----------------------------------------------------------------------
+def is_valid_folder_name(folder_name) -> bool:
+    """
+    Check if a folder name is valid for the current operating system.
+    """
+    # Check for forbidden characters
+    forbidden_characters = re.compile(r'[<>:"/\\|?*]')
+    if forbidden_characters.search(folder_name):
+        return False
+
+    # Check for reserved names on Windows
+    if os.name == 'nt':
+        reserved_names = re.compile(r'(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]|CON\..*|PRN\..*|AUX\..*|NUL\..*|COM[1-9]\..*|LPT[1-9]\..*)', re.IGNORECASE)
+        if reserved_names.match(folder_name):
+            return False
+
+    # Check for reserved names on Linux and macOS (reserved characters are allowed on Unix-like systems)
+    if os.name == 'posix':
+        reserved_names = {'/dev', '/proc', '/sys', '/tmp', '/run', '/var'}
+        if folder_name in reserved_names or folder_name.startswith('/'):
+            return False
+
+    return True

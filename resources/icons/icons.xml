@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
     <type name="acronym" default="document.svg">
-        <icon key="DRS" file="acronym_drs.svg" />
     </type>
     <type name="app" default="proteus_logo.png">
         <icon key="proteus_icon" file="proteus_logo.ico" />
