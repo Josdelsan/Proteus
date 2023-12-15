@@ -4,8 +4,8 @@
     <stringProperty name=":Proteus-name"><![CDATA[University of Seville logo]]></stringProperty>
     <dateProperty name=":Proteus-date">2000-12-31</dateProperty>
     <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
-	  <fileProperty name="file"><![CDATA[us-logo.jpg]]></fileProperty>
-    <integerProperty name="width">20</integerProperty>
+	  <fileProperty name="file" tooltip="property.file.tooltip"><![CDATA[us-logo.jpg]]></fileProperty>
+    <integerProperty name="width" tooltip="property.width.tooltip">20</integerProperty>
     <markdownProperty name="description" category="details"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>

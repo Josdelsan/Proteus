@@ -99,6 +99,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         # Initialize error label
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
         self.error_label.hide()
 
         # Set tooltip

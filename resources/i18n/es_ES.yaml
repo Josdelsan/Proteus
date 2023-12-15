@@ -83,6 +83,8 @@ low: "Baja"
 # Tooltips
 property.is-appendix.tooltip: "Indica si es un apéndice."
 property.is-glossary.tooltip: "Indica si es un elemento de glosario."
+property.file.tooltip: "Seleccione un archivo gráfico de su sistema para copiarlo en la carpeta de recursos 'assets' del proyecto."
+property.width.tooltip: "Porcentaje del ancho de la página que ocupará el recurso."
 
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"

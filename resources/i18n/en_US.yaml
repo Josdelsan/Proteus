@@ -83,8 +83,8 @@ low: "Low"
 # Tooltips
 property.is-appendix.tooltip: "Check if is an appendix."
 property.is-glossary.tooltip: "Check if is a glossary item."
-
-
+property.file.tooltip: "Select a graphic file from your local system to copy it to the assets folder."
+property.width.tooltip: "Percentage of the page width that the image will occupy."
 
 # Properties validation messages
 string_property_input.validator.error: "This field cannot be empty"

@@ -128,6 +128,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         # Error message label
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Setting message label
         setting_info_label: QLabel = QLabel(self._translator.text("settings_dialog.info.label"))

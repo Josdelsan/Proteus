@@ -163,6 +163,7 @@ class ExportDialog(QDialog, ProteusComponent):
         # Error label
         self.error_label = QLabel()
         self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Create the buttons
         self.button_box = QDialogButtonBox(

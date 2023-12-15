@@ -124,6 +124,7 @@ class NewViewDialog(QDialog, ProteusComponent):
         # Error message label
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Add the widgets to the layout
         layout.addWidget(view_label)
