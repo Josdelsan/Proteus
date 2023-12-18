@@ -13,6 +13,7 @@
 #---------------------------------------------------------------------------
 use_case_step: "Use case step"
 subobjective: "Subobjective"
+model.object.clone.copy_of: "Copy of"
 
 #---------------------------------------------------------------------------
 # Property names and categories

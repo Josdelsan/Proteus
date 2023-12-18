@@ -93,8 +93,8 @@ def test_clone_object_command_redo(sample_project_service: ProjectService, objec
     original_object_index = parent.get_descendants().index(original_object)
     cloned_object = parent.get_descendants()[original_object_index + 1]
     assert (
+        original_object.get_property(PROTEUS_NAME).value in
         cloned_object.get_property(PROTEUS_NAME).value
-        == original_object.get_property(PROTEUS_NAME).value
     ), f"Cloned object name should be {original_object.get_property(PROTEUS_NAME).value}, but it is {cloned_object.get_property(PROTEUS_NAME).value}. \
             The new object should be just after the original object in position {original_object_index + 1}."
 

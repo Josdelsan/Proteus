@@ -13,6 +13,7 @@
 #---------------------------------------------------------------------------
 use_case_step: "Paso de caso de uso"
 subobjective: "subobjetivo"
+model.object.clone.copy_of: "Copia de"
 
 #---------------------------------------------------------------------------
 # Nombres de propiedades y categorías

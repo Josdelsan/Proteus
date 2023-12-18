@@ -84,3 +84,6 @@ DEFAULT_TRACE_NAME     = str('trace')
 DEFAULT_TRACE_CATEGORY = str('dependencies')
 DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 
+# Name prefix for cloned objects
+COPY_OF = str('model.object.clone.copy_of')
+

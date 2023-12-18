@@ -44,6 +44,8 @@ import shortuuid
 from proteus.model import (
     ProteusID,
     PROTEUS_DATE,
+    PROTEUS_CODE,
+    PROTEUS_NAME,
     ID_ATTRIBUTE,
     NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
@@ -57,11 +59,15 @@ from proteus.model import (
     TRACE_PROPERTY_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
+    COPY_OF,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import Property, FileProperty, DateProperty
 from proteus.model.properties.code_property import ProteusCode, CodeProperty
 from proteus.model.trace import Trace
+# TODO: Translator and other classes should be moved to a new package outside the
+# views package.
+from proteus.views.utils.translator import Translator
 
 
 # from proteus.model.project import Project
@@ -506,12 +512,14 @@ class Object(AbstractObject):
         :param position: Position in the children list where the child will be added.
         :type parent: Union[Object,Project].
         """
-        #TODO: Refactor this dictionary for better readability
         # Map with the ids of the objects that have been cloned and their new ids
         ids_map: Dict[ProteusID, ProteusID] = dict()
 
+        # Codes map to calculate the biggest code for each prefix
+        codes_map: Dict[str, ProteusCode] = self._calculate_biggest_code(project)
+
         # Clone the object
-        cloned_object: Object = self._clone_object(parent, project, ids_map, position)
+        cloned_object: Object = self._clone_object(parent, project, ids_map, codes_map, position)
 
         # Recalculate traces
         self._recalculate_traces(cloned_object, ids_map, project)
@@ -524,6 +532,7 @@ class Object(AbstractObject):
         parent: Union[Object, Project],
         project: Project,
         ids_map: dict,
+        codes_map: dict,
         position: int = None,
     ) -> Object:
         """
@@ -561,7 +570,7 @@ class Object(AbstractObject):
             # Build the source assets path
             # Check if the cloned object is an archetype based on the project property
             source_assets_path: pathlib.Path = None
-            if self.project is None:
+            if is_archetype:
                 # NOTE: If object is an archetype, build the path to the assets
                 # folder from its own file path. This is known by archetype
                 # repository structure convention
@@ -606,23 +615,21 @@ class Object(AbstractObject):
             """
             Helper function that handles the code cloning.
             """
-            _code_map = self._calculate_biggest_code(project)
-
             new_property: CodeProperty = code_property
 
             # Get the prefix
             prefix = code_property.value.prefix
 
             # Check if the prefix is in the code map
-            if prefix in _code_map:
+            if prefix in codes_map:
                 # Get the biggest code for the prefix
-                biggest_code = _code_map[prefix]
+                biggest_code = codes_map[prefix]
 
                 # Get the next code
                 next_code = biggest_code.next()
 
                 # Update the code map
-                _code_map[prefix] = next_code
+                codes_map[prefix] = next_code
 
                 # Update the new property
                 new_property = code_property.clone(next_code)
@@ -642,6 +649,9 @@ class Object(AbstractObject):
         assert parent.__class__.__name__ == "Project" or isinstance(
             parent, Object
         ), f"Parent must be instance of Object or Project"
+
+        # Check if object is an archetype based on the project property
+        is_archetype: bool = self.project is None
 
         # -------------------------------------------------------
         # Object base clonation
@@ -680,9 +690,15 @@ class Object(AbstractObject):
                 current_date = datetime.date.today()
                 new_date_property = property.clone(current_date)
                 new_object.set_property(new_date_property)
-            elif isinstance(property, CodeProperty):
+            # Increment :Proteus-code CodeProperty if necessary
+            elif isinstance(property, CodeProperty) and property.name == PROTEUS_CODE:
                 new_code_property = _handle_code_clone(property)
                 new_object.set_property(new_code_property)
+            # For existing objects in the project, add the word Copy of in the name
+            elif property.name == PROTEUS_NAME and not is_archetype:
+                copy_of_str = Translator().text(COPY_OF)
+                new_name_property = property.clone(f"{copy_of_str} {property.value}")
+                new_object.set_property(new_name_property)
 
         # -------------------------------------------------------
         # Parent children update
@@ -701,6 +717,7 @@ class Object(AbstractObject):
                     parent=new_object,
                     project=project,
                     ids_map=ids_map,
+                    codes_map=codes_map,
                     position=len(new_object.children),
                 )
 
