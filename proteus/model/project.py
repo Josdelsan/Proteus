@@ -106,11 +106,8 @@ class Project(AbstractObject):
             path
         ), f"PROTEUS projects must be located in a directory. {path} is not a directory."
 
-        # Change the current working directory
-        os.chdir(path)
-
         # Complete path to project file
-        project_file_path = f"./{PROJECT_FILE_NAME}"
+        project_file_path = f"{path}/{PROJECT_FILE_NAME}"
 
         # Check project file exists
         assert os.path.isfile(

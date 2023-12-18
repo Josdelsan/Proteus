@@ -570,7 +570,7 @@ class Object(AbstractObject):
                 )
             else:
                 source_assets_path = (
-                    pathlib.Path(self.project.path).parent.parent / ASSETS_REPOSITORY
+                    pathlib.Path(self.project.path).parent / ASSETS_REPOSITORY
                 )
 
             assert (
