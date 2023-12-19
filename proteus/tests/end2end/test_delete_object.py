@@ -35,7 +35,7 @@ from PyQt6.QtCore import QPoint, QTimer
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu

@@ -38,6 +38,7 @@ def proteus_action(func):
     Handles application state when an action is performed by the
     user. It sets the cursor to wait shape.
     """
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             # Set cursor to wait shape

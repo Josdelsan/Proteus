@@ -30,7 +30,7 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.views.utils.event_manager import EventManager, Event
+from proteus.utils.event_manager import EventManager, Event
 
 
 # --------------------------------------------------------------------------

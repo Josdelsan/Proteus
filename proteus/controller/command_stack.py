@@ -41,9 +41,9 @@ from proteus.controller.commands.change_object_position import (
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.views.utils.event_manager import EventManager, Event
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.decorators import proteus_action
+from proteus.utils.event_manager import EventManager, Event
+from proteus.utils.state_manager import StateManager
+from proteus.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property

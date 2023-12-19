@@ -23,6 +23,7 @@ from pathlib import Path
 from configparser import ConfigParser
 import shutil
 import logging
+import threading
 from logging.handlers import TimedRotatingFileHandler
 
 # --------------------------------------------------------------------------
@@ -77,6 +78,7 @@ I18N_DIRECTORY: str = "i18n_directory"
 class Config:
     # Singleton instance
     _instance = None
+    __lock = threading.Lock()  # Ensure thread safety
 
     def __new__(cls, *args, **kwargs):
         """
@@ -92,9 +94,10 @@ class Config:
         It initializes the config paths for PROTEUS application.
         """
         # Check if the instance has been initialized
-        if self._initialized:
-            return
-        self._initialized = True
+        with self.__class__.__lock:
+            if self._initialized:
+                return
+            self._initialized = True
 
         # Logger configuration
         self._logger_configuration()

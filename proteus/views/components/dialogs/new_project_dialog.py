@@ -38,7 +38,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
-from proteus.views.utils.forms.directory_edit import DirectoryEdit
+from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent

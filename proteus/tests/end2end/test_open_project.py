@@ -30,7 +30,7 @@ from PyQt6.QtCore import QTimer
 # --------------------------------------------------------------------------
 
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.tests.end2end.fixtures import app
 
 # --------------------------------------------------------------------------

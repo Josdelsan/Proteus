@@ -38,8 +38,8 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
-from proteus.views.utils.event_manager import Event
-from proteus.views.utils.translator import Translator
+from proteus.utils.event_manager import Event
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.web_channel_object import WebChannelObject
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog

@@ -21,7 +21,6 @@ from pathlib import Path
 from PyQt6.QtWidgets import (
     QWidget,
     QToolButton,
-    QScrollArea,
     QFrame,
     QGridLayout,
     QLabel,
@@ -33,10 +32,10 @@ from PyQt6.QtCore import Qt, QSize
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
+from proteus.utils.config import Config
 from proteus.model import ProteusClassTag
 from proteus.views import ARCHETYPE_MENU_ICON_TYPE, MAIN_MENU_ICON_TYPE
-from proteus.views.utils.translator import Translator
+from proteus.utils.translator import Translator
 
 
 # --------------------------------------------------------------------------

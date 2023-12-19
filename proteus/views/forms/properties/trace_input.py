@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: string_property_input.py
-# Description: String property input widget for properties forms.
-# Date: 17/10/2023
+# File: trace_input.py
+# Description: Trace input widget for properties forms.
+# Date: 25/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -10,56 +10,54 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (
-    QLineEdit,
-)
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import PROTEUS_NAME
-from proteus.model.properties.string_property import StringProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model.trace import Trace
+from proteus.controller.command_stack import Controller
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.trace_edit import TraceEdit
 
 
 # --------------------------------------------------------------------------
-# Class: StringPropertyInput
-# Description: String property input widget for properties forms.
-# Date: 17/10/2023
+# Class: TraceInput
+# Description: Trace input widget for properties forms.
+# Date: 25/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class StringPropertyInput(PropertyInput):
+class TraceInput(PropertyInput):
     """
-    String property input widget for properties forms.
+    Trace input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.
-    # Date       : 04/08/2023
+    # Date       : 25/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> List:
         """
         Returns the value of the input widget. The value is converted to a
-        string.
+        list.
         """
-        self.input: QLineEdit
-        return self.input.text()
+        self.input: TraceEdit
+        return self.input.traces()
 
     # ----------------------------------------------------------------------
     # Method     : validate
     # Description: Validates the input widget.
-    # Date       : 17/10/2023
+    # Date       : 25/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -68,31 +66,22 @@ class StringPropertyInput(PropertyInput):
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
-        # Get the input text
-        text = self.input.text()
-
-        # Get Property or Trace name
-        name = self.property.name
-
-        # Check if the input is valid
-        if text is None or (name == PROTEUS_NAME and text == ""):
-            return "string_property_input.validator.error"
-
-        # Return None if the input is valid
-        return None
+        pass
 
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
-    # Date       : 17/10/2023
+    # Date       : 25/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: StringProperty, *args, **kwargs) -> QLineEdit:
+    def create_input(property: Trace, controller: Controller, *args, **kwargs) -> TraceEdit:
         """
-        Creates the input widget based on QLineEdit.
+        Creates the input widget based on PROTEUS TraceEdit.
         """
-        input: QLineEdit = QLineEdit()
-        input.setText(property.value)
+        input: TraceEdit = TraceEdit(
+            controller=controller, accepted_targets=property.acceptedTargets
+        )
+        input.setTraces(property.targets)
         return input

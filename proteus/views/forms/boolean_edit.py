@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.translator import Translator
+from proteus.utils.translator import Translator
 
 
 # --------------------------------------------------------------------------

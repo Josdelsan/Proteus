@@ -30,7 +30,7 @@ from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.views import ACRONYM_ICON_TYPE
-from proteus.views.utils.event_manager import Event
+from proteus.utils.event_manager import Event
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
 

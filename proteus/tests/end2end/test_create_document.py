@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.tests.end2end.fixtures import app, load_project
 

@@ -28,9 +28,9 @@ from PyQt6.QtWidgets import QApplication
 # --------------------------------------------------------------------------
 
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
-from proteus.views.main_window import MainWindow
-from proteus.views.utils.event_manager import EventManager
-from proteus.views.utils.state_manager import StateManager
+from proteus.views.components.main_window import MainWindow
+from proteus.utils.event_manager import EventManager
+from proteus.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------

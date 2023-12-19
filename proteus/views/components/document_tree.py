@@ -49,7 +49,7 @@ from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
 from proteus.controller.command_stack import Controller
 from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.views.utils.event_manager import Event
+from proteus.utils.event_manager import Event
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu

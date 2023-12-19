@@ -43,8 +43,8 @@ from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.config import Config
-from proteus.views.utils.translator import Translator
+from proteus.utils.config import Config
+from proteus.utils.translator import Translator
 
 # logging configuration
 log = logging.getLogger(__name__)

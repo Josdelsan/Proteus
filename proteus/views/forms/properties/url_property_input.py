@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: time_property_input.py
-# Description: Time property input widget for properties forms.
-# Date: 15/11/2023
+# File: url_property_input.py
+# Description: Url property input widget for properties forms.
+# Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -10,35 +10,35 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from datetime import time
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QTimeEdit,
+    QLineEdit,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.properties.time_property import TimeProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model.properties.url_property import UrlProperty
+from proteus.views.forms.properties.property_input import PropertyInput
+
 
 # --------------------------------------------------------------------------
-# Class: DatePropertyInput
-# Description: Date property input widget for properties forms.
+# Class: UrlPropertyInput
+# Description: Url property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class TimePropertyInput(PropertyInput):
+class UrlPropertyInput(PropertyInput):
     """
-    Time property input widget for properties forms.
+    Url property input widget for properties forms.
     """
-        
+
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.
@@ -46,12 +46,13 @@ class TimePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> time:
+    def get_value(self) -> str:
         """
-        Returns the value of the input widget. The value is converted to time.
+        Returns the value of the input widget. The value is converted to a
+        url.
         """
-        self.input: QTimeEdit
-        return self.input.time().toPyTime()
+        self.input: QLineEdit
+        return self.input.text()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -62,8 +63,8 @@ class TimePropertyInput(PropertyInput):
     # ----------------------------------------------------------------------
     def validate(self) -> str:
         """
-        Time property input does not need validation because it is validated
-        by the QTimeEdit widget.
+        Validates the input widget. Returns an error message if the input
+        has errors, None otherwise.
         """
         pass
 
@@ -75,10 +76,10 @@ class TimePropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: TimeProperty, *args, **kwargs) -> QTimeEdit:
+    def create_input(property: UrlProperty, *args, **kwargs) -> QLineEdit:
         """
-        Creates the input widget based on QTimeEdit.
+        Creates the input widget based on QLineEdit.
         """
-        input: QTimeEdit = QTimeEdit()
-        input.setTime(property.value)
+        input: QLineEdit = QLineEdit()
+        input.setText(property.value)
         return input

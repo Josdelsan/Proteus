@@ -27,9 +27,9 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_LOGGING_DIR
-from proteus.config import Config
-from proteus.views.main_window import MainWindow
-from proteus.views.utils.translator import Translator
+from proteus.utils.config import Config
+from proteus.views.components.main_window import MainWindow
+from proteus.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 # logging configuration

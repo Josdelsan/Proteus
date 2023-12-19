@@ -15,6 +15,7 @@
 
 from typing import Dict
 import logging
+import threading
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -26,7 +27,7 @@ import logging
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.views.utils.event_manager import EventManager, Event
+from proteus.utils.event_manager import EventManager, Event
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ class StateManager:
 
     # Singleton instance
     __instance = None
+    __lock = threading.Lock()  # Ensure thread safety
 
     # --------------------------------------------------------------------------
     # Method: __new__
@@ -76,9 +78,10 @@ class StateManager:
         It initializes the StateManager class.
         """
         # Check if the instance has been initialized
-        if self._initialized:
-            return
-        self._initialized = True
+        with self.__class__.__lock:
+            if self._initialized:
+                return
+            self._initialized = True
 
         # Instance variables
         self.current_document: ProteusID = None

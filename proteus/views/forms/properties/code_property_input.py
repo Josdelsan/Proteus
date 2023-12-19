@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: date_property_input.py
-# Description: Date property input widget for properties forms.
-# Date: 17/10/2023
+# File: code_property_input.py
+# Description: Code property input widget for properties forms.
+# Date: 10/11/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -10,35 +10,36 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from datetime import date
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QDateEdit,
+    QLineEdit,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.properties.date_property import DateProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model.properties.code_property import CodeProperty, ProteusCode
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.code_edit import CodeEdit
+
 
 # --------------------------------------------------------------------------
-# Class: DatePropertyInput
-# Description: Date property input widget for properties forms.
-# Date: 17/10/2023
+# Class: CodePropertyInput
+# Description: Code property input widget for properties forms.
+# Date: 10/11/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DatePropertyInput(PropertyInput):
+class CodePropertyInput(PropertyInput):
     """
-    Date property input widget for properties forms.
+    Code property input widget for properties forms.
     """
-        
+
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.
@@ -46,40 +47,56 @@ class DatePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> date:
+    def get_value(self) -> ProteusCode:
         """
         Returns the value of the input widget. The value is converted to a
-        date.
+        ProteusCode object.
         """
-        self.input: QDateEdit
-        return self.input.date().toPyDate()
+        self.input: CodeEdit
+        prefix, number, suffix = self.input.code()
+        return ProteusCode(prefix=prefix, number=number, suffix=suffix)
 
     # ----------------------------------------------------------------------
     # Method     : validate
     # Description: Validates the input widget.
-    # Date       : 17/10/2023
+    # Date       : 10/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def validate(self) -> str:
         """
-        Date property input does not need validation because it is validated
-        by the QDateEdit widget.
+        Validates the input widget information. Returns None if the input is
+        valid, otherwise returns the error message.
         """
-        pass
+        prefix, number, _ = self.input.code()
+        
+        if prefix == "":
+            return "code_property_input.validator.error.prefix"
+
+        try:
+            int(number)
+        except ValueError:
+            return "code_property_input.validator.error.number_type"
+        
+        if int(number) <= 0:
+            return "code_property_input.validator.error.number_value"
+
+        # Return None if the input is valid
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
-    # Date       : 17/10/2023
+    # Date       : 10/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: DateProperty, *args, **kwargs) -> QDateEdit:
+    def create_input(property: CodeProperty, *args, **kwargs) -> CodeEdit:
         """
-        Creates the input widget based on QDateEdit.
+        Creates the input widget based on CodeEdit custom widget.
         """
-        input: QDateEdit = QDateEdit()
-        input.setDate(property.value)
+        input: CodeEdit = CodeEdit()
+        code: ProteusCode = property.value
+        input.setCode(prefix=code.prefix, number=code.number, suffix=code.suffix)
         return input

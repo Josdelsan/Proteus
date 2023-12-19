@@ -39,8 +39,8 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property
 from proteus.views import APP_ICON_TYPE, TREE_MENU_ICON_TYPE
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.properties.property_input_factory import (
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
 )
 from proteus.views.components.abstract_component import ProteusComponent

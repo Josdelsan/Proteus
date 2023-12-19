@@ -13,6 +13,7 @@
 from enum import Enum
 import logging
 from typing import List, Dict, Tuple
+import threading
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -78,6 +79,7 @@ class EventManager:
 
     # Singleton instance
     __instance = None
+    __lock = threading.Lock()  # Ensure thread safety
 
     # --------------------------------------------------------------------------
     # Method: __new__
@@ -108,9 +110,10 @@ class EventManager:
         It initializes the EventManager class.
         """
         # Check if the instance has been initialized
-        if self._initialized:
-            return
-        self._initialized = True
+        with self.__class__.__lock:
+            if self._initialized:
+                return
+            self._initialized = True
 
         # Instance variables
         self._events: Dict[Event, List[Tuple[callable, QWidget]]] = {}

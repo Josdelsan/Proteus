@@ -45,7 +45,7 @@ from proteus.model import (
     ID_ATTRIBUTE,
     ProteusClassTag,
 )
-from proteus.config import Config
+from proteus.utils.config import Config
 from proteus.model.project import Project
 from proteus.model.object import Object
 

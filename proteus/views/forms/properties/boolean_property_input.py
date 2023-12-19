@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: integer_property_input.py
-# Description: Integer property input widget for properties forms.
+# File: boolean_property_input.py
+# Description: Boolean property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -16,27 +16,31 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QLineEdit,
+    QCheckBox,
+)
+from PyQt6.QtCore import (
+    Qt,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.properties.integer_property import IntegerProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model.properties.boolean_property import BooleanProperty
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.boolean_edit import BooleanEdit
 
 
 # --------------------------------------------------------------------------
-# Class: IntegerPropertyInput
-# Description: Integer property input widget for properties forms.
+# Class: BooleanPropertyInput
+# Description: Boolean property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class IntegerPropertyInput(PropertyInput):
+class BooleanPropertyInput(PropertyInput):
     """
-    Integer property input widget for properties forms.
+    Boolean property input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
@@ -46,13 +50,13 @@ class IntegerPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> int:
+    def get_value(self) -> bool:
         """
         Returns the value of the input widget. The value is converted to a
-        integer.
+        boolean.
         """
-        self.input: QLineEdit
-        return int(self.input.text())
+        self.input: BooleanEdit
+        return self.input.checked()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -63,18 +67,10 @@ class IntegerPropertyInput(PropertyInput):
     # ----------------------------------------------------------------------
     def validate(self) -> str:
         """
-        Validates the input widget. Returns an error message if the input
-        has errors, None otherwise.
+        Boolean property input does not need validation because it is validated
+        by the QCheckBox widget.
         """
-        # Perform validation to prevent non-numeric values
-        text = self.input.text()
-        try:
-            int(text)
-        except ValueError:
-            return "integer_property_input.validator.error"
-
-        # Return None if the input is valid
-        return None
+        pass
 
     # ----------------------------------------------------------------------
     # Method     : create_input
@@ -84,10 +80,10 @@ class IntegerPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: IntegerProperty, *args, **kwargs) -> QLineEdit:
+    def create_input(property: BooleanProperty, *args, **kwargs) -> BooleanEdit:
         """
-        Creates the input widget based on QLineEdit.
+        Creates the input widget based on QCheckBox.
         """
-        input: QLineEdit = QLineEdit()
-        input.setText(str(property.value))
+        input: BooleanEdit = BooleanEdit(tooltip=property.tooltip)
+        input.setChecked(property.value)
         return input

@@ -16,13 +16,11 @@
 
 import markdown
 from PyQt6.QtCore import (
-    Qt,
     QSize,
 )
 from PyQt6.QtWidgets import (
     QWidget,
     QTextEdit,
-    QLabel,
     QVBoxLayout,
     QSizePolicy,
     QPushButton,
@@ -32,7 +30,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.translator import Translator
+from proteus.utils.translator import Translator
 
 
 # --------------------------------------------------------------------------

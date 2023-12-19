@@ -37,7 +37,7 @@ from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
-from proteus.views.utils.translator import Translator
+from proteus.utils.translator import Translator
 
 # logging configuration
 log = logging.getLogger(__name__)

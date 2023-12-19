@@ -24,8 +24,8 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model.properties.markdown_property import MarkdownProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.markdown_edit import MarkdownEdit
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.markdown_edit import MarkdownEdit
 
 # --------------------------------------------------------------------------
 # Class: MarkdownPropertyInput

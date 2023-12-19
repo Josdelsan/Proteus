@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import LANGUAGE
+from proteus.utils.config import LANGUAGE
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent

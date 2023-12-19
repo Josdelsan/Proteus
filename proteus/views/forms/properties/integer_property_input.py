@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: enum_property_input.py
-# Description: Enum property input widget for properties forms.
+# File: integer_property_input.py
+# Description: Integer property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -16,28 +16,27 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QComboBox,
+    QLineEdit,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.translator import Translator
-from proteus.model.properties.enum_property import EnumProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model.properties.integer_property import IntegerProperty
+from proteus.views.forms.properties.property_input import PropertyInput
 
 
 # --------------------------------------------------------------------------
-# Class: EnumPropertyInput
-# Description: Enum property input widget for properties forms.
+# Class: IntegerPropertyInput
+# Description: Integer property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class EnumPropertyInput(PropertyInput):
+class IntegerPropertyInput(PropertyInput):
     """
-    Enum property input widget for properties forms.
+    Integer property input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
@@ -47,13 +46,13 @@ class EnumPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> str:
+    def get_value(self) -> int:
         """
         Returns the value of the input widget. The value is converted to a
-        enum.
+        integer.
         """
-        self.input: QComboBox
-        return self.input.currentData()
+        self.input: QLineEdit
+        return int(self.input.text())
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -67,7 +66,15 @@ class EnumPropertyInput(PropertyInput):
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
-        pass
+        # Perform validation to prevent non-numeric values
+        text = self.input.text()
+        try:
+            int(text)
+        except ValueError:
+            return "integer_property_input.validator.error"
+
+        # Return None if the input is valid
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input
@@ -77,15 +84,10 @@ class EnumPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: EnumProperty, *args, **kwargs) -> QComboBox:
+    def create_input(property: IntegerProperty, *args, **kwargs) -> QLineEdit:
         """
-        Creates the input widget based on QComboBox.
+        Creates the input widget based on QLineEdit.
         """
-        input: QComboBox = QComboBox()
-        choices = property.get_choices_as_set()
-        # Add choices translated
-        for choice in choices:
-            input.addItem(Translator().text(choice), choice)
-        # Set current choice
-        input.setCurrentText(Translator().text(property.value))
+        input: QLineEdit = QLineEdit()
+        input.setText(str(property.value))
         return input

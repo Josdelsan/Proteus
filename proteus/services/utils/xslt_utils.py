@@ -25,7 +25,7 @@ from PyQt6.QtCore import QByteArray, QBuffer, QIODevice
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
+from proteus.utils.config import Config
 from proteus.model import ASSETS_REPOSITORY
 
 

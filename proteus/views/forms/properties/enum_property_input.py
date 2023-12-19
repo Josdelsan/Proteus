@@ -1,44 +1,43 @@
 # ==========================================================================
-# File: file_property_input.py
-# Description: File property input widget for properties forms.
+# File: enum_property_input.py
+# Description: Enum property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-import shutil
-from pathlib import Path
+# --------------------------------------------------------------------------
+# Standard library imports
+# --------------------------------------------------------------------------
+
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QLineEdit,
-    QFileDialog,
+    QComboBox,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ASSETS_REPOSITORY
-from proteus.config import Config
-from proteus.model.properties.file_property import FileProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.asset_edit import AssetEdit
+from proteus.utils.translator import Translator
+from proteus.model.properties.enum_property import EnumProperty
+from proteus.views.forms.properties.property_input import PropertyInput
 
 
 # --------------------------------------------------------------------------
-# Class: FilePropertyInput
-# Description: File property input widget for properties forms.
+# Class: EnumPropertyInput
+# Description: Enum property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class FilePropertyInput(PropertyInput):
+class EnumPropertyInput(PropertyInput):
     """
-    File property input widget for properties forms.
+    Enum property input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
@@ -51,10 +50,10 @@ class FilePropertyInput(PropertyInput):
     def get_value(self) -> str:
         """
         Returns the value of the input widget. The value is converted to a
-        file.
+        enum.
         """
-        self.input: AssetEdit
-        return self.input.asset()
+        self.input: QComboBox
+        return self.input.currentData()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -78,10 +77,15 @@ class FilePropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: FileProperty, *args, **kwargs) -> AssetEdit:
+    def create_input(property: EnumProperty, *args, **kwargs) -> QComboBox:
         """
-        Creates the input widget based on PROTEUS AssetEdit.
+        Creates the input widget based on QComboBox.
         """
-        input: AssetEdit = AssetEdit()
-        input.setAsset(property.value)
+        input: QComboBox = QComboBox()
+        choices = property.get_choices_as_set()
+        # Add choices translated
+        for choice in choices:
+            input.addItem(Translator().text(choice), choice)
+        # Set current choice
+        input.setCurrentText(Translator().text(property.value))
         return input

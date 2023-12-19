@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import QApplication
 # --------------------------------------------------------------------------
 
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------

@@ -32,7 +32,7 @@ from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
-from proteus.views.utils.event_manager import Event
+from proteus.utils.event_manager import Event
 
 # logging configuration
 log = logging.getLogger(__name__)

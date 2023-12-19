@@ -14,6 +14,7 @@ from typing import Dict
 from pathlib import Path
 import yaml
 import logging
+import threading
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,7 +25,7 @@ import logging
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
+from proteus.utils.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -48,6 +49,7 @@ class Translator:
 
     # Singleton instance
     __instance = None
+    __lock = threading.Lock()  # Ensure thread safety
 
     # --------------------------------------------------------------------------
     # Method: __new__
@@ -79,9 +81,10 @@ class Translator:
         current language.
         """
         # Check if the instance has been initialized
-        if self._initialized:
-            return
-        self._initialized = True
+        with self.__class__.__lock:
+            if self._initialized:
+                return
+            self._initialized = True
         
         # Proteus configuration
         self.config: Config = Config()

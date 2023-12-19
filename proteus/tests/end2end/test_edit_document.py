@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QApplication
 # --------------------------------------------------------------------------
 
 from proteus.model import PROTEUS_NAME
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog

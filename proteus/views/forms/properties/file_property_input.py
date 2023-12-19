@@ -1,14 +1,13 @@
 # ==========================================================================
-# File: float_property_input.py
-# Description: Float property input widget for properties forms.
+# File: file_property_input.py
+# Description: File property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# --------------------------------------------------------------------------
-# Standard library imports
-# --------------------------------------------------------------------------
+import shutil
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -16,26 +15,30 @@
 
 from PyQt6.QtWidgets import (
     QLineEdit,
+    QFileDialog,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.properties.float_property import FloatProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
+from proteus.model import ASSETS_REPOSITORY
+from proteus.utils.config import Config
+from proteus.model.properties.file_property import FileProperty
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.asset_edit import AssetEdit
 
 
 # --------------------------------------------------------------------------
-# Class: FloatPropertyInput
-# Description: Float property input widget for properties forms.
+# Class: FilePropertyInput
+# Description: File property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class FloatPropertyInput(PropertyInput):
+class FilePropertyInput(PropertyInput):
     """
-    Float property input widget for properties forms.
+    File property input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
@@ -45,13 +48,13 @@ class FloatPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> float:
+    def get_value(self) -> str:
         """
         Returns the value of the input widget. The value is converted to a
-        float.
+        file.
         """
-        self.input: QLineEdit
-        return float(self.input.text())
+        self.input: AssetEdit
+        return self.input.asset()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -65,15 +68,7 @@ class FloatPropertyInput(PropertyInput):
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
-        # Perform validation to prevent non-numeric values
-        text = self.input.text()
-        try:
-            float(text)
-        except ValueError:
-            return "float_property_input.validator.error"
-
-        # Return None if the input is valid
-        return None
+        pass
 
     # ----------------------------------------------------------------------
     # Method     : create_input
@@ -83,10 +78,10 @@ class FloatPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: FloatProperty, *args, **kwargs) -> QLineEdit:
+    def create_input(property: FileProperty, *args, **kwargs) -> AssetEdit:
         """
-        Creates the input widget based on QLineEdit.
+        Creates the input widget based on PROTEUS AssetEdit.
         """
-        input: QLineEdit = QLineEdit()
-        input.setText(str(property.value))
+        input: AssetEdit = AssetEdit()
+        input.setAsset(property.value)
         return input

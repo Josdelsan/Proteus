@@ -29,8 +29,8 @@ from PyQt6.QtWidgets import (
 
 from proteus.views import APP_ICON_TYPE
 from proteus.model import ASSETS_REPOSITORY
-from proteus.config import Config
-from proteus.views.utils.translator import Translator
+from proteus.utils.config import Config
+from proteus.utils.translator import Translator
 
 
 # --------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: trace_input.py
-# Description: Trace input widget for properties forms.
-# Date: 25/10/2023
+# File: date_property_input.py
+# Description: Date property input widget for properties forms.
+# Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -10,78 +10,76 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
+from datetime import date
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtWidgets import (
+    QDateEdit,
+)
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.trace import Trace
-from proteus.controller.command_stack import Controller
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.trace_edit import TraceEdit
-
+from proteus.model.properties.date_property import DateProperty
+from proteus.views.forms.properties.property_input import PropertyInput
 
 # --------------------------------------------------------------------------
-# Class: TraceInput
-# Description: Trace input widget for properties forms.
-# Date: 25/10/2023
+# Class: DatePropertyInput
+# Description: Date property input widget for properties forms.
+# Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class TraceInput(PropertyInput):
+class DatePropertyInput(PropertyInput):
     """
-    Trace input widget for properties forms.
+    Date property input widget for properties forms.
     """
-
+        
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.
-    # Date       : 25/10/2023
+    # Date       : 04/08/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> List:
+    def get_value(self) -> date:
         """
         Returns the value of the input widget. The value is converted to a
-        list.
+        date.
         """
-        self.input: TraceEdit
-        return self.input.traces()
+        self.input: QDateEdit
+        return self.input.date().toPyDate()
 
     # ----------------------------------------------------------------------
     # Method     : validate
     # Description: Validates the input widget.
-    # Date       : 25/10/2023
+    # Date       : 17/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def validate(self) -> str:
         """
-        Validates the input widget. Returns an error message if the input
-        has errors, None otherwise.
+        Date property input does not need validation because it is validated
+        by the QDateEdit widget.
         """
         pass
 
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
-    # Date       : 25/10/2023
+    # Date       : 17/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: Trace, controller: Controller, *args, **kwargs) -> TraceEdit:
+    def create_input(property: DateProperty, *args, **kwargs) -> QDateEdit:
         """
-        Creates the input widget based on PROTEUS TraceEdit.
+        Creates the input widget based on QDateEdit.
         """
-        input: TraceEdit = TraceEdit(
-            controller=controller, accepted_targets=property.acceptedTargets
-        )
-        input.setTraces(property.targets)
+        input: QDateEdit = QDateEdit()
+        input.setDate(property.value)
         return input

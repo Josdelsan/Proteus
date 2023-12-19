@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.views import APP_ICON_TYPE
-from proteus.config import Config
+from proteus.utils.config import Config
 
 
 # --------------------------------------------------------------------------

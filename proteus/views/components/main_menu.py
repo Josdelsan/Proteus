@@ -46,9 +46,9 @@ from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.views.components.archetypes_menu_dropdown import (
     ArchetypesMenuDropdown,
 )
-from proteus.views.utils import buttons
-from proteus.views.utils.buttons import ArchetypeMenuButton
-from proteus.views.utils.event_manager import Event
+from proteus.views import buttons
+from proteus.views.buttons import ArchetypeMenuButton
+from proteus.utils.event_manager import Event
 
 # logging configuration
 log = logging.getLogger(__name__)

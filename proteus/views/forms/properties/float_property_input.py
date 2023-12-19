@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: boolean_property_input.py
-# Description: Boolean property input widget for properties forms.
+# File: float_property_input.py
+# Description: Float property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -10,37 +10,32 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import (
-    QCheckBox,
-)
-from PyQt6.QtCore import (
-    Qt,
+    QLineEdit,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.properties.boolean_property import BooleanProperty
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.boolean_edit import BooleanEdit
+from proteus.model.properties.float_property import FloatProperty
+from proteus.views.forms.properties.property_input import PropertyInput
 
 
 # --------------------------------------------------------------------------
-# Class: BooleanPropertyInput
-# Description: Boolean property input widget for properties forms.
+# Class: FloatPropertyInput
+# Description: Float property input widget for properties forms.
 # Date: 17/10/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class BooleanPropertyInput(PropertyInput):
+class FloatPropertyInput(PropertyInput):
     """
-    Boolean property input widget for properties forms.
+    Float property input widget for properties forms.
     """
 
     # ----------------------------------------------------------------------
@@ -50,13 +45,13 @@ class BooleanPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_value(self) -> bool:
+    def get_value(self) -> float:
         """
         Returns the value of the input widget. The value is converted to a
-        boolean.
+        float.
         """
-        self.input: BooleanEdit
-        return self.input.checked()
+        self.input: QLineEdit
+        return float(self.input.text())
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -67,10 +62,18 @@ class BooleanPropertyInput(PropertyInput):
     # ----------------------------------------------------------------------
     def validate(self) -> str:
         """
-        Boolean property input does not need validation because it is validated
-        by the QCheckBox widget.
+        Validates the input widget. Returns an error message if the input
+        has errors, None otherwise.
         """
-        pass
+        # Perform validation to prevent non-numeric values
+        text = self.input.text()
+        try:
+            float(text)
+        except ValueError:
+            return "float_property_input.validator.error"
+
+        # Return None if the input is valid
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input
@@ -80,10 +83,10 @@ class BooleanPropertyInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: BooleanProperty, *args, **kwargs) -> BooleanEdit:
+    def create_input(property: FloatProperty, *args, **kwargs) -> QLineEdit:
         """
-        Creates the input widget based on QCheckBox.
+        Creates the input widget based on QLineEdit.
         """
-        input: BooleanEdit = BooleanEdit(tooltip=property.tooltip)
-        input.setChecked(property.value)
+        input: QLineEdit = QLineEdit()
+        input.setText(str(property.value))
         return input

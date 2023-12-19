@@ -27,7 +27,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
-from proteus.views.utils.event_manager import EventManager, Event
+from proteus.utils.event_manager import EventManager, Event
 
 
 # --------------------------------------------------------------------------

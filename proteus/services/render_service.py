@@ -26,7 +26,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.model import ASSETS_REPOSITORY
-from proteus.config import Config
+from proteus.utils.config import Config
 from proteus.services.utils import xslt_utils
 
 # logging configuration

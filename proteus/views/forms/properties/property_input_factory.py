@@ -42,29 +42,29 @@ from proteus.model.properties.classlist_property import ClassListProperty
 from proteus.model.properties.code_property import CodeProperty
 
 # Property input imports
-from proteus.views.utils.forms.properties.trace_input import TraceInput
-from proteus.views.utils.forms.properties.property_input import PropertyInput
-from proteus.views.utils.forms.properties.string_property_input import (
+from proteus.views.forms.properties.trace_input import TraceInput
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.properties.string_property_input import (
     StringPropertyInput,
 )
-from proteus.views.utils.forms.properties.boolean_property_input import (
+from proteus.views.forms.properties.boolean_property_input import (
     BooleanPropertyInput,
 )
-from proteus.views.utils.forms.properties.date_property_input import DatePropertyInput
-from proteus.views.utils.forms.properties.time_property_input import TimePropertyInput
-from proteus.views.utils.forms.properties.markdown_property_input import (
+from proteus.views.forms.properties.date_property_input import DatePropertyInput
+from proteus.views.forms.properties.time_property_input import TimePropertyInput
+from proteus.views.forms.properties.markdown_property_input import (
     MarkdownPropertyInput,
 )
-from proteus.views.utils.forms.properties.integer_property_input import (
+from proteus.views.forms.properties.integer_property_input import (
     IntegerPropertyInput,
 )
-from proteus.views.utils.forms.properties.float_property_input import (
+from proteus.views.forms.properties.float_property_input import (
     FloatPropertyInput,
 )
-from proteus.views.utils.forms.properties.enum_property_input import EnumPropertyInput
-from proteus.views.utils.forms.properties.file_property_input import FilePropertyInput
-from proteus.views.utils.forms.properties.url_property_input import UrlPropertyInput
-from proteus.views.utils.forms.properties.code_property_input import CodePropertyInput
+from proteus.views.forms.properties.enum_property_input import EnumPropertyInput
+from proteus.views.forms.properties.file_property_input import FilePropertyInput
+from proteus.views.forms.properties.url_property_input import UrlPropertyInput
+from proteus.views.forms.properties.code_property_input import CodePropertyInput
 
 # logging configuration
 log = logging.getLogger(__name__)
