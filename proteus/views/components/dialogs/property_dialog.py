@@ -16,7 +16,7 @@ from typing import Union, List, Dict, Any
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -132,6 +132,9 @@ class PropertyDialog(QDialog, ProteusComponent):
         self.object: Union[Project, Object] = self._controller.get_element(
             self.element_id
         )
+
+        # Set Dialog sizeHint
+        self.sizeHint = lambda: QSize(500, 300)
 
         # Check if the object is a project to set the flag
         # This is used to avoid handling traces in the project form

@@ -14,7 +14,7 @@
     <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
   </properties>
   <documents>
-    <object id="722GfFiezi5F" classes=":Proteus-document" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
+    <object id="722GfFiezi5F" classes=":Proteus-document" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any"  render="True">
       <properties>
         <stringProperty name="acronym" category="general"><![CDATA[PRINT]]></stringProperty>
         <stringProperty name=":Proteus-name" category="general"><![CDATA[Document to render]]></stringProperty>

@@ -27,53 +27,55 @@
     <xsl:template match="object[@classes='software-requirement information-requirement']">
         <xsl:variable name="span" select="2"/>
 
-        <table class="proteus-area information_requirement remus_table" id="{@id}">
+        <div id="{@id}"  data-proteus-id="{@id}">
+            <table class="information_requirement remus_table">
 
-            <!-- Header, version, authors and sources -->
-            <xsl:call-template name="generate_software_requirement_expanded_header">
-                <xsl:with-param name="label"   select="properties/codeProperty[@name=':Proteus-code']"/>
-                <xsl:with-param name="class" select="'informationRequirement'" />
-                <xsl:with-param name="span" select="$span" />
-            </xsl:call-template>
+                <!-- Header, version, authors and sources -->
+                <xsl:call-template name="generate_software_requirement_expanded_header">
+                    <xsl:with-param name="label"   select="properties/codeProperty[@name=':Proteus-code']"/>
+                    <xsl:with-param name="class" select="'informationRequirement'" />
+                    <xsl:with-param name="span" select="$span" />
+                </xsl:call-template>
 
-            <!-- Description -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"     select="$proteus:lang_description"/>
-                <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
-                <xsl:with-param name="mandatory" select="'true'"/>
-                <xsl:with-param name="span" select="$span" />
-            </xsl:call-template>
+                <!-- Description -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"     select="$proteus:lang_description"/>
+                    <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
+                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="span" select="$span" />
+                </xsl:call-template>
 
-            <!-- specific data -->
-            <!-- check if there are children otherwise do nothing -->
-            <xsl:if test="children/object">
-                <tr>
-                    <th>
-                        <xsl:value-of select="$proteus:lang_specific_data" />
-                    </th>
-                    <td colspan="{$span}">
-                        <ul class="specific_data">
-                            <xsl:for-each select="children/object">
-                                <xsl:call-template name="generate_specificdata"/>
-                            </xsl:for-each>
-                        </ul>
-                    </td>
-                </tr>
-            </xsl:if>
+                <!-- specific data -->
+                <!-- check if there are children otherwise do nothing -->
+                <xsl:if test="children/object">
+                    <tr>
+                        <th>
+                            <xsl:value-of select="$proteus:lang_specific_data" />
+                        </th>
+                        <td colspan="{$span}">
+                            <ul class="specific_data">
+                                <xsl:for-each select="children/object">
+                                    <xsl:call-template name="generate_specificdata"/>
+                                </xsl:for-each>
+                            </ul>
+                        </td>
+                    </tr>
+                </xsl:if>
 
-            <!-- Priority rows -->
-            <xsl:call-template name="generate_priority_rows">
-                <xsl:with-param name="span" select="$span" />
-            </xsl:call-template>
+                <!-- Priority rows -->
+                <xsl:call-template name="generate_priority_rows">
+                    <xsl:with-param name="span" select="$span" />
+                </xsl:call-template>
 
-            <!-- Comments -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                <xsl:with-param name="span" select="$span" />
-            </xsl:call-template>
+                <!-- Comments -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
+                    <xsl:with-param name="span" select="$span" />
+                </xsl:call-template>
 
-        </table>
+            </table>
+        </div>
     </xsl:template>
 
     <!-- ============================================== -->
@@ -81,7 +83,7 @@
     <!-- ============================================== -->
 
     <xsl:template name="generate_specificdata">
-        <div id="{@id}" class="">
+        <div id="{@id}"  data-proteus-id="{@id}">
             <xsl:variable name="description" select="properties/markdownProperty[@name='description']" />
 
             <li>

@@ -10,4 +10,5 @@
     <object id="organization" />
     <object id="stakeholder" />
     <object id="meeting" />
+    <object id="arch-link" />
 </objects>

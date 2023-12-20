@@ -16,7 +16,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:proteus="http://proteus.lsi.us.es">
     <!-- Match any object -->
     <xsl:template match="object">
-        <div id="{@id}" class="proteus-area">
+
+        <div id="{@id}"  data-proteus-id="{@id}">
             <!-- Display properties in a table -->
             <table class="remus_table">
                 <tr style="background-color: powderblue;">
@@ -32,7 +33,6 @@
                 <xsl:call-template name="renderChildren">
                     <xsl:with-param name="children" select="children/*" />
                 </xsl:call-template>
-
             </table>
         </div>
     </xsl:template>
@@ -51,6 +51,7 @@
     <!-- Named template to render children -->
     <xsl:template name="renderChildren">
         <xsl:param name="children" />
+
         <xsl:for-each select="$children">
             <!-- Child name -->
             <tr>
@@ -61,7 +62,10 @@
                 </td>
 
                 <td >
-                    <table id="{@id}" style="margin: 0; margin-bottom: 0; width: 100%;">
+                    <table  id="{@id}"
+                            style="margin: 0; margin-bottom: 0; width: 100%;"
+                            data-proteus-id="{@id}"
+                        >
                         <xsl:call-template name="renderProperties">
                             <xsl:with-param name="properties" select="properties/*" />
                         </xsl:call-template>

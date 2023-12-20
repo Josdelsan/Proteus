@@ -140,7 +140,7 @@ class StateManager:
         """
         log.debug(f"Selecting object {object_id} in document {document_id}")
         self.current_object[document_id] = object_id
-        EventManager().notify(Event.SELECT_OBJECT)
+        EventManager().notify(Event.SELECT_OBJECT, object_id=object_id)
 
     # --------------------------------------------------------------------------
     # Method: get_current_object
@@ -219,6 +219,27 @@ class StateManager:
         """
         return self.current_view
     
+    # --------------------------------------------------------------------------
+    # Method: get_document_by_object
+    # Description: Returns the document id where the given object id is selected.
+    # Date: 20/12/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def get_document_by_object(self, object_id: ProteusID) -> ProteusID:
+        """
+        Returns the document id where the given object id is selected. If the
+        object is not selected in any document, it returns None.
+
+        :param object_id: object id
+        :return: document id
+        :rtype: ProteusID
+        """
+        for document_id in self.current_object:
+            if self.current_object[document_id] == object_id:
+                return document_id
+        return None
+
     # --------------------------------------------------------------------------
     # Method: clear
     # Description: Clears the current state manager.

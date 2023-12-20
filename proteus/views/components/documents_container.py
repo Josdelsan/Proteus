@@ -179,6 +179,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             - Event.ADD_DOCUMENT    | update_on_add_document
             - Event.DELETE_DOCUMENT | update_on_delete_document
             - Event.MODIFY_OBJECT   | update_on_modify_object
+            - Event.CURRENT_DOCUMENT_CHANGED | update_on_current_document_changed
         """
         self._event_manager.attach(
             Event.ADD_DOCUMENT, self.update_on_add_document, self
@@ -188,6 +189,11 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         )
         self._event_manager.attach(
             Event.MODIFY_OBJECT, self.update_on_modify_object, self
+        )
+        self._event_manager.attach(
+            Event.CURRENT_DOCUMENT_CHANGED,
+            self.update_on_current_document_changed,
+            self,
         )
 
     # ======================================================================
@@ -293,6 +299,35 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             icon_path: Path = self._config.get_icon(ACRONYM_ICON_TYPE, document_acronym)
             self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
 
+    # ----------------------------------------------------------------------
+    # Method     : update_on_current_document_changed
+    # Description: Update the documents tab menu component when the current
+    #              document is changed.
+    # Date       : 20/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_current_document_changed(self, *args, **kwargs) -> None:
+        """
+        Update the documents tab menu component when the current document
+        is changed. It changes the current tab to the document tab with
+        the current document id if the new current document is different
+        from old current document.
+
+        Triggered by: Event.CURRENT_DOCUMENT_CHANGED
+        """
+        new_document_id: ProteusID = self._state_manager.get_current_document()
+
+        # Check if exists a tab for the element
+        if new_document_id in self.tabs:
+            # Get document tab
+            document_tab: DocumentTree = self.tabs.get(new_document_id)
+            tab_index: int = self.indexOf(document_tab)
+
+            if tab_index != self.currentIndex():
+                # Set current tab
+                self.setCurrentIndex(tab_index)
+
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
@@ -308,7 +343,8 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     def current_document_changed(self, index: int) -> None:
         """
         Slot triggered when the current document tab is changed. It updates
-        the current document id in the state manager.
+        the current document id in the state manager if the index is different
+        from the current index.
         """
         # Get document id
         document_id: ProteusID = None
@@ -320,6 +356,12 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             document_id = list(self.tabs.keys())[
                 list(self.tabs.values()).index(document_tab)
             ]
+
+        # Avoid updating the state manager if the document is the same
+        # This can happen when the tab is selected by current_document_changed
+        # event
+        if document_id == self._state_manager.get_current_document():
+            return
 
         # Update current document in the state manager
         self._state_manager.set_current_document(document_id)

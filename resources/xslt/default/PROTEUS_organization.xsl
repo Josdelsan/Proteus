@@ -22,42 +22,45 @@
     <!-- ============================================= -->
     <!-- proteus:organization template                 -->
     <!-- ============================================= -->
-
+<!--  -->
     <xsl:template match="object[@classes='organization']">
-        <table class="proteus-area organization remus_table" id="{@id}">
 
-            <!-- Header-->
-            <xsl:call-template name="generate_header">
-                <xsl:with-param name="label"   select="$proteus:lang_organization"/>
-                <xsl:with-param name="class"   select="'organization'"/>
-            </xsl:call-template>
+        <div id="{@id}"  data-proteus-id="{@id}">
+            <table class="organization remus_table">
 
-            <!-- Address -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"     select="$proteus:lang_address"/>
-                <xsl:with-param name="content"   select="properties/stringProperty[@name='address']"/>
-                <xsl:with-param name="mandatory" select="'true'"/>
-            </xsl:call-template>
+                <!-- Header-->
+                <xsl:call-template name="generate_header">
+                    <xsl:with-param name="label"   select="$proteus:lang_organization"/>
+                    <xsl:with-param name="class"   select="'organization'"/>
+                </xsl:call-template>
 
-            <!-- phone-number -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"     select="$proteus:lang_telephone"/>
-                <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
-            </xsl:call-template>
+                <!-- Address -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"     select="$proteus:lang_address"/>
+                    <xsl:with-param name="content"   select="properties/stringProperty[@name='address']"/>
+                    <xsl:with-param name="mandatory" select="'true'"/>
+                </xsl:call-template>
 
-            <!-- fax -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"     select="$proteus:lang_fax"/>
-                <xsl:with-param name="content"   select="properties/stringProperty[@name='fax']"/>
-            </xsl:call-template>
+                <!-- phone-number -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"     select="$proteus:lang_telephone"/>
+                    <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
+                </xsl:call-template>
 
-            <!-- Comments -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-            </xsl:call-template>
+                <!-- fax -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"     select="$proteus:lang_fax"/>
+                    <xsl:with-param name="content"   select="properties/stringProperty[@name='fax']"/>
+                </xsl:call-template>
 
-        </table>
+                <!-- Comments -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
+                </xsl:call-template>
+
+            </table>
+        </div>
     </xsl:template>
 
 </xsl:stylesheet>

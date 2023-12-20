@@ -28,6 +28,7 @@ from proteus.utils.config import Config
 from proteus.model import (
     ProteusID,
     ID_ATTRIBUTE,
+    CLASSES_ATTRIBUTE,
     CHILD_TAG,
     DOCUMENT_TAG,
     ProteusClassTag,
@@ -783,36 +784,36 @@ class ProjectService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def generate_document_xml(self, document_id: ProteusID) -> ET.Element:
+    def generate_document_xml(self, rendered_document_id: ProteusID) -> ET.Element:
         """
         Generates the xml file for the given document. Iterates until no
         child tags are found. Replaces child tags with the xml of the child
         object.
 
-        :param document_id: Id of the document.
+        :param rendered_document_id: Id of the document.
         """
-        # Get document using helper method
-        document = self._get_element_by_id(document_id)
-
         # Generate project xml file
-        root: ET.element = self.project.generate_xml()
+        root: ET._Element = self.project.generate_xml()
         # Iterate over document tag and replace the asked document
         for document_element in root.findall(f".//{DOCUMENT_TAG}"):
-            if document_element.attrib[ID_ATTRIBUTE] == document_id:
-                parent_element: ET.Element = document_element.getparent()
-                document_xml: ET.Element = document.generate_xml()
-                parent_element.replace(document_element, document_xml)
-            # Delete the rest of documents
-            else:
-                document_element.getparent().remove(document_element)
+            parent_element: ET._Element = document_element.getparent()
+            document_id: ProteusID = document_element.attrib[ID_ATTRIBUTE]
+            document: Object = self._get_element_by_id(document_id)
+            document_xml: ET._Element = document.generate_xml()
+            # Modify the classes attribute for the asked document
+            if document_xml.get(ID_ATTRIBUTE) == rendered_document_id:
+                document_xml.set("render", "True")
+
+            parent_element.replace(document_element, document_xml)
+
 
         # Iterate until no chil tags are found
         while root.findall(f".//{CHILD_TAG}"):
             # Load children
-            children: ET.Element = root.findall(f".//{CHILD_TAG}")
+            children: ET._Element = root.findall(f".//{CHILD_TAG}")
 
             # Parse object's children
-            child_element: ET.Element
+            child_element: ET._Element
             for child_element in children:
                 child_id: ProteusID = child_element.attrib[ID_ATTRIBUTE]
 
@@ -821,14 +822,14 @@ class ProjectService:
 
                 # Remove dead objects
                 if child.state == ProteusState.DEAD:
-                    parent_element: ET.Element = child_element.getparent()
+                    parent_element: ET._Element = child_element.getparent()
                     parent_element.remove(child_element)
                 else:
                     # Generate xml file
-                    child_xml: ET.Element = child.generate_xml()
+                    child_xml: ET._Element = child.generate_xml()
 
                     # Replace child element with xml
-                    parent_element: ET.Element = child_element.getparent()
+                    parent_element: ET._Element = child_element.getparent()
                     parent_element.replace(child_element, child_xml)
 
         return root

@@ -29,6 +29,7 @@
 
     <!-- Template includes -->
     <!-- <xsl:include href="PROTEUS_style.xsl" /> -->
+    <xsl:include href="PROTEUS_javascript.xsl" />
     <xsl:include href="PROTEUS_utilities.xsl" />
     <xsl:include href="PROTEUS_properties.xsl" />
     <xsl:include href="PROTEUS_cover.xsl" />
@@ -48,5 +49,14 @@
     <xsl:include href="PROTEUS_organization.xsl" />
     <xsl:include href="PROTEUS_stakeholder.xsl" />
     <xsl:include href="PROTEUS_meeting.xsl" />
+    <xsl:include href="PROTEUS_archetype_link.xsl" />
+
+    <xsl:template match="project">
+        <xsl:for-each select="documents">
+            <xsl:if test="object[@render='True']">
+                <xsl:apply-templates select="object[@render='True']"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
 
 </xsl:stylesheet>

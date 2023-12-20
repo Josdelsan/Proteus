@@ -204,6 +204,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             - Event.MODIFY_OBJECT   | update_on_modify_object
             - Event.SAVE_PROJECT    | update_on_save_project
             - Event.DELETE_OBJECT   | update_on_delete_object
+            - Event.SELECT_OBJECT   | update_on_select_object
         """
         self._event_manager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
         self._event_manager.attach(
@@ -214,6 +215,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         )
         self._event_manager.attach(
             Event.DELETE_OBJECT, self.update_on_delete_object, self
+        )
+        self._event_manager.attach(
+            Event.SELECT_OBJECT, self.update_on_select_object, self
         )
 
     # ----------------------------------------------------------------------
@@ -477,6 +481,43 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Remove the item from the tree including its children
         delete_item(tree_item)
+
+        # Set current item to None
+        self.setCurrentItem(None)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_select_object
+    # Description: Update the document tree when an object is selected.
+    # Date       : 20/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_select_object(self, *args, **kwargs) -> None:
+        """
+        Update the document tree when an object is selected. Look for the
+        object in the tree items dictionary and select the item.
+        
+        Triggered by: Event.SELECT_OBJECT
+        """
+        # Get the selected object and document id
+        selected_object_id: ProteusID = kwargs.get("object_id", None)
+        document_id: ProteusID = self._state_manager.get_document_by_object(
+            selected_object_id
+        )
+
+        if document_id != self.element_id:
+            return
+
+        # Check if the element id is in the tree items dictionary
+        if selected_object_id not in self.tree_items:
+            self.setCurrentItem(None)
+        else:
+            # Get the tree item
+            tree_item: QTreeWidgetItem = self.tree_items[selected_object_id]
+
+            # Select the item
+            self.setCurrentItem(tree_item)
+
 
     # ======================================================================
     # Component slots methods (connected to the component signals)

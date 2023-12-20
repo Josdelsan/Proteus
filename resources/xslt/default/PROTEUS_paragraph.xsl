@@ -20,11 +20,12 @@
 >
     
     <!-- =========================================================== -->
-    <!-- paragraph template                                      -->
+    <!-- paragraph template                                          -->
     <!-- =========================================================== -->
 
     <xsl:template match="object[@classes='paragraph']">
-        <div id="{@id}" class="proteus-area">
+  
+        <div id="{@id}"  data-proteus-id="{@id}">
             <xsl:choose>
                 <xsl:when test="properties/booleanProperty[@name='is-glossary'] = 'true'">
                     <xsl:call-template name="create_glossary_item"/>

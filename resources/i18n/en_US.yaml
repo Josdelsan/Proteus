@@ -59,6 +59,7 @@ works-for: "Works for"
 prepared-by: "Prepared by"
 prepared-for: "Prepared for"
 width: "Width (%)"
+link: "Link"
 
 # categories
 general: "General"
@@ -177,6 +178,7 @@ archetype_menu_button.objective: "Objective"
 archetype_menu_button.organization: "Organization"
 archetype_menu_button.stakeholder: "Stakeholder"
 archetype_menu_button.meeting: "Meeting"
+archetype_menu_button.archetype-link: "Symbolic link"
 
 
 # Open project dialog
@@ -317,3 +319,9 @@ markdown_edit.edit: "Edit text"
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS has encountered a critical error"
 app.critical_error.text: "The application will be closed due to a critical error. For more information, check the log file: "
+
+# ---------------------------------------------------------------------------
+# WebChannel
+# ---------------------------------------------------------------------------
+document.navigation.request.title: "The selected item is not in the current document"
+document.navigation.request.text: "The selected item '{}'' is in the document '{}', do you want to navigate to it?"

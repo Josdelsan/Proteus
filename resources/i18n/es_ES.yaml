@@ -59,6 +59,7 @@ works-for: "Trabaja para"
 prepared-by: "Preparado por"
 prepared-for: "Preparado para"
 width: "Ancho (%)"
+link: "Enlace"
 
 # categories
 general: "General"
@@ -178,6 +179,7 @@ archetype_menu_button.objective: "Objetivo"
 archetype_menu_button.organization: "Organización"
 archetype_menu_button.stakeholder: "Parte interesada"
 archetype_menu_button.meeting: "Reunión"
+archetype_menu_button.archetype-link: "Enlace simbólico"
 
 
 # Diálogo de abrir proyecto
@@ -317,3 +319,9 @@ markdown_edit.edit: "Editar texto"
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS ha encontrado un error crítico"
 app.critical_error.text: "La aplicación se cerrará debido a un error crítico. Para más información, consulte el archivo de registro de la aplicación: "
+
+# ---------------------------------------------------------------------------
+# WebChannel
+# ---------------------------------------------------------------------------
+document.navigation.request.title: "El objeto seleccionado está en otro documento"
+document.navigation.request.text: "El objeto '{}' está en el documento '{}'. ¿Desea navegar al documento para ver el objeto?"

@@ -19,7 +19,8 @@
     exclude-result-prefixes="proteus"
 >
     <!-- Match the root object of the document -->
-    <xsl:template match="object[@classes=':Proteus-document']">
+    <xsl:template match="object[@classes=':Proteus-document' and @render='True']">
+
         <!-- <!doctype html> -->
         <html>
             <head>
@@ -33,7 +34,7 @@
                     <xsl:value-of select="$proteus:lang_project"/>
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name=':Proteus-name']"/>
-                 </title>
+                </title>
                  
                 <!-- <xsl:call-template name="style"/> -->
 
@@ -57,41 +58,9 @@
                         padding: 8px;
                     }
                 </style>
-
-                <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-                <script type="text/javascript"> 
-                    var channelObject = null;
-                    window.onload = function()
-                    {
-                        try {
-                            new QWebChannel(qt.webChannelTransport, function(channel) {
-                                channelObject = channel.objects.channelObject;
-                            });
-                        } catch (error) {
-                            console.error(error.message);
-                        }
-                    }
-                </script>
-                <script>
-                    function handleDoubleClick(event) {
-                        var clickedElement = event.target;
-                        var closestProteusArea = clickedElement.closest('.proteus-area');
-                        var id = closestProteusArea.id;
-
-                        if (id == "" || id == null) {
-                            console.error("No id found in clicked element");
-                        } else {
-                            channelObject.open_properties_dialog(id);
-                        }
-                    }
-
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var proteusElements = document.querySelectorAll('.proteus-area');
-                        proteusElements.forEach(function (element) {
-                            element.addEventListener('dblclick', handleDoubleClick);
-                        });
-                    });
-                </script>
+                
+                <xsl:call-template name="javascript"/>
+                
             </head>
             <body>
                 <!-- Cover -->

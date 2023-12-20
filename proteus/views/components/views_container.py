@@ -293,7 +293,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             # TODO: Due to PyQt6 behavior, signal is emitted several times. Find
             # a way to run the script only once.
             # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
-            browser.page().loadFinished.connect(self.update_on_select_object)
+            browser.page().loadFinished.connect(lambda: self.update_on_select_object() if not browser.page().isLoading() else None)
         
 
     # ----------------------------------------------------------------------
@@ -345,15 +345,14 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             return
 
         # Create the javascript code to navigate to the object
-        # NOTE: Must use getElementById instead of querySelector because
-        #       object id may start with a number.
-        # https://stackoverflow.com/questions/37270787/uncaught-syntaxerror-failed-to-execute-queryselector-on-document
+        # NOTE: The javascript code is defined in the document xslt
         script: str = (
-            f"document.getElementById('{selected_object_id}').scrollIntoView();"
+            f"scrollToElementById('{selected_object_id}');"
         )
 
         # Run the script in the current view browser
         browser: QWebEngineView = self.tabs[current_view]
+
         browser.page().runJavaScript(script)
 
     # ----------------------------------------------------------------------

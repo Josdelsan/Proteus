@@ -35,7 +35,7 @@
 
                 <xsl:if test="$targetObject">
                     <li>
-                        <a href="#{$targetId}">
+                        <a href="#{$targetId}" onclick="selectAndNavigate(`{$targetId}`, event)">
                             <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
                         </a>
                     </li>
@@ -53,7 +53,7 @@
 
             <xsl:if test="$targetObject">
                 <p>
-                    <a href="#{$targetId}">
+                    <a href="#{$targetId}" onclick="selectAndNavigate(`{$targetId}`, event)">
                         <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
                     </a>
                 </p>

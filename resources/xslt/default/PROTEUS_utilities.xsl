@@ -46,7 +46,6 @@
     <!-- ============================================= -->
 
     <xsl:template name="generate_property_row">
-        <xsl:param name="id" />
         <xsl:param name="label" />
         <xsl:param name="content" />
         <xsl:param name="mandatory" select="false()"/>
@@ -55,7 +54,7 @@
         <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
 
         <xsl:if test="$nonempty_content or $mandatory">
-            <tr id="{$id}">
+            <tr>
                 <th>
                     <xsl:value-of select="$label"/>
                 </th>

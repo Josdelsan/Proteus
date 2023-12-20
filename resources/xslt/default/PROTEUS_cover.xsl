@@ -19,7 +19,7 @@
     exclude-result-prefixes="proteus"
 >
     <xsl:template name="document_cover">
-        <div id="{@id}" class="proteus-area">
+        <div id="{@id}"  data-proteus-id="{@id}">
             <div id="document_cover">
                 
         

@@ -24,54 +24,57 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='meeting']">
-        <table class="proteus-area meeting remus_table" id="{@id}">
 
-            <!-- Header -->
-            <xsl:call-template name="generate_header">
-                <xsl:with-param name="label"   select="$proteus:lang_stakeholder"/>
-                <xsl:with-param name="class"   select="'meeting'"/>
-            </xsl:call-template>
+        <div id="{@id}"  data-proteus-id="{@id}">
+            <table class="meeting remus_table">
 
-            <!-- Date -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_date"/>
-                <xsl:with-param name="content" select="properties/dateProperty[@name=':Proteus-date']"/>
-            </xsl:call-template>
+                <!-- Header -->
+                <xsl:call-template name="generate_header">
+                    <xsl:with-param name="label"   select="$proteus:lang_stakeholder"/>
+                    <xsl:with-param name="class"   select="'meeting'"/>
+                </xsl:call-template>
 
-            <!-- Time -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_time"/>
-                <xsl:with-param name="content" select="properties/timeProperty[@name='time']"/>
-            </xsl:call-template>
+                <!-- Date -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_date"/>
+                    <xsl:with-param name="content" select="properties/dateProperty[@name=':Proteus-date']"/>
+                </xsl:call-template>
 
-            <!-- Place -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_place"/>
-                <xsl:with-param name="content" select="properties/stringProperty[@name='place']"/>
-                <xsl:with-param name="mandatory" select="'true'"/>
-            </xsl:call-template>
+                <!-- Time -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_time"/>
+                    <xsl:with-param name="content" select="properties/timeProperty[@name='time']"/>
+                </xsl:call-template>
 
-            <!-- Attenders -->
-            <xsl:call-template name="generate_trace_row">
-                <xsl:with-param name="label"   select="$proteus:lang_attenders"/>
-                <xsl:with-param name="content" select="traces/traceProperty[@name='attenders']"/>
-                <xsl:with-param name="mandatory" select="'true'"/>
-            </xsl:call-template>
+                <!-- Place -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_place"/>
+                    <xsl:with-param name="content" select="properties/stringProperty[@name='place']"/>
+                    <xsl:with-param name="mandatory" select="'true'"/>
+                </xsl:call-template>
 
-            <!-- Results -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_results"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='results']"/>
-                <xsl:with-param name="mandatory" select="'true'"/>
-            </xsl:call-template>
+                <!-- Attenders -->
+                <xsl:call-template name="generate_trace_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_attenders"/>
+                    <xsl:with-param name="content" select="traces/traceProperty[@name='attenders']"/>
+                    <xsl:with-param name="mandatory" select="'true'"/>
+                </xsl:call-template>
 
-            <!-- Comments -->
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-            </xsl:call-template>
+                <!-- Results -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_results"/>
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='results']"/>
+                    <xsl:with-param name="mandatory" select="'true'"/>
+                </xsl:call-template>
 
-        </table>
+                <!-- Comments -->
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
+                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
+                </xsl:call-template>
+
+            </table>
+        </div>
     </xsl:template>
 
 </xsl:stylesheet>
