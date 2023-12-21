@@ -559,14 +559,15 @@ class Controller:
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : get_document_default_view
-    # Description: Get the xml of a document given its id.
+    # Method     : get_html_view
+    # Description: Get the HTML view of the document given a XSLT template
+    #              name.
     # Date       : 23/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_document_view(
-        self, document_id: ProteusID, xslt_name: str = "default"
+    def get_html_view(
+        self, xslt_name: str = "default"
     ) -> str:
         """
         Get the string representation of the document view given its id. The
@@ -578,10 +579,10 @@ class Controller:
         :param document_id: The id of the document to get the view.
         :param xslt_name: The name of the xslt file to use.
         """
-        log.info(f"Getting {xslt_name} view of document with id: {document_id}")
+        log.info(f"Getting {xslt_name} render of project.")
 
         # Get the document xml
-        xml: ET.Element = self._project_service.generate_document_xml(document_id)
+        xml: ET.Element = self._project_service.generate_project_xml()
 
         html_string: str = self._render_service.render(xml, xslt_name)
 

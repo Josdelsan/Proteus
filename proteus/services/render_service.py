@@ -90,6 +90,7 @@ class RenderService:
         # Register the function with the FunctionNamespace
         ns["generate_markdown"] = xslt_utils.generate_markdown
         ns["image_to_base64"] = xslt_utils.image_to_base64
+        ns["current_document"] = xslt_utils.current_document
 
     # ----------------------------------------------------------------------
     # Method     : get_xslt

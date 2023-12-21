@@ -778,19 +778,20 @@ class ProjectService:
         return position_change_allowed
 
     # ----------------------------------------------------------------------
-    # Method     : generate_document_xml
+    # Method     : generate_project_xml
     # Description: Generates the xml file for the given document.
     # Date       : 04/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def generate_document_xml(self, rendered_document_id: ProteusID) -> ET.Element:
+    def generate_project_xml(self) -> ET._Element:
         """
-        Generates the xml file for the given document. Iterates until no
+        Generates the xml file for the actual project. Iterates until no
         child tags are found. Replaces child tags with the xml of the child
-        object.
+        object or document.
 
-        :param rendered_document_id: Id of the document.
+        :return: Root element of the xml file.
+        :rtype: ET._Element
         """
         # Generate project xml file
         root: ET._Element = self.project.generate_xml()
@@ -800,17 +801,13 @@ class ProjectService:
             document_id: ProteusID = document_element.attrib[ID_ATTRIBUTE]
             document: Object = self._get_element_by_id(document_id)
             document_xml: ET._Element = document.generate_xml()
-            # Modify the classes attribute for the asked document
-            if document_xml.get(ID_ATTRIBUTE) == rendered_document_id:
-                document_xml.set("render", "True")
-
             parent_element.replace(document_element, document_xml)
 
 
         # Iterate until no chil tags are found
         while root.findall(f".//{CHILD_TAG}"):
             # Load children
-            children: ET._Element = root.findall(f".//{CHILD_TAG}")
+            children = root.findall(f".//{CHILD_TAG}")
 
             # Parse object's children
             child_element: ET._Element

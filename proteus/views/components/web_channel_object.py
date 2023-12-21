@@ -144,8 +144,8 @@ class WebChannelObject(ProteusComponent):
                 # view_container is triggering before the page is loaded, so the scroll is
                 # failing the first time. Anyways it does scroll because the update_component
                 # method also triggers the select_object method when page is fully loaded.
-                self._state_manager.set_current_object(object_id, object_document)
                 self._state_manager.set_current_document(object_document)
+                self._state_manager.set_current_object(object_id, object_document)
             # If the user clicks no, do nothing
             else:
                 return

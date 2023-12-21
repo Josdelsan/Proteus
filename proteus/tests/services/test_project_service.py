@@ -195,12 +195,12 @@ def test_get_object_structure(project_service: ProjectService):
     )
 
 
-# test generate_document_xml ------------------------------------------------------
-def test_generate_document_xml(
+# test generate_project_xml ------------------------------------------------------
+def test_generate_project_xml(
     basic_project_service: ProjectService,
 ):
     """
-    Test the generate_document_xml method.
+    Test the generate_project_xml method.
     """
     # Arrange -------------------------
     basic_project_service.load_project(PROTEUS_SAMPLE_DATA_PATH / ONE_DOC_PROJECT)
@@ -209,23 +209,21 @@ def test_generate_document_xml(
     # NOTE: CDATA is not stripped because it is needed for the comparison.
     parser = ET.XMLParser(remove_blank_text=True, strip_cdata=False)
     # Get the example document xml
-    example_xml: ET.Element = ET.parse(EXAMPLE_XML_PATH, parser=parser).getroot()
+    example_xml: ET._Element = ET.parse(EXAMPLE_XML_PATH, parser=parser).getroot()
     example_xml_string: bytes = ET.tostring(
         example_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
     # Act -----------------------------
-    document_xml: ET.Element = basic_project_service.generate_document_xml(
-        RENDER_DOCUMENT_ID
-    )
-    document_xml_string: bytes = ET.tostring(
+    document_xml: ET._Element = basic_project_service.generate_project_xml()
+    project_xml_string: bytes = ET.tostring(
         document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
     # Assert --------------------------
-    assert document_xml_string == example_xml_string, (
+    assert project_xml_string == example_xml_string, (
         f"The generated xml is different from the example xml, check {EXAMPLE_XML_PATH}"
-        f"\n\nGenerated xml: {document_xml_string}"
+        f"\n\nGenerated xml: {project_xml_string}"
         f"\n\nExample xml: {example_xml_string}"
     )
 

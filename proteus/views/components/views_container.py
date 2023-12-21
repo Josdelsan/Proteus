@@ -278,8 +278,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Update the current view browser with the content of the current document
         if current_view in self.tabs and current_document_id is not None:
             # Get html from controller
-            html_str: str = self._controller.get_document_view(
-                document_id=current_document_id, xslt_name=current_view
+            html_str: str = self._controller.get_html_view(
+                xslt_name=current_view
             )
 
             # Convert html to QByteArray

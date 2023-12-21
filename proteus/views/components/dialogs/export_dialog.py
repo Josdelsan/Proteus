@@ -205,18 +205,15 @@ class ExportDialog(QDialog, ProteusComponent):
         # must be a class attribute to avoid garbage collection.
         # To solve this problem, helper functions are used to ensure that they
         # are executed in the correct order.
+        self.page: QWebEnginePage = QWebEnginePage()
 
-        def create_page() -> None:
-            # Create the page object
-            self.page: QWebEnginePage = QWebEnginePage()
-
+        def load_page() -> None:
             # Get current application state
-            current_document = self._state_manager.get_current_document()
             current_view = self._state_manager.get_current_view()
 
             # Generate html view
-            html_view: str = self._controller.get_document_view(
-                document_id=current_document, xslt_name=current_view
+            html_view: str = self._controller.get_html_view(
+                xslt_name=current_view
             )
 
             # Convert html to QByteArray
@@ -240,7 +237,7 @@ class ExportDialog(QDialog, ProteusComponent):
             self.page.printToPdf(file_path, page_layout)
 
         # Create the page and print it to pdf
-        create_page()
+        load_page()
         self.page.loadFinished.connect(print_page)
         # Show a dialog when the pdf printing is finished
         self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
@@ -257,12 +254,11 @@ class ExportDialog(QDialog, ProteusComponent):
         Export the current document to html.
         """
         # Get current application state
-        current_document = self._state_manager.get_current_document()
         current_view = self._state_manager.get_current_view()
 
         # Generate html view
-        html_view: str = self._controller.get_document_view(
-            document_id=current_document, xslt_name=current_view
+        html_view: str = self._controller.get_html_view(
+            xslt_name=current_view
         )
 
         # Write the html to a file
@@ -324,6 +320,8 @@ class ExportDialog(QDialog, ProteusComponent):
                 self._translator.text("export_dialog.error.invalid_extension")
             )
             return
+        
+        self.button_box.setEnabled(False)
 
         # Export depending on the selected format
         if export_format == "pdf":

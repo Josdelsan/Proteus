@@ -16,7 +16,8 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:proteus="http://proteus.us.es"
-    exclude-result-prefixes="proteus"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus proteus-utils"
 >
 
     <!-- ============================================== -->
@@ -108,15 +109,26 @@
             <xsl:number from="object[@classes='software-requirement use-case']"
                 count="object[@classes='software-requirement use-case use-case-step']"
                 level="any" format="1" />
-        </xsl:variable>
+        </xsl:variable>        
 
-        <div id="{@id}"  data-proteus-id="{@id}">
-            <xsl:call-template name="generate_property_row">
-                <xsl:with-param name="label" select="$label_number" />
-                <xsl:with-param name="mandatory" select="'true'"/>
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='description']" />
-            </xsl:call-template>
-        </div>
+        <xsl:variable name="description" select="properties/markdownProperty[@name='description']"/>
+
+        <tr id="{@id}"  data-proteus-id="{@id}">
+            <th>
+                <xsl:value-of select="$label_number"/>
+            </th>
+            <td colspan="1">
+                <xsl:choose>
+                    <xsl:when test="not(string-length(normalize-space($description)) > 0)">
+                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:apply-templates select="$description"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </td>
+        </tr>
+
     </xsl:template>
 
 </xsl:stylesheet>

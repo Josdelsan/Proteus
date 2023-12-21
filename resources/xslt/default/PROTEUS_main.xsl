@@ -16,7 +16,8 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:proteus="http://proteus.us.es"
-    exclude-result-prefixes="proteus"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus proteus-utils"
 >
 
     <!-- Output -->
@@ -52,9 +53,10 @@
     <xsl:include href="PROTEUS_archetype_link.xsl" />
 
     <xsl:template match="project">
+        <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>
         <xsl:for-each select="documents">
-            <xsl:if test="object[@render='True']">
-                <xsl:apply-templates select="object[@render='True']"/>
+            <xsl:if test="object[@id=$currentDocumentId]">
+                <xsl:apply-templates select="object[@id=$currentDocumentId]"/>
             </xsl:if>
         </xsl:for-each>
     </xsl:template>

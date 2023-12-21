@@ -26,6 +26,7 @@ from PyQt6.QtCore import QByteArray, QBuffer, QIODevice
 # --------------------------------------------------------------------------
 
 from proteus.utils.config import Config
+from proteus.utils.state_manager import StateManager
 from proteus.model import ASSETS_REPOSITORY
 
 
@@ -63,7 +64,7 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
 
 
 # --------------------------------------------------------------------------
-# Function: build_path
+# Function: image_to_base64
 # Description: Creates the base64 representation of the image.
 # Date: 11/07/2023
 # Version: 0.1
@@ -87,3 +88,18 @@ def image_to_base64(context, asset_file: List[ET.Element]) -> str:
     image.save(buffer, 'PNG')
     base64_data = ba.toBase64().data().decode()
     return base64_data
+
+
+# --------------------------------------------------------------------------
+# Function: current_document
+# Description: Returns the current document
+# Date:21/12/2023
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+def current_document(context) -> str:
+    """
+    Returns the current document
+    """
+    document_id = StateManager().get_current_document()
+    return str(document_id)
