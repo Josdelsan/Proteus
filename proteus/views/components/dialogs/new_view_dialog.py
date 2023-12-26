@@ -58,18 +58,13 @@ class NewViewDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller = None, *args, **kwargs
+        self, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
-
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         """
-        super(NewViewDialog, self).__init__(controller, *args, **kwargs)
+        super(NewViewDialog, self).__init__(*args, **kwargs)
 
         # Create the component
         self.create_component()

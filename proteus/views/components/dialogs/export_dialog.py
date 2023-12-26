@@ -65,17 +65,12 @@ class ExportDialog(QDialog, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, controller: Controller, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the page object and the controller instance.
-
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         """
-        super(ExportDialog, self).__init__(controller, *args, **kwargs)
+        super(ExportDialog, self).__init__(*args, **kwargs)
         self.create_component()
 
     # ----------------------------------------------------------------------

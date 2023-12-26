@@ -76,7 +76,7 @@ class PropertyDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller = None,element_id=None, *args, **kwargs
+        self, element_id=None, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
@@ -88,13 +88,9 @@ class PropertyDialog(QDialog, ProteusComponent):
         Flag project_dialog is used to avoid handling traces in the project
         form.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: A Controller instance.
         :param element_id: The id of the element to edit.
         """
-        super(PropertyDialog, self).__init__(controller, *args, **kwargs)
+        super(PropertyDialog, self).__init__(*args, **kwargs)
 
         # Set the element id, reference to the element whose properties
         # will be displayed

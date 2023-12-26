@@ -58,12 +58,12 @@ class SettingsDialog(QDialog, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, controller: Controller, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
         """
-        super(SettingsDialog, self).__init__(controller, *args, **kwargs)
+        super(SettingsDialog, self).__init__(*args, **kwargs)
 
         # Create the component
         self.create_component()

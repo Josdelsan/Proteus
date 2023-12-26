@@ -66,18 +66,13 @@ class NewProjectDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller = None, *args, **kwargs
+        self, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new project data.
-
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         """
-        super(NewProjectDialog, self).__init__(controller, *args, **kwargs)
+        super(NewProjectDialog, self).__init__(*args, **kwargs)
 
         # Properties for creating a new project
         self._name: str = None

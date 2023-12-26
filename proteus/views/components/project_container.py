@@ -53,7 +53,7 @@ class ProjectContainer(QWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, parent: QWidget, *args, **kwargs
+        self, parent: QWidget, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
@@ -63,13 +63,9 @@ class ProjectContainer(QWidget, ProteusComponent):
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent: Parent widget.
         """
-        super(ProjectContainer, self).__init__(controller, parent, *args, **kwargs)
+        super(ProjectContainer, self).__init__(parent, *args, **kwargs)
 
         # Children components
         self.documents_container: DocumentsContainer = None
@@ -99,7 +95,7 @@ class ProjectContainer(QWidget, ProteusComponent):
 
         # DocumentsContainer -------------------------------------------------
         self.documents_container: DocumentsContainer = DocumentsContainer(
-            parent=self, controller=self._controller
+            parent=self
         )
         self.documents_container.setSizePolicy(
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
@@ -108,7 +104,7 @@ class ProjectContainer(QWidget, ProteusComponent):
 
         # ViewsContainer -----------------------------------------------------
         self.views_container: ViewsContainer = ViewsContainer(
-            parent=self, controller=self._controller
+            parent=self
         )
         self.views_container.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred

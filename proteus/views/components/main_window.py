@@ -95,7 +95,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         self.resize(1200, 800)
 
         # Create main menu
-        self.main_menu = MainMenu(parent=self, controller=self._controller)
+        self.main_menu = MainMenu(parent=self)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.main_menu)
 
         # Create document list menu
@@ -159,7 +159,7 @@ class MainWindow(QMainWindow, ProteusComponent):
 
         # Create document list menu
         self.project_container = ProjectContainer(
-            parent=self, controller=self._controller
+            parent=self
         )
         self.setCentralWidget(self.project_container)
 

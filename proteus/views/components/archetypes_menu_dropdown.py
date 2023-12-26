@@ -62,19 +62,15 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, archetype_list: List[Object], *args, **kwargs
+        self, archetype_list: List[Object], *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param archetype_list: List of archetypes to be shown in the dropdown menu.
         """
-        super(ArchetypesMenuDropdown, self).__init__(controller, *args, **kwargs)
+        super(ArchetypesMenuDropdown, self).__init__(*args, **kwargs)
 
         # Store the archetype list
         self._archetype_list = archetype_list

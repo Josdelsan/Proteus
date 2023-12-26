@@ -62,7 +62,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, parent: QWidget, *args, **kwargs
+        self, parent: QWidget, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
@@ -72,13 +72,9 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         later. Also store the children components of each tab in a
         dictionary to delete when the tab is closed.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent: Parent widget.
         """
-        super(DocumentsContainer, self).__init__(controller, parent, *args, **kwargs)
+        super(DocumentsContainer, self).__init__(parent, *args, **kwargs)
 
         # Tabs dictionary
         self.tabs: Dict[ProteusID, DocumentTree] = {}
@@ -142,7 +138,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         """
         # Tree widget --------------------------------------------------------
         tab: DocumentTree = DocumentTree(
-            element_id=document.id, parent=self, controller=self._controller
+            element_id=document.id, parent=self
         )
 
         # Add tab to the dictionary with the document id as key

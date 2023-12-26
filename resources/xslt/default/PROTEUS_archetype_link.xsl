@@ -38,7 +38,12 @@
                 
                 <!-- If target object exists -->
                 <xsl:if test="$targetObject">
-                    <xsl:apply-templates select="$targetObject" />
+                    <div class="linked-object">
+                        <div class="tooltip">
+                            <xsl:value-of select="$proteus:lang_symlink_tooltip"/>
+                        </div>
+                        <xsl:apply-templates select="$targetObject" />
+                    </div>
                 </xsl:if>
             </xsl:for-each>
         </div>

@@ -89,8 +89,8 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        controller: Controller,
         parent: QWidget | None = None,
+        controller: Controller = None,
         config: Config = None,
         translator: Translator = None,
         event_manager: EventManager = None,
@@ -104,6 +104,10 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         and raises exceptions if needed. Some parameters will be initialized
         if they are not provided.
 
+        When Controller is not provided, it will be searched in the parent
+        component. When other parameters are not provided, they will be
+        called with the default constructor to access the singleton instance.
+
         :param controller: Controller instance.
         :param parent: Parent QWidget.
         :param config: App configuration instance.
@@ -114,6 +118,23 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         super(ProteusComponent, self).__init__(parent, *args, **kwargs)
 
         # Controller --------------
+        
+        if controller is None:
+            # Get parent controller if parent is a ProteusComponent
+            if isinstance(parent, ProteusComponent):
+                log.debug(
+                    f"Using parent ProteusComponent {parent.__class__.__name__} Controller for ProteusComponent {self.__class__.__name__}"
+                )
+                controller = parent._controller
+            else:
+                log.critical(
+                    f"Controller was not provided for ProteusComponent {self.__class__.__name__} and parent is not a ProteusComponent but {parent.__class__.__name__}"
+                )
+        else:
+            log.debug(
+                f"Custom Controller instance provided for ProteusComponent {self.__class__.__name__}"
+            )
+        
         assert isinstance(
             controller, Controller
         ), f"Controller instance is required to create a ProteusComponent, current value type: {type(controller)}"

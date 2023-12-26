@@ -70,7 +70,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, controller: Controller, parent: QWidget, *args, **kwargs) -> None:
+    def __init__(self, parent: QWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -79,13 +79,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         multiple browsers is a solution to use QTabWidget since a QWebEngineView
         cannot be added to multiple parents.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent: Parent widget.
         """
-        super(ViewsContainer, self).__init__(controller, parent, *args, **kwargs)
+        super(ViewsContainer, self).__init__(parent, *args, **kwargs)
 
         # Dict of stored browsers for each view. The way the dict is updated
         # the index of the browser is the same as the index of the tab.
@@ -178,7 +174,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         browser.setPage(document_page)
 
         # QWebChannel setup
-        channel_object = WebChannelObject(self._controller, parent=browser)
+        channel_object = WebChannelObject(parent=self)
         channel: QWebChannel = QWebChannel(browser)
         browser.page().setWebChannel(channel)
         channel.registerObject("channelObject", channel_object)
@@ -206,7 +202,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         """
         Subscribe the component to the events.
 
-        MainMenu component subscribes to the following events:
+        ViewsContainer component subscribes to the following events:
             - Event.MODIFY_OBJECT               | update_component
             - Event.ADD_OBJECT                  | update_component
             - Event.DELETE_OBJECT               | update_component

@@ -96,7 +96,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        controller: Controller,
         parent: QWidget,
         element_id: ProteusID = None,
         *args,
@@ -110,14 +109,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         tree items dictionary to make easier the access to the tree items
         on update events using the element id.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent: Parent QWidget.
         :param element_id: The document id reference.
         """
-        super(DocumentTree, self).__init__(controller, parent, *args, **kwargs)
+        super(DocumentTree, self).__init__(parent, *args, **kwargs)
 
         # Set tree document id
         self.element_id: ProteusID = element_id

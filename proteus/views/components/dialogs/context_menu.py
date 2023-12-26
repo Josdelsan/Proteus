@@ -64,20 +64,16 @@ class ContextMenu(QMenu, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, tree_widget: QTreeWidget, *args, **kwargs
+        self, tree_widget: QTreeWidget, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the tree widget and initialize all the action
         buttons.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param tree_widget: QTreeWidget instance.
         """
-        super(ContextMenu, self).__init__(controller, *args, **kwargs)
+        super(ContextMenu, self).__init__(*args, **kwargs)
 
         assert isinstance(
             tree_widget, QTreeWidget
@@ -222,7 +218,6 @@ class ContextMenu(QMenu, ProteusComponent):
                 parent_id=selected_item_id,
                 class_name=archetype_class,
                 archetype_list=accepted_archetypes[archetype_class],
-                controller=self._controller,
                 parent=self,
             )
             # Add the archetype menu to the context menu
@@ -284,7 +279,6 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        controller: Controller,
         parent_id: ProteusID,
         class_name: str,
         archetype_list: List[Object],
@@ -295,15 +289,11 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
         Class constructor, invoke the parents class constructors and create
         the component. Store the page object and the controller instance.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent_id: Parent object id.
         :param class_name: Class name.
         :param archetype_list: List of available archetypes.
         """
-        super(AvailableArchetypesMenu, self).__init__(controller, *args, **kwargs)
+        super(AvailableArchetypesMenu, self).__init__(*args, **kwargs)
 
         # Dependencies
         self.archetype_list = archetype_list

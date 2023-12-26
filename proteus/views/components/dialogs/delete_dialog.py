@@ -17,7 +17,6 @@ from typing import Dict, Union
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QDialog,
@@ -65,7 +64,6 @@ class DeleteDialog(QDialog, ProteusComponent):
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        controller: Controller = None,
         element_id: ProteusID = None,
         is_document: bool = False,
         *args,
@@ -75,14 +73,10 @@ class DeleteDialog(QDialog, ProteusComponent):
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param element_id: Element id to delete.
         :param is_document: True if the element is a document.
         """
-        super(DeleteDialog, self).__init__(controller, *args, **kwargs)
+        super(DeleteDialog, self).__init__(*args, **kwargs)
 
         self.element_id: ProteusID = element_id
         self.is_document: bool = is_document

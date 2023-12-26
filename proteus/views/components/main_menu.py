@@ -77,7 +77,7 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, controller: Controller, parent: QWidget, *args, **kwargs
+        self, parent: QWidget, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors, create
@@ -87,13 +87,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         buttons (save, undo, redo, etc.) and the tab widget to display the
         different menus.
 
-        NOTE: Optional ProteusComponent parameters are omitted in the constructor,
-        they can still be passed as keyword arguments.
-
-        :param controller: Controller instance.
         :param parent: Parent widget.
         """
-        super(MainMenu, self).__init__(controller, parent, *args, **kwargs)
+        super(MainMenu, self).__init__(parent, *args, **kwargs)
 
         # Main menu buttons
         self.new_button: QToolButton = None

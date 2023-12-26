@@ -58,6 +58,33 @@
                         border: 1px solid black;
                         padding: 8px;
                     }
+
+                    .linked-object {
+                        background-color: #fcfce6;
+                        position: relative;
+                        cursor: pointer;
+                    }
+
+                    .linked-object .tooltip {
+                        visibility: hidden;
+                        width: 120px;
+                        background-color: #333;
+                        color: #fff;
+                        text-align: center;
+                        border-radius: 5px;
+                        padding: 5px;
+                        position: absolute;
+                        z-index: 1;
+                        left: 50%;
+                        margin-left: -60px; /* Center the tooltip */
+                        opacity: 0;
+                        transition: opacity 0.3s;
+                    }
+
+                    .linked-object:hover .tooltip {
+                        visibility: visible;
+                        opacity: 1;
+                    }
                 </style>
                 
                 <xsl:call-template name="javascript"/>
