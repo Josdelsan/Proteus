@@ -27,8 +27,10 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
-from proteus.utils.event_manager import EventManager, Event
-
+from proteus.utils.events import (
+    AddDocumentEvent,
+    DeleteDocumentEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: CloneArchetypeDocumentCommand
@@ -120,7 +122,7 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
             parent.state = self.after_clone_parent_state
 
         # Emit the event to update the view
-        EventManager().notify(Event.ADD_DOCUMENT, document=self.cloned_object)
+        AddDocumentEvent().notify(self.cloned_object.id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -144,4 +146,4 @@ class CloneArchetypeDocumentCommand(QUndoCommand):
         parent.state = self.before_clone_parent_state
 
         # Emit the event to update the view
-        EventManager().notify(Event.DELETE_DOCUMENT, element_id=self.cloned_object.id)
+        DeleteDocumentEvent().notify(self.cloned_object.id)

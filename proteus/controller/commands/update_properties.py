@@ -29,8 +29,9 @@ from proteus.model.properties import Property
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.event_manager import EventManager, Event
-
+from proteus.utils.events import (
+    ModifyObjectEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: UpdatePropertiesCommand
@@ -124,7 +125,7 @@ class UpdatePropertiesCommand(QUndoCommand):
             self.project_service.update_traces(self.element_id, self.new_traces)
 
         # Notify the frontend components
-        EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
+        ModifyObjectEvent().notify(self.element_id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -153,4 +154,4 @@ class UpdatePropertiesCommand(QUndoCommand):
         self.element.state = self.old_state
 
         # Notify the frontend components
-        EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
+        ModifyObjectEvent().notify(self.element_id)

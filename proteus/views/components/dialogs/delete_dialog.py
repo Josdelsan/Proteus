@@ -83,6 +83,7 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         # Create the component
         self.create_component()
+        
 
     # ----------------------------------------------------------------------
     # Method     : create_component

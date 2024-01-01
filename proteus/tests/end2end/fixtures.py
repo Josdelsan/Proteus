@@ -29,7 +29,6 @@ from PyQt6.QtWidgets import QApplication
 
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.components.main_window import MainWindow
-from proteus.utils.event_manager import EventManager
 from proteus.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
@@ -94,7 +93,6 @@ def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
     """
-    EventManager().clear()
     StateManager().current_document = None
     StateManager().current_object = {}
     StateManager().current_view = None
@@ -113,7 +111,7 @@ def mock_views_container(mocker):
     )
 
     mocker.patch(
-        "proteus.views.components.views_container.ViewsContainer.update_component",
+        "proteus.views.components.views_container.ViewsContainer.update_view",
         lambda *args, **kwargs: None,
     )
 

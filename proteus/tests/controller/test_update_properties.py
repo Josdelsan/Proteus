@@ -27,10 +27,10 @@ from proteus.model.trace import Trace
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.services.project_service import ProjectService
-from proteus.utils.event_manager import EventManager, Event
 from proteus.controller.commands.update_properties import (
     UpdatePropertiesCommand,
 )
+from proteus.utils.events import ModifyObjectEvent
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -90,6 +90,7 @@ def mock_project_service(mocker, mock_object):
 # --------------------------------------------------------------------------
 # NOTE: Unit tests aproach is chosen because update_properties_command relies
 # heavily on ProjectService methods that are already tested in other modules.
+
 
 def test_update_properties_command_init_empty_properties(
     mock_object, mock_project_service
@@ -197,8 +198,8 @@ def test_update_properties_command_redo(mocker, mock_object, mock_project_servic
     project service method are called correctly.
     """
     # Arrange --------------------
-    # Mock EventManager notify method
-    mocker.patch.object(EventManager, "notify")
+    # Mock ModifyObjectEvent notify method
+    mocker.patch.object(ModifyObjectEvent, "notify")
 
     # Act ------------------------
     # Create the update properties command
@@ -217,9 +218,7 @@ def test_update_properties_command_redo(mocker, mock_object, mock_project_servic
     mock_project_service.update_traces.assert_called_once_with(mock_object.id, [])
 
     # Check that the event manager notify method has been called once with the correct event
-    EventManager().notify.assert_called_once_with(
-        event=Event.MODIFY_OBJECT, element_id=mock_object.id
-    )
+    ModifyObjectEvent().notify.assert_called_once_with(mock_object.id)
 
 
 def test_update_properties_command_undo(mocker, mock_object, mock_project_service):
@@ -228,8 +227,8 @@ def test_update_properties_command_undo(mocker, mock_object, mock_project_servic
     project service method are called correctly.
     """
     # Arrange --------------------
-    # Mock EventManager notify method
-    mocker.patch.object(EventManager, "notify")
+    # Mock ModifyObjectEvent notify method
+    mocker.patch.object(ModifyObjectEvent, "notify")
 
     # Act ------------------------
     # Create the update properties command
@@ -252,9 +251,7 @@ def test_update_properties_command_undo(mocker, mock_object, mock_project_servic
     )
 
     # Check that the event manager notify method has been called once with the correct event
-    EventManager().notify.assert_called_once_with(
-        event=Event.MODIFY_OBJECT, element_id=mock_object.id
-    )
+    ModifyObjectEvent().notify.assert_called_once_with(mock_object.id)
 
 
 def test_update_properties_command_redo_project(mocker, mock_project_service):
@@ -276,8 +273,8 @@ def test_update_properties_command_redo_project(mocker, mock_project_service):
     # Mock the _get_element_by_id method to return the mock project
     mock_project_service._get_element_by_id.return_value = project_mock
 
-    # Mock EventManager notify method
-    mocker.patch.object(EventManager, "notify")
+    # Mock ModifyObjectEvent notify method
+    mocker.patch.object(ModifyObjectEvent, "notify")
 
     # Act ------------------------
     # Create the update properties command
@@ -296,9 +293,7 @@ def test_update_properties_command_redo_project(mocker, mock_project_service):
     mock_project_service.update_traces.assert_not_called()
 
     # Check that the event manager notify method has been called once with the correct event
-    EventManager().notify.assert_called_once_with(
-        event=Event.MODIFY_OBJECT, element_id=project_mock.id
-    )
+    ModifyObjectEvent().notify.assert_called_once_with(project_mock.id)
 
 
 def test_update_properties_command_undo_project(mocker, mock_project_service):
@@ -320,8 +315,8 @@ def test_update_properties_command_undo_project(mocker, mock_project_service):
     # Mock the _get_element_by_id method to return the mock project
     mock_project_service._get_element_by_id.return_value = project_mock
 
-    # Mock EventManager notify method
-    mocker.patch.object(EventManager, "notify")
+    # Mock ModifyObjectEvent notify method
+    mocker.patch.object(ModifyObjectEvent, "notify")
 
     # Act ------------------------
     # Create the update properties command
@@ -342,6 +337,4 @@ def test_update_properties_command_undo_project(mocker, mock_project_service):
     mock_project_service.update_traces.assert_not_called()
 
     # Check that the event manager notify method has been called once with the correct event
-    EventManager().notify.assert_called_once_with(
-        event=Event.MODIFY_OBJECT, element_id=project_mock.id
-    )
+    ModifyObjectEvent().notify.assert_called_once_with(project_mock.id)

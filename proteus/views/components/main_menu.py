@@ -34,7 +34,6 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
-from proteus.controller.command_stack import Controller
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -48,7 +47,14 @@ from proteus.views.components.archetypes_menu_dropdown import (
 )
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
-from proteus.utils.event_manager import Event
+from proteus.utils.events import (
+    SelectObjectEvent,
+    OpenProjectEvent,
+    SaveProjectEvent,
+    CurrentDocumentChangedEvent,
+    RequiredSaveActionEvent,
+    StackChangedEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -76,9 +82,7 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent: QWidget, *args, **kwargs
-    ) -> None:
+    def __init__(self, parent: QWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -166,6 +170,8 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         Create the main menu tab and add it to the tab widget. It displays
         the main menu buttons of the PROTEUS application.
+
+        :param tab_name: Name of the tab.
         """
         # Create the tab widget with a horizontal layout
         main_tab: QWidget = QWidget()
@@ -306,6 +312,10 @@ class MainMenu(QDockWidget, ProteusComponent):
     ) -> None:
         """
         Add a tab to the tab widget for a given type of object archetypes.
+
+        :param type_name: Name of the type of object archetypes.
+        :param object_archetypes_by_class: Dictionary with the object
+            archetypes separated by class.
         """
         # Create the tab widget with a horizontal layout
         tab_widget: QWidget = QWidget()
@@ -365,37 +375,21 @@ class MainMenu(QDockWidget, ProteusComponent):
         Subscribe the component to the events.
 
         MainMenu component subscribes to the following events:
-            - Event.STACK_CHANGED               | update_on_stack_changed
-            - Event.REQUIRED_SAVE_ACTION        | update_on_required_save_action
-            - Event.SAVE_PROJECT                | update_on_save_project
-            - Event.SELECT_OBJECT               | update_on_select_object
-            - Event.CURRENT_DOCUMENT_CHANGED    | update_on_select_object
-            - Event.CURRENT_DOCUMENT_CHANGED    | update_on_current_document_changed
-            - Event.OPEN_PROJECT                | update_on_open_project
+            - SAVE PROJECT -> update_on_save_project
+            - OPEN PROJECT -> update_on_open_project
+            - SELECT OBJECT -> update_on_select_object
+            - STACK CHANGED -> update_on_stack_changed
+            - CURRENT DOCUMENT CHANGED -> update_on_select_object
+            - REQUIRED SAVE ACTION -> update_on_required_save_action
+            - CURRENT DOCUMENT CHANGED -> update_on_current_document_changed
         """
-        self._event_manager.attach(
-            Event.STACK_CHANGED, self.update_on_stack_changed, self
-        )
-        self._event_manager.attach(
-            Event.SAVE_PROJECT, self.update_on_save_project, self
-        )
-        self._event_manager.attach(
-            Event.SELECT_OBJECT, self.update_on_select_object, self
-        )
-        self._event_manager.attach(
-            Event.OPEN_PROJECT, self.update_on_open_project, self
-        )
-        self._event_manager.attach(
-            Event.REQUIRED_SAVE_ACTION, self.update_on_required_save_action, self
-        )
-        self._event_manager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED, self.update_on_select_object, self
-        )
-        self._event_manager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED,
-            self.update_on_current_document_changed,
-            self,
-        )
+        SaveProjectEvent().connect(self.update_on_save_project)
+        OpenProjectEvent().connect(self.update_on_open_project)
+        SelectObjectEvent().connect(self.update_on_select_object)
+        StackChangedEvent().connect(self.update_on_stack_changed)
+        CurrentDocumentChangedEvent().connect(self.update_on_select_object)
+        RequiredSaveActionEvent().connect(self.update_on_required_save_action)
+        CurrentDocumentChangedEvent().connect(self.update_on_current_document_changed)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -409,12 +403,12 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_stack_changed(self, *args, **kwargs) -> None:
+    def update_on_stack_changed(self) -> None:
         """
         Update the state of save, undo and redo buttons when the command
         stack changes, enabling or disabling them depending on the state.
 
-        Triggered by: Event.STACK_CHANGED
+        Triggered by: StackChangedEvent
         """
         can_undo: bool = self._controller.stack.canUndo()
         can_redo: bool = self._controller.stack.canRedo()
@@ -432,9 +426,11 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_required_save_action(self, *args, **kwargs) -> None:
+    def update_on_required_save_action(self) -> None:
         """
         Update the state of save button when a save action is required.
+
+        Triggered by: RequiredSaveActionEvent
         """
         self.save_button.setEnabled(True)
 
@@ -449,9 +445,11 @@ class MainMenu(QDockWidget, ProteusComponent):
     # cleanChanged signal of the command stack is emitted (stack changed event)
     # If the save button is pressed when just a non-undoable command was executed,
     # the save button will not be disabled because stack was already clean.
-    def update_on_save_project(self, *args, **kwargs) -> None:
+    def update_on_save_project(self) -> None:
         """
         Update the state of save button when a project is saved.
+
+        Triggered by: SaveProjectEvent
         """
         self.save_button.setEnabled(False)
 
@@ -463,19 +461,18 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_select_object(self, *args, **kwargs) -> None:
+    def update_on_select_object(self, selected_object_id: ProteusID) -> None:
         """
         Update the state of the archetype buttons when an object is
         selected, enabling or disabling them depending on the accepted
         children of the selected object.
 
-        Triggered by: Event.SELECT_OBJECT
-        """
-        # Get the selected object id and check if it is None
-        selected_object_id: ProteusID = self._state_manager.get_current_object()
+        Triggered by: SelectObjectEvent
 
+        :param selected_object_id: ID of the selected object.
+        """
         # If the selected object is None, disable all the archetype buttons
-        if selected_object_id is None:
+        if selected_object_id is None or selected_object_id == "":
             button: ArchetypeMenuButton = None
             for button in self.archetype_buttons.values():
                 button.setEnabled(False)
@@ -509,12 +506,12 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_open_project(self, *args, **kwargs) -> None:
+    def update_on_open_project(self) -> None:
         """
         Enable the project properties and add document buttons when a
         project is opened.
 
-        Triggered by: Event.OPEN_PROJECT
+        Triggered by: OpenProjectEvent
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
@@ -527,17 +524,17 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_current_document_changed(self, *args, **kwargs) -> None:
+    def update_on_current_document_changed(self, document_id: ProteusID) -> None:
         """
         Update the state of the document buttons when the current document
         changes, enabling or disabling them depending on the state.
 
-        Triggered by: Event.CURRENT_DOCUMENT_CHANGED
-        """
-        document_id: ProteusID = kwargs["document_id"]
+        Triggered by: CurrentDocumentChangedEvent
 
+        :param document_id: ID of the current document.
+        """
         # Store if there is a document open
-        is_document_open: bool = document_id is not None
+        is_document_open: bool = document_id is not None and document_id != ""
 
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
@@ -554,7 +551,7 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def open_project(self):
+    def open_project(self) -> None:
         """
         Manage the open project action, open a project using a file dialog
         and loads it. If there is already a project open with unsaved
@@ -637,13 +634,18 @@ class MainMenu(QDockWidget, ProteusComponent):
     # ----------------------------------------------------------------------
     # NOTE: This is in a separated method to improve readability, it could
     # be inlined in the signal using a lambda function.
-    def delete_current_document(self):
+    def delete_current_document(self) -> None:
         """
         Manage the delete current document action, delete the current
         document. Use a confirmation dialog to confirm the action.
         """
         # Get the current document
         document_id: ProteusID = self._state_manager.get_current_document()
+
+        # Assert that the current document is not None
+        assert (
+            document_id is not None and document_id != ""
+        ), "Current document is None or empty"
 
         # Create the delete dialog
         DeleteDialog.create_dialog(

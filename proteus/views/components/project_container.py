@@ -22,7 +22,6 @@ from PyQt6.QtWidgets import QHBoxLayout, QSizePolicy, QSplitter, QWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.controller.command_stack import Controller
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.views_container import ViewsContainer

@@ -32,7 +32,7 @@ from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
-from proteus.utils.event_manager import Event
+from proteus.utils.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -119,37 +119,32 @@ class MainWindow(QMainWindow, ProteusComponent):
         Subscribe the component to the events.
 
         MainMenu component subscribes to the following events:
-            - Event.OPEN_PROJECT    | update_on_project_open
-            - Event.SELECT_OBJECT   | update_on_select_object
-            - Event.MODIFY_OBJECT   | update_on_modify_object
+            - OPEN PROJECT -> update_on_open_project
+            - SELECT OBJECT -> update_on_select_object
+            - MODIFY OBJECT -> update_on_modify_object
         """
-        self._event_manager.attach(
-            Event.OPEN_PROJECT, self.update_on_project_open, self
-        )
-        self._event_manager.attach(
-            Event.SELECT_OBJECT, self.update_on_select_object, self
-        )
-        self._event_manager.attach(
-            Event.MODIFY_OBJECT, self.update_on_modify_object, self
-        )
+
+        OpenProjectEvent().connect(self.update_on_open_project)
+        SelectObjectEvent().connect(self.update_on_select_object)
+        ModifyObjectEvent().connect(self.update_on_modify_object)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : update_on_project_open
+    # Method     : update_on_open_project
     # Description: Update the main window when a new project is opened.
     # Date       : 06/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_project_open(self, *args, **kwargs) -> None:
+    def update_on_open_project(self) -> None:
         """
         Update the main window when a new project is opened. It is used to
         load the document list menu and update the window title.
 
-        Triggered by: Event.OPEN_PROJECT
+        Triggered by: OpenProjectEvent
         """
         # Delete the existing widget or container
         if self.project_container.__class__ == QWidget:
@@ -158,9 +153,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             self.project_container.delete_component()
 
         # Create document list menu
-        self.project_container = ProjectContainer(
-            parent=self
-        )
+        self.project_container = ProjectContainer(self)
         self.setCentralWidget(self.project_container)
 
         project = self._controller.get_current_project()
@@ -175,23 +168,33 @@ class MainWindow(QMainWindow, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_select_object(self, *args, **kwargs) -> None:
+    def update_on_select_object(
+        self, selected_object_id: ProteusID, document_id: ProteusID
+    ) -> None:
         """
         Update the status bar when a new object is selected. It is used to
         show information about the current selected object to the user.
 
-        Triggered by: Event.SELECT_OBJECT
+        Triggered by: SelectObjectEvent
+
+        :param selected_object_id: Id of the selected object
+        :param document_id: Id of the document where the object is located
         """
         # NOTE: Adding a permanent message to the status bar is discouraged
         #       due to the fact that it is not possible to remove it just
         #       hide it using removeWidget() method.
         # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qstatusbar.html#qstatusbar-permanent-message
 
-        # Get the selected object id
-        selected_object_id: ProteusID = self._state_manager.get_current_object()
-
         # If there is no selected object, return
-        if selected_object_id is None:
+        if selected_object_id is None or selected_object_id == "":
+            return
+
+        assert (
+            document_id is not None or document_id != ""
+        ), "Document id is None on SELECT OBJECT event"
+
+        # If the selected object is not in the current document, return
+        if document_id != self._state_manager.get_current_document():
             return
 
         # Get the selected object and its name
@@ -216,24 +219,23 @@ class MainWindow(QMainWindow, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_modify_object(self, *args, **kwargs) -> None:
+    def update_on_modify_object(self, object_id: ProteusID) -> None:
         """
         Update the window title when the project name is modified. Check if
         the modified object is the project and update the window title.
 
-        Triggered by: Event.MODIFY_OBJECT
-        """
-        # Get element id
-        element_id: ProteusID = kwargs["element_id"]
+        Triggered by: ModifyObjectEvent
 
+        :param object_id: Id of the modified object
+        """
         # Check the element id is not None
-        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+        assert object_id is not None, "Object id is None on MODIFY_OBJECT event"
 
         # Get project
         project: Project = self._controller.get_current_project()
 
         # Check if element id is project id
-        if element_id == project.id:
+        if object_id == project.id:
             self.setWindowTitle(
                 f"{self._translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
             )
@@ -253,7 +255,7 @@ class MainWindow(QMainWindow, ProteusComponent):
     #       QMainWindow class. Close window dialog may be moved to its
     #       own class in the dialog package but closeEvent method must
     #       be overriden anyway.
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         """
         Handle the close event for the main window. Check if the project
         has unsaved changes and show a confirmation dialog to the user.

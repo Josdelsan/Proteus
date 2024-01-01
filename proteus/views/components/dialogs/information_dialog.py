@@ -160,6 +160,6 @@ class InformationDialog(QDialog, ProteusComponent):
         :param controller: The application controller.
         """
         # Create the form window
-        form_window = InformationDialog(controller)
+        form_window = InformationDialog(controller=controller)
         form_window.exec()
         return form_window

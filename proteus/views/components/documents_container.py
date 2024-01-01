@@ -28,11 +28,15 @@ from PyQt6.QtCore import QSize
 
 from proteus.model import ProteusID
 from proteus.model.object import Object
-from proteus.controller.command_stack import Controller
 from proteus.views import ACRONYM_ICON_TYPE
-from proteus.utils.event_manager import Event
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
+from proteus.utils.events import (
+    AddDocumentEvent,
+    ModifyObjectEvent,
+    CurrentDocumentChangedEvent,
+    DeleteDocumentEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -61,16 +65,13 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent: QWidget, *args, **kwargs
-    ) -> None:
+    def __init__(self, parent: QWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
 
         Store the tabs for each document in a dictionary to access them
-        later. Also store the children components of each tab in a
-        dictionary to delete when the tab is closed.
+        later.
 
         :param parent: Parent widget.
         """
@@ -134,12 +135,14 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     def add_document(self, document: Object, position: int = None) -> None:
         """
         Add a document to the tab menu creating its child component (document
-        tree).
+        tree). If no position is given, the document is added at the end of
+        the tab menu.
+
+        :param document: Document to add to the tab menu.
+        :param position: Position to add the document in the tab menu.
         """
         # Tree widget --------------------------------------------------------
-        tab: DocumentTree = DocumentTree(
-            element_id=document.id, parent=self
-        )
+        tab: DocumentTree = DocumentTree(self, document.id)
 
         # Add tab to the dictionary with the document id as key
         self.tabs[document.id] = tab
@@ -172,25 +175,15 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         Subscribe the component to the events.
 
         DocumentsContainer component subscribes to the following events:
-            - Event.ADD_DOCUMENT    | update_on_add_document
-            - Event.DELETE_DOCUMENT | update_on_delete_document
-            - Event.MODIFY_OBJECT   | update_on_modify_object
-            - Event.CURRENT_DOCUMENT_CHANGED | update_on_current_document_changed
+            - ADD DOCUMENT -> update_on_add_document
+            - MODIFY OBJECT -> update_on_modify_object
+            - DELETE DOCUMENT -> update_on_delete_document
+            - CURRENT DOCUMENT CHANGED -> update_on_current_document_changed
         """
-        self._event_manager.attach(
-            Event.ADD_DOCUMENT, self.update_on_add_document, self
-        )
-        self._event_manager.attach(
-            Event.DELETE_DOCUMENT, self.update_on_delete_document, self
-        )
-        self._event_manager.attach(
-            Event.MODIFY_OBJECT, self.update_on_modify_object, self
-        )
-        self._event_manager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED,
-            self.update_on_current_document_changed,
-            self,
-        )
+        AddDocumentEvent().connect(self.update_on_add_document)
+        ModifyObjectEvent().connect(self.update_on_modify_object)
+        DeleteDocumentEvent().connect(self.update_on_delete_document)
+        CurrentDocumentChangedEvent().connect(self.update_on_current_document_changed)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -204,25 +197,32 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_add_document(self, *args, **kwargs) -> None:
+    def update_on_add_document(self, new_document_id: ProteusID, position: int) -> None:
         """
         Update the documents tab menu component when a new document is added
         to the project. It creates a new tab for the document using the add
-        document method.
+        document method. If no position is given, the document is added at
+        the end of the tab menu.
 
-        Triggered by: Event.ADD_DOCUMENT
+        Triggered by: AddDocumentEvent
+
+        :param new_document_id: New document id.
+        :param position: Position to add the document in the tab menu.
         """
-        new_document: Object = kwargs.get("document")
+        # Check the element id is not None
+        assert (
+            new_document_id is not None or new_document_id != ""
+        ), "Element id is None on ADD DOCUMENT event"
 
-        position: int = kwargs.get("position", None)
+        # Get the new document
+        new_document: Object = self._controller.get_element(new_document_id)
 
         # Check the document is instance of Object
-        # Check the object is instance of Object
         assert isinstance(
             new_document, Object
         ), "Object is not instance of Object on ADD_DOCUMENT event"
 
-        self.add_document(new_document, position=position)
+        self.add_document(new_document, position)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_document
@@ -232,18 +232,20 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_delete_document(self, *args, **kwargs) -> None:
+    def update_on_delete_document(self, document_id: ProteusID) -> None:
         """
         Update the documents tab menu component when a document is deleted
         from the project. It deletes the tab from the tabs widget and
         deletes the child components.
 
-        Triggered by: Event.DELETE_DOCUMENT
-        """
-        document_id: ProteusID = kwargs.get("element_id")
+        Triggered by: DeleteDocumentEvent
 
-        # Check the element id is not None
-        assert document_id is not None, "Element id is None on DELETE_OBJECT event"
+        :param document_id: Id of the deleted document.
+        """
+        # Check the element id is not None or empty
+        assert (
+            document_id is not None or document_id != ""
+        ), "Document id is None on DELETE OBJECT event"
 
         # Check there is a tab for the document
         assert (
@@ -267,27 +269,29 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_modify_object(self, *args, **kwargs) -> None:
+    def update_on_modify_object(self, object_id: ProteusID) -> None:
         """
         Update the documents tab menu component when an object is modified.
         It changes the tab name with the new document name if the object
         modified is a document.
 
-        Triggered by: Event.MODIFY_OBJECT
-        """
-        element_id: ProteusID = kwargs.get("element_id")
+        Triggered by: ModifyObjectEvent
 
-        # Check the element id is not None
-        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+        :param object_id: Id of the modified object.
+        """
+        # Check the element id is not None or empty
+        assert (
+            object_id is not None or object_id != ""
+        ), "Element id is None on MODIFY OBJECT event"
 
         # Check if exists a tab for the element
-        if element_id in self.tabs:
+        if object_id in self.tabs:
             # Get document tab
-            document_tab: DocumentTree = self.tabs.get(element_id)
+            document_tab: DocumentTree = self.tabs.get(object_id)
             tab_index: int = self.indexOf(document_tab)
 
             # Get new acronym
-            element: Object = self._controller.get_element(element_id)
+            element: Object = self._controller.get_element(object_id)
             document_acronym: str = element.get_property("acronym").value
             self.setTabText(tab_index, document_acronym)
 
@@ -303,21 +307,22 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_current_document_changed(self, *args, **kwargs) -> None:
+    def update_on_current_document_changed(self, document_id: ProteusID) -> None:
         """
         Update the documents tab menu component when the current document
         is changed. It changes the current tab to the document tab with
         the current document id if the new current document is different
         from old current document.
 
-        Triggered by: Event.CURRENT_DOCUMENT_CHANGED
+        Triggered by: CurrentDocumentChangedEvent
+
+        :param document_id: Id of the current selected document.
         """
-        new_document_id: ProteusID = self._state_manager.get_current_document()
 
         # Check if exists a tab for the element
-        if new_document_id in self.tabs:
+        if document_id in self.tabs:
             # Get document tab
-            document_tab: DocumentTree = self.tabs.get(new_document_id)
+            document_tab: DocumentTree = self.tabs.get(document_id)
             tab_index: int = self.indexOf(document_tab)
 
             if tab_index != self.currentIndex():
@@ -330,7 +335,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
 
     # ----------------------------------------------------------------------
     # Method     : current_document_changed
-    # Description: Slot triggered when the current document tab is changed.
+    # Description: Method triggered when the current document tab is changed.
     #              It updates the current document id in the state manager.
     # Date       : 06/06/2023
     # Version    : 0.1
@@ -338,9 +343,11 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
     # ----------------------------------------------------------------------
     def current_document_changed(self, index: int) -> None:
         """
-        Slot triggered when the current document tab is changed. It updates
+        Method triggered when the current document tab is changed. It updates
         the current document id in the state manager if the index is different
         from the current index.
+
+        :param index: New tab index.
         """
         # Get document id
         document_id: ProteusID = None
@@ -349,9 +356,10 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             document_tab: DocumentTree = self.widget(index)
 
             # Access document id (key) from the tab (value)
-            document_id = list(self.tabs.keys())[
-                list(self.tabs.values()).index(document_tab)
-            ]
+            tab_keys = list(self.tabs.keys())
+            tab_values = list(self.tabs.values())
+            tab_index = tab_values.index(document_tab)
+            document_id: ProteusID = tab_keys[tab_index]
 
         # Avoid updating the state manager if the document is the same
         # This can happen when the tab is selected by current_document_changed
@@ -362,12 +370,29 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         # Update current document in the state manager
         self._state_manager.set_current_document(document_id)
 
+    # ----------------------------------------------------------------------
+    # Method     : tab_moved
+    # Description: Method triggered when a tab is moved. It updates the
+    #              document position in the project.
+    # Date       : 31/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
     def tab_moved(self, new_index: int, old_index: int) -> None:
-        # Get the current document id
-        document_id: ProteusID = self._state_manager.get_current_document()
+        """
+        Method triggered when a tab is moved. It updates the document position
+        in the project.
 
-        # Get the project
-        project = self._controller.get_current_project()
+        :param new_index: New tab index.
+        :param old_index: Old tab index.
+        """
+        # Get the document id from the new index (tab has already been moved)
+        document_tab: DocumentTree = self.widget(new_index)
+
+        tab_keys = list(self.tabs.keys())
+        tab_values = list(self.tabs.values())
+        tab_index = tab_values.index(document_tab)
+        document_id: ProteusID = tab_keys[tab_index]
 
         log.debug(f"Moving document {document_id} from {old_index} to {new_index}")
 

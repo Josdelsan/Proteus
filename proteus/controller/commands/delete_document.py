@@ -30,7 +30,11 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.event_manager import EventManager, Event
+from proteus.utils.events import (
+    ModifyObjectEvent,
+    DeleteDocumentEvent,
+    AddDocumentEvent,
+)
 
 
 # --------------------------------------------------------------------------
@@ -109,12 +113,10 @@ class DeleteDocumentCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager().notify(
-                Event.MODIFY_OBJECT, element_id=source, update_view=False
-            )
+            ModifyObjectEvent().notify(source, False)
 
         # Emit the event to update the view
-        EventManager().notify(Event.DELETE_DOCUMENT, element_id=self.document.id)
+        DeleteDocumentEvent().notify(self.document.id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -150,14 +152,10 @@ class DeleteDocumentCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager().notify(
-                Event.MODIFY_OBJECT, element_id=source, update_view=False
-            )
+            ModifyObjectEvent().notify(source, False)
 
         # Emit the event to update the view
-        EventManager().notify(
-            Event.ADD_DOCUMENT, document=self.document, position=self.old_position
-        )
+        AddDocumentEvent().notify(self.document.id, self.old_position)
 
     # ----------------------------------------------------------------------
     # Method     : calculate_traces_changes

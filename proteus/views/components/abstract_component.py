@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,33 +24,14 @@ from PyQt6.QtWidgets import QWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.utils.abstract_meta import AbstractObjectMeta
 from proteus.utils.config import Config
-from proteus.utils.event_manager import EventManager
 from proteus.utils.state_manager import StateManager
 from proteus.utils.translator import Translator
 from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
-
-
-# --------------------------------------------------------------------------
-# Class: AbstractObjectMeta
-# Description: Metaclass for ProteusComponent class
-# Date: 15/11/2023
-# Version: 0.1
-# Author: José María Delgado Sánchez
-# --------------------------------------------------------------------------
-# NOTE: Workaround to allow multiple inheritance from QObject and ABC
-# https://stackoverflow.com/questions/28720217/multiple-inheritance-metaclass-conflict
-# https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
-class AbstractObjectMeta(type(QObject), type(ABC)):
-    """
-    Metaclass for ProteusComponent class. It defines the metaclass for
-    ProteusComponent class. It is used to create an abstract class that
-    inherits from QObject and ABC.
-    """
-    pass
 
 
 # --------------------------------------------------------------------------
@@ -73,11 +54,12 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
     When a component inherits from ProteusComponent, if it also inherits
     from other QObject subclass, ProteusComponent must be placed after
     it to avoid metaclass conflicts.
-    
+
     Example of class with multiple inheritance:
         - class MyComponent(QDialog, ProteusComponent):
-        - class mro(MyComponent): [MyComponent, QDialog, ProteusComponent,
-        QObject, sip.wrapper, QPaintDevice, sip.simplewrapper, ABC, object]
+        - class mro(MyComponent): [MyComponent, QDialog, QWidget,
+        ProteusComponent, QObject, wrapper, QPaintDevice, simplewrapper,
+        ABC, object]
     """
 
     # ----------------------------------------------------------------------
@@ -93,7 +75,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         controller: Controller = None,
         config: Config = None,
         translator: Translator = None,
-        event_manager: EventManager = None,
         state_manager: StateManager = None,
         *args,
         **kwargs,
@@ -112,13 +93,12 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         :param parent: Parent QWidget.
         :param config: App configuration instance.
         :param translator: Translator instance.
-        :param event_manager: Event manager instance.
         :param state_manager: State manager instance.
         """
         super(ProteusComponent, self).__init__(parent, *args, **kwargs)
 
         # Controller --------------
-        
+
         if controller is None:
             # Get parent controller if parent is a ProteusComponent
             if isinstance(parent, ProteusComponent):
@@ -134,7 +114,7 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
             log.debug(
                 f"Custom Controller instance provided for ProteusComponent {self.__class__.__name__}"
             )
-        
+
         assert isinstance(
             controller, Controller
         ), f"Controller instance is required to create a ProteusComponent, current value type: {type(controller)}"
@@ -165,19 +145,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
             translator, Translator
         ), f"Translator instance is required to create a ProteusComponent, current value type: {type(translator)}"
         self._translator: Translator = translator
-
-        # Event manager ----------
-        if event_manager is None:
-            event_manager = EventManager()
-        else:
-            log.debug(
-                f"Custom EventManager instance provided for ProteusComponent {self.__class__.__name__}"
-            )
-
-        assert isinstance(
-            event_manager, EventManager
-        ), f"EventManager instance is required to create a ProteusComponent, current value type: {type(event_manager)}"
-        self._event_manager: EventManager = event_manager
 
         # State manager ----------
         if state_manager is None:
@@ -236,9 +203,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         for child in self.findChildren(ProteusComponent):
             # Delete the child
             child.delete_component()
-
-        # Detach from events
-        self._event_manager.detach(self)
 
         # Delete the component
         self.setParent(None)

@@ -30,9 +30,12 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.event_manager import EventManager, Event
 from proteus.utils.state_manager import StateManager
-
+from proteus.utils.events import (
+    AddObjectEvent,
+    DeleteObjectEvent,
+    ModifyObjectEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: DeleteObjectCommand
@@ -113,15 +116,13 @@ class DeleteObjectCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager().notify(
-                Event.MODIFY_OBJECT, element_id=source, update_view=False
-            )
+            ModifyObjectEvent().notify(source, False)
 
         # Deselect the object in case it was selected to avoid errors
         StateManager().deselect_object(self.object.id)
 
         # Emit the event to update the view
-        EventManager().notify(Event.DELETE_OBJECT, element_id=self.object.id)
+        DeleteObjectEvent().notify(self.object.id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -159,12 +160,10 @@ class DeleteObjectCommand(QUndoCommand):
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
             # The document view is supposed to be updated just once, when the command is finished
-            EventManager().notify(
-                Event.MODIFY_OBJECT, element_id=source, update_view=False
-            )
+            ModifyObjectEvent().notify(source, False)
 
         # Emit the event to update the view
-        EventManager().notify(Event.ADD_OBJECT, object=self.object)
+        AddObjectEvent().notify(self.object.id)
 
     # ----------------------------------------------------------------------
     # Method     : calculate_traces_changes

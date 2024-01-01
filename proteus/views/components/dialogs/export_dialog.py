@@ -370,6 +370,6 @@ class ExportDialog(QDialog, ProteusComponent):
 
         :param controller: The application controller.
         """
-        form_window = ExportDialog(controller)
+        form_window = ExportDialog(controller=controller)
         form_window.exec()
         return form_window

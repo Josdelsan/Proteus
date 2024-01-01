@@ -348,15 +348,10 @@ class Project(AbstractObject):
             document, Object
         ), f"Document {document} is not a valid PROTEUS object."
 
-        # Check if the document is already in the project
+        # Check if the document is a Proteus document
         assert (
             PROTEUS_DOCUMENT in document.classes
         ), f"The object is not a Proteus document. Object is class: {document.classes}"
-
-        # Check if the document is already in the project
-        assert document.id not in [
-            o.id for o in self.documents
-        ], f"Document {document.id} is already in the project {self.id}."
 
         # Add the document to the project
         self.documents.insert(position, document)

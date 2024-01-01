@@ -1,19 +1,18 @@
 # ==========================================================================
 # File: state_manager.py
-# Description: State manager for the PROTEUS application. It manages the
-#              state of the current selected object and the current selected
-#              document.
+# Description: State manager for the PROTEUS application. It managed the
+#              state of the application, incluiding the current document,
+#              the current object and the current view.
 # Date: 19/06/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict
+from typing import Dict, Union
 import logging
 import threading
 
@@ -21,16 +20,20 @@ import threading
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.utils.event_manager import EventManager, Event
+from proteus.utils.events import (
+    SelectObjectEvent,
+    CurrentDocumentChangedEvent,
+    CurrentViewChangedEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: StateManager
@@ -65,7 +68,7 @@ class StateManager:
             cls.__instance = super(StateManager, cls).__new__(cls)
             cls.__instance._initialized = False
         return cls.__instance
-    
+
     # --------------------------------------------------------------------------
     # Method: __init__
     # Description: Constructor for StateManager class.
@@ -97,7 +100,10 @@ class StateManager:
     # --------------------------------------------------------------------------
     def set_current_document(self, document_id: ProteusID) -> None:
         """
-        Sets the current document id.
+        Sets the current document id and notifies that the current document
+        has changed.
+
+        :param document_id: Current document id
         """
         log.debug(f"Setting current document {document_id}")
         self.current_document = document_id
@@ -107,11 +113,8 @@ class StateManager:
         if document_id not in self.current_object:
             self.current_object[document_id] = None
 
-        # Notify the event manager that the current document has changed
-        # and that the current object must be updated.
-        EventManager().notify(
-            Event.CURRENT_DOCUMENT_CHANGED, document_id=self.current_document
-        )
+        # Notify the current document has changed
+        CurrentDocumentChangedEvent().notify(self.current_document)
 
     # --------------------------------------------------------------------------
     # Method: get_current_document
@@ -120,10 +123,13 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def get_current_document(self) -> ProteusID:
+    def get_current_document(self) -> Union[ProteusID, None]:
         """
         Returns the current document id. If no document is selected, it returns
         None.
+
+        :return: Current document id
+        :rtype: ProteusID or None
         """
         return self.current_document
 
@@ -136,11 +142,20 @@ class StateManager:
     # --------------------------------------------------------------------------
     def set_current_object(self, object_id: ProteusID, document_id: ProteusID) -> None:
         """
-        Sets the current object id for the current document.
+        Sets the current object id for the document id and notifies that the
+        selected object has changed for the given document.
+
+        :param object_id: Selected object id
+        :param document_id: Document that contains the selected object id
         """
         log.debug(f"Selecting object {object_id} in document {document_id}")
+
+        assert (
+            document_id in self.current_object
+        ), f"Document id {document_id} not found in current application state dictionary."
+
         self.current_object[document_id] = object_id
-        EventManager().notify(Event.SELECT_OBJECT, object_id=object_id)
+        SelectObjectEvent().notify(object_id, document_id)
 
     # --------------------------------------------------------------------------
     # Method: get_current_object
@@ -149,10 +164,13 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def get_current_object(self) -> ProteusID:
+    def get_current_object(self) -> Union[ProteusID, None]:
         """
         Returns the current object id for the current document. If no object
-        is selected, it returns None.
+        or document is selected, it returns None.
+
+        :return: Current object id
+        :rtype: ProteusID or None
         """
         document_id = self.get_current_document()
 
@@ -179,15 +197,17 @@ class StateManager:
     def deselect_object(self, object_id: ProteusID) -> None:
         """
         Deselects the current object if found selected in the state manager
-        dictionary.
+        dictionary. If the object is not selected, it does nothing.
 
-        This method is primarily used when objects are marked as deleted (DEAD)
-        when controller commands are executed.
+        If the object is deselected, it notifies that the selected object has
+        changed for the document where the object was selected.
+
+        :param object_id: Object id to deselect
         """
         for document_id in self.current_object:
             if self.current_object[document_id] == object_id:
                 self.current_object[document_id] = None
-                EventManager().notify(Event.SELECT_OBJECT)
+                SelectObjectEvent().notify(object_id, document_id)
 
     # --------------------------------------------------------------------------
     # Method: set_current_view
@@ -198,13 +218,20 @@ class StateManager:
     # --------------------------------------------------------------------------
     def set_current_view(self, view_name: str) -> None:
         """
-        Sets the current view id.
+        Sets the current view id. Notifies the current view has changed.
+
+        :param view_name: Current view id
         """
         log.debug(f"Setting current view {view_name}")
+
+        assert (
+            view_name is not None or view_name != ""
+        ), "View name cannot be None or empty."
+
         self.current_view = view_name
 
         # Notify the event manager that the current view has changed.
-        EventManager().notify(Event.CURRENT_VIEW_CHANGED, view_name=view_name)
+        CurrentViewChangedEvent().notify(self.current_view)
 
     # --------------------------------------------------------------------------
     # Method: get_current_view
@@ -213,12 +240,15 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def get_current_view(self) -> str:
+    def get_current_view(self) -> Union[str, None]:
         """
         Returns the current view id. If no view is selected, it returns None.
+
+        :return: Current view id
+        :rtype: str or None
         """
         return self.current_view
-    
+
     # --------------------------------------------------------------------------
     # Method: get_document_by_object
     # Description: Returns the document id where the given object id is selected.
@@ -226,14 +256,14 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def get_document_by_object(self, object_id: ProteusID) -> ProteusID:
+    def get_document_by_object(self, object_id: ProteusID) -> Union[ProteusID, None]:
         """
         Returns the document id where the given object id is selected. If the
         object is not selected in any document, it returns None.
 
         :param object_id: object id
         :return: document id
-        :rtype: ProteusID
+        :rtype: ProteusID or None
         """
         for document_id in self.current_object:
             if self.current_object[document_id] == object_id:
@@ -249,7 +279,8 @@ class StateManager:
     # --------------------------------------------------------------------------
     def clear(self) -> None:
         """
-        Clears the current state manager.
+        Clears the current state manager. It resets the current document,
+        current object and current view.
         """
         log.debug("Clearing state manager")
         self.current_document = None

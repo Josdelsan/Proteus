@@ -27,9 +27,11 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.event_manager import EventManager, Event
 from proteus.utils.state_manager import StateManager
-
+from proteus.utils.events import (
+    AddObjectEvent,
+    DeleteObjectEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: CloneObjectCommand
@@ -111,7 +113,7 @@ class CloneObjectCommand(QUndoCommand):
             parent.state: ProteusState = self.after_clone_parent_state
 
         # Emit the event to update the view
-        EventManager().notify(Event.ADD_OBJECT, object=self.cloned_object)
+        AddObjectEvent().notify(self.cloned_object.id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -138,4 +140,4 @@ class CloneObjectCommand(QUndoCommand):
         StateManager().deselect_object(self.cloned_object.id)
 
         # Emit the event to update the view
-        EventManager().notify(Event.DELETE_OBJECT, element_id=self.cloned_object.id)
+        DeleteObjectEvent().notify(self.cloned_object.id)

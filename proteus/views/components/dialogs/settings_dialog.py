@@ -204,6 +204,6 @@ class SettingsDialog(QDialog, ProteusComponent):
         """
         Create a settings dialog and show it
         """
-        dialog = SettingsDialog(controller)
+        dialog = SettingsDialog(controller=controller)
         dialog.exec()
         return dialog

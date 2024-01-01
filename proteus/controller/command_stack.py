@@ -41,13 +41,29 @@ from proteus.controller.commands.change_object_position import (
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.utils.event_manager import EventManager, Event
 from proteus.utils.state_manager import StateManager
 from proteus.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
 from proteus.model.trace import Trace
+
+from proteus.utils.events import (
+    ModifyObjectEvent,
+    AddViewEvent,
+    DeleteViewEvent,
+    AddObjectEvent,
+    DeleteObjectEvent,
+    CurrentDocumentChangedEvent,
+    CurrentViewChangedEvent,
+    SelectObjectEvent,
+    StackChangedEvent,
+    RequiredSaveActionEvent,
+    OpenProjectEvent,
+    SaveProjectEvent,
+    AddDocumentEvent,
+    DeleteDocumentEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -101,15 +117,9 @@ class Controller:
         self.stack: QUndoStack = QUndoStack()
 
         # Connect the signals to the event manager to notify the frontend
-        self.stack.canRedoChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
-        self.stack.canUndoChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
-        self.stack.cleanChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
+        self.stack.canRedoChanged.connect(StackChangedEvent().notify)
+        self.stack.canUndoChanged.connect(StackChangedEvent().notify)
+        self.stack.cleanChanged.connect(StackChangedEvent().notify)
 
     # ======================================================================
     # Command stack methods
@@ -367,7 +377,7 @@ class Controller:
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
+        RequiredSaveActionEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : delete_document
@@ -434,7 +444,7 @@ class Controller:
         # It must be done before notifying the OPEN_PROJECT event to avoid
         # inconsistencies in the subscribed components.
         StateManager().clear()
-        EventManager().notify(event=Event.OPEN_PROJECT)
+        OpenProjectEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : get_object_structure
@@ -499,7 +509,7 @@ class Controller:
         log.info("Saving current project")
         self._project_service.save_project()
         self.stack.clear()
-        EventManager().notify(event=Event.SAVE_PROJECT)
+        SaveProjectEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : get_element
@@ -566,9 +576,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_html_view(
-        self, xslt_name: str = "default"
-    ) -> str:
+    def get_html_view(self, xslt_name: str = "default") -> str:
         """
         Get the string representation of the document view given its id. The
         view is generated using the xslt file specified in the xslt_name. If
@@ -637,11 +645,11 @@ class Controller:
         self._project_service.add_project_template(template_name)
 
         # Trigger ADD_VIEW event notifying the new template
-        EventManager().notify(Event.ADD_VIEW, xslt_name=template_name)
+        AddViewEvent().notify(template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
+        RequiredSaveActionEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : delete_project_template
@@ -663,11 +671,11 @@ class Controller:
         self._project_service.delete_project_template(template_name)
 
         # Trigger REMOVE_VIEW event
-        EventManager().notify(Event.DELETE_VIEW, xslt_name=template_name)
+        DeleteViewEvent().notify(template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager().notify(Event.REQUIRED_SAVE_ACTION)
+        RequiredSaveActionEvent().notify()
 
     # ======================================================================
     # Archetype methods

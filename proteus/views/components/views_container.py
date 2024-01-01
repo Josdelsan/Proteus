@@ -38,8 +38,17 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
-from proteus.utils.event_manager import Event
 from proteus.utils.translator import Translator
+from proteus.utils.events import (
+    ModifyObjectEvent,
+    AddViewEvent,
+    DeleteViewEvent,
+    AddObjectEvent,
+    DeleteObjectEvent,
+    CurrentDocumentChangedEvent,
+    CurrentViewChangedEvent,
+    SelectObjectEvent,
+)
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.web_channel_object import WebChannelObject
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
@@ -161,6 +170,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     def add_view(self, xslt_name: str) -> None:
         """
         Add a new view to the views container component.
+
+        :param xslt_name: Name of the xslt file.
         """
         # Create browser
         browser: QWebEngineView = QWebEngineView(self)
@@ -169,7 +180,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Create document page using subclass
         # NOTE: This subclass is needed for external links handling
         document_page: DocumentPage = DocumentPage(
-           parent=browser, translator=self._translator
+            parent=browser, translator=self._translator
         )
         browser.setPage(document_page)
 
@@ -203,94 +214,106 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         Subscribe the component to the events.
 
         ViewsContainer component subscribes to the following events:
-            - Event.MODIFY_OBJECT               | update_component
-            - Event.ADD_OBJECT                  | update_component
-            - Event.DELETE_OBJECT               | update_component
-            - Event.ADD_VIEW                    | update_on_add_view
-            - Event.DELETE_VIEW                 | update_on_delete_view
-            - Event.CURRENT_DOCUMENT_CHANGED    | update_component
-            - Event.CURRENT_VIEW_CHANGED        | update_component
-            - Event.SELECT_OBJECT               | update_on_select_object
+            - ADD VIEW -> update_on_add_view
+            - DELETE VIEW -> update_on_delete_view
+            - SELECT OBJECT -> update_on_select_object
+            - ADD OBJECT -> update_view
+            - MODIFY OBJECT -> update_view
+            - DELETE OBJECT -> update_view
+            - CURRENT VIEW CHANGED -> update_view
+            - CURRENT DOCUMENT CHANGED -> update_view
         """
-        self._event_manager.attach(Event.MODIFY_OBJECT, self.update_component, self)
-        self._event_manager.attach(Event.ADD_OBJECT, self.update_component, self)
-        self._event_manager.attach(Event.DELETE_OBJECT, self.update_component, self)
-        self._event_manager.attach(Event.ADD_VIEW, self.update_on_add_view, self)
-        self._event_manager.attach(Event.DELETE_VIEW, self.update_on_delete_view, self)
-        self._event_manager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED, self.update_component, self
-        )
-        self._event_manager.attach(
-            Event.CURRENT_VIEW_CHANGED, self.update_component, self
-        )
-        self._event_manager.attach(
-            Event.SELECT_OBJECT, self.update_on_select_object, self
-        )
+        AddViewEvent().connect(self.update_on_add_view)
+        DeleteViewEvent().connect(self.update_on_delete_view)
+        SelectObjectEvent().connect(self.update_on_select_object)
+        AddObjectEvent().connect(self.update_view)
+        ModifyObjectEvent().connect(self.update_view)
+        DeleteObjectEvent().connect(self.update_view)
+        CurrentViewChangedEvent().connect(self.update_view)
+        CurrentDocumentChangedEvent().connect(self.update_view)
+
+
+    # ----------------------------------------------------------------------
+    # Method     : display_view
+    # Description: Update the view to display the current project
+    # Date       : 04/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def display_view(self) -> None:
+        """
+        Update the view to display the current project information rendered
+        using the current view template. If there is no current document
+        (all documents deleted), clear the browser.
+        """
+        # Get the current document id and the current view
+        current_document_id: ProteusID = self._state_manager.get_current_document()
+        selected_object_id: ProteusID = self._state_manager.get_current_object()
+        current_view: str = self._state_manager.get_current_view()
+
+        # If the current view is not in the browsers dict, ignore the update
+        if current_view not in self.tabs:
+            log.error(f"View {current_view} not found in the views container component")
+            return
+
+        # Get the browser for the current view
+        browser: QWebEngineView = self.tabs[current_view]
+
+        # If there is no current document, clear the browser
+        # TODO: Consider use cases where there is no current document (all documents deleted)
+        # but project information is still relevant enough to be rendered.
+        if current_document_id is None:
+            browser.page().setContent(QByteArray(), "text/html")
+            return
+
+        # Update the current view browser with the content
+        if current_view in self.tabs and current_document_id is not None:
+            # Get html from controller
+            html_str: str = self._controller.get_html_view(xslt_name=current_view)
+
+            # Convert html to QByteArray
+            # NOTE: This is done to avoid 2mb limit on setHtml method
+            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
+            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
+            browser.page().setContent(html_array, "text/html")
+
+            # Connect to load finished signal to update the object list
+            # NOTE: Signal necessary to run the script after the page is loaded.
+            # TODO: Due to PyQt6 behavior, signal is emitted several times. Find
+            # a way to run the script only once.
+            # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
+            browser.page().loadFinished.connect(
+                lambda: self.update_on_select_object(
+                    selected_object_id, current_document_id
+                )
+                if not browser.page().isLoading()
+                else None
+            )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : update_component
-    # Description: Update the views container component.
-    # Date       : 04/06/2023
+    # Method     : update_view
+    # Description: Update the view depending on the update_view flag.
+    # Date       : 01/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_component(self, *args, **kwargs) -> None:
+    def update_view(self, _, update_view: bool) -> None:
         """
-        Update the views container component. Update the current view browser
-        with the content of the current document. If the current view is not
-        in the browsers dict, ignore the update.
+        Update the view depending on the update_view flag.
 
-        Triggered by: Event.MODIFY_OBJECT, Event.ADD_OBJECT, Event.DELETE_OBJECT
-        Event.CURRENT_DOCUMENT_CHANGED, Event.CURRENT_VIEW_CHANGED
+        Triggered by: AddObjectEvent, ModifyObjectEvent, DeleteObjectEvent,
+                        CurrentDocumentChangedEvent, CurrentViewChangedEvent
+
+        :param _: Unused parameter. 
+        :param update_view: Flag to update the view.
         """
-        # Check update_view flag
-        update_view: bool = kwargs.get("update_view", True)
-        if not update_view:
-            return
+        if update_view == True:
+            self.display_view()
 
-        # Get the current document id and the current view
-        current_document_id: ProteusID = self._state_manager.get_current_document()
-        current_view: str = self._state_manager.get_current_view()
-
-        # If the current view is not in the browsers dict, ignore the update
-        if current_view not in self.tabs:
-            log.warning(
-                f"View {current_view} not found in the views container component"
-            )
-            return
-        
-        # Get the browser for the current view
-        browser: QWebEngineView = self.tabs[current_view]
-
-        # If there is no current document, clear the browser
-        if current_document_id is None:
-            browser.page().setContent(QByteArray(), "text/html")
-            return
-
-        # Update the current view browser with the content of the current document
-        if current_view in self.tabs and current_document_id is not None:
-            # Get html from controller
-            html_str: str = self._controller.get_html_view(
-                xslt_name=current_view
-            )
-
-            # Convert html to QByteArray
-            # NOTE: This is done to avoid 2mb limit on setHtml method
-            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-            browser.page().setContent(html_array, "text/html")            
-
-            # Connect to load finished signal to update the object list
-            # NOTE: This is necessary to run the script after the page is loaded.
-            # TODO: Due to PyQt6 behavior, signal is emitted several times. Find
-            # a way to run the script only once.
-            # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
-            browser.page().loadFinished.connect(lambda: self.update_on_select_object() if not browser.page().isLoading() else None)
-        
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -300,21 +323,21 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_add_view(self, *args, **kwargs) -> None:
+    def update_on_add_view(self, view_name: str) -> None:
         """
         Update the document render component when a new view is added to
         the project documents. Add a new tab to each document. If the
         view already exists, do nothing.
 
-        Triggered by: Event.ADD_VIEW
-        """
-        xslt_name: str = kwargs["xslt_name"]
+        Triggered by: AddViewEvent
 
+        :param view_name: Name of the view to add.
+        """
         # If the view already exists, do nothing
-        if xslt_name in self.tabs.keys():
+        if view_name in self.tabs.keys():
             return
 
-        self.add_view(xslt_name)
+        self.add_view(view_name)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -324,27 +347,32 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_select_object(self, *args, **kwargs) -> None:
+    def update_on_select_object(
+        self, selected_object_id: ProteusID, document_id: ProteusID
+    ) -> None:
         """
         Update the views container component when an object is selected.
         Navigate to the object in the document given the object id.
 
-        Triggered by: Event.SELECT_OBJECT
-        """
-        # Get the selected object id
-        selected_object_id: ProteusID = self._state_manager.get_current_object()
-        current_view: str = self._state_manager.get_current_view()
+        Triggered by: SelectObjectEvent
 
+        :param selected_object_id: Id of the selected object.
+        :param document_id: Id of the document where the object is located.
+        """
         # If there is no selected object or the document is not the current
         # document, do nothing
         if selected_object_id is None:
             return
 
+        if document_id != self._state_manager.get_current_document():
+            return
+
         # Create the javascript code to navigate to the object
         # NOTE: The javascript code is defined in the document xslt
-        script: str = (
-            f"scrollToElementById('{selected_object_id}');"
-        )
+        script: str = f"scrollToElementById('{selected_object_id}');"
+
+        # Get current view
+        current_view: str = self._state_manager.get_current_view()
 
         # Run the script in the current view browser
         browser: QWebEngineView = self.tabs[current_view]
@@ -359,24 +387,29 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_delete_view(self, *args, **kwargs) -> None:
+    def update_on_delete_view(self, view_name: str) -> None:
         """
         Update the views container component when a view is deleted from
         the project documents. Delete the tab from each document.
 
-        Triggered by: Event.DELETE_VIEW
+        Triggered by: DeleteViewEvent
+
+        :param view_name: Name of the view to delete.
         """
-        xslt_name: str = kwargs["xslt_name"]
+        # Assert the view exists
+        assert (
+            view_name in self.tabs.keys()
+        ), f"View {view_name} not found in tabs dict on DELETE VIEW event"
 
         # Get the index of the tab to delete
-        tab: int = self.tabs[xslt_name]
+        tab: int = self.tabs[view_name]
         tab_index: int = self.indexOf(tab)
 
         # Delete the tab
         self.removeTab(tab_index)
         self.update()
 
-        browser: QWebEngineView = self.tabs.pop(xslt_name)
+        browser: QWebEngineView = self.tabs.pop(view_name)
 
         # Delete the browser
         browser.parent = None
@@ -393,11 +426,13 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def close_tab(self, index) -> None:
+    def close_tab(self, index: int) -> None:
         """
         Triggered when the user closes a tab. Get the xslt name and call
         the controller to delete the view and delete template from project
         file.
+
+        :param index: Index of the tab to close.
         """
         # Get the key corresponding to the tab index
         xslt_name: str = list(self.tabs.keys())[index]
@@ -417,6 +452,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         """
         Slot triggered when the current document tab is changed. It updates
         the current view in the state manager.
+
+        :param index: Index of the current tab.
         """
         # Get view name from the tab index
         view_name: str = None
@@ -500,4 +537,3 @@ class DocumentPage(QWebEnginePage):
                 return False
 
         return super().acceptNavigationRequest(url, _type, isMainFrame)
-
