@@ -425,29 +425,34 @@ class SelectObjectEvent(ProteusEvent):
     Event to handle the selection of an object in the PROTEUS application.
     """
 
-    signal = pyqtSignal([str, str])
+    signal = pyqtSignal([str, str, bool])
 
-    def notify(self, selected_object_id: ProteusID, document_id: ProteusID) -> None:
+    def notify(
+        self, selected_object_id: ProteusID, document_id: ProteusID, navigate: bool = True
+    ) -> None:
         """
         Notify the event that an object has been selected. Receives the id of
-        the object that has been selected and the id of the document that
-        contains the object.
+        the object that has been selected, the id of the document that contains
+        the object and a boolean indicating whether the scroll should be performed.
 
         :param selected_object_id: The id of the object that has been selected.
         :param document_id: The id of the document that contains the object.
+        :param scroll: Whether the scroll should be performed.
         """
         log.debug(
-            f"Emitting SELECT OBJECT EVENT signal... | selected_object_id: {selected_object_id} document_id: {document_id}"
+            f"Emitting SELECT OBJECT EVENT signal... | selected_object_id: {selected_object_id} document_id: {document_id} navigate: {navigate}"
         )
 
         # NOTE: Object id can be None if the selection is cleared, see the
         # state_manager deselect_object method for more information.
+        if selected_object_id is not None:
+            scroll = False
 
         assert (
             document_id is not None or document_id != ""
         ), "Document id cannot be None or empty"
 
-        self.signal.emit(selected_object_id, document_id)
+        self.signal.emit(selected_object_id, document_id, navigate)
 
     def connect(self, method: Callable[[ProteusID, ProteusID], None]) -> None:
         """

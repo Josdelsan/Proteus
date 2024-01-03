@@ -31,7 +31,7 @@
 
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
-                    <xsl:with-param name="label"   select="$proteus:lang_stakeholder"/>
+                    <xsl:with-param name="label"   select="$proteus:lang_meeting"/>
                     <xsl:with-param name="class"   select="'meeting'"/>
                 </xsl:call-template>
 

@@ -214,24 +214,24 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         Subscribe the component to the events.
 
         ViewsContainer component subscribes to the following events:
-            - ADD VIEW -> update_on_add_view
-            - DELETE VIEW -> update_on_delete_view
-            - SELECT OBJECT -> update_on_select_object
             - ADD OBJECT -> update_view
             - MODIFY OBJECT -> update_view
             - DELETE OBJECT -> update_view
-            - CURRENT VIEW CHANGED -> update_view
             - CURRENT DOCUMENT CHANGED -> update_view
+            - ADD VIEW -> update_on_add_view
+            - DELETE VIEW -> update_on_delete_view
+            - SELECT OBJECT -> update_on_select_object
+            - CURRENT VIEW CHANGED -> update_on_current_view_changed
         """
-        AddViewEvent().connect(self.update_on_add_view)
-        DeleteViewEvent().connect(self.update_on_delete_view)
-        SelectObjectEvent().connect(self.update_on_select_object)
         AddObjectEvent().connect(self.update_view)
         ModifyObjectEvent().connect(self.update_view)
         DeleteObjectEvent().connect(self.update_view)
-        CurrentViewChangedEvent().connect(self.update_view)
         CurrentDocumentChangedEvent().connect(self.update_view)
 
+        AddViewEvent().connect(self.update_on_add_view)
+        DeleteViewEvent().connect(self.update_on_delete_view)
+        SelectObjectEvent().connect(self.update_on_select_object)
+        CurrentViewChangedEvent().connect(self.update_on_current_view_changed)
 
     # ----------------------------------------------------------------------
     # Method     : display_view
@@ -248,7 +248,6 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         """
         # Get the current document id and the current view
         current_document_id: ProteusID = self._state_manager.get_current_document()
-        selected_object_id: ProteusID = self._state_manager.get_current_object()
         current_view: str = self._state_manager.get_current_view()
 
         # If the current view is not in the browsers dict, ignore the update
@@ -278,17 +277,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             browser.page().setContent(html_array, "text/html")
 
             # Connect to load finished signal to update the object list
-            # NOTE: Signal necessary to run the script after the page is loaded.
-            # TODO: Due to PyQt6 behavior, signal is emitted several times. Find
-            # a way to run the script only once.
-            # https://stackoverflow.com/questions/74257725/qwebengineview-page-runjavascript-does-not-run-a-javascript-code-correctly
-            browser.page().loadFinished.connect(
-                lambda: self.update_on_select_object(
-                    selected_object_id, current_document_id
-                )
-                if not browser.page().isLoading()
-                else None
-            )
+            browser.page().loadFinished.connect(self.navigate_on_page_load_finished)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -308,12 +297,44 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         Triggered by: AddObjectEvent, ModifyObjectEvent, DeleteObjectEvent,
                         CurrentDocumentChangedEvent, CurrentViewChangedEvent
 
-        :param _: Unused parameter. 
+        :param _: Unused parameter.
         :param update_view: Flag to update the view.
         """
         if update_view == True:
             self.display_view()
 
+    # ----------------------------------------------------------------------
+    # Method     : update_on_current_view_changed
+    # Description: Update the document render component when the current
+    #              view is changed.
+    # Date       : 02/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_current_view_changed(self, view_name: str, update_view: bool) -> None:
+        """
+        Update the document render component when the current view is
+        changed.
+
+        Triggered by: CurrentViewChangedEvent
+
+        :param view_name: Name of the view to display.
+        :param update_view: Flag to update the view.
+        """
+        # If the view is not in the tabs dict, ignore the update
+        if view_name not in self.tabs:
+            log.error(f"View {view_name} not found in the views container component")
+            return
+
+        # Set the current tab to the view tab if not already selected
+        view_tab: QWebEngineView = self.tabs[view_name]
+        if self.currentIndex() != self.indexOf(view_tab):
+            tab_index: int = self.indexOf(view_tab)
+            self.setCurrentIndex(tab_index)
+
+        # Check update_view flag
+        if update_view == True:
+            self.display_view()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_add_view
@@ -348,7 +369,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def update_on_select_object(
-        self, selected_object_id: ProteusID, document_id: ProteusID
+        self, selected_object_id: ProteusID, document_id: ProteusID, navigate: bool
     ) -> None:
         """
         Update the views container component when an object is selected.
@@ -367,6 +388,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         if document_id != self._state_manager.get_current_document():
             return
 
+        if navigate == False:
+            return
+
         # Create the javascript code to navigate to the object
         # NOTE: The javascript code is defined in the document xslt
         script: str = f"scrollToElementById('{selected_object_id}');"
@@ -375,9 +399,10 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         current_view: str = self._state_manager.get_current_view()
 
         # Run the script in the current view browser
-        browser: QWebEngineView = self.tabs[current_view]
+        if current_view in self.tabs:
+            browser: QWebEngineView = self.tabs[current_view]
 
-        browser.page().runJavaScript(script)
+            browser.page().runJavaScript(script)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_view
@@ -418,6 +443,32 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # ======================================================================
     # Component methods
     # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : navigate_on_page_load_finished
+    # Description: Navigate to the selected object when the page is loaded.
+    # Date       : 02/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def navigate_on_page_load_finished(self, page_loaded: bool) -> None:
+        """
+        Navigate to the selected object when the page is loaded.
+
+        Connected to: QWebEnginePage.loadFinished
+
+        :param page_loaded: Flag to check if the page is loaded.
+        """
+        # If the page is loaded, navigate to the selected object
+        if page_loaded == True:
+            self.update_on_select_object(
+                self._state_manager.get_current_object(),
+                self._state_manager.get_current_document(),
+                True,
+            )
+
+        # Disconnect the signal to avoid multiple calls when page is reloaded
+        self.sender().disconnect()
 
     # ----------------------------------------------------------------------
     # Method     : close_tab

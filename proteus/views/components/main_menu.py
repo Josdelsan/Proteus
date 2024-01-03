@@ -13,6 +13,7 @@
 from typing import List, Dict
 import logging
 import traceback
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -47,6 +48,7 @@ from proteus.views.components.archetypes_menu_dropdown import (
 )
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
+from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
 from proteus.utils.events import (
     SelectObjectEvent,
     OpenProjectEvent,
@@ -192,9 +194,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
-        self.save_button.clicked.connect(
-            lambda: self._controller.save_project()
-        )  # Using lambda to avoid passing the event as argument
+        self.save_button.clicked.connect(self.save_project)
 
         # Project properties action
         self.project_properties_button: QToolButton = buttons.project_properties_button(
@@ -387,7 +387,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         OpenProjectEvent().connect(self.update_on_open_project)
         SelectObjectEvent().connect(self.update_on_select_object)
         StackChangedEvent().connect(self.update_on_stack_changed)
-        CurrentDocumentChangedEvent().connect(self.update_on_select_object)
         RequiredSaveActionEvent().connect(self.update_on_required_save_action)
         CurrentDocumentChangedEvent().connect(self.update_on_current_document_changed)
 
@@ -539,6 +538,11 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
 
+        # Call update_on_select_object to update the archetype buttons
+        if document_id == self._state_manager.get_current_document():
+            current_object_id = self._state_manager.get_current_object()
+            self.update_on_select_object(current_object_id)
+
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
@@ -597,12 +601,15 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Connect save_project method to the yes button
                 confirmation_dialog.button(
                     QMessageBox.StandardButton.Yes
-                ).clicked.connect(lambda: self._controller.save_project())
+                ).clicked.connect(self.save_project)
                 confirmation_dialog.exec()
 
             # Project load ---------------------
             try:
                 self._controller.load_project(project_path=directory_path)
+                read_state_from_file(
+                    Path(directory_path), self._controller, self._state_manager
+                )
             except Exception as e:
                 log.error(e)
 
@@ -625,6 +632,23 @@ class MainMenu(QDockWidget, ProteusComponent):
                 error_dialog.exec()
 
     # ----------------------------------------------------------------------
+    # Method     : save_project
+    # Description: Manage the save project action, save the current project.
+    # Date       : 02/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def save_project(self) -> None:
+        """
+        Manage the save project action, save the current project.
+        """
+        self._controller.save_project()
+
+        # Write the state to a file
+        project_path: str = self._controller.get_current_project().path
+        write_state_to_file(Path(project_path).parent, self._state_manager)
+
+    # ----------------------------------------------------------------------
     # Method     : delete_current_document
     # Description: Manage the delete current document action, delete the
     #              current document.
@@ -632,8 +656,6 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    # NOTE: This is in a separated method to improve readability, it could
-    # be inlined in the signal using a lambda function.
     def delete_current_document(self) -> None:
         """
         Manage the delete current document action, delete the current

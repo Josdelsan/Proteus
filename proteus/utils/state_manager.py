@@ -91,6 +91,10 @@ class StateManager:
         self.current_object: Dict[ProteusID, ProteusID] = {}
         self.current_view: str = None
 
+    # ==========================================================================
+    # App state variables management mehtods
+    # ==========================================================================
+
     # --------------------------------------------------------------------------
     # Method: set_current_document
     # Description: Sets the current document id.
@@ -98,7 +102,9 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def set_current_document(self, document_id: ProteusID) -> None:
+    def set_current_document(
+        self, document_id: ProteusID, update_view: bool = True
+    ) -> None:
         """
         Sets the current document id and notifies that the current document
         has changed.
@@ -114,7 +120,7 @@ class StateManager:
             self.current_object[document_id] = None
 
         # Notify the current document has changed
-        CurrentDocumentChangedEvent().notify(self.current_document)
+        CurrentDocumentChangedEvent().notify(self.current_document, update_view)
 
     # --------------------------------------------------------------------------
     # Method: get_current_document
@@ -140,7 +146,9 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def set_current_object(self, object_id: ProteusID, document_id: ProteusID) -> None:
+    def set_current_object(
+        self, object_id: ProteusID, document_id: ProteusID, navigate: bool = True
+    ) -> None:
         """
         Sets the current object id for the document id and notifies that the
         selected object has changed for the given document.
@@ -155,7 +163,7 @@ class StateManager:
         ), f"Document id {document_id} not found in current application state dictionary."
 
         self.current_object[document_id] = object_id
-        SelectObjectEvent().notify(object_id, document_id)
+        SelectObjectEvent().notify(object_id, document_id, navigate)
 
     # --------------------------------------------------------------------------
     # Method: get_current_object
@@ -216,7 +224,7 @@ class StateManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def set_current_view(self, view_name: str) -> None:
+    def set_current_view(self, view_name: str, update_view: bool = True) -> None:
         """
         Sets the current view id. Notifies the current view has changed.
 
@@ -231,7 +239,7 @@ class StateManager:
         self.current_view = view_name
 
         # Notify the event manager that the current view has changed.
-        CurrentViewChangedEvent().notify(self.current_view)
+        CurrentViewChangedEvent().notify(self.current_view, update_view)
 
     # --------------------------------------------------------------------------
     # Method: get_current_view
@@ -270,6 +278,10 @@ class StateManager:
                 return document_id
         return None
 
+    # ==========================================================================
+    # State manager general methods
+    # ==========================================================================
+
     # --------------------------------------------------------------------------
     # Method: clear
     # Description: Clears the current state manager.
@@ -286,3 +298,6 @@ class StateManager:
         self.current_document = None
         self.current_object = {}
         self.current_view = None
+
+    
+

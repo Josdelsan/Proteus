@@ -33,6 +33,7 @@ from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
 from proteus.utils.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
+from proteus.utils.state_restorer import write_state_to_file
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -66,6 +67,10 @@ class MainWindow(QMainWindow, ProteusComponent):
         the component and connect update methods to the events.
         """
         super(MainWindow, self).__init__(*args, **kwargs)
+
+        # Variables
+        self.main_menu: MainMenu = None
+        self.project_container: ProjectContainer = None
 
         # Create the component
         self.create_component()
@@ -259,6 +264,11 @@ class MainWindow(QMainWindow, ProteusComponent):
         """
         Handle the close event for the main window. Check if the project
         has unsaved changes and show a confirmation dialog to the user.
+
+        Write the state to a file inside project folder if the user saves
+        the project or close the application and no changes are discarded.
+
+        :param event: Close event
         """
 
         def close_without_saving():
@@ -272,9 +282,9 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Save the project
             self._controller.save_project()
 
-            # NOTE: Users may be responsible for assets management
-            # Delete unused assets
-            # self._controller.delete_unused_assets()
+            # Write the state to a file
+            project_path: str = self._controller.get_current_project().path
+            write_state_to_file(Path(project_path).parent, self._state_manager)
 
             # Close the application
             event.accept()
@@ -312,4 +322,8 @@ class MainWindow(QMainWindow, ProteusComponent):
             confirmation_dialog.closeEvent = cancel
             confirmation_dialog.exec()
         else:
+            # Write the state to a file
+            project_path: str = self._controller.get_current_project().path
+            write_state_to_file(Path(project_path).parent, self._state_manager)
+
             close_without_saving()
