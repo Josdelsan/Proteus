@@ -220,13 +220,10 @@ def read_state_from_file(
             for object_id, tree_widget in document_tree.tree_items.items():
                 # If the object config is present in the state file, restore it
                 if object_id in expanded_objects_config:
-                    object_config: str = expanded_objects_config[object_id]
-                    object_config_bool: bool = (
-                        True if object_config == "true" else False
-                    )
+                    object_config = expanded_objects_config[object_id]
 
                     expanded_objects_config[object_id] = tree_widget.setExpanded(
-                        object_config_bool
+                        object_config
                     )
 
     except Exception as error:

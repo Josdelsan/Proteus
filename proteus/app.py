@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 
 from proteus import PROTEUS_LOGGING_DIR
 from proteus.utils.config import Config
+from proteus.utils.plugin_manager import PluginManager
 from proteus.views.components.main_window import MainWindow
 from proteus.utils.translator import Translator
 from proteus.controller.command_stack import Controller
@@ -50,6 +51,7 @@ class ProteusApplication:
         It initializes the PROTEUS application.
         """
         self.config: Config = Config()
+        self.plugin_manager: PluginManager = PluginManager()
         self.app: QApplication = None
         self.main_window: MainWindow = None
 
@@ -66,7 +68,8 @@ class ProteusApplication:
         log.info(f"{self.config.icons_directory = }")
         log.info(f"{self.config.archetypes_directory = }")
 
-        # self._old_main_tests()
+        # Load plugins
+        self.plugin_manager.load_plugins()
 
         # Create the application instance
         sys.excepthook = self.excepthook

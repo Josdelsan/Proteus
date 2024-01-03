@@ -1,7 +1,11 @@
 # ==========================================================================
-# File: xslt_utils.py
-# Description: XSLT utils for document rendering
-# Date: 29/06/2023
+# Plugin: proteus_xslt_basics
+# Description: PROTEUS plugin that provides basic XSLT functions for use in
+#              templates. Some of these functions are:
+#              - generate_markdown: Generate markdown from a list of etree.Element
+#              - image_to_base64: Creates the base64 representation of an image.
+#              - current_document: Returns the current selected document.
+# Date: 03/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -37,7 +41,7 @@ from proteus.model import ASSETS_REPOSITORY
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
+def generate_markdown(context, markdown_element: List[ET._Element]) -> str:
     """
     Generate markdown from a list of etree.Element. Markdown is generated
     from the text of the elements in the list.
@@ -62,15 +66,14 @@ def generate_markdown(context, markdown_element: List[ET.Element]) -> str:
 
     return result
 
-
 # --------------------------------------------------------------------------
 # Function: image_to_base64
-# Description: Creates the base64 representation of the image.
+# Description: Creates the base64 representation of an image.
 # Date: 11/07/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-def image_to_base64(context, asset_file: List[ET.Element]) -> str:
+def image_to_base64(context, asset_file: List[ET._Element]) -> str:
     """
     Given an asset file path, return the base64 representation of the image.
     Build the absolute path using the current project path and the assets
@@ -99,7 +102,16 @@ def image_to_base64(context, asset_file: List[ET.Element]) -> str:
 # --------------------------------------------------------------------------
 def current_document(context) -> str:
     """
-    Returns the current document
+    Returns the current selected document in the project context.
     """
     document_id = StateManager().get_current_document()
     return str(document_id)
+
+
+# ==========================================================================
+# Plugin registration method
+# ==========================================================================
+def register(register_xslt_function, _):
+    register_xslt_function("generate_markdown", generate_markdown)
+    register_xslt_function("image_to_base64", image_to_base64)
+    register_xslt_function("current_document", current_document)

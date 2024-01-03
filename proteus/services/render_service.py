@@ -13,7 +13,6 @@
 import logging
 from typing import List, Dict
 from pathlib import Path
-import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,9 +24,8 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ASSETS_REPOSITORY
+from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.config import Config
-from proteus.services.utils import xslt_utils
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -53,7 +51,7 @@ class RenderService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, config: Config = None) -> None:
+    def __init__(self, config: Config = None, plugin_manager: PluginManager = None) -> None:
         """
         Initialize the RenderService object. Load the XSLT templates.
         """
@@ -61,6 +59,10 @@ class RenderService:
         if config is None:
             config = Config()
         self.config = config
+
+        if plugin_manager is None:
+            plugin_manager = PluginManager()
+        self.plugin_manager = plugin_manager
 
         # Namespace configuration for the XSLT functions
         self._namespace_configuration()
@@ -87,10 +89,9 @@ class RenderService:
         ns = ET.FunctionNamespace("http://proteus.us.es/utils")
         ns.prefix = "proteus-utils"
 
-        # Register the function with the FunctionNamespace
-        ns["generate_markdown"] = xslt_utils.generate_markdown
-        ns["image_to_base64"] = xslt_utils.image_to_base64
-        ns["current_document"] = xslt_utils.current_document
+        # Register plugins functions
+        for name, func in self.plugin_manager.get_xslt_functions().items():
+            ns[name] = func
 
     # ----------------------------------------------------------------------
     # Method     : get_xslt

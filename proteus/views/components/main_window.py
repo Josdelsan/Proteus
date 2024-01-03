@@ -322,8 +322,10 @@ class MainWindow(QMainWindow, ProteusComponent):
             confirmation_dialog.closeEvent = cancel
             confirmation_dialog.exec()
         else:
-            # Write the state to a file
-            project_path: str = self._controller.get_current_project().path
-            write_state_to_file(Path(project_path).parent, self._state_manager)
+            # Write the state to a file if there is a project opened
+            if self._controller.get_current_project() is not None:
+                project_path: str = self._controller.get_current_project().path
+                write_state_to_file(Path(project_path).parent, self._state_manager)
 
+    
             close_without_saving()

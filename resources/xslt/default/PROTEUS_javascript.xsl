@@ -32,13 +32,13 @@
         <!-- ============================================= -->
         <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
         <script type="text/javascript"> 
-            var channelObject = null;
+            var documentInteractions = null;
             window.onload = function()
             {
                 console.error("PROTEUS_XSLT: Loading QWebChannel...")
                 try {
                     new QWebChannel(qt.webChannelTransport, function(channel) {
-                        channelObject = channel.objects.channelObject;
+                        documentInteractions = channel.objects.documentInteractions;
                     });
                     console.error("PROTEUS_XSLT: QWebChannel loaded.")
                 } catch (error) {
@@ -58,22 +58,24 @@
                     console.error("PROTEUS_XSLT: " + "Doubleclicked on a symbolic linked object with empty Id, propagating event to parent.");
                 } else {
                     console.error("PROTEUS_XSLT: " + "Doubleclicked on element with Id " + id)
-                    channelObject.open_properties_dialog(id);
+                    documentInteractions.open_properties_dialog(id);
                     event.stopPropagation();
                 }
             }
         </script>
 
         <!-- ============================================= -->
-        <!-- handleOnClick                                 -->
+        <!-- selectAndNavigate                             -->
         <!-- ============================================= -->
+        <!-- Handles clicks on anchor elements that are    -->
+        <!-- links to other objects.                       -->
         <script>
             function selectAndNavigate(id, event) {
                 if (id == "" || id == null) {
-                    console.error("PROTEUS_XSLT: " + "HandleOnClick received an empty Id, propagating event to parent.");
+                    console.error("PROTEUS_XSLT: " + "selectAndNavigate received an empty Id, propagating event to parent.");
                 } else {
-                    console.error("PROTEUS_XSLT: " + "Clicked on element with Id " + id)
-                    channelObject.select_and_navigate_to_object(id);
+                    console.error("PROTEUS_XSLT: " + "Clicked on anchor element with Id " + id)
+                    documentInteractions.select_and_navigate_to_object(id);
                     event.stopPropagation();
                 }
             }

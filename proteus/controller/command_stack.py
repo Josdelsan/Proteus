@@ -536,12 +536,15 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_current_project(self) -> Project:
+    def get_current_project(self) -> Union[Project, None]:
         """
         Get the id of the current project.
 
-        Raises an exception if the project is not loaded.
+        If project service is not initialized, it returns None.
         """
+        if self._project_service is None:
+            return None
+        
         current_project: Project = self._project_service.project
 
         assert current_project is not None, "Project is not loaded"

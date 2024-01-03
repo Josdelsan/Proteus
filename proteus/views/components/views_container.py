@@ -36,9 +36,9 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.utils.translator import Translator
+from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.events import (
     ModifyObjectEvent,
     AddViewEvent,
@@ -50,7 +50,6 @@ from proteus.utils.events import (
     SelectObjectEvent,
 )
 from proteus.views.components.abstract_component import ProteusComponent
-from proteus.views.components.web_channel_object import WebChannelObject
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 
 # logging configuration
@@ -105,7 +104,6 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         #       Multiple browsers are a solution to QTabWidget since a
         #       QWebEngineView cannot be added to multiple parents.
         self.tabs: Dict[str, QWebEngineView] = {}
-        self.channels: Dict[str, QWebChannel] = {}
 
         # Create the component
         self.create_component()
@@ -184,11 +182,12 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         )
         browser.setPage(document_page)
 
-        # QWebChannel setup
-        channel_object = WebChannelObject(parent=self)
-        channel: QWebChannel = QWebChannel(browser)
-        browser.page().setWebChannel(channel)
-        channel.registerObject("channelObject", channel_object)
+        # QWebChannel setup from plugins
+        for name, _class in PluginManager().get_qwebchannel_classes().items():
+            channel_object = _class(parent=self)
+            channel: QWebChannel = QWebChannel(browser)
+            browser.page().setWebChannel(channel)
+            channel.registerObject(name, channel_object)
 
         # Build the tab code name
         # NOTE: The tab code name is used to access the tab name internationalization

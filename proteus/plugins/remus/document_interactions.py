@@ -1,8 +1,8 @@
 # ==========================================================================
 # File: web_channel_object.py
-# Description: PyQT6 web channel object class for the PROTEUS application
-# Date: 11/12/2023
-# Version: 0.1
+# Description: PyQT6 web channel object class for the REMUS plugin
+# Date: 03/01/2024
+# Version: 0.2
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
@@ -34,13 +34,18 @@ log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------
-# Class: WebChannelObject
-# Description: PyQT6 WebChannel object class for the PROTEUS application
+# Class: DocumentInteractions
+# Description: Document interactions class for the REMUS plugin
 # Date: 11/12/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class WebChannelObject(ProteusComponent):
+class DocumentInteractions(ProteusComponent):
+    """
+    Document interactions class for the REMUS plugin. Implements slots that
+    are used by the document html view to handle user interactions.
+    """
+    
     @pyqtSlot(str)
     def open_properties_dialog(self, id: str) -> None:
         """
@@ -140,12 +145,13 @@ class WebChannelObject(ProteusComponent):
 
             # If the user clicks yes, navigate to the document
             if message_box.exec() == QMessageBox.StandardButton.Yes:
-                # TODO: Due to event manager behaviour, the update_on_select_object method of
-                # view_container is triggering before the page is loaded, so the scroll is
-                # failing the first time. Anyways it does scroll because the update_component
-                # method also triggers the select_object method when page is fully loaded.
+                # Set the current object in the other document and do not navigate (will not
+                # navigate because the document is not the current document)
+                # Then set the current document, this will avoid update_on_select_object to
+                # be called twice, also avoid update_on_select_object triggering before
+                # new document is completely loaded
+                self._state_manager.set_current_object(object_id, object_document, False)
                 self._state_manager.set_current_document(object_document)
-                self._state_manager.set_current_object(object_id, object_document)
             # If the user clicks no, do nothing
             else:
                 return
