@@ -1,4 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <template name="simple">
-    <config language="default" file="EXAMPLE_main.xsl"/>
+    <entryPoints default="EXAMPLE_main.xsl"/>
+    <dependencies>
+        <pluginDependency name="proteus_xslt_basics"/>
+    </dependencies>
 </template>

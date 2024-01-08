@@ -40,7 +40,12 @@ from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 from proteus.model.properties.code_property import CodeProperty, ProteusCode
 
-from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, INMUTABLE_ATTRIBUTE
+from proteus.model import (
+    NAME_ATTRIBUTE,
+    CATEGORY_ATTRIBUTE,
+    INMUTABLE_ATTRIBUTE,
+    TOOLTIP_ATTRIBUTE,
+)
 
 from proteus.model.properties import (
     CLASS_TAG,
@@ -113,7 +118,7 @@ class PropertyFactory:
         inmutable: bool = True if inmutable_str.lower() == "true" else False
 
         # Get tooltip (checked in property constructors)
-        tooltip = element.attrib.get("tooltip", str())
+        tooltip = element.attrib.get(TOOLTIP_ATTRIBUTE, str())
 
         # Get value (checked in property constructors)
         if property_class is ClassListProperty:

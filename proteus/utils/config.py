@@ -18,7 +18,7 @@
 
 import os
 import datetime
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
 from configparser import ConfigParser
 import shutil
@@ -39,6 +39,16 @@ from PyQt6 import QtCore
 
 import proteus
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
+from proteus.utils import (
+    ENTRY_POINTS_TAG,
+    ENTRY_POINT_TAG,
+    DEPENCENCIES_TAG,
+    PLUGIN_DEPENDENCY_TAG,
+    NAME_ATTRIBUTE,
+    LANGUAGE_ATTRIBUTE,
+    FILE_ATTRIBUTE,
+    DEFAULT_ATTRIBUTE,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -141,7 +151,9 @@ class Config:
         ] = self._create_icons_dictionary()
 
         # XSL template routes ----------------------------------------------
-        self.xslt_routes: Dict[str, Path] = self._create_xslt_routes()
+        self.xslt_routes: Dict[str, Path] = {}
+        self.xslt_dependencies: Dict[str, List[str]] = {}
+        self.xslt_routes, self.xslt_dependencies = self._load_xslt_templates()
 
         # Current project --------------------------------------------------
         # TODO: This is set in the project service. Current project information
@@ -192,8 +204,8 @@ class Config:
         icons_dictionary: Dict[str, Dict[str, Path]] = {}
 
         # Parse icons file
-        icons_tree: ET.ElementTree = ET.parse(self.icons_directory / ICONS_FILE)
-        icons_root: ET.Element = icons_tree.getroot()
+        icons_tree: ET._ElementTree = ET.parse(self.icons_directory / ICONS_FILE)
+        icons_root: ET._Element = icons_tree.getroot()
 
         # Iterate over icons tag children type to create each type dictionary
         for type in icons_root:
@@ -215,12 +227,19 @@ class Config:
 
         return icons_dictionary
 
-    def _create_xslt_routes(self) -> Dict[str, Path]:
+    def _load_xslt_templates(self) -> (Dict[str, Path], Dict[str, List[str]]):
         """
         Private method that creates a dictionary with the XSLT routes.
+
+        Returns:
+            xslt_routes (Dict[str,Path]): Dictionary with the XSLT Paths for each template to
+                the entry point file.
+            xslt_dependencies (Dict[str, List[str]]): Dictionary with the XSLT plugin dependencies
+                for each template.
         """
-        # Initialize dictionary
+        # Initialize dictionaries
         xslt_routes: Dict[str, Path] = {}
+        xslt_dependencies: Dict[str, List[str]] = {}
 
         # Iterate over XSLT directory folders
         for xslt_folder in self.xslt_directory.iterdir():
@@ -240,28 +259,91 @@ class Config:
                 continue
 
             # Parse template file
-            template_tree: ET.ElementTree = ET.parse(template_file)
-            template_root: ET.Element = template_tree.getroot()
+            template_tree: ET._ElementTree = ET.parse(template_file)
+            template_root: ET._Element = template_tree.getroot()
 
             # Get the template name
-            template_name: str = template_root.attrib["name"]
+            template_name: str = template_root.get(NAME_ATTRIBUTE)
 
-            # Iterate over templates tag children to get the item with attribute language = self.language
-            for template in template_root:
+            # Check name attribute is not empty
+            assert (
+                template_name is not None and template_name != ""
+            ), f"Name attribute not found in template tag for template {template_file}"
+
+            # ----------------------------
+            # Entry point file handling
+            # ----------------------------
+
+            # Set default entry point in case there is no entryPoints tag
+            entry_points: ET._Element = template_root.find(ENTRY_POINTS_TAG)
+
+            # Check entryPoints tag exists
+            assert (
+                entry_points is not None
+            ), f"'entryPoints' tag not found in template {template_name}"
+
+            entry_point_file: str = entry_points.get(DEFAULT_ATTRIBUTE)
+
+            # Iterate over entryPoints tag children to get the entryPoint for the current language or the default one
+            for entry_point in entry_points.findall(ENTRY_POINT_TAG):
+                # Get language and file attributes for the entryPoint tag
+                lang = entry_point.get(LANGUAGE_ATTRIBUTE)
+                file = entry_point.get(FILE_ATTRIBUTE)
+
+                # Check xml is well formed
+                assert (
+                    lang is not None and file is not None
+                ), f"Language or file attribute not found in entryPoint tag for template {template_name}"
+
                 # Add the template file to the dictionary if the language is the same as the application language
                 # Otherwise, add the default template file
-                if template.attrib["language"] == self.language or (
-                    template.attrib["language"] == "default"
-                    and template_name not in xslt_routes
-                ):
-                    # Get the template xsl file path
-                    xsl_file_path: Path = (
-                        self.xslt_directory / xslt_folder / template.attrib["file"]
-                    )
-                    # Add the template file to the dictionary
-                    xslt_routes[template_name] = xsl_file_path
+                if lang == self.language:
+                    entry_point_file = file
 
-        return xslt_routes
+            # Form the entry point file path
+            entry_point_file_path: Path = (
+                self.xslt_directory / xslt_folder / entry_point_file
+            )
+
+            # Check if the template entry point file exists
+            assert (
+                entry_point_file_path.exists()
+            ), f"XSLT template entry point file {entry_point_file} does not exist in {xslt_folder}!"
+
+            # Set the entry point file path
+            xslt_routes[template_name] = entry_point_file_path
+
+            # ----------------------------
+            # Template dependencies handling
+            # ----------------------------
+            # Initialize template dependencies list
+            template_dependencies: List[str] = []
+
+            # Get the dependencies tag
+            dependencies: ET._Element = template_root.find(DEPENCENCIES_TAG)
+
+            # Check dependencies tag exists
+            assert (
+                dependencies is not None
+            ), f"'dependencies' tag not found in template {template_name}"
+
+            # Iterate over dependencies tag children to get the pluginDependency
+            for dependency in dependencies.findall(PLUGIN_DEPENDENCY_TAG):
+                # Get name attribute for the pluginDependency tag
+                name = dependency.get(NAME_ATTRIBUTE)
+
+                # Check xml is well formed
+                assert (
+                    name is not None and name != ""
+                ), f"Name attribute not found in pluginDependency tag for template {template_name}"
+
+                # Add the template dependency to the list
+                template_dependencies.append(name)
+
+            # Add the template dependencies list to the dictionary
+            xslt_dependencies[template_name] = template_dependencies
+
+        return xslt_routes, xslt_dependencies
 
     def _create_config_parser(self) -> ConfigParser:
         """

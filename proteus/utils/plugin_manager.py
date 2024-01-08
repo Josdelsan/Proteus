@@ -5,6 +5,9 @@
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
+# TODO: Plugins might be able to register their own resources (e.g. images
+#       translations, etc.).
+# TODO: Plugins might use a configuration file to define additional settings.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -13,7 +16,7 @@ import logging
 import threading
 import importlib
 import pkgutil
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, Union, List
 
 # --------------------------------------------------------------------------
 # Third party imports
@@ -214,7 +217,6 @@ class PluginManager:
         for module_name in plugins_modules:
             # Import the module
             module = self.import_plugin(module_name)
-            self._plugins[module_name] = module
 
             if module is None:
                 continue
@@ -225,12 +227,16 @@ class PluginManager:
                     self.register_xslt_function,
                     self.register_qwebchannel_class,
                 )
+
+                # Save the plugin
+                self._plugins[module_name] = module
             except AttributeError:
                 log.warning(f"Module {module_name} does not have a register function")
                 continue
             except Exception as e:
                 log.error(f"Error registering module {module_name}: {e}")
                 continue
+                
 
     # --------------------------------------------------------------------------
     # Method: get_xslt_functions
@@ -265,8 +271,8 @@ class PluginManager:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def get_plugins(self) -> Dict[str, PluginInterface]:
+    def get_plugins(self) -> List[str]:
         """
         Get the plugins loaded in the plugin manager.
         """
-        return self._plugins
+        return list(self._plugins.keys())

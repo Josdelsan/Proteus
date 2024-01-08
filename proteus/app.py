@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
+from typing import List
 import sys
 import logging
 import traceback
@@ -85,9 +86,42 @@ class ProteusApplication:
         self.main_window = MainWindow(parent=None, controller=Controller())
         self.main_window.show()
 
+        # Check plugins dependencies
+        self.check_plugins_dependencies()
+
         # Execute the application
         sys.exit(self.app.exec())
 
+    # --------------------------------------------------------------------------
+    # Method: check_plugins_dependencies
+    # Description: Check if all the plugins dependencies are satisfied.
+    # Date: 08/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def check_plugins_dependencies(self) -> None:
+        """
+        Check if all the plugins dependencies are satisfied. Do not return
+        anything. If there is a dependency that is not satisfied, the
+        application will crash.
+        """
+        loaded_plugins: List[str] = self.plugin_manager.get_plugins()
+
+        for template, plugins in self.config.xslt_dependencies.items():
+            for plugin in plugins:
+                if plugin not in loaded_plugins:
+                    raise Exception(
+                        f"Plugin dependency not satisfied: '{plugin}' for template {template}. Current loaded plugins: {loaded_plugins}"
+                    )
+
+
+    # --------------------------------------------------------------------------
+    # Method: excepthook
+    # Description: Handle uncaught exceptions in the application.
+    # Date: 01/12/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
     # NOTE: Exception handling for QApplication must be done overriding the
     # excepthook method. Otherwise, it will depend on the thread where the
     # exception is raised.
@@ -110,6 +144,14 @@ class ProteusApplication:
 
         self.handle_critical_error()
 
+
+    # --------------------------------------------------------------------------
+    # Method: handle_critical_error
+    # Description: Handle a critical error in the application quitting the
+    # application.
+    # Date: 01/12/2023
+    # Version: 0.1
+    # --------------------------------------------------------------------------
     # TODO: Find a way to store application state before quitting
     # and restore it when the application is restarted.
     def handle_critical_error(self):

@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <template name="default">
-    <config language="default" file="PROTEUS_lang_en_US.xsl"/>
-    <config language="en_US" file="PROTEUS_lang_en_US.xsl"/>
-    <config language="es_ES" file="PROTEUS_lang_es_ES.xsl"/>
+    <entryPoints default="PROTEUS_lang_en_US.xsl">
+        <entryPoint language="en_US" file="PROTEUS_lang_en_US.xsl"/>
+        <entryPoint language="es_ES" file="PROTEUS_lang_es_ES.xsl"/>
+    </entryPoints>
+    <dependencies>
+        <pluginDependency name="remus"/>
+        <pluginDependency name="proteus_xslt_basics"/>
+    </dependencies>
 </template>
