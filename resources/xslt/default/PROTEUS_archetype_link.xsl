@@ -37,11 +37,8 @@
                 <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
                 
                 <!-- If target object exists -->
-                <xsl:if test="$targetObject">
-                    <div class="linked-object">
-                        <div class="tooltip">
-                            <xsl:value-of select="$proteus:lang_symlink_tooltip"/>
-                        </div>
+                <xsl:if test="$targetObject"> 
+                    <div class="linked-object" data-tippy-content="{$proteus:lang_symlink_tooltip}">
                         <xsl:apply-templates select="$targetObject" />
                     </div>
                 </xsl:if>

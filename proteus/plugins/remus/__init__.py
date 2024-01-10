@@ -8,6 +8,10 @@
 # ==========================================================================
 
 from .document_interactions import DocumentInteractions
+from .glossary_handler import GlossaryHandler
 
-def register(_,register_qwebchannel_class):
+
+def register(register_xslt_function, register_qwebchannel_class, register_proteus_component):
     register_qwebchannel_class("documentInteractions", DocumentInteractions)
+    register_xslt_function("glossary_highlight", GlossaryHandler.highlight_glossary_items)
+    register_proteus_component("glossaryHandler", GlossaryHandler)

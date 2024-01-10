@@ -28,66 +28,17 @@
                 <meta charset="utf-8"/>
                 <meta name="generatedBy" content="PROTEUS"/>
                 
+                <!-- Remus stylesheets -->
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/remus.css"/>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/madeja.css"/>
-                
+
                 <title>
                     <xsl:value-of select="$proteus:lang_project"/>
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name=':Proteus-name']"/>
                 </title>
                  
-                <!-- <xsl:call-template name="style"/> -->
-
-                <style>
-                    @media print {
-                        .page-break {
-                          clear: both;
-                          page-break-before: always;
-                        }
-                      }
-        
-                      table {
-                        width: 98%;
-                        margin: 0 auto;
-                        margin-bottom: 2em;
-                        border: 1px solid black;
-                        border-collapse: collapse;
-                    }
-                    th, td {
-                        border: 1px solid black;
-                        padding: 8px;
-                    }
-
-                    .linked-object {
-                        background-color: #fcfce6;
-                        position: relative;
-                        cursor: pointer;
-                    }
-
-                    .linked-object .tooltip {
-                        visibility: hidden;
-                        width: 120px;
-                        background-color: #333;
-                        color: #fff;
-                        text-align: center;
-                        border-radius: 5px;
-                        padding: 5px;
-                        position: absolute;
-                        z-index: 1;
-                        left: 50%;
-                        margin-left: -60px; /* Center the tooltip */
-                        opacity: 0;
-                        transition: opacity 0.3s;
-                    }
-
-                    .linked-object:hover .tooltip {
-                        visibility: visible;
-                        opacity: 1;
-                    }
-                </style>
-                
-                <xsl:call-template name="javascript"/>
+                <xsl:call-template name="style"/>
                 
             </head>
             <body>
@@ -109,7 +60,11 @@
                 <!-- Document body -->
                 <xsl:apply-templates select="children/object"/>
 
+                <script src="https://unpkg.com/@popperjs/core@2"></script>
+                <script src="https://unpkg.com/tippy.js@6"></script>
+                <xsl:call-template name="javascript"/>
 
+                
             </body>
         </html>
     </xsl:template>

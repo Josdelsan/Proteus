@@ -89,6 +89,9 @@ class ProteusApplication:
         # Check plugins dependencies
         self.check_plugins_dependencies()
 
+        # Load proteus components from plugins
+        self.load_plugin_components()
+
         # Execute the application
         sys.exit(self.app.exec())
 
@@ -114,6 +117,26 @@ class ProteusApplication:
                         f"Plugin dependency not satisfied: '{plugin}' for template {template}. Current loaded plugins: {loaded_plugins}"
                     )
 
+    # --------------------------------------------------------------------------
+    # Method: load_plugin_components
+    # Description: Load the ProteusComponents from the plugins.
+    # Date: 09/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    # NOTE: This is done in app module to keep the main window clean. These are
+    # components that will be not displayed but need access to the backend to
+    # perform complex operations.
+    def load_plugin_components(self) -> None:
+        """
+        Load the ProteusComponents from the plugins. It uses MainWindow instance
+        as parent for the components.
+        """
+        for component in self.plugin_manager.get_proteus_components().values():
+            try:
+                component(self.main_window)
+            except Exception as e:
+                log.critical(f"Error loading proteus component from plugin: {e}")
 
     # --------------------------------------------------------------------------
     # Method: excepthook
@@ -143,7 +166,6 @@ class ProteusApplication:
         self.main_window.closeEvent = lambda event: event.accept()
 
         self.handle_critical_error()
-
 
     # --------------------------------------------------------------------------
     # Method: handle_critical_error
@@ -175,7 +197,7 @@ class ProteusApplication:
         # Build new crash report file name
         log_file_name = log_file.name
         crash_report_file_name = f"proteus_crash_report-{log_file_name}"
-        
+
         # Copy log file to cwd with new name
         crash_report_file = Path.cwd() / crash_report_file_name
         shutil.copy(log_file, crash_report_file)

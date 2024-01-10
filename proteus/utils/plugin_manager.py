@@ -41,12 +41,14 @@ class PluginInterface:
     def register(
         register_xslt_function: Callable[[str, Callable], None],
         register_qwebchannel_class: Callable[[str, Callable], None],
+        register_proteus_component: Callable[[str, Callable], None],
     ) -> None:
         """
         Register the plugin items in the corresponding registries.
 
         :param register_xslt_function: Function to register XSLT functions.
         :param register_qwebchannel_class: Function to register QWebChannel classes.
+        :param register_proteus_component: Function to register ProteusComponent classes.
         """
 
 
@@ -54,6 +56,8 @@ class PluginManager:
     """
     Manage PROTEUS plugins. A plugin is a module that can be loaded at runtime
     and register XSLT functions and QWebChannel classes for use in the templates.
+    ProteusComponents can also be registered with no specific use case if needed
+    to access controller functionality.
     """
 
     # Singleton instance
@@ -94,10 +98,20 @@ class PluginManager:
                 return
             self._initialized = True
 
+        # --------------------------------
         # Initialize the plugin registries
+        # --------------------------------    
+        # Plugins (k: module name, v: module)
         self._plugins: Dict[str, PluginInterface] = {}
+
+        # Functions registered in the XSLT engine namespace (k: function name, v: function)
         self._xslt_functions: Dict[str, Callable] = {}
+
+        # QWebChannel classes registered in QWebEngineView (k: class name, v: class)
         self._qwebchannel_classes: Dict[str, Callable] = {}
+
+        # ProteusComponent classes initialized in the application (k: class name, v: class)
+        self._proteus_components: Dict[str, Callable] = {}
 
     # --------------------------------------------------------------------------
     # Method: import_plugin
@@ -180,6 +194,35 @@ class PluginManager:
         self._qwebchannel_classes[name] = class_
 
     # --------------------------------------------------------------------------
+    # Method: register_proteus_component
+    # Description: Register a ProteusComponent class in the plugin manager.
+    # Date: 09/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def register_proteus_component(self, name: str, class_: Callable) -> None:
+        """
+        Register a ProteusComponent class in the plugin manager. If there is already a
+        class registered with the same name, it will be ignored.
+
+        It validates if the class is callable.
+
+        :param class_: Class to register.
+        """
+        # Validate the class
+        if not callable(class_):
+            log.error(f"ProteusComponent class '{name}' is not callable, ignoring it")
+            return
+
+        # Register the class
+        if name in self._proteus_components:
+            log.error(f"ProteusComponent class '{name}' already registered, ignoring it")
+            return
+
+        log.info(f"Registering ProteusComponent class '{name}'")
+        self._proteus_components[name] = class_
+
+    # --------------------------------------------------------------------------
     # Method: load_plugins
     # Description: Load the plugins from the plugins directory.
     # Date: 03/01/2023
@@ -226,6 +269,7 @@ class PluginManager:
                 module.register(
                     self.register_xslt_function,
                     self.register_qwebchannel_class,
+                    self.register_proteus_component,
                 )
 
                 # Save the plugin
@@ -263,6 +307,20 @@ class PluginManager:
         Get the QWebChannel classes registered in the plugin manager.
         """
         return self._qwebchannel_classes
+
+
+    # --------------------------------------------------------------------------
+    # Method: get_proteus_components
+    # Description: Get the ProteusComponent classes registered in the plugin manager.
+    # Date: 09/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def get_proteus_components(self) -> Dict[str, Callable]:
+        """
+        Get the ProteusComponent classes registered in the plugin manager.
+        """
+        return self._proteus_components
 
     # --------------------------------------------------------------------------
     # Method: get_plugins

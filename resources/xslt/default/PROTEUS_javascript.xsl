@@ -82,11 +82,11 @@
         </script>
 
         <!-- ============================================= -->
-        <!-- suscribeOnClickHandlers                       -->
+        <!-- suscribeProteusId                       -->
         <!-- ============================================= -->
         <!-- Suscribes all elements with a proteus-id      -->
         <script>
-            function suscribeOnClickHandlers() {
+            function suscribeProteusId() {
                 const elements = document.querySelectorAll('*[data-proteus-id]');
                 elements.forEach(element => {
                     element.addEventListener('dblclick', function(event) {
@@ -94,11 +94,6 @@
                     });
                 });
             }
-
-            <!-- Function call on load -->
-            document.addEventListener('DOMContentLoaded', function () {
-                suscribeOnClickHandlers();
-            });
         </script>
 
         <!-- ============================================= -->
@@ -122,8 +117,6 @@
                 } else {
                     console.error("PROTEUS_XSLT: " + "Scroll error, element with Id " + id + " not found.");
                 }
-
-
             }
         </script>
 
@@ -143,12 +136,35 @@
                         });
                     });
             }
+        </script>
 
+
+        <!-- ============================================= -->
+        <!-- generateTooltip                               -->
+        <!-- ============================================= -->
+        <!-- Generates tooltips for all elements with a     -->
+        <!-- data-tippy-content attribute.                  -->
+        <!-- Tooltips are generated using tippy v6 library -->
+        <!-- https://atomiks.github.io/tippyjs/v6/getting-started/ -->
+        <script>
+            function generateTooltip() {
+                tippy('[data-tippy-content]',{
+                    allowHTML: true,
+                });
+            }
+        </script>
+
+
+        <!-- ============================================= -->
+        <!-- Function call on load                         -->
+        <!-- ============================================= -->
+        <script>
             <!-- Function call on load -->
             document.addEventListener('DOMContentLoaded', function () {
+                suscribeProteusId();
                 removeIdsInsideSymbolicLink();
+                generateTooltip();
             });
-
         </script>
 
     </xsl:template>

@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: web_channel_object.py
-# Description: PyQT6 web channel object class for the REMUS plugin
+# File: document_interactions.py
+# Description: PyQT6 document interactions class for the REMUS plugin
 # Date: 03/01/2024
 # Version: 0.2
 # Author: José María Delgado Sánchez
@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -18,11 +19,13 @@ import logging
 
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtGui import QIcon
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views import APP_ICON_TYPE
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -129,6 +132,12 @@ class DocumentInteractions(ProteusComponent):
             )
 
             message_box = QMessageBox()
+
+            # Set icon
+            proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+            message_box.setWindowIcon(QIcon(proteus_icon.as_posix()))
+
+            # Set title and text
             message_box.setWindowTitle(
                 self._translator.text("document.navigation.request.title")
             )
@@ -137,11 +146,12 @@ class DocumentInteractions(ProteusComponent):
                     "document.navigation.request.text", object_name, document_name
                 )
             )
+
+            # Set buttons
             message_box.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             message_box.setDefaultButton(QMessageBox.StandardButton.Yes)
-            message_box.setIcon(QMessageBox.Icon.Question)
 
             # If the user clicks yes, navigate to the document
             if message_box.exec() == QMessageBox.StandardButton.Yes:

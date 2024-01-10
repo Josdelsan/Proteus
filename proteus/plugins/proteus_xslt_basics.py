@@ -61,8 +61,7 @@ def generate_markdown(context, markdown_element: List[ET._Element]) -> str:
     )
 
     # Remove the first <p> tag and the last </p> tag
-    result = result.replace("<p>", "", 1)
-    result = result[::-1].replace("</p>", "", 1)[::-1]
+    result = result[3:-4]
 
     return result
 
@@ -111,7 +110,7 @@ def current_document(context) -> str:
 # ==========================================================================
 # Plugin registration method
 # ==========================================================================
-def register(register_xslt_function, _):
+def register(register_xslt_function, *_):
     register_xslt_function("generate_markdown", generate_markdown)
     register_xslt_function("image_to_base64", image_to_base64)
     register_xslt_function("current_document", current_document)

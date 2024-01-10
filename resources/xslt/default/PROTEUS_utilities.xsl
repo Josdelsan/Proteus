@@ -37,7 +37,7 @@
 
     <xsl:template name="generate_markdown">
         <xsl:param name="content" select="string(.)"/>
-        <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
+        <xsl:value-of select="proteus-utils:glossary_highlight(proteus-utils:generate_markdown($content))" disable-output-escaping="yes"/>
     </xsl:template>
 
 
