@@ -33,7 +33,7 @@
         <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
         <script type="text/javascript"> 
             var documentInteractions = null;
-            window.onload = function()
+            function loadWebChannel()
             {
                 console.error("PROTEUS_XSLT: Loading QWebChannel...")
                 try {
@@ -161,8 +161,9 @@
         <script>
             <!-- Function call on load -->
             document.addEventListener('DOMContentLoaded', function () {
-                suscribeProteusId();
                 removeIdsInsideSymbolicLink();
+                loadWebChannel();
+                suscribeProteusId();
                 generateTooltip();
             });
         </script>

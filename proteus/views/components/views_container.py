@@ -90,7 +90,6 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         :param parent: Parent widget.
         """
         super(ViewsContainer, self).__init__(parent, *args, **kwargs)
-
         # Dict of stored browsers for each view. The way the dict is updated
         # the index of the browser is the same as the index of the tab.
         # NOTE: Dictionaries are ordered since Python 3.7. We can parse the

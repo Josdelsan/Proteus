@@ -19,6 +19,7 @@ import re
 # --------------------------------------------------------------------------
 
 import markdown
+from trieregex import TrieRegEx as TRE
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -69,8 +70,9 @@ class GlossaryHandler(ProteusComponent):
     # Class attributes
     items_descriptions: Dict[ProteusID, str] = dict()  # k: ProteusID, v: description
     object_ids_by_item: Dict[
-        ProteusID, MutableSet[ProteusID]
+        str, MutableSet[ProteusID]
     ] = dict()  # k: glossary item name, v: Set[ProteusID]
+    pattern: re.Pattern = None
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -104,6 +106,10 @@ class GlossaryHandler(ProteusComponent):
 
         Triggered by: OpenProjectEvent
         """
+        # Clear the glossary items
+        GlossaryHandler.items_descriptions = dict()
+        GlossaryHandler.object_ids_by_item = dict()
+
         # Iterate over the project objects
         # NOTE: Iterating using ids to make it more readable
         current_project: Project = self._controller.get_current_project()
@@ -119,6 +125,9 @@ class GlossaryHandler(ProteusComponent):
             # Check if the object is a glossary item
             if self._is_glossary_item(object):
                 self._add_glossary_item(object)
+
+        # Setup the pattern
+        self._setup_pattern()
 
     # --------------------------------------------------------------------------
     # Method: update_on_add_object
@@ -144,6 +153,9 @@ class GlossaryHandler(ProteusComponent):
         if self._is_glossary_item(object):
             self._add_glossary_item(object)
 
+        # Setup the pattern
+        self._setup_pattern()
+
     # --------------------------------------------------------------------------
     # Method: update_on_delete_object
     # Description: It deletes a glossary item from the glossary.
@@ -160,6 +172,9 @@ class GlossaryHandler(ProteusComponent):
         :param object_id: Object id to delete
         """
         self._delete_glossary_item(object_id)
+
+        # Setup the pattern
+        self._setup_pattern()
 
     # --------------------------------------------------------------------------
     # Method: update_on_modify_object
@@ -187,6 +202,9 @@ class GlossaryHandler(ProteusComponent):
         # Check if the object is a glossary item
         if self._is_glossary_item(object):
             self._add_glossary_item(object)
+
+        # Setup the pattern
+        self._setup_pattern()
 
     # --------------------------------------------------------------------------
     # Method: _is_glossary_item
@@ -303,6 +321,26 @@ class GlossaryHandler(ProteusComponent):
         for item in items_with_empty_ids:
             GlossaryHandler.object_ids_by_item.pop(item)
 
+    def _setup_pattern(self) -> None:
+        """
+        It sets up the regex pattern to highlight the glossary items.
+        """
+        GlossaryHandler.pattern = None
+
+        # Get the glossary items
+        glossary_items: List[str] = list(GlossaryHandler.object_ids_by_item.keys())
+
+        if len(glossary_items) == 0:
+            return
+
+        # Order the items by length so items that contain other items are processed first
+        glossary_items = sorted(glossary_items, key=len, reverse=True)
+
+        tre = TRE(*glossary_items)
+
+        # Create the pattern
+        GlossaryHandler.pattern = re.compile(rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE)
+
     # --------------------------------------------------------------------------
     # Method: highlight_glossary_items (static)
     # Description: It highlights the glossary items in the text.
@@ -335,90 +373,39 @@ class GlossaryHandler(ProteusComponent):
         alphanumeric characters. Words separated by non alphanumeric characters
         are considered as multiple glossary items.
         """
-        DESCRIPTION_HELPER_PREFIX = ":RemusPluginGlossaryItemDescription"
-        MATCH_HELPER_PREFIX = ":RemusPluginGlossaryItemMatch"
 
-        # Get the glossary items
-        glossary_items: MutableSet[str] = set(GlossaryHandler.object_ids_by_item.keys())
+        def highlight_item(match: re.Match) -> str:
+            # Get the match
+            match_text: str = match.group()
 
-        # Order the items by length to allow nested descriptions for glossary items with multiple words
-        glossary_items = sorted(glossary_items, key=len, reverse=True)
+            # Get the item
+            item = match_text.lower()
 
-        # Set to store items that are referenced in the text
-        referenced_items: MutableSet[str] = set()
-
-        # --------------------------------
-        # Setup anchor links for the items
-        # --------------------------------
-        # Iterate the glossary items to wrap them with the html tags
-        for item in glossary_items:
-            # Create the pattern
-            item_pattern = re.compile(rf"\b{re.escape(item)}(?!\w)\b", re.IGNORECASE)
-
-            # Check if the item is referenced in the text
-            if item_pattern.search(text) is None:
-                continue
-
-            # Get the item id, if multiple ids are found, get the first one
-            item_id = list(GlossaryHandler.object_ids_by_item[item])[0]
-
-            # Helper function to decorate the item
-            def highlight_item(match: re.Match) -> str:
-                # Setup dummy description
-                item_without_spaces = str(item).replace(
-                    " ", ""
-                )  # Remove spaces to avoid conflicts with other items
-                dummy_description = f"{DESCRIPTION_HELPER_PREFIX}{item_without_spaces}"
-
-                # Setup dummy item name
-                dummy_item_name = f"{MATCH_HELPER_PREFIX}{match.group()}"  # Preserve the orginal text match
-
-                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{dummy_description}">{dummy_item_name}</a>'
-
-            # Replace the item with the decorated item
-            text = re.sub(item_pattern, highlight_item, text)
-
-            # Add the item id to the referenced items
-            referenced_items.add(item)
-
-        # --------------------------------
-        # Setup the descriptions for the items
-        # --------------------------------
-        # Iterate the referenced items to add the descriptions
-        for item in referenced_items:
             # Get ids linked to the item
             item_linked_ids = GlossaryHandler.object_ids_by_item[item]
-
-            # Get all the descriptions linked to the item
             descriptions: List[str] = [
                 GlossaryHandler.items_descriptions[item_id]
                 for item_id in item_linked_ids
             ]
 
-            # Generate the html to display in the tooltip
+            # Create the description and set the item id
+            item_id = list(item_linked_ids)[0]
             description_html = ""
-            for iteration, description in enumerate(descriptions):
+            for index, description in enumerate(descriptions):
                 # Insert space between descriptions if there are more than one
-                if iteration > 0:
+                if index > 0:
                     description_html += "<hr></hr>"
 
                 # Add the description with a link to the item
                 description_html += f"{description}"
 
-            # Replace the description helper with the description
-            item_without_spaces = str(item).replace(" ", "")
-            dummy_description = f"{DESCRIPTION_HELPER_PREFIX}{item_without_spaces}"
+            return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{description_html}">{match_text}</a>'
+        
 
-            # Make sure the dummy description is inside the tippy-content attribute
-            text = re.sub(
-                rf'(?<=tippy-content="){dummy_description}(?=")',
-                description_html,
-                text,
-            )
+        if GlossaryHandler.pattern is None:
+            return text
 
-        # --------------------------------
-        # Remove match helper prefixes
-        # --------------------------------
-        text = text.replace(MATCH_HELPER_PREFIX, "")
+        # Replace the items with the decorated items
+        text = re.sub(GlossaryHandler.pattern, highlight_item, text)
 
         return text

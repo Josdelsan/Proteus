@@ -49,20 +49,12 @@ from proteus.model.properties import Property
 from proteus.model.trace import Trace
 
 from proteus.utils.events import (
-    ModifyObjectEvent,
     AddViewEvent,
     DeleteViewEvent,
-    AddObjectEvent,
-    DeleteObjectEvent,
-    CurrentDocumentChangedEvent,
-    CurrentViewChangedEvent,
-    SelectObjectEvent,
     StackChangedEvent,
     RequiredSaveActionEvent,
     OpenProjectEvent,
     SaveProjectEvent,
-    AddDocumentEvent,
-    DeleteDocumentEvent,
 )
 
 # logging configuration

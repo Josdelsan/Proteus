@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from functools import wraps
+import time
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -53,6 +54,17 @@ def proteus_action(func):
         return func_result
     return wrapper
 
+def benchmark(func):
+    """
+    Decorator used to measure the time that takes to execute a function.
+    """
+    def wrapper(*args, **kwargs):
+        t = time.perf_counter()
+        res = func(*args, **kwargs)
+        total = time.perf_counter()-t
 
-    
+        # Print in ms
+        print(f"{func.__name__}: {total*1000:0.4f} ms")
+        return res
+    return wrapper  
     

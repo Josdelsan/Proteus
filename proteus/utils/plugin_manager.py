@@ -100,7 +100,7 @@ class PluginManager:
 
         # --------------------------------
         # Initialize the plugin registries
-        # --------------------------------    
+        # --------------------------------
         # Plugins (k: module name, v: module)
         self._plugins: Dict[str, PluginInterface] = {}
 
@@ -216,7 +216,9 @@ class PluginManager:
 
         # Register the class
         if name in self._proteus_components:
-            log.error(f"ProteusComponent class '{name}' already registered, ignoring it")
+            log.error(
+                f"ProteusComponent class '{name}' already registered, ignoring it"
+            )
             return
 
         log.info(f"Registering ProteusComponent class '{name}'")
@@ -280,7 +282,6 @@ class PluginManager:
             except Exception as e:
                 log.error(f"Error registering module {module_name}: {e}")
                 continue
-                
 
     # --------------------------------------------------------------------------
     # Method: get_xslt_functions
@@ -307,7 +308,6 @@ class PluginManager:
         Get the QWebChannel classes registered in the plugin manager.
         """
         return self._qwebchannel_classes
-
 
     # --------------------------------------------------------------------------
     # Method: get_proteus_components
