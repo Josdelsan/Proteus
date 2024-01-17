@@ -98,7 +98,9 @@ class NewViewDialog(QDialog, ProteusComponent):
         view_combo: QComboBox = QComboBox()
 
         # Add the view names to the combo box
-        view_combo.addItems(xls_templates)
+        for view in xls_templates:
+            view_translation: str = self._translator.text(f"document_render.view.{view}")
+            view_combo.addItem(view_translation, view)
 
         # Create view message label
         info_label: QLabel = QLabel(self._translator.text("new_view_dialog.info_text"))
@@ -112,7 +114,7 @@ class NewViewDialog(QDialog, ProteusComponent):
 
         # Connect the buttons to the slots, combo current text is the view name
         button_box.accepted.connect(
-            lambda: self.save_button_clicked(view_combo.currentText())
+            lambda: self.save_button_clicked(view_combo.currentData())
         )
         button_box.rejected.connect(self.cancel_button_clicked)
 

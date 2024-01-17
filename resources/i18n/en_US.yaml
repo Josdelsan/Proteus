@@ -206,7 +206,7 @@ main_window.statusbar.text.selected_object: "Current selected object id [{}] nam
 # Document render
 # ---------------------------------------------------------------------------
 document_render.view.default: "Main"
-document_render.view.simple: "Simple"
+document_render.view.figures: "Project figures"
 document_render.external_link: "Open external link"
 document_render.external_link.text: "An external link has been clicked. Do you want to open it in your browser? {}"
 
