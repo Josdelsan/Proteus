@@ -24,23 +24,25 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QTreeWidget, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
+from proteus.model import PROTEUS_NAME
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
+from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "one_doc_project"
-DOCUMENT_ID = "3fKhMAkcEe2C"  # Known document id from one_doc_project
+DOCUMENT_ID = SampleData.get("document_1")
 
 # --------------------------------------------------------------------------
 # End to end "edit document" tests
@@ -61,11 +63,11 @@ def test_edit_document(app):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Properties
     # NOTE: These are known existing properties
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     ACRONYM_PROP = "acronym"
 
     # New values
@@ -93,17 +95,15 @@ def test_edit_document(app):
     documents_container: DocumentsContainer = (
         main_window.project_container.documents_container
     )
-    document_tree_widget: QTreeWidget = documents_container.tab_children[
+    document_tree: DocumentTree = documents_container.tabs[
         DOCUMENT_ID
-    ].tree_widget
-    doc_tree_element: QTreeWidgetItem = documents_container.tab_children[
-        DOCUMENT_ID
-    ].tree_items[DOCUMENT_ID]
+    ]
+    doc_tree_element: QTreeWidgetItem = document_tree.tree_items[DOCUMENT_ID]
 
     # Wait for the dialog to be created
     QTimer.singleShot(5, handle_dialog)
     # Double click in the tree item cannot be done using qbot
-    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
+    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # --------------------------------------------
     # Assert
@@ -129,7 +129,7 @@ def test_edit_document(app):
     # Access properties post edit
     QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
     # Double click in the tree item cannot be done using qbot
-    document_tree_widget.itemDoubleClicked.emit(doc_tree_element, 0)
+    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
 
     # Check properties changed
     assert (
@@ -144,7 +144,10 @@ def test_edit_document(app):
         doc_tree_element.text(0) == new_name
     ), f"Document tree item name must be '{new_name}' but it is '{doc_tree_element.text(0)}'"
 
+    # Get tabbar index
+    tab_index = documents_container.indexOf(document_tree)
+
     # Check tab acronym changed
     assert (
-        documents_container.tabBar().tabText(0) == new_acronym
-    ), f"Document tab acronym must be '{new_acronym}' but it is '{documents_container.tabBar().tabText(0)}'"
+        documents_container.tabBar().tabText(tab_index) == new_acronym
+    ), f"Document tab acronym must be '{new_acronym}' but it is '{documents_container.tabBar().tabText(tab_index)}'"

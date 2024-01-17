@@ -9,10 +9,20 @@
 # ==========================================================================
 
 #---------------------------------------------------------------------------
+# Archetypes
+#---------------------------------------------------------------------------
+use_case_step: "Paso de caso de uso"
+subobjective: "subobjetivo"
+model.object.clone.copy_of: "Copia de"
+
+#---------------------------------------------------------------------------
 # Nombres de propiedades y categorías
 #---------------------------------------------------------------------------
 
 # nombres
+':proteus-name': "Nombre"
+':proteus-date': "Fecha"
+':proteus-code': "Código"
 acronym: "Acrónimo"
 name:  "Nombre"
 version: "Versión"
@@ -27,16 +37,68 @@ postcondition: "Postcondición"
 text: "Texto"
 url: "URL"
 file: "Archivo"
+created-by: "Autores"
+dependencies: "Dependencias"
+is-appendix: "Apéndice"
+is-glossary: "Obj glosario"
+address: "Dirección"
+phone-number: "Teléfono"
+fax: "Fax"
+category: "Categoría"
+organization: "Organización"
+attenders: "Asistentes"
+time: "Hora"
+place: "Lugar"
+results: "Resultados"
+importance: "Importancia"
+urgency: "Urgencia"
+development-status: "Estado"
+stability: "Estabilidad"
+source: "Fuente"
+works-for: "Trabaja para"
+prepared-by: "Preparado por"
+prepared-for: "Preparado para"
+width: "Ancho (%)"
+link: "Enlace"
 
 # categories
 general: "General"
-detail: "Detalle"
+details: "Detalles"
 conditions: "Condiciones"
+priority: "Prioridad"
+
+# Choices
+nd: "No definido"
+developer: "Desarrollador"
+user: "Usuario"
+customer: "Cliente"
+vital: "Vital"
+important: "Importante"
+immediately: "Inmediatamente"
+pressure: "Presión"
+developing: "Desarrollando"
+pending: "Pendiente"
+high: "Alta"
+medium: "Media"
+low: "Baja"
+
+# Tooltips
+property.is-appendix.tooltip: "Indica si es un apéndice."
+property.is-glossary.tooltip: "Indica si es un elemento de glosario."
+property.file.tooltip: "Seleccione un archivo gráfico de su sistema para copiarlo en la carpeta de recursos 'assets' del proyecto."
+property.width.tooltip: "Porcentaje del ancho de la página que ocupará el recurso."
 
 # Properties validation messages
 string_property_input.validator.error: "Este campo no puede estar vacío"
 float_property_input.validator.error: "Este campo debe ser un número decimal"
 integer_property_input.validator.error: "Este campo debe ser un número entero"
+
+property_input.inmutable_property_warning.title: "Advertencia, propiedad inmutable"
+property_input.inmutable_property_warning.text: "Esta propiedad ha sido definida como inmutable, modificarla puede causar errores en la aplicación. Actúe bajo su propio riesgo."
+
+code_property_input.validator.error.prefix: "El prefijo no puede estar vacío"
+code_property_input.validator.error.number_type: "El número debe ser un número entero positivo"
+code_property_input.validator.error.number_value: "El número debe ser mayor que 0"
 
 #---------------------------------------------------------------------------
 # Menú principal
@@ -102,23 +164,30 @@ information_button.statustip: "Información sobre la aplicación PROTEUS"
 information_button.tooltip: "Información sobre la aplicación PROTEUS"
 information_button.text: "Acerca de"
 
-# Archetype buttons
+# Archetype classes buttons
 archetype_menu_button.paragraph: "Párrafo"
 archetype_menu_button.section: "Sección"
-archetype_menu_button.system_actor: "Actor"
-archetype_menu_button.graphic_file: "Archivo gráfico"
+archetype_menu_button.actor: "Actor"
+archetype_menu_button.graphic-file: "Archivo gráfico"
+archetype_menu_button.use-case: "Caso de uso"
+archetype_menu_button.external-resource: "Recurso externo"
+archetype_menu_button.information-requirement: "Información"
+archetype_menu_button.functional-requirement: "Funcional"
+archetype_menu_button.non-functional-requirement: "No funcional"
+archetype_menu_button.constraint: "Restricción"
+archetype_menu_button.objective: "Objetivo"
+archetype_menu_button.organization: "Organización"
+archetype_menu_button.stakeholder: "Parte interesada"
+archetype_menu_button.meeting: "Reunión"
+archetype_menu_button.archetype-link: "Enlace simbólico"
 
-archetype_menu_button.use_case: "Caso de uso"
-archetype_menu_button.use_case_step: "Paso caso de uso"
-archetype_menu_button.external_resource: "Recurso externo"
-archetype_menu_button.information_requirement: "Información"
-archetype_menu_button.objective: "Objective"
-archetype_menu_button.subobjective: "Subobjective"
 
 # Diálogo de abrir proyecto
-main_menu.open_project.caption: "Abrir proyecto"
+main_menu.open_project.caption: "Seleccione una carpeta de proyecto"
 main_menu.open_project.error.title: "Error al abrir el proyecto"
 main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
+main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 
 # Diálogo de eliminar documento
 main_menu.delete_document.title: "Eliminar documento"
@@ -131,7 +200,7 @@ main_menu.delete_document.text: "¿Está seguro de que desea eliminar el documen
 main_window.title: "Aplicación Proteus"
 main_window.exit_dialog.title: "Salir de Proteus sin guardar"
 main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
-main_window.statusbar.text.selected_object: "Objeto seleccionado: {} | Arquetipos aceptados por el objeto: {}"
+main_window.statusbar.text.selected_object: "Objeto seleccionado id [{}] nombre [{}] | Arquetipos aceptados por el objeto {}"
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +219,7 @@ document_tree.menu.action.delete: "Eliminar"
 document_tree.menu.action.clone: "Clonar"
 document_tree.menu.action.move_up: "Mover arriba"
 document_tree.menu.action.move_down: "Mover abajo"
+document_tree.menu.action.add_archetype: "Añade {}"
 document_tree.drop_action.message_box.error.title: "Error al mover el objeto"
 document_tree.drop_action.message_box.error.text: "No se pudo mover el objeto a la posición deseada, compruebe que el objeto es acceptado por el objeto destino."
 
@@ -169,10 +239,9 @@ new_project_dialog.combobox.label: "Seleccione un arquetipo de proyecto:"
 new_project_dialog.archetype.description: "Descripción:"
 new_project_dialog.input.name: "Nombre del proyecto:"
 new_project_dialog.input.path: "Ruta del proyecto:"
-new_project_dialog.input.path.browser: "Examinar..."
 new_project_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de proyecto"
 new_project_dialog.error.invalid_path: "Por favor, introduzca una ruta válida"
-new_project_dialog.error.invalid_name: "Por favor, introduzca un nombre válido"
+new_project_dialog.error.invalid_folder_name: "Nombre de carpeta de proyecto no válido, por favor, introduzca un nombre válido"
 new_project_dialog.error.folder_already_exists: "Ya existe una carpeta con ese nombre en la ruta seleccionada, por favor, seleccione otra ruta o cambie el nombre del proyecto"
 
 # ---------------------------------------------------------------------------
@@ -187,7 +256,7 @@ new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
 # ---------------------------------------------------------------------------
 # Settings dialog
 # ---------------------------------------------------------------------------
-settings_dialog.title: "Proteus - Configuración"
+settings_dialog.title: "Proteus configuración"
 settings_dialog.language.label: "Seleccione un idioma:"
 settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido"
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
@@ -213,9 +282,46 @@ export_dialog.error.invalid_extension: "La extensión del archivo debe coincidir
 # ---------------------------------------------------------------------------
 # Information dialog
 # ---------------------------------------------------------------------------
-information_dialog.title: "PROTEUS - Información"
+information_dialog.title: "Proteus información"
 information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
 information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."
 information_dialog.important_notes.text: "Esta versión requiere de conexión a internet para mostrar y exportar el renderizado de la plantilla por defecto correctamente."
 
+# ---------------------------------------------------------------------------
+# Trace edit dialog
+# ---------------------------------------------------------------------------
+trace_edit_dialog.title: "Selecciona un elemento a trazar"
+
+# ---------------------------------------------------------------------------
+# Delete dialog
+# ---------------------------------------------------------------------------
+delete_dialog.title: "Confirmar eliminación"
+delete_dialog.message: "¿Estás seguro de que quieres eliminar el elemento '{}'?"
+delete_dialog.traces_explanation: Este elemento o sus hijos son trazados por otros elementos. Si lo elimina, también se eliminarán las trazas. Compruebe a continuación todos los elementos que se actualizarán.
+delete_dialog.tree.header: Haz clic en cada ítem para ver los elementos que se actualizarán.
+
+# ---------------------------------------------------------------------------
+# Message boxes
+# ---------------------------------------------------------------------------
+# Asset copy warning
+asset_edit.warning.title: "Advertencia"
+asset_edit.warning.text: "Ya existe un archivo con ese nombre en la carpeta de recursos 'assets', ¿desea sobreescribirlo?"
+
+# ---------------------------------------------------------------------------
+# Markdown edit
+# ---------------------------------------------------------------------------
+markdown_edit.preview: "Previsualizar"
+markdown_edit.edit: "Editar texto"
+
+# ---------------------------------------------------------------------------
+# App critical error
+# ---------------------------------------------------------------------------
+app.critical_error.title: "PROTEUS ha encontrado un error crítico"
+app.critical_error.text: "La aplicación se cerrará debido a un error crítico. Para más información, consulte el archivo de registro de la aplicación: "
+
+# ---------------------------------------------------------------------------
+# WebChannel
+# ---------------------------------------------------------------------------
+document.navigation.request.title: "El objeto seleccionado está en otro documento"
+document.navigation.request.text: "El objeto '{}' está en el documento '{}'. ¿Desea navegar al documento para ver el objeto?"

@@ -12,6 +12,8 @@
 
 from typing import List, Dict
 import logging
+import traceback
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -31,20 +33,30 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag
+from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.components.dialogs.information_dialog import InformationDialog
-from proteus.views.utils import buttons
-from proteus.views.utils.buttons import ArchetypeMenuButton
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.translator import Translator
-from proteus.controller.command_stack import Controller
+from proteus.views.components.dialogs.delete_dialog import DeleteDialog
+from proteus.views.components.archetypes_menu_dropdown import (
+    ArchetypesMenuDropdown,
+)
+from proteus.views import buttons
+from proteus.views.buttons import ArchetypeMenuButton
+from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
+from proteus.utils.events import (
+    SelectObjectEvent,
+    OpenProjectEvent,
+    SaveProjectEvent,
+    CurrentDocumentChangedEvent,
+    RequiredSaveActionEvent,
+    StackChangedEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -57,7 +69,7 @@ log = logging.getLogger(__name__)
 # Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class MainMenu(QDockWidget):
+class MainMenu(QDockWidget, ProteusComponent):
     """
     Main menu component for the PROTEUS application. It is used to
     display the main option tab and object archetypes separated by
@@ -72,9 +84,7 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
-    ) -> None:
+    def __init__(self, parent: QWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors, create
         the component and connect update methods to the events.
@@ -82,16 +92,10 @@ class MainMenu(QDockWidget):
         Manage the creation of the instace variables to store updatable
         buttons (save, undo, redo, etc.) and the tab widget to display the
         different menus.
-        """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the main menu component"
-        self._controller: Controller = controller
 
-        # Get translator instance
-        self.translator = Translator()
+        :param parent: Parent widget.
+        """
+        super(MainMenu, self).__init__(parent, *args, **kwargs)
 
         # Main menu buttons
         self.new_button: QToolButton = None
@@ -106,8 +110,8 @@ class MainMenu(QDockWidget):
         self.export_document_button: QToolButton = None
         self.information_button: QToolButton = None
 
-        # Archetype menu buttons that are updated
-        self.archetype_buttons: Dict[ProteusID, ArchetypeMenuButton] = {}
+        # Store archetype buttons by object class
+        self.archetype_buttons: Dict[str, ArchetypeMenuButton] = {}
 
         # Tab widget to display app menus in different tabs
         self.tab_widget: QTabWidget = QTabWidget()
@@ -116,18 +120,7 @@ class MainMenu(QDockWidget):
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.STACK_CHANGED, self.update_on_stack_changed, self)
-        EventManager.attach(
-            Event.REQUIRED_SAVE_ACTION, self.update_on_required_save_action, self
-        )
-        EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
-        EventManager.attach(Event.SELECT_OBJECT, self.update_on_select_object, self)
-        EventManager.attach(Event.OPEN_PROJECT, self.update_on_open_project, self)
-        EventManager.attach(
-            Event.CURRENT_DOCUMENT_CHANGED,
-            self.update_on_current_document_changed,
-            self,
-        )
+        self.subscribe()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -153,15 +146,15 @@ class MainMenu(QDockWidget):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab(self.translator.text("main_menu.tab.home.name"))
+        self.add_main_tab(self._translator.text("main_menu.tab.home.name"))
 
         # Get the object archetypes
         object_archetypes_dict: Dict[
-            str, List[Object]
-        ] = self._controller.get_object_archetypes()
-        # Create a tab for each class of object archetypes
-        for class_name in object_archetypes_dict.keys():
-            self.add_archetype_tab(class_name, object_archetypes_dict[class_name])
+            str, Dict[str, List[Object]]
+        ] = self._controller.get_first_level_object_archetypes()
+        # Create a tab for each type of object archetypes
+        for type_name in object_archetypes_dict.keys():
+            self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
 
         # Set the tab widget as the main widget of the component
         self.setWidget(self.tab_widget)
@@ -179,6 +172,8 @@ class MainMenu(QDockWidget):
         """
         Create the main menu tab and add it to the tab widget. It displays
         the main menu buttons of the PROTEUS application.
+
+        :param tab_name: Name of the tab.
         """
         # Create the tab widget with a horizontal layout
         main_tab: QWidget = QWidget()
@@ -199,7 +194,7 @@ class MainMenu(QDockWidget):
 
         # Save action
         self.save_button: QToolButton = buttons.save_project_button(self)
-        self.save_button.clicked.connect(self._controller.save_project)
+        self.save_button.clicked.connect(self.save_project)
 
         # Project properties action
         self.project_properties_button: QToolButton = buttons.project_properties_button(
@@ -215,7 +210,12 @@ class MainMenu(QDockWidget):
         # Add the buttons to the project menu widget
         project_menu: QWidget = buttons.button_group(
             "main_menu.button_group.project",
-            [self.new_button, self.open_button, self.save_button, self.project_properties_button],
+            [
+                self.new_button,
+                self.open_button,
+                self.save_button,
+                self.project_properties_button,
+            ],
         )
         tab_layout.addWidget(project_menu)
 
@@ -272,11 +272,15 @@ class MainMenu(QDockWidget):
         # ---------
         # Settings action
         self.settings_button: QToolButton = buttons.settings_button(self)
-        self.settings_button.clicked.connect(SettingsDialog.create_dialog)
+        self.settings_button.clicked.connect(
+            lambda: SettingsDialog.create_dialog(self._controller)
+        )
 
         # Information action
         self.information_button: QToolButton = buttons.info_button(self)
-        self.information_button.clicked.connect(InformationDialog.create_dialog)
+        self.information_button.clicked.connect(
+            lambda: InformationDialog.create_dialog(controller=self._controller)
+        )
 
         # Add the buttons to the aplication menu widget
         aplication_menu: QWidget = buttons.button_group(
@@ -304,10 +308,14 @@ class MainMenu(QDockWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def add_archetype_tab(
-        self, class_name: str, object_archetypes: List[Object]
+        self, type_name: str, object_archetypes_by_class: Dict[str, List[Object]]
     ) -> None:
         """
-        Add a tab to the tab widget for a given class of object archetypes.
+        Add a tab to the tab widget for a given type of object archetypes.
+
+        :param type_name: Name of the type of object archetypes.
+        :param object_archetypes_by_class: Dictionary with the object
+            archetypes separated by class.
         """
         # Create the tab widget with a horizontal layout
         tab_widget: QWidget = QWidget()
@@ -317,20 +325,21 @@ class MainMenu(QDockWidget):
         buttons_list: List[ArchetypeMenuButton] = []
 
         # Add the archetype widgets to the tab widget
-        archetype: Object = None
-        for archetype in object_archetypes:
+        for object_class in object_archetypes_by_class.keys():
             # Create the archetype button
-            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(self, archetype)
-
-            # Add the archetype button to the archetype buttons dictionary
-            self.archetype_buttons[archetype.id] = archetype_button
-
-            # Connect the clicked signal to the clone archetype method
-            archetype_button.clicked.connect(
-                lambda checked, arg=archetype.id: self._controller.create_object(
-                    archetype_id=arg, parent_id=StateManager.get_current_object()
+            archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
+                self, object_class
+            )
+            archetype_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+            archetype_button.setMenu(
+                ArchetypesMenuDropdown(
+                    controller=self._controller,
+                    archetype_list=object_archetypes_by_class[object_class],
                 )
             )
+
+            # Add the archetype button to the archetype buttons dictionary
+            self.archetype_buttons[object_class] = archetype_button
 
             # Add the archetype button to the buttons list
             buttons_list.append(archetype_button)
@@ -340,8 +349,8 @@ class MainMenu(QDockWidget):
         #       code is used to retrieve the text from the translation files.
         #       This has to be dynamic because archetype tabs are created
         #       dynamically.
-        tab_name_code: str = f"main_menu.tab.{class_name}.name"
-        group_name_code: str = f"main_menu.button_group.archetypes.{class_name}"
+        tab_name_code: str = f"main_menu.tab.{type_name}.name"
+        group_name_code: str = f"main_menu.button_group.archetypes.{type_name}"
 
         # Create the archetype button group
         archetype_menu: QWidget = buttons.button_group(group_name_code, buttons_list)
@@ -352,7 +361,34 @@ class MainMenu(QDockWidget):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, self.translator.text(tab_name_code))
+        self.tab_widget.addTab(tab_widget, self._translator.text(tab_name_code))
+
+    # ---------------------------------------------------------------------
+    # Method     : subscribe
+    # Description: Subscribe the component to the events.
+    # Date       : 15/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def subscribe(self) -> None:
+        """
+        Subscribe the component to the events.
+
+        MainMenu component subscribes to the following events:
+            - SAVE PROJECT -> update_on_save_project
+            - OPEN PROJECT -> update_on_open_project
+            - SELECT OBJECT -> update_on_select_object
+            - STACK CHANGED -> update_on_stack_changed
+            - CURRENT DOCUMENT CHANGED -> update_on_select_object
+            - REQUIRED SAVE ACTION -> update_on_required_save_action
+            - CURRENT DOCUMENT CHANGED -> update_on_current_document_changed
+        """
+        SaveProjectEvent().connect(self.update_on_save_project)
+        OpenProjectEvent().connect(self.update_on_open_project)
+        SelectObjectEvent().connect(self.update_on_select_object)
+        StackChangedEvent().connect(self.update_on_stack_changed)
+        RequiredSaveActionEvent().connect(self.update_on_required_save_action)
+        CurrentDocumentChangedEvent().connect(self.update_on_current_document_changed)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -366,12 +402,12 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_stack_changed(self, *args, **kwargs) -> None:
+    def update_on_stack_changed(self) -> None:
         """
         Update the state of save, undo and redo buttons when the command
         stack changes, enabling or disabling them depending on the state.
 
-        Triggered by: Event.STACK_CHANGED
+        Triggered by: StackChangedEvent
         """
         can_undo: bool = self._controller.stack.canUndo()
         can_redo: bool = self._controller.stack.canRedo()
@@ -389,9 +425,11 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_required_save_action(self, *args, **kwargs) -> None:
+    def update_on_required_save_action(self) -> None:
         """
         Update the state of save button when a save action is required.
+
+        Triggered by: RequiredSaveActionEvent
         """
         self.save_button.setEnabled(True)
 
@@ -406,9 +444,11 @@ class MainMenu(QDockWidget):
     # cleanChanged signal of the command stack is emitted (stack changed event)
     # If the save button is pressed when just a non-undoable command was executed,
     # the save button will not be disabled because stack was already clean.
-    def update_on_save_project(self, *args, **kwargs) -> None:
+    def update_on_save_project(self) -> None:
         """
         Update the state of save button when a project is saved.
+
+        Triggered by: SaveProjectEvent
         """
         self.save_button.setEnabled(False)
 
@@ -420,19 +460,18 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_select_object(self, *args, **kwargs) -> None:
+    def update_on_select_object(self, selected_object_id: ProteusID) -> None:
         """
         Update the state of the archetype buttons when an object is
         selected, enabling or disabling them depending on the accepted
         children of the selected object.
 
-        Triggered by: Event.SELECT_OBJECT
-        """
-        # Get the selected object id and check if it is None
-        selected_object_id: ProteusID = StateManager.get_current_object()
+        Triggered by: SelectObjectEvent
 
+        :param selected_object_id: ID of the selected object.
+        """
         # If the selected object is None, disable all the archetype buttons
-        if selected_object_id is None:
+        if selected_object_id is None or selected_object_id == "":
             button: ArchetypeMenuButton = None
             for button in self.archetype_buttons.values():
                 button.setEnabled(False)
@@ -444,23 +483,19 @@ class MainMenu(QDockWidget):
             selected_object: Object = self._controller.get_element(selected_object_id)
 
             # Iterate over the archetype buttons
-            for archetype_id in self.archetype_buttons.keys():
+            for archetype_class in self.archetype_buttons.keys():
                 # Get the archetype button
                 archetype_button: ArchetypeMenuButton = self.archetype_buttons[
-                    archetype_id
+                    archetype_class
                 ]
 
-                # Get the archetype
-                archetype: Object = self._controller.get_archetype_by_id(archetype_id)
-
-                assert (
-                    type(archetype) is Object
-                ), f"Archetype {archetype_id} is not an object"
+                enable: bool = (
+                    archetype_class in selected_object.acceptedChildren
+                    or PROTEUS_ANY in selected_object.acceptedChildren
+                )
 
                 # Enable or disable the archetype button
-                archetype_button.setEnabled(
-                    selected_object.accept_descendant(archetype)
-                )
+                archetype_button.setEnabled(enable)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
@@ -470,12 +505,12 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_open_project(self, *args, **kwargs) -> None:
+    def update_on_open_project(self) -> None:
         """
         Enable the project properties and add document buttons when a
         project is opened.
 
-        Triggered by: Event.OPEN_PROJECT
+        Triggered by: OpenProjectEvent
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
@@ -488,20 +523,25 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_current_document_changed(self, *args, **kwargs) -> None:
+    def update_on_current_document_changed(self, document_id: ProteusID) -> None:
         """
         Update the state of the document buttons when the current document
         changes, enabling or disabling them depending on the state.
 
-        Triggered by: Event.CURRENT_DOCUMENT_CHANGED
-        """
-        document_id: ProteusID = kwargs["document_id"]
+        Triggered by: CurrentDocumentChangedEvent
 
+        :param document_id: ID of the current document.
+        """
         # Store if there is a document open
-        is_document_open: bool = document_id is not None
+        is_document_open: bool = document_id is not None and document_id != ""
 
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
+
+        # Call update_on_select_object to update the archetype buttons
+        if document_id == self._state_manager.get_current_document():
+            current_object_id = self._state_manager.get_current_object()
+            self.update_on_select_object(current_object_id)
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -515,22 +555,61 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    # TODO: Consider moving this dialog to a separate class
-    def open_project(self):
+    def open_project(self) -> None:
         """
         Manage the open project action, open a project using a file dialog
-        and loads it.
+        and loads it. If there is already a project open with unsaved
+        changes, ask the user if he wants to save them before opening the
+        new project.
         """
         # Open the file dialog
         self.directory_dialog: QFileDialog = QFileDialog(self)
         directory_path: str = self.directory_dialog.getExistingDirectory(
-            None, self.translator.text("main_menu.open_project.caption"), ""
+            None, self._translator.text("main_menu.open_project.caption"), ""
         )
 
-        # Load the project from the selected directory
+        # If a directory was selected, check if there is already a project
+        # open with unsaved changes and ask the user if he wants to save
+        # them before opening the new project
         if directory_path:
+            # Check unsaved changes ---------------------
+            # Check if the project has unsaved changes
+            unsaved_changes: bool = not self._controller.stack.isClean()
+
+            # Workaround to check when non undoable actions were not saved
+            save_button_enabled: bool = False
+            try:
+                save_button_enabled = self.save_button.isEnabled()
+            except AttributeError:
+                pass
+
+            # Unsaved changes confirmation dialog ---------------------
+            if unsaved_changes or save_button_enabled:
+                # Show a confirmation dialog
+                confirmation_dialog = QMessageBox()
+                confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+                confirmation_dialog.setWindowTitle(
+                    self._translator.text("main_menu.open_project.save.title")
+                )
+                confirmation_dialog.setText(
+                    self._translator.text("main_menu.open_project.save.text")
+                )
+                confirmation_dialog.setStandardButtons(
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+                # Connect save_project method to the yes button
+                confirmation_dialog.button(
+                    QMessageBox.StandardButton.Yes
+                ).clicked.connect(self.save_project)
+                confirmation_dialog.exec()
+
+            # Project load ---------------------
             try:
                 self._controller.load_project(project_path=directory_path)
+                read_state_from_file(
+                    Path(directory_path), self._controller, self._state_manager
+                )
             except Exception as e:
                 log.error(e)
 
@@ -538,13 +617,36 @@ class MainMenu(QDockWidget):
                 error_dialog = QMessageBox()
                 error_dialog.setIcon(QMessageBox.Icon.Critical)
                 error_dialog.setWindowTitle(
-                    self.translator.text("main_menu.open_project.error.title")
+                    self._translator.text("main_menu.open_project.error.title")
                 )
                 error_dialog.setText(
-                    self.translator.text("main_menu.open_project.error.text")
+                    self._translator.text("main_menu.open_project.error.text")
                 )
-                error_dialog.setInformativeText(str(e))
+
+                informative_text: str = str(e)
+
+                tb: str = "".join(traceback.format_tb(e.__traceback__))
+                log.error(tb)
+
+                error_dialog.setInformativeText(informative_text)
                 error_dialog.exec()
+
+    # ----------------------------------------------------------------------
+    # Method     : save_project
+    # Description: Manage the save project action, save the current project.
+    # Date       : 02/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def save_project(self) -> None:
+        """
+        Manage the save project action, save the current project.
+        """
+        self._controller.save_project()
+
+        # Write the state to a file
+        project_path: str = self._controller.get_current_project().path
+        write_state_to_file(Path(project_path).parent, self._state_manager)
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document
@@ -554,31 +656,22 @@ class MainMenu(QDockWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_current_document(self):
+    def delete_current_document(self) -> None:
         """
         Manage the delete current document action, delete the current
         document. Use a confirmation dialog to confirm the action.
         """
         # Get the current document
-        document_id: ProteusID = StateManager.get_current_document()
-        document: Object = self._controller.get_element(document_id)
-        document_name: str = document.get_property("name").value
+        document_id: ProteusID = self._state_manager.get_current_document()
 
-        # Show a confirmation dialog
-        self.confirmation_dialog = QMessageBox()
-        self.confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-        self.confirmation_dialog.setWindowTitle(
-            self.translator.text("main_menu.delete_document.title")
+        # Assert that the current document is not None
+        assert (
+            document_id is not None and document_id != ""
+        ), "Current document is None or empty"
+
+        # Create the delete dialog
+        DeleteDialog.create_dialog(
+            element_id=document_id,
+            is_document=True,
+            controller=self._controller,
         )
-        self.confirmation_dialog.setText(
-            self.translator.text("main_menu.delete_document.text", document_name)
-        )
-        self.confirmation_dialog.setStandardButtons(
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-        self.confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
-        self.confirmation_dialog.accepted.connect(
-            # Delete the document
-            lambda arg=document.id: self._controller.delete_document(arg)
-        )
-        self.confirmation_dialog.exec()

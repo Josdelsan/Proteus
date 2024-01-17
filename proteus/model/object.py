@@ -25,9 +25,10 @@ from __future__ import annotations  # it has to be the first import
 import pathlib
 import os
 import logging
-from typing import List, NewType, Union
+from typing import List, NewType, Union, Dict
 import copy
 import shutil
+import datetime
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -42,15 +43,29 @@ import shortuuid
 
 from proteus.model import (
     ProteusID,
+    PROTEUS_DATE,
+    PROTEUS_CODE,
+    PROTEUS_NAME,
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
+    CLASSES_ATTRIBUTE,
+    ACCEPTED_CHILDREN_ATTRIBUTE,
+    ACCEPTED_PARENTS_ATTRIBUTE,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
     CHILD_TAG,
+    TRACES_TAG,
+    TRACE_PROPERTY_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
+    COPY_OF,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property
+from proteus.model.properties import Property, FileProperty, DateProperty
+from proteus.model.properties.code_property import ProteusCode, CodeProperty
+from proteus.model.trace import Trace
+from proteus.utils.translator import Translator
 
 
 # from proteus.model.project import Project
@@ -168,26 +183,32 @@ class Object(AbstractObject):
         ), f"PROTEUS object file {object_file_path} must have <{OBJECT_TAG}> as root element, not {root.tag}."
 
         # Get object ID from XML
-        self.id: ProteusID = ProteusID(root.attrib["id"])
+        self.id: ProteusID = ProteusID(root.attrib[ID_ATTRIBUTE])
 
         # Object or Project
         self.parent: Union[Object, Project] = None
 
         # Get object classes and accepted children classes
-        self.classes: List[ProteusClassTag] = root.attrib["classes"].split()
+        self.classes: List[ProteusClassTag] = root.attrib[CLASSES_ATTRIBUTE].split()
         self.acceptedChildren: List[ProteusClassTag] = root.attrib[
-            "acceptedChildren"
+            ACCEPTED_CHILDREN_ATTRIBUTE
         ].split()
 
-        # Get strict parent directive
-        # NOTE: Prevent archetypes like subobjectives being cloned into :Proteus-any
-        # accepting archetypes like section
-        self.strictParent: bool = bool(root.attrib.get("strictParent", False))
+        # Get accepted parent classes
+        # NOTE: Prevent second level archetypes to be accepted by any archetypes.
+        # Default value is PROTEUS_ANY, which means any object can be parent.
+        self.acceptedParents: List[ProteusClassTag] = root.attrib.get(
+            ACCEPTED_PARENTS_ATTRIBUTE, PROTEUS_ANY
+        ).split()
 
         # Load object's properties using superclass method
         super().load_properties(root)
 
-        # Children dictionary (will be loaded on demand)
+        # Load object's traces
+        self.traces: dict[str, Trace] = dict[str, Trace]()
+        self.load_traces(root=root)
+
+        # Children list (will be loaded on demand)
         self._children: List[Object] = None
 
     # ----------------------------------------------------------------------
@@ -202,17 +223,17 @@ class Object(AbstractObject):
     def children(self) -> List[Object]:
         """
         Property children getter. Loads children from XML file on demand.
-        :return: Dictionary of children objects
+        :return: List of children objects
         """
-        # Check if children dictionary is not initialized
+        # Check if children list is not initialized
         if self._children is None:
-            # Initialize children dictionary
+            # Initialize children list
             self._children: List[Object] = []
 
             # Load children from XML file
             self.load_children()
 
-        # Return children dictionary
+        # Return children list
         return self._children
 
     # ----------------------------------------------------------------------
@@ -247,7 +268,7 @@ class Object(AbstractObject):
         # Parse object's children
         child: ET.Element
         for child in children:
-            child_id: ProteusID = child.attrib["id"]
+            child_id: ProteusID = child.attrib[ID_ATTRIBUTE]
 
             # Check whether the child has an ID
             assert (
@@ -270,13 +291,55 @@ class Object(AbstractObject):
             self.children.append(object)
 
     # ----------------------------------------------------------------------
+    # Method     : load_traces
+    # Description: It loads the traces of a PROTEUS object using an
+    #              XML root element <object>.
+    # Date       : 23/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def load_traces(self, root: ET.Element) -> None:
+        """
+        It loads a PROTEUS object's traces from an XML root element.
+        """
+        # Check root is not None
+        assert root is not None, f"Root element is not valid in {self.path}."
+
+        # Find <traces> element
+        traces_element: ET.Element = root.find(TRACES_TAG)
+
+        # If <traces> element is not found, ignore traces
+        # TODO: Consider raising an exception. Now is prepared to avoid breaking
+        #       the system when loading old objects and simplifing the archetypes
+        #       creation to the user.
+        self.traces: dict[str, Trace] = dict[str, Trace]()
+        if traces_element is not None:
+            # Find <traceProperty> elements
+            trace_property_elements: List[ET.Element] = traces_element.findall(
+                TRACE_PROPERTY_TAG
+            )
+
+            # Create a Trace object for each <traceProperty> element
+            trace_property_element: ET.Element
+            for trace_property_element in trace_property_elements:
+                trace_name: str = trace_property_element.attrib.get(NAME_ATTRIBUTE)
+
+                # Check if trace name is None
+                assert (
+                    trace_name is not None
+                ), f"PROTES file {self.path} includes an unnamed trace."
+
+                trace: Trace = Trace.create(trace_property_element)
+                self.traces[trace_name] = trace
+
+    # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the children of an object.
     # Date       : 23/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_descendants(self) -> List:
+    def get_descendants(self) -> List[Object]:
         """
         It returns a list with all the children of an object.
         :return: list with all the children of an object.
@@ -314,7 +377,7 @@ class Object(AbstractObject):
         ), f"Child is not accepted by {self.id}.           \
             Accepted children are {self.acceptedChildren}. \
             Child is class {child.classes}.                \
-            strictParent is {self.strictParent}."
+            Accepted parents are {self.acceptedParents}."
 
         # Add the child to the children list and set the parent
         self.children.insert(position, child)
@@ -323,6 +386,9 @@ class Object(AbstractObject):
         # Set dirty flag
         if self.state != ProteusState.FRESH:
             self.state = ProteusState.DIRTY
+
+        # Add the child id to the project ids
+        self.project.ids.add(child.id)
 
     # ----------------------------------------------------------------------
     # Method     : accept_descendant
@@ -335,8 +401,8 @@ class Object(AbstractObject):
     def accept_descendant(self, child: Object) -> bool:
         """
         Checks if a child is accepted by a PROTEUS object. Parent must accept
-        :Proteus-any and child must not be strictParent. StrictParent objects
-        only accept parents that where they are explicitly accepted.
+        :Proteus-any and child must accept the object as parent if second level
+        object.
 
         :param child: Child Object to be checked.
         """
@@ -345,15 +411,39 @@ class Object(AbstractObject):
             child, Object
         ), f"Child {child} is not a valid PROTEUS object."
 
-        # Check if the child is accepted
-        accepted_children: List[ProteusClassTag] = self.acceptedChildren
+        # Check child is not the same object
+        assert (
+            child.id != self.id
+        ), f"Object cannot be its own child. {child.id} is the same as object id {self.id}."
 
-        # If child in accepted children -> True
-        # If proteus-any and not strictParent -> True
-        # If strictParent and child in accepted children -> False
-        return child.classes[-1] in accepted_children or (
-            PROTEUS_ANY in accepted_children and not child.strictParent
+        # --------------------------------------------------------
+        # Condition 1 - child accepted parents must be PROTEUS_ANY
+        # or contain one of the object class
+
+        accepted_parent_common_classes = [
+            c for c in child.acceptedParents if c in self.classes
+        ]
+
+        condition_1 = (
+            PROTEUS_ANY in child.acceptedParents
+            or len(accepted_parent_common_classes) > 0
         )
+
+        # --------------------------------------------------------
+        # Condition 2 - self accepted children must be PROTEUS_ANY
+        # or contain one of the child class
+
+        accepted_children_common_classes = [
+            c for c in self.acceptedChildren if c in child.classes
+        ]
+
+        condition_2 = (
+            PROTEUS_ANY in self.acceptedChildren
+            or len(accepted_children_common_classes) > 0
+        )
+
+        # BOTH conditions must be true
+        return condition_1 and condition_2
 
     # ----------------------------------------------------------------------
     # Method     : generate_xml
@@ -369,9 +459,10 @@ class Object(AbstractObject):
         """
         # Create <object> element and set ID
         object_element = ET.Element(OBJECT_TAG)
-        object_element.set("id", self.id)
-        object_element.set("classes", " ".join(self.classes))
-        object_element.set("acceptedChildren", " ".join(self.acceptedChildren))
+        object_element.set(ID_ATTRIBUTE, self.id)
+        object_element.set(CLASSES_ATTRIBUTE, " ".join(self.classes))
+        object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
+        object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
 
         # Create <properties> element
         super().generate_xml_properties(object_element)
@@ -382,7 +473,12 @@ class Object(AbstractObject):
         # Create <child> subelements
         for child in self.children:
             child_element = ET.SubElement(children_element, CHILD_TAG)
-            child_element.set("id", child.id)
+            child_element.set(ID_ATTRIBUTE, child.id)
+
+        # Create <traces> element
+        traces_element = ET.SubElement(object_element, TRACES_TAG)
+        for trace in self.traces.values():
+            traces_element.append(trace.generate_xml())
 
         return object_element
 
@@ -390,11 +486,9 @@ class Object(AbstractObject):
     # Method     : clone_object
     # Description: It clones an element.
     # Date       : 24/04/2023
-    # Version    : 0.3
+    # Version    : 0.4
     # Author     : José María Delgado Sánchez
-    #              Pablo Rivera Jiménez
     # ----------------------------------------------------------------------
-
     def clone_object(
         self, parent: Union[Object, Project], project: Project, position: int = None
     ) -> Object:
@@ -403,16 +497,57 @@ class Object(AbstractObject):
         save the object in the system but add it to the parent children so
         it will be saved when we save the project.
 
+        Traces cloning behaviour depends on the object. If an object is cloned
+        and it has traces, the traces will be cloned. If the traces are connected
+        to objects within the object descendants 'universe', traces will be
+        reconnected to the new cloned objects ids. This allows to keep track
+        of traces within the object and its descendants.
+
+        Traces that target an object not present in the project will be discarded.
+
         :param parent: Parent of the new object.
         :param project: Project where the object will be saved.
         :param position: Position in the children list where the child will be added.
         :type parent: Union[Object,Project].
         """
+        # Map with the ids of the objects that have been cloned and their new ids
+        ids_map: Dict[ProteusID, ProteusID] = dict()
+
+        # Codes map to calculate the biggest code for each prefix
+        codes_map: Dict[str, ProteusCode] = self._calculate_biggest_code(project)
+
+        # Clone the object
+        cloned_object: Object = self._clone_object(parent, project, ids_map, codes_map, position)
+
+        # Recalculate traces
+        self._recalculate_traces(cloned_object, ids_map, project)
+
+        # Return the cloned object
+        return cloned_object
+
+    def _clone_object(
+        self,
+        parent: Union[Object, Project],
+        project: Project,
+        ids_map: dict,
+        codes_map: dict,
+        position: int = None,
+    ) -> Object:
+        """
+        Private function for cloning an object in a new parent.
+
+        :param parent: Parent of the new object.
+        :param project: Project where the object will be saved.
+        :param position: Position in the children list where the child will be added.
+        :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
+        :return: Cloned object.
+        :rtype: Object
+        """
 
         # ------------------------------------------------------------------
 
         # Helper function to assign a new id to the object
-        def generate_new_id(project: Project):
+        def _generate_new_id(project: Project) -> ProteusID:
             """
             Helper function that generates a new id for the object.
             """
@@ -420,20 +555,20 @@ class Object(AbstractObject):
             new_id = ProteusID(shortuuid.random(length=12))
 
             # Check if the new id is already in use
-            if new_id in project.get_ids():
-                generate_new_id(project)
+            while new_id in project.ids:
+                new_id = ProteusID(shortuuid.random(length=12))
 
-            return new_id
+            return ProteusID(new_id)
 
         # Helper function to handle asset cloning
-        def handle_asset_clone(asset_property: Property):
+        def _handle_asset_clone(asset_property: Property) -> None:
             """
             Helper function that handles the asset cloning.
             """
             # Build the source assets path
             # Check if the cloned object is an archetype based on the project property
             source_assets_path: pathlib.Path = None
-            if self.project is None:
+            if is_archetype:
                 # NOTE: If object is an archetype, build the path to the assets
                 # folder from its own file path. This is known by archetype
                 # repository structure convention
@@ -442,7 +577,7 @@ class Object(AbstractObject):
                 )
             else:
                 source_assets_path = (
-                    pathlib.Path(self.project.path).parent.parent / ASSETS_REPOSITORY
+                    pathlib.Path(self.project.path).parent / ASSETS_REPOSITORY
                 )
 
             assert (
@@ -460,42 +595,42 @@ class Object(AbstractObject):
                 asset_file_path.exists()
             ), f"Asset file {asset_file_path} does not exist."
 
-            # Check for name collisions
+            # Name collision are not checked. If the asset file already exists
+            # in the target assets path, it will be overwritten.
             target_asset_file_path = target_assets_path / asset_property.value
-            # If there is a collision, rename the asset
-            if target_asset_file_path.exists():
-                # Rename the asset
-                asset_property = rename_asset(asset_property, target_assets_path)
-                target_asset_file_path = target_assets_path / asset_property.value
-                # Set the new asset name in the object
-                new_object.set_property(asset_property)
 
-            # Copy the asset file to the target assets path
-            shutil.copy(asset_file_path, target_asset_file_path)
-
-        def rename_asset(
-            asset_property: Property, target_folder: pathlib.Path, iteration: int = 1
-        ) -> Property:
-            """
-            Helper function that renames an asset recursively.
-
-            :param asset_property: The asset property to be renamed.
-            :param target_folder: The target folder where the asset will be saved.
-            :return: The renamed asset property.
-            """
-            # get the asset name separated from the extension
-            asset_name, asset_extension = os.path.splitext(asset_property.value)
-            # Build a new name for the asset
-            new_asset_name = f"{asset_name}({iteration}){asset_extension}"
-            # Check if the new name is already in use
-            new_asset_path = target_folder / new_asset_name
-            new_property: Property = None
-            if new_asset_path.exists():
-                new_property = rename_asset(
-                    asset_property, target_folder, iteration + 1
+            # To avoid shutil.copy error, we need to check if the target asset
+            # file path is different from the source asset file path.
+            if target_asset_file_path != asset_file_path:
+                # Copy the asset file to the target assets path
+                shutil.copy(asset_file_path, target_asset_file_path)
+                log.debug(
+                    f"Asset {asset_property.value} copied from {asset_file_path} to {target_asset_file_path}."
                 )
-            else:
-                new_property = asset_property.clone(new_asset_name)
+
+        # Helper function to handle codeProperty cloning
+        def _handle_code_clone(code_property: CodeProperty) -> CodeProperty:
+            """
+            Helper function that handles the code cloning.
+            """
+            new_property: CodeProperty = code_property
+
+            # Get the prefix
+            prefix = code_property.value.prefix
+
+            # Check if the prefix is in the code map
+            if prefix in codes_map:
+                # Get the biggest code for the prefix
+                biggest_code = codes_map[prefix]
+
+                # Get the next code
+                next_code = biggest_code.next()
+
+                # Update the code map
+                codes_map[prefix] = next_code
+
+                # Update the new property
+                new_property = code_property.clone(next_code)
 
             return new_property
 
@@ -513,51 +648,80 @@ class Object(AbstractObject):
             parent, Object
         ), f"Parent must be instance of Object or Project"
 
-        # Deepcopy so we don't change the original object.
-        # Differences between copy and deepcopy -> https://www.programiz.com/python-programming/shallow-deep-copy
-        new_object = copy.deepcopy(self)
+        # Check if object is an archetype based on the project property
+        is_archetype: bool = self.project is None
 
-        # Force children load
-        new_object.children
+        # -------------------------------------------------------
+        # Object base clonation
+        # -------------------------------------------------------
+        # We use standart clone instead of deepcopy to avoid unnecessary copies of project and children
+        # This improves performance but It is necessary to manually deepcopy properties and traces
+        new_object = copy.copy(self)
+        new_object.properties = copy.deepcopy(self.properties)
+        new_object.traces = copy.deepcopy(self.traces)
+
+        # Reset children
+        new_object._children = []
 
         # Set new project and FRESH state
         new_object.project = project
         new_object.state = ProteusState.FRESH
 
         # Assign a new id that is not in use
-        new_object.id = generate_new_id(project)
+        old_id: ProteusID = new_object.id
+        new_object.id = _generate_new_id(project)
+        ids_map[old_id] = new_object.id
 
         # Create file path
         project_objects_path = pathlib.Path(project.path).parent / OBJECTS_REPOSITORY
         new_object.path = project_objects_path / f"{new_object.id}.xml"
 
+        # -------------------------------------------------------
+        # Handle special properties (Date, Code, FileProperties)
+        # -------------------------------------------------------
+        for property in new_object.properties.values():
+            # Handle FileProperty Assets cloning
+            if isinstance(property, FileProperty):
+                _handle_asset_clone(property)
+            # Set current date to :Proteus-date DateProperty
+            elif isinstance(property, DateProperty) and property.name == PROTEUS_DATE:
+                current_date = datetime.date.today()
+                new_date_property = property.clone(current_date)
+                new_object.set_property(new_date_property)
+            # Increment :Proteus-code CodeProperty if necessary
+            elif isinstance(property, CodeProperty) and property.name == PROTEUS_CODE:
+                new_code_property = _handle_code_clone(property)
+                new_object.set_property(new_code_property)
+            # For existing objects in the project, add the word Copy of in the name
+            elif property.name == PROTEUS_NAME and not is_archetype:
+                copy_of_str = Translator().text(COPY_OF)
+                new_name_property = property.clone(f"{copy_of_str} {property.value}")
+                new_object.set_property(new_name_property)
+
+        # -------------------------------------------------------
+        # Parent children update
+        # -------------------------------------------------------
         # Add the new object to the parent children and set the parent
         parent.add_descendant(new_object, position)
 
-        # Get asset (file) property
-        try:
-            asset_property = new_object.get_property("file")
-        except AssertionError:
-            asset_property = None
-
-        if asset_property is not None:
-            handle_asset_clone(asset_property)
-            log.info(f"Asset {asset_property.value} cloned.")
-
-        # Children clone ---------------------------------------------------
+        # -------------------------------------------------------
+        # Children clone
+        # -------------------------------------------------------
         # If the object has children we clone them
-        if len(new_object.children) > 0:
-            # Get the children list
-            children = list(new_object.children)
+        for child in self.get_descendants():
+            # Clone the child if not dead
+            if child.state != ProteusState.DEAD:
+                child._clone_object(
+                    parent=new_object,
+                    project=project,
+                    ids_map=ids_map,
+                    codes_map=codes_map,
+                    position=len(new_object.children),
+                )
 
-            # Clone the children
-            for child in children:
-                # Clone the child
-                child.clone_object(new_object, project, len(new_object.children))
-
-                # Remove the old child from the children list
-                new_object.children.remove(child)
-
+        # -------------------------------------------------------
+        # Checks and return
+        # -------------------------------------------------------
         # Check the new object is valid
         assert isinstance(
             new_object, Object
@@ -565,6 +729,83 @@ class Object(AbstractObject):
 
         # Return the new object
         return new_object
+
+    def _recalculate_traces(
+        self, object: Object, ids_map: dict, project: Project
+    ) -> None:
+        """
+        Recalculate traces of an object and given a map with the ids correlation.
+        If a target is not found in the project, the trace will be discarded.
+        It works recursively, iterating over the object descendants.
+
+        :param object: Object to recalculate traces.
+        :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
+        """
+        # Iterate over traces
+        for trace in object.traces.values():
+            # Variable to store possible new targets list
+            new_targets: List[ProteusID] = []
+
+            # Iterate over targets
+            for target in trace.targets:
+                # If the target is in the conversion map, add the new id
+                if target in ids_map:
+                    new_targets.append(ids_map[target])
+                # If the target is in the project ids, add the target
+                elif target in project.ids:
+                    new_targets.append(target)
+                # If target not in conversion map or project ids, log error
+                else:
+                    log.error(
+                        f"Unexpected target '{target}' in trace '{trace.name}' during object '{object.id}' trace cloning. Target ProteusID was not found in the project and will be discarded."
+                    )
+
+            # If new_targets is different from the original targets, update the trace
+            if new_targets != trace.targets:
+                new_trace: Trace = trace.clone(new_targets)
+                object.traces[trace.name] = new_trace
+
+        # Iterate over children
+        for child in object.children:
+            # Recalculate traces
+            self._recalculate_traces(child, ids_map, project)
+
+    def _calculate_biggest_code(self, project: Project) -> Dict[str, ProteusCode]:
+        """
+        Calculates the biggest code for each prefix in the project universe.
+        It stores the ProteusCode instances in a dictionary with the prefix as key.
+        It works recursively, iterating over the object or project descendants.
+
+        :return: Dictionary with the biggest ProteusCode instances for each prefix.
+        :rtype: Dict[str, ProteusCode]
+        """
+        def _calculate_biggest_code_private(element: Union[Project, Object], code_map: Dict[str, ProteusCode]) -> Dict[str, ProteusCode]:
+            # Iterate over children
+            for child in element.get_descendants():
+                if child.state != ProteusState.DEAD:
+                    code_map = _calculate_biggest_code_private(child, code_map)
+
+            # Iterate over properties
+            for property in element.properties.values():
+                if isinstance(property, CodeProperty):
+                    # Get the prefix
+                    prefix = property.value.prefix
+
+                    # If the prefix is not in the code map, add it
+                    if prefix not in code_map:
+                        code_map[prefix] = property.value
+                    # If the prefix is in the code map, check if the current code is bigger
+                    else:
+                        if int(property.value.number) > int(code_map[prefix].number):
+                            code_map[prefix] = property.value
+
+            return code_map
+
+        # Call the private function
+        code_map = dict()
+        code_map = _calculate_biggest_code_private(project, code_map)
+        
+        return code_map
 
     # ----------------------------------------------------------------------
     # Method     : save

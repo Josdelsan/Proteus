@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -121,14 +121,9 @@ def test_create_document(app):
     assert (
         documents_container.tabs.keys().__len__() == 1
     ), f"Documents container has not only one tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
-    assert documents_container.tabs.keys() == documents_container.tab_children.keys(), (
-        f"Documents container tabs and tree children do not correspond"
-        f"tabs: '{documents_container.tabs.keys()}'"
-        f"tree children: '{documents_container.tab_children.keys()}'"
-    )
 
     # Check each document tree has at least one tree item
-    for document_tree in documents_container.tab_children.values():
+    for document_tree in documents_container.tabs.values():
         assert (
             document_tree.__class__.__name__ == "DocumentTree"
         ), f"Document tree is not a DocumentTree, '{document_tree.__class__.__name__}'"

@@ -28,7 +28,7 @@ import lxml.etree as ET
 
 import proteus
 from proteus.model.properties import Property
-from proteus.model.properties import ENUM_PROPERTY_TAG, CHOICES_TAG
+from proteus.model.properties import ENUM_PROPERTY_TAG, CHOICES_ATTRIBUTE
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -48,6 +48,7 @@ class EnumProperty(Property):
     """
     # XML element tag name for this class of property (class attribute)
     element_tagname : ClassVar[str] = ENUM_PROPERTY_TAG
+    value           : str
 
     # dataclass instance attributes
     choices: str = str()
@@ -58,6 +59,7 @@ class EnumProperty(Property):
         """
         # Superclass validation        
         super().__post_init__()
+        object.__setattr__(self, 'value', str(self.value))
 
         # Parse choices set
         # use split() without arguments to get an empty list if string is empty
@@ -115,5 +117,5 @@ class EnumProperty(Property):
         It generates the value of the property for its XML element and
         the list of choices as the 'choices' attribute of the XML element.
         """
-        property_element.set(CHOICES_TAG, self.choices)
+        property_element.set(CHOICES_ATTRIBUTE, self.choices)
         return self.value

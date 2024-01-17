@@ -27,8 +27,10 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.views.utils.event_manager import EventManager, Event
-
+from proteus.utils.events import (
+    AddObjectEvent,
+    DeleteObjectEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: ChangeObjectPositionCommand
@@ -97,12 +99,13 @@ class ChangeObjectPositionCommand(QUndoCommand):
 
         # Call ProjectService method
         self.project_service.change_object_position(
-            self.object.id, self.new_position, self.new_parent
+            self.object.id, self.new_position, self.new_parent.id
         )
 
         # Notify a deletion and add object event
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.object.id)
-        EventManager.notify(Event.ADD_OBJECT, object=self.object)
+        DeleteObjectEvent().notify(self.object.id, False)
+        AddObjectEvent().notify(self.object.id)
+
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -141,5 +144,5 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.new_parent.state = self.new_parent_state
 
         # Notify a deletion and add object event
-        EventManager.notify(Event.DELETE_OBJECT, element_id=self.object.id)
-        EventManager.notify(Event.ADD_OBJECT, object=self.object)
+        DeleteObjectEvent().notify(self.object.id, False)
+        AddObjectEvent().notify(self.object.id)

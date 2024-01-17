@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="5LAgscVHRg5J" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Many dependencies]]></stringProperty>
+    <booleanProperty name="is-appendix" category="general">false</booleanProperty>
+    <markdownProperty name="comments" category="general"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children>
+    <child id="L2mCm58NgUpj"/>
+    <child id="c942FKF2JmBT"/>
+    <child id="NkrkRpCHFPQS"/>
+  </children>
+  <traces/>
+</object>

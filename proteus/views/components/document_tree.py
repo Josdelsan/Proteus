@@ -19,16 +19,16 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QAction, QDropEvent, QIcon
+from PyQt6.QtCore import Qt, QPoint, pyqtSlot
+from PyQt6.QtGui import (
+    QDropEvent,
+    QIcon,
+    QDragEnterEvent,
+)
 from PyQt6.QtWidgets import (
     QWidget,
-    QVBoxLayout,
     QTreeWidget,
     QTreeWidgetItem,
-    QMenu,
-    QStyle,
-    QApplication,
     QMessageBox,
 )
 
@@ -36,18 +36,29 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.config import Config
-from proteus.model import ProteusID
+from proteus.model import (
+    ProteusID,
+    ProteusClassTag,
+    PROTEUS_DOCUMENT,
+    PROTEUS_NAME,
+    PROTEUS_CODE,
+)
 from proteus.model.object import Object
-from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
+from proteus.model.properties.code_property import ProteusCode
+from proteus.model.properties.property import Property
 from proteus.views import TREE_MENU_ICON_TYPE
-from proteus.views.utils.event_manager import Event, EventManager
-from proteus.views.utils.state_manager import StateManager
-from proteus.views.utils.translator import Translator
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
-from proteus.controller.command_stack import Controller
+from proteus.utils.events import (
+    SelectObjectEvent,
+    SaveProjectEvent,
+    ModifyObjectEvent,
+    AddObjectEvent,
+    DeleteObjectEvent,
+)
+
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -73,7 +84,7 @@ TREE_ITEM_COLOR = {
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DocumentTree(QWidget):
+class DocumentTree(QTreeWidget, ProteusComponent):
     """
     Document structure tree component for the PROTEUS application. It is used
     to manage the creation of the document structure tree and its actions.
@@ -85,14 +96,13 @@ class DocumentTree(QWidget):
     # Description: Class constructor, invoke the parents class constructors
     #              and create the component.
     # Date       : 27/05/2023
-    # Version    : 0.1
+    # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
         self,
-        parent=None,
-        element_id=None,
-        controller: Controller = None,
+        parent: QWidget,
+        document_id: ProteusID,
         *args,
         **kwargs,
     ) -> None:
@@ -103,22 +113,14 @@ class DocumentTree(QWidget):
         Store the document id reference. Create the tree widget and the
         tree items dictionary to make easier the access to the tree items
         on update events using the element id.
-        """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the document tree component"
-        self._controller: Controller = controller
 
-        # Translator instance
-        self.translator = Translator()
+        :param parent: Parent QWidget.
+        :param document_id: The document id reference.
+        """
+        super(DocumentTree, self).__init__(parent, *args, **kwargs)
 
         # Set tree document id
-        self.element_id: ProteusID = element_id
-
-        # tree widget
-        self.tree_widget: QTreeWidget = None
+        self.document_id: ProteusID = document_id
 
         # Tree items dictionary used to make easier the access to the tree
         # items on update events. Access by object id.
@@ -128,10 +130,7 @@ class DocumentTree(QWidget):
         self.create_component()
 
         # Subscribe to events
-        EventManager.attach(Event.MODIFY_OBJECT, self.update_on_modify_object, self)
-        EventManager.attach(Event.SAVE_PROJECT, self.update_on_save_project, self)
-        EventManager.attach(Event.ADD_OBJECT, self.update_on_add_object, self)
-        EventManager.attach(Event.DELETE_OBJECT, self.update_on_delete_object, self)
+        self.subscribe()
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -143,82 +142,76 @@ class DocumentTree(QWidget):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the document tree for the document referenced by the element
-        id.
+        Create the document tree for the document referenced by the given
+        document id. Set the tree properties, populate the tree and connect
+        the tree signals.
         """
-        # Create vertical layout
-        layout: QVBoxLayout = QVBoxLayout(self)
-
-        # Create tree widget and set header
-        self.tree_widget = QTreeWidget()
-        self.tree_widget.header().setVisible(False)
+        # Set header
+        self.header().setVisible(False)
 
         # Set drag and drop properties
-        self.tree_widget.setDragEnabled(True)
-        self.tree_widget.setAcceptDrops(True)
-        self.tree_widget.setDropIndicatorShown(True)
-        self.tree_widget.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
-
-        # Connect drag and drop events
-        # TODO: Drag must show if drop is allowed for different objects types
-        self.tree_widget.dropEvent = self.drop_event
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(QTreeWidget.DragDropMode.DragDrop)
 
         # Get document structure and top level items
-        top_level_object: Object = self._controller.get_element(self.element_id)
+        top_level_object: Object = self._controller.get_element(self.document_id)
 
         # Populate tree widget
-        self.populate_tree(self.tree_widget, top_level_object)
+        self.populate_tree(self, top_level_object)
 
         # Connect double click to object properties form
-        self.tree_widget.itemDoubleClicked.connect(
+        self.itemDoubleClicked.connect(
             lambda item: PropertyDialog.create_dialog(
-                element_id=item.data(1, 0), controller=self._controller
+                element_id=item.data(1, Qt.ItemDataRole.UserRole),
+                controller=self._controller,
             )
         )
 
         # Connect click to object selection
-        self.tree_widget.itemClicked.connect(
-            lambda item: StateManager.set_current_object(
-                object_id=item.data(1, 0), document_id=self.element_id
+        self.itemClicked.connect(
+            lambda item: self._state_manager.set_current_object(
+                object_id=item.data(1, Qt.ItemDataRole.UserRole),
+                document_id=self.document_id,
             )
         )
 
         # Set context menu policy
-        self.tree_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.tree_widget.customContextMenuRequested.connect(
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(
             lambda position: ContextMenu.create_dialog(
-                self.tree_widget, self._controller, position
+                tree_widget=self, controller=self._controller, position=position
             )
         )
 
         # Expand all items and disable double click expand
-        self.tree_widget.expandAll()
-        self.tree_widget.setExpandsOnDoubleClick(False)
-
-        layout.addWidget(self.tree_widget)
-        self.setLayout(layout)
+        self.expandAll()
+        self.setExpandsOnDoubleClick(False)
 
     # ----------------------------------------------------------------------
-    # Method     : delete_component
-    # Description: Delete the document tree component.
-    # Date       : 05/06/2023
+    # Method     : subscribe
+    # Description: Subscribe to events.
+    # Date       : 15/11/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def delete_component(self, *args, **kwargs) -> None:
+    def subscribe(self) -> None:
         """
-        Manage the deletion of the document tree component. Detach from
-        events and delete the component.
+        Subscribe the component to the events.
 
-        This method must be called by the parent component in order to
-        delete the document tree before deleting the parent (document tab)
+        DocumentTree component subscribes to the following events:
+            - ADD OBJECT -> update_on_add_object
+            - SAVE PROJECT -> update_on_save_project
+            - MODIFY OBJECT -> update_on_modify_object
+            - DELETE OBJECT -> update_on_delete_object
+            - SELECT OBJECT -> update_on_select_object
         """
-        # Detach from events
-        EventManager.detach(self)
-
-        # Delete the component
-        self.setParent(None)
-        self.deleteLater()
+        AddObjectEvent().connect(self.update_on_add_object)
+        SaveProjectEvent().connect(self.update_on_save_project)
+        ModifyObjectEvent().connect(self.update_on_modify_object)
+        DeleteObjectEvent().connect(self.update_on_delete_object)
+        SelectObjectEvent().connect(self.update_on_select_object)
 
     # ----------------------------------------------------------------------
     # Method     : populate_tree
@@ -244,21 +237,13 @@ class DocumentTree(QWidget):
         # Create the new item, if position is not None insert the item in
         # the given position
         if position is not None:
-            new_item = QTreeWidgetItem(None, [object.get_property("name").value])
+            new_item = QTreeWidgetItem()
             parent_item.insertChild(position, new_item)
         else:
-            new_item = QTreeWidgetItem(parent_item, [object.get_property("name").value])
+            new_item = QTreeWidgetItem(parent_item)
 
-        # Set the item color based on the object ProteusState
-        new_item.setForeground(0, TREE_ITEM_COLOR[object.state])
-
-        # Set the icon based on the object last class
-        object_class: str = object.classes[-1]
-        icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
-        new_item.setIcon(0, QIcon(icon_path.as_posix()))
-
-        # Set the item data to store the object id
-        new_item.setData(1, 0, object.id)
+        # Setup the new item with object information
+        self.tree_item_setup(new_item, object)
 
         # Add the new item to the tree items dictionary
         self.tree_items[object.id] = new_item
@@ -266,6 +251,64 @@ class DocumentTree(QWidget):
         # Check if the object has children
         for child in object.children:
             self.populate_tree(new_item, child)
+
+        new_item.setExpanded(True)
+
+    # ----------------------------------------------------------------------
+    # Method     : tree_item_setup
+    # Description: Setup the tree item for the given object.
+    # Date       : 01/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def tree_item_setup(self, tree_item: QTreeWidgetItem, object: Object) -> None:
+        """
+        Given an object, update the tree item properties to match the object
+        properties and state.
+
+        :param tree_item: The tree item to update
+        :param object: The object to match
+        """
+        # Set the background color based on the object ProteusState
+        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+
+        # Set the icon based on the object last class
+        object_class: ProteusClassTag = object.classes[-1]
+        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
+        tree_item.setIcon(0, QIcon(icon_path.as_posix()))
+
+        # Set the item data to store the object id
+        tree_item.setData(1, Qt.ItemDataRole.UserRole, object.id)
+
+        # Create item string from object properties
+        name_str = ""
+        code_str = ""
+
+        # Check for PROTEUS_CODE property
+        if object.get_property(PROTEUS_CODE) is not None:
+            code: ProteusCode = object.get_property(PROTEUS_CODE).value
+
+            # If not instance of ProteusCode, cast to string and log warning
+            if isinstance(code, ProteusCode):
+                code_str = f"[{code.to_string()}]"
+            else:
+                log.warning(
+                    f"PROTEUS_CODE property of object {object.id} is not instance of ProteusCode, casting to string."
+                )
+                code_str = f"[{str(code)}]"
+
+        # Check for PROTEUS_NAME property
+        name_property = object.get_property(PROTEUS_NAME)
+
+        assert isinstance(
+            name_property, Property
+        ), f"Every object must have a PROTEUS_NAME property. Check object {object.id} properties, current return type is {type(name_property)}"
+
+        name_str = str(name_property.value)
+
+        # Build the name string
+        item_string = f"{code_str} {name_str}".strip()
+        tree_item.setText(0, item_string)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -278,32 +321,36 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_modify_object(self, *args, **kwargs) -> None:
+    def update_on_modify_object(self, object_id: ProteusID) -> None:
         """
         Update the document tree when an object is modified. Look for the
         object in the tree items dictionary and update the tree item properties.
 
-        Triggered by: Event.MODIFY_OBJECT
-        """
-        # Get the modifies element id
-        element_id: ProteusID = kwargs.get("element_id")
+        Triggered by: ModifyObjectEvent
 
-        # Check the element id is not None
-        assert element_id is not None, "Element id is None on MODIFY_OBJECT event"
+        :param object_id: The object id to update
+        """
+        # Check the object id is not None
+        assert (
+            object_id is not None or object_id != ""
+        ), "Object id is None on MODIFY OBJECT event"
 
         # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
+        if object_id not in self.tree_items:
             return
 
         # Get the tree item
-        tree_item: QTreeWidgetItem = self.tree_items[element_id]
+        tree_item: QTreeWidgetItem = self.tree_items[object_id]
 
         # Get the object
-        object: Object = self._controller.get_element(element_id)
+        object: Object = self._controller.get_element(object_id)
 
-        # Update the tree item
-        tree_item.setText(0, object.get_property("name").value)
-        tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
+        assert isinstance(
+            object, Object
+        ), "Object is not instance of Object in MODIFY OBJECT event"
+
+        # Update the tree item with the object information
+        self.tree_item_setup(tree_item, object)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
@@ -312,12 +359,12 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_save_project(self, *args, **kwargs) -> None:
+    def update_on_save_project(self) -> None:
         """
         Update the document tree when a project is saved. Iterate over the
         tree items and set the color to black (no changes).
 
-        Triggered by: Event.SAVE_PROJECT
+        Triggered by: SaveProjectEvent
         """
         items = self.tree_items.values()
         for tree_item in items:
@@ -330,22 +377,29 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_add_object(self, *args, **kwargs) -> None:
+    def update_on_add_object(self, object_id: ProteusID) -> None:
         """
         Update the document tree when an object is added. Look for the
         parent item in the tree items dictionary and add the new item to
         the parent item including the new object children. Update the parent
         item color based on the parent object ProteusState.
 
-        Triggered by: Event.ADD_OBJECT
+        Triggered by: AddObjectEvent
+
+        :param object_id: The object id to add to the tree
         """
+        # Check the object id is not None
+        assert (
+            object_id is not None or object_id != ""
+        ), "Object id is None on ADD OBJECT event"
+
         # Get the new object
-        new_object: Object = kwargs.get("object")
+        new_object: Object = self._controller.get_element(object_id)
 
         # Check the object is instance of Object
         assert isinstance(
             new_object, Object
-        ), "Object is not instance of Object on ADD_OBJECT event"
+        ), "Object is not instance of Object on ADD OBJECT event"
 
         # Check if the parent item is in the tree items dictionary
         if new_object.parent.id not in self.tree_items:
@@ -353,6 +407,7 @@ class DocumentTree(QWidget):
 
         # Get the parent item
         parent_item: QTreeWidgetItem = self.tree_items[new_object.parent.id]
+        parent_item.setExpanded(True)
 
         # Update the parent item color
         # NOTE: Parent will always be an Object. Project cannot be selected
@@ -379,14 +434,16 @@ class DocumentTree(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_delete_object(self, *args, **kwargs) -> None:
+    def update_on_delete_object(self, object_id: ProteusID) -> None:
         """
         Update the document tree when an object is deleted. Look for the
         object in the tree items dictionary and remove the item from its
         parent item and tree items dictionary. Update the parent item color
         based on the parent object ProteusState.
 
-        Triggered by: Event.DELETE_OBJECT
+        Triggered by: DeleteObjectEvent
+
+        :param object_id: The object id to delete from the tree
         """
 
         def delete_item(item: QTreeWidgetItem) -> None:
@@ -406,56 +463,102 @@ class DocumentTree(QWidget):
             item.parent().removeChild(item)
 
             # Remove the item from the tree items dictionary
-            self.tree_items.pop(item.data(1, 0))
-
-        # Get the deleted object id
-        element_id: ProteusID = kwargs.get("element_id")
+            self.tree_items.pop(item.data(1, Qt.ItemDataRole.UserRole))
 
         # Check the element id is not None
-        assert element_id is not None, "Element id is None on DELETE_OBJECT event"
+        assert (
+            object_id is not None or object_id != ""
+        ), "Object id is None on DELETE OBJECT event"
 
         # Check if the element id is in the tree items dictionary
-        if element_id not in self.tree_items:
+        if object_id not in self.tree_items:
             return
 
         # Get the tree item
-        tree_item: QTreeWidgetItem = self.tree_items[element_id]
+        tree_item: QTreeWidgetItem = self.tree_items[object_id]
 
         # Get parent object to update the color
         # NOTE: Parent will always be an Object. Project cannot be selected
         #       as parent to trigger DELETE_OBJECT event. When deleting object
         #       with Project parent DELETE_DOCUMENT event is triggered.
-        parent_id: ProteusID = tree_item.parent().data(1, 0)
+        parent_id: ProteusID = tree_item.parent().data(1, Qt.ItemDataRole.UserRole)
         parent_object: Object = self._controller.get_element(parent_id)
         tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
         # Remove the item from the tree including its children
         delete_item(tree_item)
 
+        # Set current item to None
+        self.setCurrentItem(None)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_select_object
+    # Description: Update the document tree when an object is selected.
+    # Date       : 20/12/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_select_object(
+        self, selected_object_id: ProteusID, document_id: ProteusID
+    ) -> None:
+        """
+        Update the document tree when an object is selected. Look for the
+        object in the tree items dictionary and select the item.
+
+        Triggered by: SelectObjectEvent
+
+        :param selected_object_id: The object id to select
+        :param document_id: The document id reference
+        """
+        # Skip if the document id is different from the tree document id
+        if document_id != self.document_id:
+            return
+
+        # Check if the element id is in the tree items dictionary
+        if selected_object_id not in self.tree_items:
+            self.setCurrentItem(None)
+        else:
+            # Get the tree item
+            tree_item: QTreeWidgetItem = self.tree_items[selected_object_id]
+
+            # Select the item
+            self.setCurrentItem(tree_item)
+
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
 
+    # ======================================================================
+    # Component overriden methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
-    # Method     : drop_event
+    # Method     : dropEvent
     # Description: Manage the drop event. Move the dropped object to the
     #              target position.
     # Date       : 14/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def drop_event(self, event: QDropEvent):
+    def dropEvent(self, event: QDropEvent):
+        # Get the object that performs the drop
+        # NOTE: When drop is performed across different documents, source
+        # reference is the source tree widget and this drop event is called'
+        # from the target tree widget. This is necessary to get the dropped
+        # item.
+        source: QTreeWidget = event.source()
+
         # Get dropped element_id
-        dropped_item = self.tree_widget.currentItem()
-        dropped_element_id: ProteusID = dropped_item.data(1, 0)
+        dropped_item = source.currentItem()
+        dropped_element_id: ProteusID = dropped_item.data(1, Qt.ItemDataRole.UserRole)
 
         # Drop position
         point: QPoint = event.position().toPoint()
 
         # Get target element_id
-        target_item = self.tree_widget.itemAt(point)
+        target_item = self.itemAt(point)
         try:
-            target_element_id: ProteusID = target_item.data(1, 0)
+            target_element_id: ProteusID = target_item.data(1, Qt.ItemDataRole.UserRole)
         except AttributeError:
             log.warning(f"Target item not found at position {point}.")
             return
@@ -468,28 +571,38 @@ class DocumentTree(QWidget):
             # be added as a child of the target item. Otherwise, the dropped
             # item will be added as a sibling of the target item depending on
             # the drop position (above or below the target item).
-            target_rect = self.tree_widget.visualItemRect(target_item)
+            target_rect = self.visualItemRect(target_item)
             rect_center = target_rect.center()
             rect_height = target_rect.height()
 
             # Get the index of the target item
-            target_index: int = self.tree_widget.indexFromItem(target_item).row()
+            target_index: int = self.indexFromItem(target_item).row()
 
             # Get the parent id
+            parent_id: ProteusID = None
             try:
-                parent_id: ProteusID = target_item.parent().data(1, 0)
-            except AttributeError:
-                log.warning(
-                    "Failed to get the parent id of the target item. The target item is a root item."
+                parent_id: ProteusID = target_item.parent().data(
+                    1, Qt.ItemDataRole.UserRole
                 )
-                return
+            except AttributeError:
+                log.debug(
+                    f"Failed to get the parent id of the target item '{target_element_id}'. The target item is a root item (PROTEUS document)"
+                )
 
             try:
+                # Check the dropped item is different from the target item
+                assert (
+                    dropped_element_id != target_element_id
+                ), f"Cannot drop element {dropped_element_id} on itself."
+
                 # If in the 25% of the bottom of the target item, then add the
                 # dropped item as a sibling above the target item
-                if event.position().y() > rect_center.y() + rect_height / 4:
+                if (
+                    event.position().y() > rect_center.y() + rect_height / 4
+                    and parent_id
+                ):
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1}."
+                        f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1} parent {parent_id}."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, target_index + 1, parent_id
@@ -497,9 +610,12 @@ class DocumentTree(QWidget):
 
                 # If in the 25% of the top of the target item, then add the
                 # dropped item as a sibling below the target item
-                elif event.position().y() < rect_center.y() - rect_height / 4:
+                elif (
+                    event.position().y() < rect_center.y() - rect_height / 4
+                    and parent_id
+                ):
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index}."
+                        f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index} parent {parent_id}."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, target_index, parent_id
@@ -510,7 +626,7 @@ class DocumentTree(QWidget):
                 # dropped item will be added as the last child of the target item.
                 else:
                     log.info(
-                        f"Tree element with id {dropped_element_id} dropped inside {target_index} insert at the end of the children list."
+                        f"Tree element with id {dropped_element_id} dropped inside {target_element_id} inserted at the end of the children list."
                     )
                     self._controller.change_object_position(
                         dropped_element_id, None, target_element_id
@@ -522,10 +638,41 @@ class DocumentTree(QWidget):
                 # Show a message box to the user
                 QMessageBox.warning(
                     self,
-                    self.translator.text(
+                    self._translator.text(
                         "document_tree.drop_action.message_box.error.title"
                     ),
-                    self.translator.text(
+                    self._translator.text(
                         "document_tree.drop_action.message_box.error.text"
                     ),
                 )
+
+    # ----------------------------------------------------------------------
+    # Method     : dragEnterEvent
+    # Description: Manage the drag enter event. Check if the dragged
+    #              QTreeWidgetItem is a :Proteus-document class, if so do
+    #              not allow the drag event.
+    # Date       : 02/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        """
+        Check if the dragged QTreeWidgetItem is a :Proteus-document class,
+        if so do not allow the drag event.
+        """
+        super().dragEnterEvent(event)
+        # Get the object that performs the drag
+        source: QTreeWidget = event.source()
+        source_item: QTreeWidgetItem = source.currentItem()
+        source_item_id: ProteusID = source_item.data(1, Qt.ItemDataRole.UserRole)
+
+        # Get the object
+        object: Object = self._controller.get_element(source_item_id)
+
+        # Check PROTEUS class
+        if PROTEUS_DOCUMENT in object.classes:
+            event.ignore()
+            return
+        else:
+            event.accept()
+            return

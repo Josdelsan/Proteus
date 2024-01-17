@@ -18,7 +18,7 @@ from proteus.app import ProteusApplication
 
 def main() -> int:
     print("="*40)
-    print("PROTEUS application 0.1")
+    print("PROTEUS application v1.0.0-alpha.1")
     print("="*40)
 
     app = ProteusApplication()

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="vRBw8yzZixKg" classes="graphic-file" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[dummy]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="general">2023-11-21</dateProperty>
+    <floatProperty name="version" category="general">1.0</floatProperty>
+    <fileProperty name="file" category="general"><![CDATA[us-logo.jpg]]></fileProperty>
+    <markdownProperty name="description" category="details"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children/>
+  <traces>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource" traceType=":Proteus-dependency"/>
+  </traces>
+</object>

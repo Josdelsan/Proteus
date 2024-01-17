@@ -27,10 +27,9 @@ from PyQt6.QtWidgets import QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
-from proteus.views.main_window import MainWindow
-from proteus.views.utils.event_manager import EventManager
-from proteus.views.utils.state_manager import StateManager
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.views.components.main_window import MainWindow
+from proteus.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
@@ -58,7 +57,7 @@ def app(qtbot, mocker):
     mock_views_container(mocker)
 
     # Create the main window
-    main_window = MainWindow(parent=None)
+    main_window = MainWindow(parent=None, controller=Controller())
     
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
@@ -73,11 +72,13 @@ def app(qtbot, mocker):
 
 def load_project(
     main_window: MainWindow,
-    project_path: str = PROTEUS_TEST_SAMPLE_DATA_PATH,
+    project_path: str = PROTEUS_SAMPLE_DATA_PATH,
     project_name: str = TEST_PROJECT_NAME,
 ):
     """
     Handle the creation of the app and example project opening.
+
+    By default, 'example_project' is loaded.
 
     NOTE: Avoids opening the project using the dialog. Instead, uses
     the controller method directly.
@@ -92,10 +93,9 @@ def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
     """
-    EventManager.clear()
-    StateManager.current_document = None
-    StateManager.current_object = {}
-    StateManager.current_view = None
+    StateManager().current_document = None
+    StateManager().current_object = {}
+    StateManager().current_view = None
 
 
 def mock_views_container(mocker):
@@ -111,7 +111,7 @@ def mock_views_container(mocker):
     )
 
     mocker.patch(
-        "proteus.views.components.views_container.ViewsContainer.update_component",
+        "proteus.views.components.views_container.ViewsContainer.update_view",
         lambda *args, **kwargs: None,
     )
 

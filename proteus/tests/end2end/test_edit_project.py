@@ -23,15 +23,15 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-import pytest
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
+from proteus.model import PROTEUS_NAME
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -66,7 +66,7 @@ def test_edit_project(app):
 
     # Properties
     # NOTE: These are known existing properties
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     VERSION_PROP = "version"
     DESCRIPTION_PROP = "description"
 
@@ -95,7 +95,7 @@ def test_edit_project(app):
         # NOTE: inputs types are known so we can use setText and setPlainText
         dialog.input_widgets[NAME_PROP].input.setText(new_name)
         dialog.input_widgets[VERSION_PROP].input.setText(new_version)
-        dialog.input_widgets[DESCRIPTION_PROP].input.setPlainText(new_description)
+        dialog.input_widgets[DESCRIPTION_PROP].input.setMarkdown(new_description)
 
         # Accept dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
@@ -122,9 +122,9 @@ def test_edit_project(app):
 
         # Check properties changed
         nonlocal current_name, current_version, current_description
-        current_name = dialog.input_widgets[NAME_PROP].get_value()
-        current_version = dialog.input_widgets[VERSION_PROP].get_value()
-        current_description = dialog.input_widgets[DESCRIPTION_PROP].get_value()
+        current_name = str(dialog.input_widgets[NAME_PROP].get_value())
+        current_version = str(dialog.input_widgets[VERSION_PROP].get_value())
+        current_description = str(dialog.input_widgets[DESCRIPTION_PROP].get_value())
         # Close the dialog
         dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
 

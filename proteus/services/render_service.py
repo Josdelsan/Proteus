@@ -13,7 +13,6 @@
 import logging
 from typing import List, Dict
 from pathlib import Path
-import os
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,12 +24,12 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ASSETS_REPOSITORY
-from proteus.config import Config
-from proteus.services.utils import xslt_utils
+from proteus.utils.plugin_manager import PluginManager
+from proteus.utils.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: RenderService
@@ -53,7 +52,9 @@ class RenderService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, config: Config = None) -> None:
+    def __init__(
+        self, config: Config = None, plugin_manager: PluginManager = None
+    ) -> None:
         """
         Initialize the RenderService object. Load the XSLT templates.
         """
@@ -61,6 +62,10 @@ class RenderService:
         if config is None:
             config = Config()
         self.config = config
+
+        if plugin_manager is None:
+            plugin_manager = PluginManager()
+        self.plugin_manager = plugin_manager
 
         # Namespace configuration for the XSLT functions
         self._namespace_configuration()
@@ -87,9 +92,9 @@ class RenderService:
         ns = ET.FunctionNamespace("http://proteus.us.es/utils")
         ns.prefix = "proteus-utils"
 
-        # Register the function with the FunctionNamespace
-        ns["generate_markdown"] = xslt_utils.generate_markdown
-        ns["image_to_base64"] = xslt_utils.image_to_base64
+        # Register plugins functions
+        for name, func in self.plugin_manager.get_xslt_functions().items():
+            ns[name] = func
 
     # ----------------------------------------------------------------------
     # Method     : get_xslt
@@ -119,6 +124,7 @@ class RenderService:
             # Create the transformer from the xsl file
             transform = ET.XSLT(ET.parse(XSL_TEMPLATE))
 
+            # NOTE: Comment this line to make XSLT debugging easier
             # Store the transformation object for future use
             self._transformations[xslt_name] = transform
 
@@ -136,8 +142,23 @@ class RenderService:
         Render the given xml using the xslt_name template.
         """
         transform = self._get_xslt(xslt_name)
-        result_tree = transform(xml)
-        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True)
+        try:
+            result_tree = transform(xml)
+        except:
+            # Print the errors found while rendering and create an error tree to return
+            result_tree = ET.Element("errors")
+            for error in transform.error_log:
+                error_string = f"Line {error.line}, column {error.column}: {error.message} \n Domain: {error.domain} \n Type: {error.type} \n Level: {error.level} \n Filename: {error.filename} \n"
+                log.critical(
+                    f"Error found while rendering xml using template {xslt_name}: \n {error_string}"
+                )
+
+                error_element = ET.SubElement(result_tree, "error")
+                error_element.text = error.message
+
+        html_string = ET.tostring(
+            result_tree, encoding="unicode", pretty_print=True, method="html"
+        )
         return html_string
 
     # ----------------------------------------------------------------------

@@ -18,6 +18,7 @@
 import os
 import pathlib
 import shutil
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -31,21 +32,22 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_APP_PATH
-from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY
+from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY, PROTEUS_NAME
 from proteus.model.abstract_object import ProteusState
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import Property, STRING_PROPERTY_TAG
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.model.properties import STRING_PROPERTY_TAG
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests import fixtures
+from proteus.tests.fixtures import SampleData
 
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
 
 # NOTE: This is a sample project that is used for testing purposes.
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
 ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "archetypes"
 
 # --------------------------------------------------------------------------
@@ -77,7 +79,7 @@ def cloned_project(sample_project: Project) -> Project:
     """
     # Path to the cloned project
     new_project_dir_name = "cloned_project"
-    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    clone_path = PROTEUS_SAMPLE_DATA_PATH
     cloned_project_path = clone_path / new_project_dir_name
 
     # Remove cloned project if it exists
@@ -91,7 +93,7 @@ def cloned_project(sample_project: Project) -> Project:
 
     # Remove cloned project
     if os.path.exists(cloned_project_path):
-        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        os.chdir(PROTEUS_SAMPLE_DATA_PATH)
         shutil.rmtree(cloned_project_path)
 
 
@@ -256,7 +258,7 @@ def test_clone(test_project: Project):
     """
     # Path to the cloned project
     new_project_dir_name = "cloned_project"
-    clone_path = PROTEUS_TEST_SAMPLE_DATA_PATH
+    clone_path = PROTEUS_SAMPLE_DATA_PATH
     cloned_project_path = clone_path / new_project_dir_name
 
     # Remove cloned project if it exists
@@ -285,7 +287,7 @@ def test_clone(test_project: Project):
 
     # Clean up cloned project directory
     if os.path.exists(cloned_project_path):
-        os.chdir(PROTEUS_TEST_SAMPLE_DATA_PATH)
+        os.chdir(PROTEUS_SAMPLE_DATA_PATH)
         shutil.rmtree(cloned_project_path)
 
 
@@ -295,7 +297,7 @@ def test_set_property(sample_project: Project):
     """
     # Create property
     (new_property, name, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
 
     # Set property
@@ -333,7 +335,7 @@ def test_save_project(cloned_project: Project):
     """
     # Set a new name property value
     (new_property, _, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
     cloned_project.set_property(new_property)
 
@@ -366,12 +368,12 @@ def test_save_project_document_edit(cloned_project: Project):
     reading its xml file.
     """
     # Get document by id
-    document_id = "3fKhMAkcEe2C"
+    document_id = SampleData.get("document_1")
     document = [d for d in cloned_project.get_descendants() if d.id == document_id][0]
 
     # Set a new name property value
     (new_property, _, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
     document.set_property(new_property)
 
@@ -398,23 +400,17 @@ def test_save_project_document_edit(cloned_project: Project):
     assert xml_after_save == generated_xml, f"XML strings are not equal."
 
 
-@pytest.mark.skip
 def test_save_project_document_delete(cloned_project: Project):
     """
     Test Project save_project method checking that the object file
     is deleted and document is removed from project children dictionary.
     """
-    # Get document by id
-    document_id = "3fKhMAkcEe2C"
-    document: Object = [
-        d for d in cloned_project.get_descendants() if d.id == document_id
-    ][0]
-
     # Get number of documents before delete
     num_documents_before_delete = len(cloned_project.documents)
 
-    # Delete document and its children
-    # TODO: Delete method was moved to Service class. Update test.
+    # Delete document and its children (mark as DEAD)
+    document: Object = cloned_project.documents[0]
+    document.state = ProteusState.DEAD
 
     # Save project
     cloned_project.save_project()
@@ -432,5 +428,22 @@ def test_save_project_document_delete(cloned_project: Project):
         Expected: {num_documents_before_delete - 1} \
         Actual: {num_documents_after_delete}"
 
-    # TODO: Test load_xsl_templates
-    # TODO: Test add_descendant
+
+def test_load_xsl_templates(sample_project: Project):
+    """
+    Test Project load_xsl_templates method
+    """
+    # Expected xsl templates
+    expected_xsl_templates = ["default"]
+
+    # Parse and load XML into memory
+    root: ET.Element = ET.parse(sample_project.path).getroot()
+    actual_xsl_templates: List[str] = sample_project.load_xsl_templates(root)
+
+    # Check that xsl templates are equal
+    assert (
+        expected_xsl_templates == actual_xsl_templates
+    ), f"XSL templates are not equal. Expected: {expected_xsl_templates} \
+        Actual: {actual_xsl_templates}"
+
+    # TODO: Test add_descendant and accept descendant (not prioritary for project)

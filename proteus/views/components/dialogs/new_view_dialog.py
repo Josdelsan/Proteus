@@ -11,11 +11,14 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -29,9 +32,9 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.utils.translator import Translator
 from proteus.controller.command_stack import Controller
-
+from proteus.views import APP_ICON_TYPE
+from proteus.views.components.abstract_component import ProteusComponent
 
 # --------------------------------------------------------------------------
 # Class: NewViewDialog
@@ -40,7 +43,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewViewDialog(QDialog):
+class NewViewDialog(QDialog, ProteusComponent):
     """
     New view dialog component class for the PROTEUS application. It provides a
     dialog form to create new views from xsl templates.
@@ -55,20 +58,13 @@ class NewViewDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
+        self, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the new view dialog"
-        self._controller: Controller = controller
-
-        self.translator = Translator()
+        super(NewViewDialog, self).__init__(*args, **kwargs)
 
         # Create the component
         self.create_component()
@@ -84,15 +80,20 @@ class NewViewDialog(QDialog):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Set the dialog title
-        self.setWindowTitle(self.translator.text("new_view_dialog.title"))
+        # Set the dialog title and width
+        self.setWindowTitle(self._translator.text("new_view_dialog.title"))
+        self.sizeHint = lambda: QSize(300, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Get available xls templates to create a new view
         xls_templates: List[str] = self._controller.get_available_xslt()
 
         # Create a combo box with the available views
         view_label: QLabel = QLabel(
-            self.translator.text("new_view_dialog.combobox.label")
+            self._translator.text("new_view_dialog.combobox.label")
         )
         view_combo: QComboBox = QComboBox()
 
@@ -100,7 +101,8 @@ class NewViewDialog(QDialog):
         view_combo.addItems(xls_templates)
 
         # Create view message label
-        info_label: QLabel = QLabel(self.translator.text("new_view_dialog.info_text"))
+        info_label: QLabel = QLabel(self._translator.text("new_view_dialog.info_text"))
+        info_label.setWordWrap(True)
 
         # Create Save and Cancel buttons
         button_box: QDialogButtonBox = QDialogButtonBox(
@@ -116,7 +118,8 @@ class NewViewDialog(QDialog):
 
         # Error message label
         self.error_label: QLabel = QLabel()
-        self.error_label.setStyleSheet("color: red")
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Add the widgets to the layout
         layout.addWidget(view_label)
@@ -144,13 +147,13 @@ class NewViewDialog(QDialog):
         """
         if combo_text is None:
             self.error_label.setText(
-                self.translator.text("new_view_dialog.error.no_view_selected")
+                self._translator.text("new_view_dialog.error.no_view_selected")
             )
             return
 
         if combo_text in self._controller.get_project_templates():
             self.error_label.setText(
-                self.translator.text("new_view_dialog.error.duplicated_view")
+                self._translator.text("new_view_dialog.error.duplicated_view")
             )
             return
 
@@ -189,9 +192,10 @@ class NewViewDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller) -> None:
+    def create_dialog(controller: Controller) -> "NewViewDialog":
         """
         Create a new document dialog and show it
         """
         dialog = NewViewDialog(controller=controller)
         dialog.exec()
+        return dialog

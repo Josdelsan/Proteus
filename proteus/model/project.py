@@ -26,7 +26,7 @@ import os
 import pathlib
 import shutil
 import logging
-from typing import List
+from typing import List, MutableSet
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -38,6 +38,8 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 from proteus.model import (
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
     DOCUMENT_TAG,
     DOCUMENTS_TAG,
     OBJECTS_REPOSITORY,
@@ -49,7 +51,7 @@ from proteus.model import (
     XLS_TEMPLATE_TAG,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.config import Config
+from proteus.utils.config import Config
 
 # if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
@@ -104,11 +106,8 @@ class Project(AbstractObject):
             path
         ), f"PROTEUS projects must be located in a directory. {path} is not a directory."
 
-        # Change the current working directory
-        os.chdir(path)
-
         # Complete path to project file
-        project_file_path = f"./{PROJECT_FILE_NAME}"
+        project_file_path = f"{path}/{PROJECT_FILE_NAME}"
 
         # Check project file exists
         assert os.path.isfile(
@@ -148,18 +147,21 @@ class Project(AbstractObject):
         # Check root tag is <project>
         assert (
             root.tag == PROJECT_TAG
-        ), f"PROTUES project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
+        ), f"PROTEUS project file {project_file_path} must have <{PROJECT_TAG}> as root element, not {root.tag}."
 
         # Get project ID from XML
-        self.id = ProteusID(root.attrib["id"])
+        self.id = ProteusID(root.attrib[ID_ATTRIBUTE])
 
         # Load project's properties using superclass method
         super().load_properties(root)
 
+        # Project's ids, this variable is set in get_ids method
+        self._ids: MutableSet[ProteusID] = None
+
         # Template list
         self.xsl_templates: List[str] = self.load_xsl_templates(root)
 
-        # Documents dictionary
+        # Documents list
         self._documents: List[Object] = None
 
     # ----------------------------------------------------------------------
@@ -174,9 +176,9 @@ class Project(AbstractObject):
     def documents(self) -> List[Object]:
         """
         Property documents getter. Loads documents from XML file on demand.
-        :return: documents dictionary.
+        :return: documents list.
         """
-        # Check if documents dictionary is not initialized
+        # Check if documents list is not initialized
         if self._documents is None:
             # Initialize documents dictionary
             self._documents: List[Object] = []
@@ -184,8 +186,39 @@ class Project(AbstractObject):
             # Load documents from XML file
             self.load_documents()
 
-        # Return documents dictionary
+        # Return documents list
         return self._documents
+
+    # ----------------------------------------------------------------------
+    # Property   : ids
+    # Description: Property ids getter. Loads all ids from the project on
+    #              demand.
+    # Date       : 06/11/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @property
+    def ids(self) -> MutableSet[ProteusID]:
+        """
+        Property ids getter. Loads all ids from the project on demand.
+
+        This property is updated when add_descendant method is called
+        in project and add_descendant in object.
+
+        Ids must be recalculated when the project is saved.
+
+        :return: ids set.
+        """
+        # Check if ids set is not initialized
+        if self._ids is None:
+            # Initialize ids set
+            self._ids: MutableSet[ProteusID] = set()
+
+            # Load ids from XML file
+            self._ids = self.get_ids()
+
+        # Return ids set
+        return self._ids
 
     # ----------------------------------------------------------------------
     # Method     : load_documents
@@ -219,7 +252,7 @@ class Project(AbstractObject):
         # TODO: check document_element tag is <document>
         document_element: ET.Element
         for document_element in documents_element:
-            document_id: ProteusID = document_element.attrib.get("id", None)
+            document_id: ProteusID = document_element.attrib.get(ID_ATTRIBUTE, None)
 
             # Check whether the document has an ID
             assert (
@@ -260,7 +293,7 @@ class Project(AbstractObject):
         xsl_template_element: ET.Element
         xsl_templates: List[str] = []
         for xsl_template_element in xsl_templates_element:
-            xsl_template_name: str = xsl_template_element.attrib.get("name", None)
+            xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTRIBUTE, None)
 
             # NOTE: Templates that are not in the system installation are
             #       ignored and not saved later
@@ -281,7 +314,7 @@ class Project(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_descendants(self) -> List:
+    def get_descendants(self) -> List[Object]:
         """
         It returns a list with all the documents of a project.
         :return: list with all the documents of a project.
@@ -315,15 +348,10 @@ class Project(AbstractObject):
             document, Object
         ), f"Document {document} is not a valid PROTEUS object."
 
-        # Check if the document is already in the project
+        # Check if the document is a Proteus document
         assert (
             PROTEUS_DOCUMENT in document.classes
         ), f"The object is not a Proteus document. Object is class: {document.classes}"
-
-        # Check if the document is already in the project
-        assert document.id not in [
-            o.id for o in self.documents
-        ], f"Document {document.id} is already in the project {self.id}."
 
         # Add the document to the project
         self.documents.insert(position, document)
@@ -331,6 +359,9 @@ class Project(AbstractObject):
 
         # Set dirty flag
         self.state = ProteusState.DIRTY
+
+        # Add the document id to the ids set
+        self.ids.add(document.id)
 
     # ----------------------------------------------------------------------
     # Method     : accept_descendant
@@ -342,9 +373,8 @@ class Project(AbstractObject):
 
     def accept_descendant(self, child: Object) -> bool:
         """
-        Checks if a child is accepted by a PROTEUS object. Parent must accept
-        :Proteus-any and child must not be strictParent. StrictParent objects
-        only accept parents that where they are explicitly accepted.
+        Checks if a child is accepted by a PROTEUS project. Projects only
+        accept documents.
 
         :param child: Child Object to be checked.
         """
@@ -370,7 +400,7 @@ class Project(AbstractObject):
         """
         # Create <project> element and set ID
         project_element = ET.Element(PROJECT_TAG)
-        project_element.set("id", self.id)
+        project_element.set(ID_ATTRIBUTE, self.id)
 
         # Create <properties> element
         super().generate_xml_properties(project_element)
@@ -382,7 +412,7 @@ class Project(AbstractObject):
         for document in self.documents:
             if document.state != ProteusState.DEAD:
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-                document_element.set("id", document.id)
+                document_element.set(ID_ATTRIBUTE, document.id)
 
         # Create <xsl_templates> element
         xsl_templates_element = ET.SubElement(project_element, XSL_TEMPLATES_TAG)
@@ -392,7 +422,7 @@ class Project(AbstractObject):
             xsl_template_element = ET.SubElement(
                 xsl_templates_element, XLS_TEMPLATE_TAG
             )
-            xsl_template_element.set("name", xsl_template)
+            xsl_template_element.set(NAME_ATTRIBUTE, xsl_template)
 
         return project_element
 
@@ -424,6 +454,10 @@ class Project(AbstractObject):
                 self.path, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
             self.state = ProteusState.CLEAN
+
+        # Set the ids set to None to recalculate them when they are needed
+        # This is done to delete the ids of the deleted documents
+        self._ids = None
 
         log.info(f"Project saved successfully.")
 

@@ -15,7 +15,7 @@
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/madeja.css"/>
                 
                 <title>
-                    <xsl:value-of select="properties/stringProperty[@name='name']"/>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                     <xsl:text> </xsl:text>
                  </title>
                  <style>

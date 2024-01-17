@@ -11,27 +11,28 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
+from typing import List
 import sys
 import logging
+import traceback
+import shutil
 
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import lxml.etree as ET
-from proteus.config import Config
-from proteus.model.abstract_object import ProteusState
-from proteus.model.project import Project
-from proteus.model.object import Object
-from proteus.model.archetype_manager import ArchetypeManager
-from proteus.model.properties import EnumProperty, Property, StringProperty
-from proteus.views.main_window import MainWindow
+from proteus import PROTEUS_LOGGING_DIR
+from proteus.utils.config import Config
+from proteus.utils.plugin_manager import PluginManager
+from proteus.views.components.main_window import MainWindow
+from proteus.utils.translator import Translator
+from proteus.controller.command_stack import Controller
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -44,12 +45,16 @@ log = logging.getLogger(__name__)
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
+
 class ProteusApplication:
     def __init__(self):
         """
         It initializes the PROTEUS application.
         """
-        self.config : Config = Config()
+        self.config: Config = Config()
+        self.plugin_manager: PluginManager = PluginManager()
+        self.app: QApplication = None
+        self.main_window: MainWindow = None
 
     def run(self) -> int:
         """
@@ -64,114 +69,138 @@ class ProteusApplication:
         log.info(f"{self.config.icons_directory = }")
         log.info(f"{self.config.archetypes_directory = }")
 
-        # self._old_main_tests()
+        # Load plugins
+        self.plugin_manager.load_plugins()
 
         # Create the application instance
-        app = QApplication(sys.argv)
+        sys.excepthook = self.excepthook
+        self.app = QApplication(sys.argv)
+
+        with open(
+            self.config.resources_directory / "stylesheets" / "proteus.qss", "r"
+        ) as f:
+            _stylesheet = f.read()
+            self.app.setStyleSheet(_stylesheet)
 
         # Create the main window
-        window = MainWindow(parent=None)
-        window.show()
+        self.main_window = MainWindow(parent=None, controller=Controller())
+        self.main_window.show()
+
+        # Check plugins dependencies
+        self.check_plugins_dependencies()
+
+        # Load proteus components from plugins
+        self.load_plugin_components()
 
         # Execute the application
-        sys.exit(app.exec())
+        sys.exit(self.app.exec())
 
+    # --------------------------------------------------------------------------
+    # Method: check_plugins_dependencies
+    # Description: Check if all the plugins dependencies are satisfied.
+    # Date: 08/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def check_plugins_dependencies(self) -> None:
+        """
+        Check if all the plugins dependencies are satisfied. Do not return
+        anything. If there is a dependency that is not satisfied, the
+        application will crash.
+        """
+        loaded_plugins: List[str] = self.plugin_manager.get_plugins()
 
-    def _old_main_tests(self):
-        project : Project = Project.load(self.config.base_directory / "tests" / "sample_data" / "example_project")
+        for template, plugins in self.config.xslt_dependencies.items():
+            for plugin in plugins:
+                if plugin not in loaded_plugins:
+                    raise Exception(
+                        f"Plugin dependency not satisfied: '{plugin}' for template {template}. Current loaded plugins: {loaded_plugins}"
+                    )
 
-        property : Property
-        for property in project.properties.values():
-            print( f"{property.__class__.__name__} {property.name} = {property.value}" )
+    # --------------------------------------------------------------------------
+    # Method: load_plugin_components
+    # Description: Load the ProteusComponents from the plugins.
+    # Date: 09/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    # NOTE: This is done in app module to keep the main window clean. These are
+    # components that will be not displayed but need access to the backend to
+    # perform complex operations.
+    def load_plugin_components(self) -> None:
+        """
+        Load the ProteusComponents from the plugins. It uses MainWindow instance
+        as parent for the components.
+        """
+        for component in self.plugin_manager.get_proteus_components().values():
+            try:
+                component(self.main_window)
+            except Exception as e:
+                log.critical(f"Error loading proteus component from plugin: {e}")
 
-        document : Object
-        for document in project.documents:
-            print( f"document {document.id=}" )
+    # --------------------------------------------------------------------------
+    # Method: excepthook
+    # Description: Handle uncaught exceptions in the application.
+    # Date: 01/12/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    # NOTE: Exception handling for QApplication must be done overriding the
+    # excepthook method. Otherwise, it will depend on the thread where the
+    # exception is raised.
+    # https://stackoverflow.com/questions/55819330/catching-exceptions-raised-in-qapplication
+    def excepthook(self, exc_type, exc_value, exc_tb):
+        tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        log.critical("Uncaught exception:\n" + tb)
 
-        print("project.xml")
-        print("------------")
+        # Show the exception and its traceback in a message box
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Icon.Critical)
+        error_dialog.setWindowTitle(Translator().text("app.critical_error.title"))
+        error_dialog.setText(Translator().text("app.critical_error.text"))
+        error_dialog.setInformativeText(tb)
+        error_dialog.exec()
 
-        print( ET.tostring(project.generate_xml(),
-            xml_declaration=True,
-            encoding='utf-8',
-            pretty_print=True).decode() )
+        # Override closeEvent in main window to avoid asking for confirmation
+        # when closing the application
+        self.main_window.closeEvent = lambda event: event.accept()
 
-        for document in project.documents:
-            print(f"{document.id}.xml")
-            print("------------------")
-            print( ET.tostring(document.generate_xml(),
-                xml_declaration=True,
-                encoding='utf-8',
-                pretty_print=True).decode() )
+        self.handle_critical_error()
 
-            print("Document Properties Tests")
-            print("------------")
+    # --------------------------------------------------------------------------
+    # Method: handle_critical_error
+    # Description: Handle a critical error in the application quitting the
+    # application.
+    # Date: 01/12/2023
+    # Version: 0.1
+    # --------------------------------------------------------------------------
+    # TODO: Find a way to store application state before quitting
+    # and restore it when the application is restarted.
+    def handle_critical_error(self):
+        """
+        Handle a critical error in the application quitting the application.
+        """
+        # Before quitting, try to disconnect signals
+        try:
+            self.main_window._controller.stack.canRedoChanged.disconnect()
+            self.main_window._controller.stack.canUndoChanged.disconnect()
+            self.main_window._controller.stack.cleanChanged.disconnect()
+            self.main_window._controller.stack.clear()
+            self.main_window._controller.stack.deleteLater()
+        except Exception as e:
+            log.critical(f"Error clearing the undo stack: {e}")
 
-            print(document.get_property("name").value)
+        # Select last log file
+        log_files = sorted(PROTEUS_LOGGING_DIR.glob("*.log"))
+        log_file = log_files[-1]
 
-            document.set_property(StringProperty("name", "NewName"))
+        # Build new crash report file name
+        log_file_name = log_file.name
+        crash_report_file_name = f"proteus_crash_report-{log_file_name}"
 
-            print(document.get_property("name").value)
-            print("------------")
+        # Copy log file to cwd with new name
+        crash_report_file = Path.cwd() / crash_report_file_name
+        shutil.copy(log_file, crash_report_file)
 
-        print("Project Properties Tests")
-        print("------------------------")
-
-        enum_property : EnumProperty = project.get_property("stability")
-
-        print(f"{enum_property.value=}")
-
-        project.set_property(EnumProperty(enum_property.name, "baja", enum_property.get_choices_as_set()))
-
-        print(project.get_property("stability").value)
-
-        print("Archetype Object Test")
-        print("------------------------")
-        objects = ArchetypeManager.load_object_archetypes()
-        for key, value in objects.items():
-            print(f"{key}:")
-            for obj in value:
-                print(f"\t{obj.id}")
-                print(f"\t\t{obj.children}")
-
-        
-
-        print("Archetype Document Test")
-        print("------------------------")
-        documents = ArchetypeManager.load_document_archetypes()
-        for document in documents:
-            print(document.path, "\n", document.id)
-            print(document.children)
-
-        print("Archetype Project Test")
-        print("------------------------")
-        projects = ArchetypeManager.load_project_archetypes()
-        for project_arch in projects:
-            print(project_arch.path, "\n", project_arch.id)
-            print(project_arch.documents)
-
-
-        # # object2 = Object(project, self.config.archetypes_directory / "objects" / "general" / "empty-section.xml")
-
-        # object2 = Object(project, self.config.archetypes_directory / "documents" / "empty-document" / "objects" / "empty-document-01.xml")
-        # object2.clone_object(project)
-        # for doc in project.documents.values():
-        #     doc.state = ProteusState.DEAD
-            
-
-
-
-        # BUG this won't work because the pointer is different from document.children 
-        # object1 = Object(project, "../../proteus/tests/objects/64xM8FLyxtaE.xml")
-        # object1.set_property(StringProperty("name", "NewName"))
-
-        # On the other hand, this will work.
-        # for document in project.documents.values():
-        #     if(str(document.id) == "3fKhMAkcEe2C"):
-        #         for child in document.children.values():
-        #             print("HERE")
-        #             print(child.id)
-        #             child.set_property(StringProperty("name", "NewName"))
-        
-        # project.save_project()
-
+        # Quit the application
+        self.app.quit()

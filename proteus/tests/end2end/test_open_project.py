@@ -29,15 +29,15 @@ from PyQt6.QtCore import QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
-from proteus.views.main_window import MainWindow
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.views.components.main_window import MainWindow
 from proteus.tests.end2end.fixtures import app
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
 
 
 # --------------------------------------------------------------------------
@@ -126,16 +126,16 @@ def test_open_project(mocker, app):
         documents_container.__class__.__name__ == "DocumentsContainer"
     ), f"Expected documents container to be a DocumentsContainer, got {documents_container.__class__.__name__}"
 
+    # Expected documents
+    expected_doc_number: int = main_window._controller.get_current_project().get_descendants().__len__()
+
     # Check documents container tabs and tree chidlren correspond
     assert (
-        documents_container.tabs.keys().__len__() == 4
-    ), f"Expected 3 tabs, got {documents_container.tabs.keys().__len__()}"
-    assert (
-        documents_container.tabs.keys() == documents_container.tab_children.keys()
-    ), f"Expected DocumentTree children to match tabs number but got {documents_container.tab_children.keys().__len__()}"
+        documents_container.tabs.keys().__len__() == expected_doc_number
+    ), f"Expected {expected_doc_number} tabs, got {documents_container.tabs.keys().__len__()}"
 
     # Check each document tree has at least one tree item
-    for document_tree in documents_container.tab_children.values():
+    for document_tree in documents_container.tabs.values():
         assert (
             document_tree.__class__.__name__ == "DocumentTree"
         ), f"Expected document tree to be a DocumentTree, got {document_tree.__class__.__name__}"

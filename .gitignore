@@ -1,4 +1,5 @@
 clone_test/*
+.tests
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -111,6 +112,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+proteus_env/
 
 # Spyder project settings
 .spyderproject
@@ -130,3 +132,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /.vscode/settings.json
+
+docs/

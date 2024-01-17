@@ -18,7 +18,8 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:proteus="http://proteus.us.es"
-    exclude-result-prefixes="proteus"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus proteus-utils"
 >
 
 <!-- Same as default in REM 1.2.2 -->
@@ -30,6 +31,7 @@
 <xsl:variable name="proteus:lang_attribute">Attribute</xsl:variable>
 <xsl:variable name="proteus:lang_authors">Authors</xsl:variable>
 <xsl:variable name="proteus:lang_average">Average</xsl:variable>
+<xsl:variable name="proteus:lang_category">Category</xsl:variable>
 <xsl:variable name="proteus:lang_comments">Comments</xsl:variable>
 <xsl:variable name="proteus:lang_components">Components</xsl:variable>
 <xsl:variable name="proteus:lang_condition">Condition</xsl:variable>
@@ -117,6 +119,7 @@
 <xsl:variable name="proteus:lang_variable_role">Variable role</xsl:variable>
 <xsl:variable name="proteus:lang_version">Version</xsl:variable>
 <xsl:variable name="proteus:lang_yes">Yes</xsl:variable>
+<xsl:variable name="proteus:lang_symlink_tooltip">This is a representation of the original object. Modifying this object will modify the original.</xsl:variable>
 
 <!-- new in PROTEUS -->
 <xsl:variable name="proteus:lang_code_attributes">// attributes</xsl:variable>

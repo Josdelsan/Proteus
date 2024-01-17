@@ -27,15 +27,15 @@ import shutil
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
-from proteus.views.main_window import MainWindow
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.tests.end2end.fixtures import app
 
@@ -44,7 +44,7 @@ from proteus.tests.end2end.fixtures import app
 # --------------------------------------------------------------------------
 
 PROJECT_NAME = "Aceptance test dummy empty project"
-PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH
+PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH
 
 # --------------------------------------------------------------------------
 # End to end "create project" tests
@@ -87,7 +87,7 @@ def test_create_project(app):
         # to select the correct archetype
         dialog._archetype_id = "empty-project"
         dialog.name_input.setText(PROJECT_NAME)
-        dialog.path_input.setText(str(PROJECT_PATH))
+        dialog.path_input.setDirectory(str(PROJECT_PATH))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # Open project button click
@@ -144,14 +144,9 @@ def test_create_project(app):
     assert (
         documents_container.tabs.keys().__len__() == 1
     ), f"Documents container has not only one tab, number of tabs: '{documents_container.tabs.keys().__len__()}'"
-    assert documents_container.tabs.keys() == documents_container.tab_children.keys(), (
-        f"Documents container tabs and tree children do not correspond"
-        f"tabs: '{documents_container.tabs.keys()}'"
-        f"tree children: '{documents_container.tab_children.keys()}'"
-    )
 
     # Check each document tree has at least one tree item
-    for document_tree in documents_container.tab_children.values():
+    for document_tree in documents_container.tabs.values():
         assert (
             document_tree.__class__.__name__ == "DocumentTree"
         ), f"Document tree is not a DocumentTree, '{document_tree.__class__.__name__}'"
@@ -174,8 +169,11 @@ def test_create_project(app):
     [
         ("", "Project name", "new_project_dialog.error.invalid_path"),
         (None, "Project name", "new_project_dialog.error.invalid_path"),
-        (PROJECT_PATH, "", "new_project_dialog.error.invalid_name"),
-        (PROJECT_PATH, None, "new_project_dialog.error.invalid_name"),
+        (PROJECT_PATH, "", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, None, "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "/test", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "1:0test", "new_project_dialog.error.invalid_folder_name"),
+        (PROJECT_PATH, "test?", "new_project_dialog.error.invalid_folder_name"),
         (
             PROJECT_PATH,
             "example_project",
@@ -202,7 +200,7 @@ def test_create_project_negative(
     main_window: MainWindow = app
 
     # Translator instace to translate error messages
-    translator = main_window.translator
+    translator = main_window._translator
 
     # Variables to later checking
     # NOTE: Assertions cannot be done inside nested functions
@@ -220,7 +218,7 @@ def test_create_project_negative(
 
         dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
         dialog.name_input.setText(project_name)
-        dialog.path_input.setText(str(project_path))
+        dialog.path_input.setDirectory(str(project_path))
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
         # Store error label text

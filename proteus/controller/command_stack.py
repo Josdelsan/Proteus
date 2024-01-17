@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict, Union
+from typing import List, Set, Dict, Union
 import logging
 
 # --------------------------------------------------------------------------
@@ -24,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, ProteusClassTag
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
     CloneArchetypeObjectCommand,
@@ -41,10 +41,21 @@ from proteus.controller.commands.change_object_position import (
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.views.utils.event_manager import EventManager, Event
+from proteus.utils.state_manager import StateManager
+from proteus.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
+from proteus.model.trace import Trace
+
+from proteus.utils.events import (
+    AddViewEvent,
+    DeleteViewEvent,
+    StackChangedEvent,
+    RequiredSaveActionEvent,
+    OpenProjectEvent,
+    SaveProjectEvent,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -78,11 +89,12 @@ class Controller:
         render_service: RenderService = None,
     ) -> None:
         """
-        Initialize the Controller object.
+        Initialize the Controller object. It allows to inject the services.
+
+        NOTE: ProjectService is initialized when the project is loaded. Its
+        lifecycle depends on the project lidecycle.
         """
         # Dependency injection ------------------
-        if project_service is None:
-            project_service = ProjectService()
         if archetype_service is None:
             archetype_service = ArchetypeService()
         if render_service is None:
@@ -97,15 +109,9 @@ class Controller:
         self.stack: QUndoStack = QUndoStack()
 
         # Connect the signals to the event manager to notify the frontend
-        self.stack.canRedoChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
-        self.stack.canUndoChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
-        self.stack.cleanChanged.connect(
-            lambda: EventManager().notify(event=Event.STACK_CHANGED)
-        )
+        self.stack.canRedoChanged.connect(StackChangedEvent().notify)
+        self.stack.canUndoChanged.connect(StackChangedEvent().notify)
+        self.stack.cleanChanged.connect(StackChangedEvent().notify)
 
     # ======================================================================
     # Command stack methods
@@ -133,7 +139,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def undo(self) -> None:
+    @proteus_action
+    def undo(self, *args, **kwargs) -> None:
         """
         Undo the last command. Only works if the command is undoable.
         """
@@ -147,7 +154,8 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def redo(self) -> None:
+    @proteus_action
+    def redo(self, *args, **kwargs) -> None:
         """
         Redo the last command. Only works if the command is
         undoable/redoable.
@@ -167,12 +175,13 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def update_properties(
-        self, element_id: ProteusID, new_properties: List[Property]
+        self, element_id: ProteusID, new_properties: List[Union[Property, Trace]]
     ) -> None:
         """
-        Update the properties of an element given its id. It pushes the
-        command to the command stack.
+        Update the properties (and traces) of an element given its id.
+        It pushes the command to the command stack.
 
         Notify the frontend components when the command is executed passing
         the element_id as a parameter. MODIFY_OBJECT event is triggered.
@@ -184,6 +193,21 @@ class Controller:
         log.info(
             f"Updating properties of element with id: {element_id}. New properties: {new_properties}"
         )
+
+        # Check element_id is not None
+        assert element_id is not None, "Element id can not be None"
+
+        # Check new_properties is a list
+        assert isinstance(
+            new_properties, list
+        ), f"New properties must be a list. New properties: {new_properties}"
+
+        # Check new properties are type of Property or Trace
+        assert all(
+            isinstance(property, (Property, Trace)) for property in new_properties
+        ), f"New properties must be type of Property or Trace. New properties: {new_properties}"
+
+        # Push the command to the command stack
         self._push(
             UpdatePropertiesCommand(
                 element_id=element_id,
@@ -200,6 +224,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def clone_object(self, object_id: ProteusID) -> None:
         """
         Clone an object given its id. It pushes the command to the command
@@ -229,6 +254,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def delete_object(self, object_id: ProteusID) -> None:
         """
         Delete an object given its id. It pushes the command to the command
@@ -241,6 +267,11 @@ class Controller:
         """
         # Push the command to the command stack
         log.info(f"Deleting object with id: {object_id}")
+
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Push the command to the command stack
         self._push(
             DeleteObjectCommand(
                 object_id=object_id, project_service=self._project_service
@@ -255,6 +286,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def change_object_position(
         self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
     ) -> None:
@@ -270,17 +302,17 @@ class Controller:
         :param new_position: The new position of the object.
         :param new_parent_id: The new parent of the object.
         """
-        # Check the object is accepted by the parent
-        parent: Union[Project, Object] = self._project_service._get_element_by_id(
-            new_parent_id
-        )
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
 
-        # Get the object
-        object: Object = self._project_service._get_element_by_id(object_id)
+        # Check new_parent_id is not None
+        assert new_parent_id is not None, "New parent id can not be None"
 
-        # Check the object is accepted by the parent
-        assert parent.accept_descendant(
-            object
+        # Check the position change is possible
+        assert self._project_service.check_position_change(
+            object_id=object_id,
+            new_position=new_position,
+            new_parent_id=new_parent_id,
         ), f"Object {object_id} is not accepted by parent {new_parent_id}"
 
         # Push the command to the command stack
@@ -303,10 +335,11 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     # NOTE: This action is not undoable. This decision was made because of
-    # the behaviour of tabMoved signal of QTabBar, which while moving tabs
-    # instead of emitting the signal once is dropped. In projects with multiple
+    # the behaviour of tabMoved signal of QTabBar, which is triggered while moving
+    # tabs instead of emitting the signal once is dropped. In projects with multiple
     # documents this might cause a lot of undo commands to be pushed to the
     # command stack obfuscating the undo/redo history.
+    @proteus_action
     def change_document_position(
         self, document_id: ProteusID, new_position: int
     ) -> None:
@@ -331,12 +364,12 @@ class Controller:
         )
         # Call ProjectService method
         self._project_service.change_object_position(
-            document.id, new_position, self._project_service.project
+            document.id, new_position, self._project_service.project.id
         )
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+        RequiredSaveActionEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : delete_document
@@ -346,6 +379,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def delete_document(self, document_id: ProteusID) -> None:
         """
         Delete a document given its id. It pushes the command to the command
@@ -356,8 +390,12 @@ class Controller:
 
         :param document_id: The id of the document to delete.
         """
-        # Push the command to the command stack
         log.info(f"Deleting document with id: {document_id}")
+
+        # Check document_id is not None
+        assert document_id is not None, "Document id can not be None"
+
+        # Push the command to the command stack
         self._push(
             DeleteDocumentCommand(
                 document_id=document_id, project_service=self._project_service
@@ -371,9 +409,11 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def load_project(self, project_path: str) -> None:
         """
-        Load a project from a given path.
+        Load a project from a given path. It initializes a new the project
+        service and clears command stack and state manager.
 
         Notify the frontend components when the command is executed. OPEN_PROJECT
         event is triggered.
@@ -381,8 +421,22 @@ class Controller:
         :param project_path: The path of the project to load.
         """
         log.info(f"Loading project from path: {project_path}")
+
+        # Initialize the project service
+        self._project_service = ProjectService()
+
+        # Load the project
         self._project_service.load_project(project_path)
-        EventManager().notify(event=Event.OPEN_PROJECT)
+
+        # Clear the command stack
+        # This triggers the STACK_CHANGED event
+        self.stack.clear()
+
+        # TODO: Consider if this is the right place to clear the StateManager.
+        # It must be done before notifying the OPEN_PROJECT event to avoid
+        # inconsistencies in the subscribed components.
+        StateManager().clear()
+        OpenProjectEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : get_object_structure
@@ -396,6 +450,10 @@ class Controller:
         Get the structure of an object given its id.
         """
         log.info(f"Getting structure of object with id: {object_id}")
+
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
         return self._project_service.get_object_structure(object_id)
 
     # ----------------------------------------------------------------------
@@ -413,6 +471,20 @@ class Controller:
         return self._project_service.get_project_structure()
 
     # ----------------------------------------------------------------------
+    # Method     : get_objects
+    # Description: Get the objects of the current project.
+    # Date       : 25/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_objects(self, classes: List[ProteusClassTag] = []) -> List[Object]:
+        """
+        Get the objects of the current project. They can be filtered by classes.
+        """
+        log.info(f"Getting objects of current project with classes: {classes}")
+        return self._project_service.get_objects(classes)
+
+    # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Save the current project state including all the children
     #              objects and documents.
@@ -420,6 +492,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def save_project(self) -> None:
         """
         Save the current project state including all the children objects
@@ -428,7 +501,7 @@ class Controller:
         log.info("Saving current project")
         self._project_service.save_project()
         self.stack.clear()
-        EventManager().notify(event=Event.SAVE_PROJECT)
+        SaveProjectEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : get_element
@@ -440,6 +513,11 @@ class Controller:
     def get_element(self, element_id: ProteusID) -> Union[Object, Project]:
         """
         Get the element given its id.
+
+        Raises an exception if the element is not found.
+
+        :param element_id: The id of the element to get.
+        :return: The element with the given id. Project or Object.
         """
         return self._project_service._get_element_by_id(element_id)
 
@@ -450,30 +528,50 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_current_project(self) -> Project:
+    def get_current_project(self) -> Union[Project, None]:
         """
         Get the id of the current project.
+
+        If project service is not initialized, it returns None.
         """
+        if self._project_service is None:
+            return None
+        
         current_project: Project = self._project_service.project
 
         assert current_project is not None, "Project is not loaded"
 
         return self._project_service.project
 
+    # ----------------------------------------------------------------------
+    # Method     : get_traces_dependencies
+    # Description: Checks if the given object has traces pointing to it.
+    # Date       : 27/10/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traces_dependencies(self, object_id: ProteusID) -> Dict[ProteusID, Set]:
+        """
+        Checks if the given object and its children have traces pointing to them.
+
+        :param object_id: Id of the object to check.
+        :return: Dictionary with sets of sources ids pointing to each object.
+        """
+        return self._project_service.get_traces_dependencies_outside(object_id)
+
     # ======================================================================
     # Document views methods
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : get_document_default_view
-    # Description: Get the xml of a document given its id.
+    # Method     : get_html_view
+    # Description: Get the HTML view of the document given a XSLT template
+    #              name.
     # Date       : 23/06/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_document_view(
-        self, document_id: ProteusID, xslt_name: str = "default"
-    ) -> str:
+    def get_html_view(self, xslt_name: str = "default") -> str:
         """
         Get the string representation of the document view given its id. The
         view is generated using the xslt file specified in the xslt_name. If
@@ -484,10 +582,10 @@ class Controller:
         :param document_id: The id of the document to get the view.
         :param xslt_name: The name of the xslt file to use.
         """
-        log.info(f"Getting {xslt_name} view of document with id: {document_id}")
+        log.info(f"Getting {xslt_name} render of project.")
 
         # Get the document xml
-        xml: ET.Element = self._project_service.generate_document_xml(document_id)
+        xml: ET.Element = self._project_service.generate_project_xml()
 
         html_string: str = self._render_service.render(xml, xslt_name)
 
@@ -542,11 +640,11 @@ class Controller:
         self._project_service.add_project_template(template_name)
 
         # Trigger ADD_VIEW event notifying the new template
-        EventManager.notify(Event.ADD_VIEW, xslt_name=template_name)
+        AddViewEvent().notify(template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
+        RequiredSaveActionEvent().notify()
 
     # ----------------------------------------------------------------------
     # Method     : delete_project_template
@@ -568,30 +666,11 @@ class Controller:
         self._project_service.delete_project_template(template_name)
 
         # Trigger REMOVE_VIEW event
-        EventManager.notify(Event.DELETE_VIEW, xslt_name=template_name)
+        DeleteViewEvent().notify(template_name)
 
         # Notify that this action requires saving even if the command is not
         # undoable
-        EventManager.notify(Event.REQUIRED_SAVE_ACTION)
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_unused_assets
-    # Description: Delete the assets that are not used in the project.
-    # Date       : 12/07/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_unused_assets(self) -> None:
-        """
-        Delete the assets that are not used in the project.
-
-        This operation may be performed when the project is saved or close.
-        It can be costly in terms of performance due to the way fileProperties
-        are accessed in the objects.
-        """
-        log.info("Deleting unused assets from the project")
-
-        self._project_service.delete_unused_assets()
+        RequiredSaveActionEvent().notify()
 
     # ======================================================================
     # Archetype methods
@@ -605,6 +684,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_project(self, archetype_id, name, path) -> None:
         """
         Create a new project with the given archetype id, name and path.
@@ -628,6 +708,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_object(self, archetype_id: ProteusID, parent_id: ProteusID) -> None:
         """
         Create a new object with the given archetype id and parent id.
@@ -653,6 +734,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    @proteus_action
     def create_document(self, archetype_id: ProteusID) -> None:
         """
         Create a new document with the given archetype id.
@@ -685,16 +767,36 @@ class Controller:
     # ----------------------------------------------------------------------
     # Method     : get_object_archetypes
     # Description: Get object archetypes.
-    # Date       : 29/05/2023
-    # Version    : 0.1
+    # Date       : 31/08/2023
+    # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_first_level_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Get object archetypes.
         """
-        log.info("Getting object archetypes")
-        return self._archetype_service.get_object_archetypes()
+        log.info("Getting first level object archetypes")
+        return self._archetype_service.get_first_level_object_archetypes()
+
+    # ----------------------------------------------------------------------
+    # Method     : get_accepted_object_archetypes
+    # Description: Get object archetypes accepted by the parent.
+    # Date       : 31/08/2023
+    # Version    : 0.2
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_accepted_object_archetypes(
+        self, parent_id: ProteusID
+    ) -> Dict[str, List[Object]]:
+        """
+        Get object archetypes accepted by the parent. It return second level
+        archetypes grouped by object class.
+        """
+        log.info(
+            f"Getting second level object archetypes accepted by parent: {parent_id}"
+        )
+        parent: Object = self._project_service._get_element_by_id(parent_id)
+        return self._archetype_service.get_accepted_object_archetypes(parent)
 
     # ----------------------------------------------------------------------
     # Method     : get_document_archetypes

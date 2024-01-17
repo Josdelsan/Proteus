@@ -5,13 +5,15 @@
 # Version: 0.3
 # Author: Amador Durán Toro
 #         Pablo Rivera Jiménez
-#         José María Delgado Sánchez    
+#         José María Delgado Sánchez
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import logging
+import re
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -28,6 +30,8 @@ import lxml.etree as ET
 from proteus.model.properties.property import Property
 from proteus.model.properties import STRING_PROPERTY_TAG
 
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: StringProperty
@@ -37,23 +41,43 @@ from proteus.model.properties import STRING_PROPERTY_TAG
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class StringProperty(Property):
     """
     Class for PROTEUS string properties.
     """
+
     # XML element tag name for this class of property (class attribute)
     element_tagname: ClassVar[str] = STRING_PROPERTY_TAG
+    value: str
 
     def __post_init__(self) -> None:
         """
-        Superclass turns value into a string, there is nothing to validate.
+        Turns value into a string, there is nothing to validate.
         """
-        # Superclass validation        
+        # Superclass validation
         super().__post_init__()
 
-    def generate_xml_value(self, _:ET._Element = None) -> str | ET.CDATA:
+        # self.value = str(self.value) cannot be used when frozen=True
+        # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
+        object.__setattr__(self, "value", str(self.value))
+
+    def generate_xml_value(self, _: ET._Element = None) -> str | ET.CDATA:
         """
         It generates the value of the property for its XML element.
         """
-        return ET.CDATA(self.value)
+        # XML 1.0 valid characters: https://www.w3.org/TR/xml/#charsets
+        # Remove any character that does not match this pattern
+        pattern = re.compile(
+            "["
+            "\U00000009\U0000000A\U0000000D"
+            "\U00000020-\U0000D7FF"
+            "\U0000E000-\U0000FFFD"
+            "\U00010000-\U0010FFFF"
+            "]+",
+            re.UNICODE,
+        )
+        sanitized_value = "".join(pattern.findall(self.value))
+
+        return ET.CDATA(sanitized_value)

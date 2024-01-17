@@ -25,7 +25,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE
 
 from proteus.model.properties import \
     STRING_PROPERTY_TAG,           \
@@ -73,10 +73,10 @@ def test_property_name_and_category(name, name_expected, category, category_expe
     property_element = ET.Element(STRING_PROPERTY_TAG)
  
     if name:
-        property_element.set(NAME_TAG, name)
+        property_element.set(NAME_ATTRIBUTE, name)
     
     if category:
-        property_element.set(CATEGORY_TAG, category)
+        property_element.set(CATEGORY_ATTRIBUTE, category)
     
     property_element.text = 'test text'
 

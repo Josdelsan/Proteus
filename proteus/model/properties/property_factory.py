@@ -5,7 +5,7 @@
 # Version: 0.3
 # Author: Amador Durán Toro
 #         Pablo Rivera Jiménez
-#         José María Delgado Sánchez    
+#         José María Delgado Sánchez
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -38,13 +38,23 @@ from proteus.model.properties.enum_property import EnumProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
+from proteus.model.properties.code_property import CodeProperty, ProteusCode
 
-from proteus.model import NAME_TAG, CATEGORY_TAG
+from proteus.model import (
+    NAME_ATTRIBUTE,
+    CATEGORY_ATTRIBUTE,
+    INMUTABLE_ATTRIBUTE,
+    TOOLTIP_ATTRIBUTE,
+)
 
-from proteus.model.properties import \
-    CLASS_TAG,                       \
-    DEFAULT_CATEGORY,                \
-    CHOICES_TAG
+from proteus.model.properties import (
+    CLASS_TAG,
+    DEFAULT_CATEGORY,
+    CHOICES_ATTRIBUTE,
+    PREFIX_TAG,
+    NUMBER_TAG,
+    SUFFIX_TAG,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -57,30 +67,32 @@ log = logging.getLogger(__name__)
 # Author: Amador Durán Toro
 # --------------------------------------------------------------------------
 
+
 class PropertyFactory:
     """
     Factory class for PROTEUS properties.
     """
+
     # Dictionary of valid property types and classes (class attribute)
     # Note the type hint type[Property] for the dictionary
     # https://adamj.eu/tech/2021/05/16/python-type-hints-return-class-not-instance/
-    propertyFactory: dict[str,type[Property]] = {
-        BooleanProperty.element_tagname   : BooleanProperty,
-        StringProperty.element_tagname    : StringProperty,
-        DateProperty.element_tagname      : DateProperty,
-        TimeProperty.element_tagname      : TimeProperty,
-        MarkdownProperty.element_tagname  : MarkdownProperty,
-        IntegerProperty.element_tagname   : IntegerProperty,
-        FloatProperty.element_tagname     : FloatProperty,
-        EnumProperty.element_tagname      : EnumProperty,
-        FileProperty.element_tagname      : FileProperty,
-        UrlProperty.element_tagname       : UrlProperty,
-        ClassListProperty.element_tagname : ClassListProperty    
+    propertyFactory: dict[str, type[Property]] = {
+        BooleanProperty.element_tagname: BooleanProperty,
+        StringProperty.element_tagname: StringProperty,
+        DateProperty.element_tagname: DateProperty,
+        TimeProperty.element_tagname: TimeProperty,
+        MarkdownProperty.element_tagname: MarkdownProperty,
+        IntegerProperty.element_tagname: IntegerProperty,
+        FloatProperty.element_tagname: FloatProperty,
+        EnumProperty.element_tagname: EnumProperty,
+        FileProperty.element_tagname: FileProperty,
+        UrlProperty.element_tagname: UrlProperty,
+        ClassListProperty.element_tagname: ClassListProperty,
+        CodeProperty.element_tagname: CodeProperty,
     }
 
-
     @classmethod
-    def create( cls, element : ET._Element ) -> Property | None:
+    def create(cls, element: ET._Element) -> Property | None:
         """
         Factory class method for PROTEUS properties.
         :param element: XML element with the property.
@@ -90,26 +102,45 @@ class PropertyFactory:
         try:
             property_class = cls.propertyFactory[element.tag]
         except KeyError:
-            log.warning(f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property")
+            log.warning(
+                f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property"
+            )
             return None
 
         # Get name (checked in property constructors)
-        name = element.attrib.get(NAME_TAG)
+        name = element.attrib.get(NAME_ATTRIBUTE)
 
         # Get category (checked in property constructors)
-        category = element.attrib.get(CATEGORY_TAG, DEFAULT_CATEGORY)
+        category = element.attrib.get(CATEGORY_ATTRIBUTE, DEFAULT_CATEGORY)
+
+        # Get inmutable (checked in property constructors)
+        inmutable_str = element.attrib.get(INMUTABLE_ATTRIBUTE, "false")
+        inmutable: bool = True if inmutable_str.lower() == "true" else False
+
+        # Get tooltip (checked in property constructors)
+        tooltip = element.attrib.get(TOOLTIP_ATTRIBUTE, str())
 
         # Get value (checked in property constructors)
-        if( property_class is ClassListProperty ):
+        if property_class is ClassListProperty:
             # We need to collect the list of class names,
             # put them toghether in a space-separated string
             # and use it as property value. In order to do so, we use
             # reduce (from functools) and a lambda expression.
             if element.findall(CLASS_TAG):
                 class_names = map(lambda e: e.text, element.findall(CLASS_TAG))
-                value = reduce(lambda c1, c2: c1+' '+c2, class_names) if class_names else str()
+                value = (
+                    reduce(lambda c1, c2: c1 + " " + c2, class_names)
+                    if class_names
+                    else str()
+                )
             else:
                 value = str()
+        elif property_class is CodeProperty:
+            # We need to collect its prefix, number and suffix
+            prefix = element.find(PREFIX_TAG).text
+            number = element.find(NUMBER_TAG).text
+            suffix = element.find(SUFFIX_TAG).text
+            value = ProteusCode(prefix, number, suffix)
         else:
             # Value could be empty
             value = str(element.text)
@@ -117,10 +148,10 @@ class PropertyFactory:
         # Create and return the property object
 
         # Special case: EnumProperty
-        if( property_class is EnumProperty ):
+        if property_class is EnumProperty:
             # We need to collect its choices
-            choices = element.attrib.get(CHOICES_TAG, str())
-            return EnumProperty(name, category, value, choices)
+            choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
+            return EnumProperty(name, category, value, tooltip, inmutable, choices)
 
         # Ordinary case: rest of property classes
-        return property_class(name, category, value)
+        return property_class(name, category, value, tooltip, inmutable)

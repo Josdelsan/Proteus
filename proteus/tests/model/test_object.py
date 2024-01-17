@@ -28,12 +28,22 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import (
+    ID_ATTRIBUTE,
+    NAME_ATTRIBUTE,
+    CLASSES_ATTRIBUTE,
+    ACCEPTED_CHILDREN_ATTRIBUTE,
+    PROTEUS_NAME,
+    PROTEUS_ANY,
+)
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
+from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.tests import PROTEUS_TEST_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures
 
 # --------------------------------------------------------------------------
@@ -42,9 +52,9 @@ from proteus.tests import fixtures
 
 # NOTE: This is a sample project that is used for testing purposes. The
 #       sample object id was selected from this project.
-SAMPLE_PROJECT_PATH = PROTEUS_TEST_SAMPLE_DATA_PATH / "example_project"
-SAMPLE_OBJECT_ID = "64xM8FLyxtaE"
-SAMPLE_DOCUMENT_ID = "3fKhMAkcEe2C"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_OBJECT_ID = SampleData.get("section_with_dependencies_outside_and_inside")
+SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -58,6 +68,7 @@ def sample_project() -> Project:
     """
     return Project.load(SAMPLE_PROJECT_PATH)
 
+
 # TODO: For rich tests we need sample archetype objects. This is a temporary
 #       based on the current archetype repository content (16/04/2023)
 #       solution. Sample archetype objects should have children to test
@@ -68,7 +79,21 @@ def sample_archetype_document() -> Object:
     Fixture that returns a PROTEUS sample archetype document object.
     """
     archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
-    return archetype_list[1]
+    return archetype_list[0]
+
+
+@pytest.fixture
+def sample_archetype_object() -> Object:
+    """
+    Fixture that returns a PROTEUS sample archetype object object.
+    """
+    archetype_type_dict = ArchetypeManager.load_object_archetypes()
+    # Known archetype type general (00_general directory)
+    archetype_class_dict = archetype_type_dict["general"]
+    # Known archetype class (section)
+    archetype_list = archetype_class_dict["section"]
+    return archetype_list[0]
+
 
 @pytest.fixture
 def sample_object(sample_project) -> Object:
@@ -111,13 +136,13 @@ def test_init():
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib["id"] == test_object.id
+        root.attrib[ID_ATTRIBUTE] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTRIBUTE].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"].split() == test_object.classes
+        root.attrib[CLASSES_ATTRIBUTE].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -138,13 +163,13 @@ def test_load(sample_project: Project):
 
     # Compare ET elements with Object elements
     assert (
-        root.attrib["id"] == test_object.id
+        root.attrib[ID_ATTRIBUTE] == test_object.id
     ), f"Object id is not the same as the root element id."
     assert (
-        root.attrib["acceptedChildren"].split() == test_object.acceptedChildren
+        root.attrib[ACCEPTED_CHILDREN_ATTRIBUTE].split() == test_object.acceptedChildren
     ), f"Object acceptedChildren is not the same as the root element acceptedChildren."
     assert (
-        root.attrib["classes"].split() == test_object.classes
+        root.attrib[CLASSES_ATTRIBUTE].split() == test_object.classes
     ), f"Object classes is not the same as the root element classes."
 
 
@@ -195,7 +220,7 @@ def test_load_children(test_object: Object, request):
     children = root.find("children")
     children_list: list = []
     for child in children:
-        children_list.append(child.attrib["id"])
+        children_list.append(child.attrib[ID_ATTRIBUTE])
 
     # Call method to load children
     # NOTE: This method could be called when accessing children
@@ -211,6 +236,36 @@ def test_load_children(test_object: Object, request):
     ), f"Object does not contain all the children of the xml file.                 \
         Children in xml file: {children_list}                                       \
         Children in object: {test_object_children_ids}"
+
+
+def test_load_traces(sample_object: Object):
+    """
+    Test Object load_traces method
+    """
+    # Get root element of the xml file
+    root: ET.Element = fixtures.get_root(sample_object.path)
+
+    # Get traces of the xml file and store them in a list
+    traces = root.find("traces")
+    traces_list: list = []
+    for trace in traces:
+        traces_list.append(trace.attrib[NAME_ATTRIBUTE])
+
+    # Call method to load traces
+    sample_object.load_traces(root)
+
+    # Check that Object contains all the traces of the xml
+    test_object_traces_name = [trace_name for trace_name in sample_object.traces.keys()]
+    assert all(
+        trace in test_object_traces_name for trace in traces_list
+    ), f"Object does not contain all the traces of the xml file.                 \
+        Traces in xml file: {traces_list}                                       \
+        Traces in object: {test_object_traces_name}"
+
+    # Check that all traces are Trace object
+    assert all(
+        isinstance(trace, Trace) for trace in sample_object.traces.values()
+    ), "Not all traces are of type Trace"
 
 
 def test_generate_xml(sample_object: Object):
@@ -237,7 +292,7 @@ def test_generate_xml(sample_object: Object):
     assert expected_xml == actual_xml
 
 
-# TODO: Test clone object -> object
+# TODO: Test clone object      -> object
 #                  arch_object -> object
 @pytest.mark.parametrize(
     "test_object_to_clone, test_parent",
@@ -247,6 +302,10 @@ def test_generate_xml(sample_object: Object):
         (
             pytest.lazy_fixture("sample_archetype_document"),
             pytest.lazy_fixture("sample_project"),
+        ),
+        (
+            pytest.lazy_fixture("sample_archetype_object"),
+            pytest.lazy_fixture("sample_document"),
         ),
     ],
 )
@@ -277,11 +336,23 @@ def test_clone_object(
         new_object.id in parent_descendants_ids
     ), f"Object {new_object.id} was not found in {parent_descendants_ids}"
 
+    # Check properties are cloned
+    assert (
+        test_object_to_clone.properties.keys() == new_object.properties.keys()
+    ), f"Properties were not cloned. Expected: {test_object_to_clone.properties.keys()} \
+        Actual: {new_object.properties.keys()}"
+
+    # Check traces are cloned
+    assert (
+        test_object_to_clone.traces.keys() == new_object.traces.keys()
+    ), f"Traces were not cloned. Expected: {test_object_to_clone.traces.keys()} \
+        Actual: {new_object.traces.keys()}"
+
     # Check the children are in the new object
     # NOTE: This will not work if we clone an object into itself
     # however, this is not a valid use case at the moment
     assert (
-        test_object_to_clone.children.__len__() == new_object.children.__len__()
+        test_object_to_clone.get_ids().__len__() == new_object.get_ids().__len__()
     ), f"Object {new_object.id} does not have the same number of children as \
         the original object {test_object_to_clone.id}"
 
@@ -292,7 +363,7 @@ def test_set_property(sample_object: Object):
     """
     # Create property
     (new_property, name, _) = fixtures.create_property(
-        STRING_PROPERTY_TAG, "name", "general", "Test value"
+        STRING_PROPERTY_TAG, PROTEUS_NAME, "general", "Test value"
     )
 
     # Set property
@@ -303,6 +374,64 @@ def test_set_property(sample_object: Object):
         sample_object.get_property(name) == new_property
     ), f"Property was not set. Expected value: {new_property} \
         Actual value: {sample_object.get_property(name)}"
+
+
+@pytest.mark.parametrize(
+    "parent_accepted_children, parent_classes, child_accepted_parents, child_classes, expected_result",
+    [
+        (PROTEUS_ANY, "a", PROTEUS_ANY, "a", True), # Accept any
+        ("a", "a", PROTEUS_ANY, "a", True), # Accept only 'a'
+        ("a b", "a", PROTEUS_ANY, "a", True), # Accept 'a' and 'b'
+        ("a b", "a", PROTEUS_ANY, "b", True), # Accept 'a' and 'b', child is 'b'
+        (PROTEUS_ANY, "a", "a", "a", True), # Accept any, child accepts only 'a' parent
+        (PROTEUS_ANY, "a", "a", "a b", True), # Accept any, child accepts only 'a' parent
+        ("a", "a", "a", "a b", True), # Accept only 'a', child is 'a' and 'b'
+        ("a", "a", PROTEUS_ANY, "b", False), # Accept only 'a', child is 'b'
+        ("a", "a", "a", "b", False), # Accept only 'a', child is 'b'
+        (PROTEUS_ANY, "a", "b", "a", False), # Parent accepts child class but child does not accept parent class
+        ("a", "a", "b", "a", False), # Parent accepts child class but child does not accept parent class
+    ],
+)
+def test_accept_descendant(
+    mocker,
+    sample_object,
+    parent_accepted_children,
+    parent_classes,
+    child_accepted_parents,
+    child_classes,
+    expected_result,
+):
+    """
+    Test Object accept_descendant method with different scenarios. For parametrization
+    simplicity, we use strings separating classes by spaces and parse them to lists
+    in the test.
+
+    Class :Proteus-none is not used in parametrization because gives the same result as
+    using a dummy ramdom class that differs from the other classes. If it gets special
+    treatment in the future (like :Proteus-any) we should add it to the parametrization.
+    """
+    # Arrange -------------------
+    # Create test objects
+    mock_parent = sample_object # TODO: Find a way to use method on mock object to avoid using sample_object
+    mock_child = mocker.MagicMock(spec=Object)
+
+    # Create lists of classes and accepted parents
+    mock_parent.id = "parent"
+    mock_parent.classes = parent_classes.split()
+    mock_parent.acceptedChildren = parent_accepted_children.split()
+    mock_child.id = "child"
+    mock_child.classes = child_classes.split()
+    mock_child.acceptedParents = child_accepted_parents.split()
+
+    # Act -----------------------
+    result = mock_parent.accept_descendant(mock_child)
+
+    # Assert --------------------
+    assert (
+        result == expected_result
+    ), f"Parent with classes {mock_parent.classes} and accepted children {mock_parent.acceptedChildren} \
+        should accept child with classes {mock_child.classes} and accepted parents {mock_child.acceptedParents} \
+        but it does not."
 
 
 # NOTE save method is tested with the save_project method in test_project.py

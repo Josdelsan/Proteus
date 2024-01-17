@@ -7,7 +7,7 @@
         <div id="document_cover">
     
             <div id="document_name">
-                <xsl:apply-templates select="properties/stringProperty[@name='name']"/>
+                <xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/>
             </div>
 
         </div>

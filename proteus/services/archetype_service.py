@@ -6,7 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
@@ -22,13 +21,14 @@ from typing import Union, List, Dict
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_manager import ArchetypeManager
 
 # logging configuration
 log = logging.getLogger(__name__)
+
 
 # --------------------------------------------------------------------------
 # Class: ArchetypeService
@@ -56,7 +56,10 @@ class ArchetypeService:
         # Instance variables
         self._project_archetypes: List[Project] = None
         self._document_archetypes: List[Object] = None
-        self._object_archetypes: Dict[str, List[Object]] = None
+
+        self._object_archetypes: Dict[str, Dict[str, List[Object]]] = None
+        self._unordered_object_archetypes: List[Object] = None
+
         self.archetype_index: Dict[ProteusID, Union[Project, Object]] = {}
 
         log.info("ArchetypeService initialized")
@@ -110,9 +113,7 @@ class ArchetypeService:
         # Lazy loading of document archetypes
         if self._document_archetypes is None:
             # Load document archetypes using the ArchetypeManager
-            self._document_archetypes = (
-                ArchetypeManager.load_document_archetypes()
-            )
+            self._document_archetypes = ArchetypeManager.load_document_archetypes()
 
             # Check that the list of document archetypes is a list
             assert isinstance(
@@ -139,7 +140,7 @@ class ArchetypeService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes(self) -> Dict[str, List[Object]]:
+    def get_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Object_archetypes getter. Loads the list of object archetypes on demand.
         """
@@ -148,49 +149,142 @@ class ArchetypeService:
             # Load object archetypes using the ArchetypeManager
             self._object_archetypes = ArchetypeManager.load_object_archetypes()
 
-            # Check that the list of object archetypes is a list
+            # Check that the dict of object archetypes is a dict
             assert isinstance(
                 self._object_archetypes, dict
             ), f"Could not load object archetypes. ArchetypeManager returned {self._object_archetypes}"
 
-            # Populate the archetype index
-            for object_type in self._object_archetypes.keys():
-                for object in self._object_archetypes[object_type]:
-                    # Check for collisions
-                    assert (
-                        object.id not in self.archetype_index
-                    ), f"Object archetype id {object.id} already exists in the archetype index"
+            # ------------------------------------------------------------------
+            # Populate non ordered list of object archetypes
+            self._unordered_object_archetypes = []
+            for arch_by_class in self._object_archetypes.values():
+                for arch_list in arch_by_class.values():
+                    self._unordered_object_archetypes.extend(arch_list)
 
-                    # Add the object archetype to the archetype index
-                    self.archetype_index[object.id] = object
+            # ------------------------------------------------------------------
+            # Populate the archetype index
+            for object in self._unordered_object_archetypes:
+                # Check for collisions
+                assert (
+                    object.id not in self.archetype_index
+                ), f"Object archetype id {object.id} already exists in the archetype index"
+
+                # Add the object archetype to the archetype index
+                self.archetype_index[object.id] = object
 
         return self._object_archetypes
 
     # ----------------------------------------------------------------------
-    # Method     : get_object_archetypes_classes
-    # Description: Returns the list of object archetypes classes
+    # Method     : get_object_archetypes_groups
+    # Description: Returns the list of object archetypes groups
     # Date       : 04/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_classes(self) -> List[str]:
+    def get_object_archetypes_groups(self) -> List[str]:
         """
-        Returns the list of object archetypes classes.
+        Returns the list of object archetypes types.
         """
         return list(self.get_object_archetypes().keys())
 
     # ----------------------------------------------------------------------
-    # Method     : get_object_archetypes_by_class
-    # Description: Returns the list of object archetypes for a given class
+    # Method     : get_object_archetypes_by_type
+    # Description: Returns the list of object archetypes for a given group
     # Date       : 04/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_object_archetypes_by_class(self, object_class: str) -> List[Object]:
+    def get_object_archetypes_by_group(self, group: str) -> Dict[str, List[Object]]:
         """
-        Returns the list of object archetypes for a given class.
+        Returns the list of object archetypes for a given type.
         """
-        return self.get_object_archetypes()[object_class]
+        return self.get_object_archetypes()[group]
+
+    # ----------------------------------------------------------------------
+    # Method     : get_first_level_object_archetypes
+    # Description: Returns the list of first level object archetypes
+    # Date       : 31/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_first_level_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
+        """
+        Returns the list of first level object archetypes.
+        """
+        # Copy the dict of object archetypes to pop second level objects
+        archetypes: Dict[
+            str, Dict[str, List[Object]]
+        ] = self.get_object_archetypes().copy()
+
+        # Iterate over the archetype groups and classes
+        for group in archetypes.keys():
+
+            empty_keys: List[str] = []
+
+            for _class in archetypes[group].keys():
+                # Remove the second level objects
+                for object in archetypes[group][_class]:
+                    if PROTEUS_ANY not in object.acceptedParents:
+                        archetypes[group][_class].remove(object)
+                        if len(archetypes[group][_class]) == 0:
+                            empty_keys.append(_class)
+
+            # Remove empty keys
+            for key in empty_keys:
+                archetypes[group].pop(key)
+
+        return archetypes
+
+    # ----------------------------------------------------------------------
+    # Method     : get_accepted_object_archetypes
+    # Description: Returns the dict of accepted object archetypes for a given
+    #              accepted children list. Archetype must accept the given
+    #              parent explicitly in the acceptedParents list.
+    # Date       : 31/08/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_accepted_object_archetypes(self, object: Object) -> Dict[str, List[Object]]:
+        """
+        Returns the dict of accepted object archetypes for a given
+        object. The given object must accept the archetype explicitly
+        in the acceptedChildren list.
+
+        Dictionary store accepted objects by their classes. This is
+        done to group objects by their class when displaying.
+
+        :param accepted_children: List of accepted children classes
+        :return: Dictionary of accepted object archetypes by object class
+        """
+        # Dict to store the accepted object archetypes
+        dict: Dict[str, List[Object]] = {}
+
+        # Iterate over the archetypes
+        for archetype in self._unordered_object_archetypes:
+            # Check acceptation conditions
+            # object must accept the archetype
+            condition_1: bool = object.accept_descendant(archetype)
+
+            # archetype class must be explicitly in acceptedChildren
+            # NOTE: This is done to avoid showing all the accepted archetypes,
+            # sections accept :Proteus-any so the list would be huge
+            accepted_children_common_classes = [
+                c for c in object.acceptedChildren if c in archetype.classes
+            ]
+            condition_2: bool = len(accepted_children_common_classes) > 0
+
+            # If BOTH conditions are met, add the archetype to its corresponding list
+            if condition_1 and condition_2:
+                # Check if the archetype class is already in the dict
+                archetype_main_class: ProteusClassTag = archetype.classes[-1]
+                if archetype_main_class in dict:
+                    # Add the archetype to the list
+                    dict[archetype_main_class].append(archetype)
+                else:
+                    # Create a new list with the archetype
+                    dict[archetype_main_class] = [archetype]
+
+        return dict
 
     # ----------------------------------------------------------------------
     # Method     : get_archetype_by_id

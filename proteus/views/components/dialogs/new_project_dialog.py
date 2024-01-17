@@ -12,23 +12,23 @@
 
 from typing import List
 import os
+import re
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
-    QFileDialog,
     QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QLineEdit,
-    QPushButton,
     QFrame,
-    QSizePolicy,
     QDialogButtonBox,
-    QApplication
 )
 
 
@@ -36,10 +36,12 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
-from proteus.views.utils.translator import Translator
+from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.controller.command_stack import Controller
+from proteus.views import APP_ICON_TYPE
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -49,7 +51,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectDialog(QDialog):
+class NewProjectDialog(QDialog, ProteusComponent):
     """
     New project component class for the PROTEUS application. It provides a
     dialog form to create new projects from project archetypes.
@@ -64,20 +66,13 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, parent=None, controller: Controller = None, *args, **kwargs
+        self, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new project data.
         """
-        super().__init__(parent, *args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the new project dialog"
-        self._controller: Controller = controller
-
-        self.translator = Translator()
+        super(NewProjectDialog, self).__init__(*args, **kwargs)
 
         # Properties for creating a new project
         self._name: str = None
@@ -101,8 +96,13 @@ class NewProjectDialog(QDialog):
         layout: QVBoxLayout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Set the dialog title
-        self.setWindowTitle(self.translator.text("new_project_dialog.title"))
+        # Set the dialog title and sizeHint
+        self.setWindowTitle(self._translator.text("new_project_dialog.title"))
+        self.sizeHint = lambda: QSize(350, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -113,34 +113,30 @@ class NewProjectDialog(QDialog):
         project_archetypes: List[Project] = self._controller.get_project_archetypes()
         # Create a combo box with the project archetypes
         archetype_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.combobox.label")
+            self._translator.text("new_project_dialog.combobox.label")
         )
         self.archetype_combo: QComboBox = QComboBox()
 
         archetype: Project = None
         for archetype in project_archetypes:
-            self.archetype_combo.addItem(archetype.properties["name"].value)
+            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
 
         # Show the archetype description
         description_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.archetype.description")
+            self._translator.text("new_project_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
+        description_output.setWordWrap(True)
 
         # Create the name input widget
-        name_label = QLabel(self.translator.text("new_project_dialog.input.name"))
-        # NOTE: Temporary solution to get the name of the project
-        #       in save_button_clicked method
+        name_label = QLabel(self._translator.text("new_project_dialog.input.name"))
         self.name_input: QLineEdit = QLineEdit()
 
         # Create the path input widget
         path_label: QLabel = QLabel(
-            self.translator.text("new_project_dialog.input.path")
+            self._translator.text("new_project_dialog.input.path")
         )
-        self.path_input: QLabel = QLabel()
-        browse_button = QPushButton(
-            self.translator.text("new_project_dialog.input.path.browser")
-        )
+        self.path_input: DirectoryEdit = DirectoryEdit()
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
@@ -152,7 +148,8 @@ class NewProjectDialog(QDialog):
 
         # Error message label
         self.error_label: QLabel = QLabel()
-        self.error_label.setStyleSheet("color: red")
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Add the widgets to the layout
         layout.addWidget(archetype_label)
@@ -164,17 +161,9 @@ class NewProjectDialog(QDialog):
         layout.addWidget(self.name_input)
         layout.addWidget(path_label)
         layout.addWidget(self.path_input)
-        layout.addWidget(browse_button)
         layout.addWidget(self.error_label)
 
         layout.addWidget(self.button_box)
-
-        # Set fixed width for the window
-        self.setFixedWidth(400)
-        # Allow vertical expansion for the description
-        description_output.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
 
         # ---------------------------------------------
         # Actions
@@ -193,17 +182,6 @@ class NewProjectDialog(QDialog):
         # Update the description for the first archetype
         update_description()
 
-        # Open a file dialog to select the project path
-        def select_project_path():
-            file_dialog: QFileDialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.Directory)
-            if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-                path: str = file_dialog.selectedFiles()[0]
-                self.path_input.setText(path)
-
-        # Open a file dialog when the user clicks on the browse button
-        browse_button.clicked.connect(select_project_path)
-
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
@@ -218,31 +196,29 @@ class NewProjectDialog(QDialog):
     def save_button_clicked(self):
         # Get the project name
         name: str = self.name_input.text()
-        path: str = self.path_input.text()
+        path: str = self.path_input.directory()
 
-        # TODO: This is a temporal solution for testing purposes.
-        #       Create a proper validator and
-        if name is None or name == "":
+        if name is None or name == "" or not is_valid_folder_name(name):
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.invalid_name")
+                self._translator.text("new_project_dialog.error.invalid_folder_name")
             )
             return
 
         if path is None or path == "" or not os.path.exists(path):
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.invalid_path")
+                self._translator.text("new_project_dialog.error.invalid_path")
             )
             return
 
         if self._archetype_id is None:
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.no_archetype_selected")
+                self._translator.text("new_project_dialog.error.no_archetype_selected")
             )
             return
-        
+
         if os.path.exists(f"{path}/{name}"):
             self.error_label.setText(
-                self.translator.text("new_project_dialog.error.folder_already_exists")
+                self._translator.text("new_project_dialog.error.folder_already_exists")
             )
             return
 
@@ -281,10 +257,46 @@ class NewProjectDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller) -> None:
+    def create_dialog(controller: Controller) -> "NewProjectDialog":
         """
         Create a new project dialog and show it
         """
         # Create the dialog
         dialog = NewProjectDialog(controller=controller)
         dialog.exec()
+        return dialog
+    
+# ======================================================================
+# Helper methods
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Function   : is_valid_folder_name
+# Description: Check if a folder name is valid for the current operating
+#              system.
+# Date       : 05/06/2023
+# Version    : 0.1
+# Author     : José María Delgado Sánchez
+# ----------------------------------------------------------------------
+def is_valid_folder_name(folder_name) -> bool:
+    """
+    Check if a folder name is valid for the current operating system.
+    """
+    # Check for forbidden characters
+    forbidden_characters = re.compile(r'[<>:"/\\|?*]')
+    if forbidden_characters.search(folder_name):
+        return False
+
+    # Check for reserved names on Windows
+    if os.name == 'nt':
+        reserved_names = re.compile(r'(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]|CON\..*|PRN\..*|AUX\..*|NUL\..*|COM[1-9]\..*|LPT[1-9]\..*)', re.IGNORECASE)
+        if reserved_names.match(folder_name):
+            return False
+
+    # Check for reserved names on Linux and macOS (reserved characters are allowed on Unix-like systems)
+    if os.name == 'posix':
+        reserved_names = {'/dev', '/proc', '/sys', '/tmp', '/run', '/var'}
+        if folder_name in reserved_names or folder_name.startswith('/'):
+            return False
+
+    return True

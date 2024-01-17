@@ -16,7 +16,8 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:proteus="http://proteus.us.es"
-    exclude-result-prefixes="proteus"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus proteus-utils"
 >
 
     <!-- Output -->
@@ -28,9 +29,11 @@
     />
 
     <!-- Template includes -->
-    <!-- <xsl:include href="PROTEUS_style.xsl" /> -->
-    <xsl:include href="PROTEUS_cover.xsl" />
+    <xsl:include href="PROTEUS_style.xsl" />
+    <xsl:include href="PROTEUS_javascript.xsl" />
     <xsl:include href="PROTEUS_utilities.xsl" />
+    <xsl:include href="PROTEUS_properties.xsl" />
+    <xsl:include href="PROTEUS_cover.xsl" />
     <xsl:include href="PROTEUS_section.xsl" />
     <xsl:include href="PROTEUS_document.xsl" />
     <xsl:include href="PROTEUS_paragraph.xsl" />
@@ -41,5 +44,21 @@
     <xsl:include href="PROTEUS_information_requirement.xsl" />
     <xsl:include href="PROTEUS_objective.xsl" />
     <xsl:include href="PROTEUS_use_case.xsl" />
+    <xsl:include href="PROTEUS_constraint.xsl" />
+    <xsl:include href="PROTEUS_functional_requirement.xsl" />
+    <xsl:include href="PROTEUS_nonfunctional_requirement.xsl" />
+    <xsl:include href="PROTEUS_organization.xsl" />
+    <xsl:include href="PROTEUS_stakeholder.xsl" />
+    <xsl:include href="PROTEUS_meeting.xsl" />
+    <xsl:include href="PROTEUS_archetype_link.xsl" />
+
+    <xsl:template match="project">
+        <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>
+        <xsl:for-each select="documents">
+            <xsl:if test="object[@id=$currentDocumentId]">
+                <xsl:apply-templates select="object[@id=$currentDocumentId]"/>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
 
 </xsl:stylesheet>

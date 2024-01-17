@@ -35,18 +35,19 @@ from PyQt6.QtCore import QPoint, QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
+from proteus.model import PROTEUS_NAME
+from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "example_project"
 
 # --------------------------------------------------------------------------
 # End to end "clone object" tests
@@ -54,13 +55,12 @@ PROJECT_NAME = "example_project"
 
 
 @pytest.mark.parametrize(
-    "object_id, document_id",
+    "object_name, document_name",
     [
-        ("64xM8FLyxtaB", "3fKhMAkcEe2C"),
-        ("7s63wvxgekU6", "3fKhMAkcEe2D"),
+        ("simple_paragraph", "document_1"),
     ],
 )
-def test_edit_object(app, object_id, document_id):
+def test_edit_object(app, object_name, document_name):
     """
     Test the edit object use case. Edit an existing object
     accessing the dialog from the context menu.
@@ -79,7 +79,10 @@ def test_edit_object(app, object_id, document_id):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    object_id = SampleData.get(object_name)
+    document_id = SampleData.get(document_name)
+
+    load_project(main_window=main_window)
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -98,13 +101,12 @@ def test_edit_object(app, object_id, document_id):
     # Right click arrange
     # NOTE: Clicking in a QMenu is not supported by pytest-qt
     # https://github.com/pytest-dev/pytest-qt/issues/195
-    document_tree: DocumentTree = documents_container.tab_children[document_id]
-    tree_widget: QTreeWidget = document_tree.tree_widget
+    document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
     # Emit set current item, accessed in context menu
-    tree_widget.setCurrentItem(tree_element)
+    document_tree.setCurrentItem(tree_element)
 
-    NAME_PROP = "name"
+    NAME_PROP = PROTEUS_NAME
     NEW_NAME = "new name"
 
     # --------------------------------------------
@@ -136,9 +138,9 @@ def test_edit_object(app, object_id, document_id):
         dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # Get element position
-    element_position: QPoint = tree_widget.visualItemRect(tree_element).center()
+    element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    tree_widget.customContextMenuRequested.emit(element_position)
+    document_tree.customContextMenuRequested.emit(element_position)
     
 
     # --------------------------------------------

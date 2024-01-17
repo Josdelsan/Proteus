@@ -10,49 +10,61 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Any
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
+    QLabel,
     QVBoxLayout,
+    QHBoxLayout,
     QTabWidget,
     QDialogButtonBox,
     QFormLayout,
     QDialog,
-    QApplication
 )
-
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.model.trace import Trace
 from proteus.model.properties import Property
-from proteus.views.utils.input_factory import PropertyInputFactory, PropertyInputWidget
-from proteus.views.utils.translator import Translator
+from proteus.views import APP_ICON_TYPE, TREE_MENU_ICON_TYPE
+from proteus.views.forms.properties.property_input import PropertyInput
+from proteus.views.forms.properties.property_input_factory import (
+    PropertyInputFactory,
+)
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
-# Class: PropertyForm
+# Class: PropertyDialog
 # Description: Class for the PROTEUS application properties form component.
 # Date: 27/05/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyDialog(QDialog):
+class PropertyDialog(QDialog, ProteusComponent):
     """
     Class for the PROTEUS application properties form component. It is used
-    to display the properties of an element in a form. Properties are
-    grouped by categories in tabs. Each property is displayed in a widget
-    that is created using the PropertyInputFactory class.
+    to display the properties an traces of an element in a form. Properties
+    and traces are grouped by categories in tabs. Each property and trace
+    is displayed in a widget that is created using the PropertyInputFactory
+    class.
+
+    NOTE: Properties and Traces are different concepts in PROTEUS, but they
+    are handle the same in the GUI. This is to simplify the user experience
+    creating just one form to display both properties and traces.
     """
 
     # ----------------------------------------------------------------------
@@ -64,30 +76,31 @@ class PropertyDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self, element_id=None, controller: Controller = None, *args, **kwargs
+        self, element_id=None, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
-        the component. Store the element id, reference to the element whose
-        properties will be displayed.
-        """
-        super().__init__(*args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the properties form dialog"
-        self._controller: Controller = controller
+        the component.
+        
+        Store the element id, reference to the element whose properties and
+        traces will be displayed, and the PropertyInput widgets in a dictionary.
 
-        self.translator = Translator()
+        Flag project_dialog is used to avoid handling traces in the project
+        form.
+
+        :param element_id: The id of the element to edit.
+        """
+        super(PropertyDialog, self).__init__(*args, **kwargs)
 
         # Set the element id, reference to the element whose properties
         # will be displayed
         self.element_id: ProteusID = element_id
+        self.project_dialog: bool = False
 
         # Create a dictionary to hold the input widgets for each property
         # NOTE: This is used to get the input values when the form is
         #       accepted
-        self.input_widgets: Dict[str, PropertyInputWidget] = {}
+        self.input_widgets: Dict[str, PropertyInput] = {}
 
         # Create the component
         self.create_component()
@@ -101,33 +114,75 @@ class PropertyDialog(QDialog):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         """
-        Create the component.
+        Create the dialog component. This method is called from the constructor.
+
+        It creates a vertical layout where a tab widget is added. Each tab contains
+        a form layout with the PropertyInput widgets for each category (properties
+        and traces).
+
+        Store the input widgets in a dictionary to get the values when the form
+        is accepted.
+
+        Creation is dinamic, depending on the properties and traces of the element.
         """
         self.object: Union[Project, Object] = self._controller.get_element(
             self.element_id
         )
 
-        # Set the window name
-        window_name: str = self.object.get_property("name").value
-        self.setWindowTitle(window_name)
+        # Set Dialog sizeHint
+        self.sizeHint = lambda: QSize(500, 300)
 
-        # Create the form vertical layout
-        form_layout: QVBoxLayout = QVBoxLayout(self)
-
-        # Create a QTabWidget to organize properties by categories
-        tab_widget: QTabWidget = QTabWidget()
+        # Check if the object is a project to set the flag
+        # This is used to avoid handling traces in the project form
+        if isinstance(self.object, Project):
+            self.project_dialog = True
 
         # Get the object's properties dictionary
-        properties_dict: Dict[str, Property] = self.object.properties
+        properties_form_dict: Dict[
+            str, Union[Property, Trace]
+        ] = self.object.properties.copy()
+
+        # If the object is Object class, include traces in the properties
+        if not self.project_dialog:
+            # Merge object's traces with properties dict
+            properties_form_dict.update(self.object.traces)
+
+            # Object icon
+            dialog_icon: QIcon = QIcon(
+                self._config.get_icon(TREE_MENU_ICON_TYPE, self.object.classes[-1]).as_posix()
+            )
+        else:
+            # Proteus icon
+            dialog_icon: QIcon = QIcon(
+                self._config.get_icon(APP_ICON_TYPE, "proteus_icon").as_posix()
+            )
+
+        # Set the dialog icon
+        self.setWindowIcon(dialog_icon)
+
+        # Set the window name
+        window_name: str = self.object.get_property(PROTEUS_NAME).value
+        self.setWindowTitle(window_name)
+
+        # Create layout to hold tabbed widgets and buttons
+        window_layout: QHBoxLayout = QHBoxLayout(self)
+
+        # Create buttons layout
+        buttons_layout: QVBoxLayout = QVBoxLayout()
+
+        # Create the form vertical layout and the tab widget
+        # to organize the properties by category
+        tabbed_layout: QVBoxLayout = QVBoxLayout()
+        tab_widget: QTabWidget = QTabWidget()
 
         # Create a dictionary to hold category widgets
         category_widgets: Dict[str, QWidget] = {}
 
         # Iterate over the properties and create widgets for each category
         prop: Property = None
-        for prop in properties_dict.values():
-            # Get the category for the property
-            category: str = self.translator.text(prop.category)
+        for prop in properties_form_dict.values():
+            # Get the category for the property (or trace)
+            category: str = self._translator.text(prop.category)
 
             # Create a QWidget for the category if it doesn't exist
             if category not in category_widgets:
@@ -139,10 +194,10 @@ class PropertyDialog(QDialog):
                 category_layout: QFormLayout = category_widget.layout()
 
             # Create the property input widget
-            input_field_widget: PropertyInputWidget = PropertyInputFactory.create(prop)
-            category_layout.addRow(
-                self.translator.text(prop.name), input_field_widget
+            input_field_widget: PropertyInput = PropertyInputFactory.create(
+                prop, controller=self._controller
             )
+            category_layout.addRow(self._translator.text(prop.name), input_field_widget)
 
             # Add the input field widget to the input widgets dictionary
             # NOTE: This is used to retrieve the values of the widgets that changed
@@ -155,18 +210,31 @@ class PropertyDialog(QDialog):
             tab_widget.addTab(category_widget, category)
 
         # Add the tab widget to the main form layout
-        form_layout.addWidget(tab_widget)
+        tabbed_layout.addWidget(tab_widget)
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
+        self.button_box.setOrientation(Qt.Orientation.Vertical)
         self.button_box.accepted.connect(self.save_button_clicked)
         self.button_box.rejected.connect(self.cancel_button_clicked)
-        form_layout.addWidget(self.button_box)
+        buttons_layout.addWidget(self.button_box)
 
-        self.setLayout(form_layout)
+        # Add US logo to the buttons layour and push it to the bottom
+        us_logo: QIcon = QIcon(self._config.get_icon(APP_ICON_TYPE, "US-digital").as_posix())
+        us_logo_label: QLabel = QLabel()
+        us_logo_label.setPixmap(us_logo.pixmap(80, 80))
+        buttons_layout.addStretch(1)
+        buttons_layout.addWidget(us_logo_label)
+        
+
+        # Add the layouts to the main layout
+        window_layout.addLayout(tabbed_layout)
+        window_layout.addLayout(buttons_layout)
+
+        self.setLayout(window_layout)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
@@ -184,13 +252,27 @@ class PropertyDialog(QDialog):
     def save_button_clicked(self):
         """
         Manage the save button clicked event. It gets the values of the
-        input widgets and updates the properties of the element.
+        input widgets and updates the propertie and traces of the element.
+
+        This method compares the values of the input widgets with the 
+        original properties and traces of the element. If there are changes,
+        just the properties and traces that changed are updated.
+
+        Form errors are checked before updating the properties. All errors
+        are displayed in each input widget. If there are errors, the
+        properties update method is not called
+
+        Controller update_properties method is called. Both properties and
+        traces are passed in the same list, they can be processed separately
+        later.
         """
         # Empty dictionary to hold the properties to update
-        update_list: List[Property] = []
+        update_list: List[Union[Property, Trace]] = []
 
-        # Get the original object properties dictionary
-        properties_dict = self.object.properties
+        # Get the original object properties (and merge with traces if needed)
+        properties_dict: Dict[str, Property] = self.object.properties.copy()
+        if not self.project_dialog:
+            properties_dict.update(self.object.traces)
 
         # Boolean property to check if there are errors
         form_has_errors: bool = False
@@ -198,25 +280,31 @@ class PropertyDialog(QDialog):
         # Iterate over the input widgets and update the properties dictionary
         for prop_name in properties_dict.keys():
             # Get the property input value
-            input_widget: PropertyInputWidget = self.input_widgets[prop_name]
+            input_widget: PropertyInput = self.input_widgets[prop_name]
 
-            # Check if the widget has errors
+            # Check if the widget has errors and update the form errors flag
             widget_has_errors: bool = input_widget.has_errors()
             form_has_errors = form_has_errors or widget_has_errors
 
-            # If the widget has errors, skip the property
-            if widget_has_errors:
+            # If the widget has errors or previous errors exist, continue
+            if widget_has_errors or form_has_errors:
                 continue
 
-            new_prop_value: str = input_widget.get_value()
+            # Get the value of the property (or trace property)
+            new_prop_value: Any = input_widget.get_value()
 
             # Get the original property and its value
-            original_prop: Property = properties_dict[prop_name]
-            original_prop_value: str = original_prop.value
+            original_prop: Union[Property, Trace] = properties_dict[prop_name]
+            if isinstance(original_prop, Trace):
+                original_prop_value: list = original_prop.targets
+            else:
+                original_prop_value: Any = original_prop.value
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
-                cloned_property: Property = original_prop.clone(new_prop_value)
+                cloned_property: Union[Property, Trace] = original_prop.clone(
+                    new_prop_value
+                )
                 update_list.append(cloned_property)
 
         # If there are errors, do not update the properties
@@ -225,7 +313,9 @@ class PropertyDialog(QDialog):
 
         # Update the properties of the element if there are changes
         if len(update_list) > 0:
-            self._controller.update_properties(self.element_id, update_list)
+            self._controller.update_properties(
+                self.element_id, new_properties=update_list
+            )
 
         # Close the form window
         self.close()
@@ -260,14 +350,13 @@ class PropertyDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(element_id: ProteusID, controller: Controller):
+    def create_dialog(controller: Controller, element_id: ProteusID) -> 'PropertyDialog':
         """
         Handle the creation and display of the form window.
 
+        :param controller: A Controller instance.
         :param element_id: The id of the element to edit.
         """
-        # Create the form window
-        form_window = PropertyDialog(element_id=element_id, controller=controller)
-
-        # Show the form window
-        form_window.exec()
+        dialog = PropertyDialog(element_id=element_id, controller=controller)
+        dialog.exec()
+        return dialog

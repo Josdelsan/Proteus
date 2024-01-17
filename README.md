@@ -11,3 +11,5 @@ PROTEUS is a Python application. It is developed using Python 3.10.7. It is reco
 PROTEUS is executed via `python3 -m proteus` from the top-level application directory.
 Tests can be executed via `pytest` from the top-level application directory.
 
+Installation and execution can be performed using the `proteus.bat`script in Windows and the `proteus.sh` script in Linux. Linux users might need to restart ibus via `ibus restart`. Installation of `python3-venv` package is required in Linux.
+

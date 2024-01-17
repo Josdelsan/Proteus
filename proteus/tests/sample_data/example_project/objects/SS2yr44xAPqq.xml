@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="SS2yr44xAPqq" classes=":Proteus-document" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name="acronym" category="general"><![CDATA[DOC1]]></stringProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Document 1]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[1.0]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="general">2023-11-21</dateProperty>
+    <markdownProperty name="description" category="details"><![CDATA[Empty document.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+  </properties>
+  <children>
+    <child id="4wZ83G7yfYag"/>
+    <child id="6bunudH7u9Qy"/>
+    <child id="6jKD9WCYAn4S"/>
+    <child id="4VcsmExNNn8K"/>
+    <child id="47y7gcbz4c8n"/>
+    <child id="5ND5HhYmadja"/>
+    <child id="4WHw2zMKqGWA"/>
+    <child id="6f2MvGSnxsZu"/>
+  </children>
+  <traces>
+    <traceProperty name="prepared-by" category="details" acceptedTargets="organization" traceType=":Proteus-author"/>
+    <traceProperty name="prepared-for" category="details" acceptedTargets="organization" traceType=":Proteus-dependency"/>
+  </traces>
+</object>

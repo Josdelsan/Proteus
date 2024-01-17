@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict
+from typing import List, Dict, Union
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,11 +23,15 @@ from PyQt6.QtGui import QUndoCommand
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.model.object import Object
+from proteus.model.project import Project
 from proteus.model.properties import Property
+from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.views.utils.event_manager import EventManager, Event
-
+from proteus.utils.events import (
+    ModifyObjectEvent,
+)
 
 # --------------------------------------------------------------------------
 # Class: UpdatePropertiesCommand
@@ -51,7 +55,7 @@ class UpdatePropertiesCommand(QUndoCommand):
     def __init__(
         self,
         element_id: ProteusID,
-        new_properties: List[Property],
+        new_properties: List[Union[Property, Trace]],
         project_service: ProjectService,
     ):
         super(UpdatePropertiesCommand, self).__init__()
@@ -62,18 +66,42 @@ class UpdatePropertiesCommand(QUndoCommand):
         ), "Must provide a project service instance to the command"
         self.project_service = project_service
 
-        # Get the old properties before updating the properties
-        old_properties_dict: Dict[str, Property] = self.project_service.get_properties(
+        # Check new properties
+        assert isinstance(
+            new_properties, List
+        ), "The new properties must be provided as a list"
+
+        # Create a list of properties and a list of traces
+        self.new_properties: List[Property] = []
+        self.new_traces: List[Trace] = []
+        for prop in new_properties:
+            if isinstance(prop, Trace):
+                self.new_traces.append(prop)
+            elif isinstance(prop, Property):
+                self.new_properties.append(prop)
+
+        # Get the element to update
+        self.element_id: ProteusID = element_id
+        self.element: Union[Object, Project] = self.project_service._get_element_by_id(
             element_id
         )
-        old_properties = [old_properties_dict[prop.name] for prop in new_properties]
 
-        self.element_id: ProteusID = element_id
-        self.old_properties: List = old_properties
-        self.old_state: ProteusState = self.project_service._get_element_by_id(
-            element_id
-        ).state
-        self.new_properties: List = new_properties
+        # Get old properties values before updating
+        old_properties_dict: Dict[str, Property] = self.element.properties
+        self.old_properties: List[Property] = [
+            old_properties_dict[prop.name] for prop in self.new_properties
+        ]
+
+        # Get old traces values before updating (if not a project)
+        self.old_traces: List[Trace] = []
+        if not isinstance(self.element, Project):
+            old_traces_dict: Dict[str, Trace] = self.element.traces
+            self.old_traces: List[Trace] = [
+                old_traces_dict[trace.name] for trace in self.new_traces
+            ]
+
+        # Get the old state of the element
+        self.old_state: ProteusState = self.element.state
 
     # ----------------------------------------------------------------------
     # Method     : redo
@@ -93,8 +121,11 @@ class UpdatePropertiesCommand(QUndoCommand):
         # Update the properties of the element and change its state
         self.project_service.update_properties(self.element_id, self.new_properties)
 
+        if isinstance(self.element, Object):
+            self.project_service.update_traces(self.element_id, self.new_traces)
+
         # Notify the frontend components
-        EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
+        ModifyObjectEvent().notify(self.element_id)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -112,11 +143,15 @@ class UpdatePropertiesCommand(QUndoCommand):
         # Set undo command text
         self.setText(f"Undo update properties of {self.element_id}")
 
-        # Update the properties of the element
+        # Restore the properties of the element
         self.project_service.update_properties(self.element_id, self.old_properties)
 
+        # Restore the traces of the element (if not a project)
+        if isinstance(self.element, Object):
+            self.project_service.update_traces(self.element_id, self.old_traces)
+
         # Change the state of the element to the previous state
-        self.project_service._get_element_by_id(self.element_id).state = self.old_state
+        self.element.state = self.old_state
 
         # Notify the frontend components
-        EventManager().notify(event=Event.MODIFY_OBJECT, element_id=self.element_id)
+        ModifyObjectEvent().notify(self.element_id)

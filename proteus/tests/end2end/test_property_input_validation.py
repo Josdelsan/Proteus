@@ -31,8 +31,9 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.main_window import MainWindow
-from proteus.views.utils.translator import Translator
+from proteus.model import PROTEUS_NAME
+from proteus.views.components.main_window import MainWindow
+from proteus.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project
 
@@ -40,21 +41,19 @@ from proteus.tests.end2end.fixtures import app, load_project
 # Fixtures
 # --------------------------------------------------------------------------
 
-PROJECT_NAME = "example_project"
-
 # --------------------------------------------------------------------------
 # End to end property input validation tests
 # --------------------------------------------------------------------------
 
 
-# NOTE: PropertyInputWidget would need a set_value() method to be able to
+# NOTE: PropertyInput would need a set_value() method to be able to
 # test validation of different property types in the same test. This would
 # only be use in testing.
 @pytest.mark.parametrize(
     "property_name, property_value, expected_error",
     [
-        ("name", "", "string_property_input.validator.error"),  # stringProperty
-        ("name", None, "string_property_input.validator.error"),
+        (PROTEUS_NAME, "", "string_property_input.validator.error"),  # stringProperty
+        (PROTEUS_NAME, None, "string_property_input.validator.error"),
         ("version", "", "float_property_input.validator.error"),  # floatProperty
         ("version", None, "float_property_input.validator.error"),
         ("version", "a", "float_property_input.validator.error"),
@@ -82,7 +81,7 @@ def test_property_input_validation(app, property_name, property_value, expected_
     # --------------------------------------------
     main_window: MainWindow = app
 
-    load_project(main_window=main_window, project_name=PROJECT_NAME)
+    load_project(main_window=main_window)
 
     # Error message variable
     error_message: str = None

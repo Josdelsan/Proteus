@@ -11,13 +11,14 @@
 # --------------------------------------------------------------------------
 
 import os
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QByteArray, QMarginsF
-from PyQt6.QtGui import QPageLayout, QPageSize
+from PyQt6.QtCore import QByteArray, QMarginsF, QSize
+from PyQt6.QtGui import QPageLayout, QPageSize, QIcon
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (
     QVBoxLayout,
@@ -36,10 +37,11 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
-from proteus.views.utils.translator import Translator
-from proteus.views.utils.state_manager import StateManager
+from proteus.views import APP_ICON_TYPE
+from proteus.views.components.abstract_component import ProteusComponent
 
 
 # --------------------------------------------------------------------------
@@ -49,7 +51,7 @@ from proteus.views.utils.state_manager import StateManager
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ExportDialog(QDialog):
+class ExportDialog(QDialog, ProteusComponent):
     """
     Class for the PROTEUS application print to pdf dialog form. It is used
     to display a dialog form with the print to pdf options.
@@ -63,20 +65,12 @@ class ExportDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, controller: Controller = None, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the page object and the controller instance.
         """
-        super().__init__(*args, **kwargs)
-        # Controller instance
-        assert isinstance(
-            controller, Controller
-        ), "Must provide a controller instance to the properties form dialog"
-        self._controller: Controller = controller
-
-        self.translator = Translator()
-
+        super(ExportDialog, self).__init__(*args, **kwargs)
         self.create_component()
 
     # ----------------------------------------------------------------------
@@ -97,12 +91,10 @@ class ExportDialog(QDialog):
             file_format: str = self.export_format_selector.currentText()
 
             # Build default file name
-            current_document = StateManager().get_current_document()
-            current_view = StateManager().get_current_view()
+            current_document = self._state_manager.get_current_document()
+            current_view = self._state_manager.get_current_view()
             document: Object = self._controller.get_element(current_document)
-            default_file_name: str = (
-                f"{document.get_property('name').value}-{current_view}.{file_format}"
-            )
+            default_file_name: str = f"{document.get_property(PROTEUS_NAME).value}-{current_view}.{file_format}"
 
             # Open the file dialog and set the default file name
             file_dialog: QFileDialog = QFileDialog()
@@ -110,6 +102,7 @@ class ExportDialog(QDialog):
             file_dialog.setDefaultSuffix(file_format)
             file_dialog.setNameFilter(f"{file_format} files (*.{file_format})")
             file_dialog.selectFile(default_file_name)
+            file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
 
             # Get the selected file path and fix the extension if needed
             if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
@@ -121,12 +114,12 @@ class ExportDialog(QDialog):
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
                     msg_box.setText(
-                        self.translator.text(
+                        self._translator.text(
                             "export_dialog.filename.warning.text", path
                         )
                     )
                     msg_box.setWindowTitle(
-                        self.translator.text("export_dialog.filename.warning.title")
+                        self._translator.text("export_dialog.filename.warning.title")
                     )
                     msg_box.setStandardButtons(
                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
@@ -137,12 +130,16 @@ class ExportDialog(QDialog):
                     self.filename_input.setText(path)
 
         # Set the dialog title and width
-        self.setWindowTitle(self.translator.text("export_dialog.title"))
-        self.setFixedWidth(400)
+        self.setWindowTitle(self._translator.text("export_dialog.title"))
+        self.sizeHint = lambda: QSize(400, 0)
+
+        # Set window icon
+        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Export format selector
         export_format_label = QLabel(
-            self.translator.text("export_dialog.export_format.label")
+            self._translator.text("export_dialog.export_format.label")
         )
         self.export_format_selector = QComboBox()
         # NOTE: This is done manually because there is no plan to support more formats
@@ -150,17 +147,18 @@ class ExportDialog(QDialog):
         self.export_format_selector.addItem("html")
 
         # Ask for filename and path
-        filename_label = QLabel(self.translator.text("export_dialog.filename.label"))
+        filename_label = QLabel(self._translator.text("export_dialog.filename.label"))
         self.filename_input: QLineEdit = QLineEdit()
         self.filename_input.setEnabled(False)
         browse_button = QPushButton(
-            self.translator.text("export_dialog.filename.browser")
+            self._translator.text("export_dialog.filename.browser")
         )
         browse_button.clicked.connect(select_file_path)
 
         # Error label
         self.error_label = QLabel()
-        self.error_label.setStyleSheet("color: red;")
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
 
         # Create the buttons
         self.button_box = QDialogButtonBox(
@@ -198,22 +196,19 @@ class ExportDialog(QDialog):
         Export the current document to pdf.
         """
         # NOTE: Page loading and pdf printing are asynchronous, so we need to
-        # wait until the page is loaded to print the pdf and the variable page 
+        # wait until the page is loaded to print the pdf and the variable page
         # must be a class attribute to avoid garbage collection.
         # To solve this problem, helper functions are used to ensure that they
         # are executed in the correct order.
+        self.page: QWebEnginePage = QWebEnginePage()
 
-        def create_page() -> None:
-            # Create the page object
-            self.page: QWebEnginePage = QWebEnginePage()
-
+        def load_page() -> None:
             # Get current application state
-            current_document = StateManager().get_current_document()
-            current_view = StateManager().get_current_view()
+            current_view = self._state_manager.get_current_view()
 
             # Generate html view
-            html_view: str = self._controller.get_document_view(
-                document_id=current_document, xslt_name=current_view
+            html_view: str = self._controller.get_html_view(
+                xslt_name=current_view
             )
 
             # Convert html to QByteArray
@@ -237,11 +232,10 @@ class ExportDialog(QDialog):
             self.page.printToPdf(file_path, page_layout)
 
         # Create the page and print it to pdf
-        create_page()
+        load_page()
         self.page.loadFinished.connect(print_page)
         # Show a dialog when the pdf printing is finished
         self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
-        
 
     # ----------------------------------------------------------------------
     # Method     : export_to_html
@@ -255,12 +249,11 @@ class ExportDialog(QDialog):
         Export the current document to html.
         """
         # Get current application state
-        current_document = StateManager().get_current_document()
-        current_view = StateManager().get_current_view()
+        current_view = self._state_manager.get_current_view()
 
         # Generate html view
-        html_view: str = self._controller.get_document_view(
-            document_id=current_document, xslt_name=current_view
+        html_view: str = self._controller.get_html_view(
+            xslt_name=current_view
         )
 
         # Write the html to a file
@@ -309,7 +302,7 @@ class ExportDialog(QDialog):
         # Validate the filename
         if file_path == "" or file_path is None:
             self.error_label.setText(
-                self.translator.text("export_dialog.error.invalid_filename")
+                self._translator.text("export_dialog.error.invalid_filename")
             )
             return
 
@@ -319,9 +312,11 @@ class ExportDialog(QDialog):
         # Check the export format and the filename extension match
         if not file_path.endswith(export_format):
             self.error_label.setText(
-                self.translator.text("export_dialog.error.invalid_extension")
+                self._translator.text("export_dialog.error.invalid_extension")
             )
             return
+        
+        self.button_box.setEnabled(False)
 
         # Export depending on the selected format
         if export_format == "pdf":
@@ -345,15 +340,15 @@ class ExportDialog(QDialog):
         if success:
             QMessageBox.information(
                 self,
-                self.translator.text("export_dialog.finished.dialog.title"),
-                self.translator.text("export_dialog.finished.dialog.text", filePath),
+                self._translator.text("export_dialog.finished.dialog.title"),
+                self._translator.text("export_dialog.finished.dialog.text", filePath),
             )
             self.close()
         else:
             QMessageBox.critical(
                 self,
-                self.translator.text("export_dialog.finished.dialog.error.title"),
-                self.translator.text("export_dialog.finished.dialog.error.text"),
+                self._translator.text("export_dialog.finished.dialog.error.title"),
+                self._translator.text("export_dialog.finished.dialog.error.text"),
             )
             self.close()
 
@@ -369,14 +364,12 @@ class ExportDialog(QDialog):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller):
+    def create_dialog(controller: Controller) -> "ExportDialog":
         """
         Handle the creation and display of the form window.
 
         :param controller: The application controller.
         """
-        # Create the form window
-        form_window = ExportDialog(controller)
-
-        # Show the form window
+        form_window = ExportDialog(controller=controller)
         form_window.exec()
+        return form_window

@@ -16,50 +16,69 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:proteus="http://proteus.us.es"
-    exclude-result-prefixes="proteus"
+    xmlns:proteus-utils="http://proteus.us.es/utils"
+    exclude-result-prefixes="proteus proteus-utils"
 >
     
     <!-- =========================================================== -->
-    <!-- paragraph template                                      -->
+    <!-- paragraph template                                          -->
     <!-- =========================================================== -->
 
     <xsl:template match="object[@classes='paragraph']">
-        <a id="{@id}"></a>
-        <p>
-            <xsl:call-template name="generate_markdown">
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='text']"/>
-            </xsl:call-template>
-        </p>
-    </xsl:template>
-
-    <!-- =========================================================== -->
-    <!-- paragraph template in "part" mode                       -->
-    <!-- =========================================================== -->
-
-    <!-- This approach is better than using a section for parts.     -->
-    <!-- It does not break section numbering.                        -->
-
-    <xsl:template match="object[@classes='paragraph']" mode="part">
-        <xsl:call-template name="pagebreak"/>
-        <div id="{@id}" class="part">
-            <xsl:value-of select="text"/><xsl:text> </xsl:text>
-            <xsl:number count="//object[@classes='paragraph']" format="I"/>
+  
+        <div id="{@id}"  data-proteus-id="{@id}">
+            <xsl:choose>
+                <xsl:when test="properties/booleanProperty[@name='is-glossary'] = 'true'">
+                    <xsl:call-template name="create_glossary_item"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="create_paragraph"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </div>
-        <xsl:call-template name="pagebreak"/>
     </xsl:template>
 
-    <!-- =========================================================== -->
-    <!-- paragraph template in "toc" mode for "parts"            -->
-    <!-- =========================================================== -->
+    <!-- Paragraph generator template -->
+    <xsl:template name="create_paragraph">
+        <xsl:variable name="content" select="properties/markdownProperty[@name='text']"/>
+        <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
 
-    <xsl:template match="object[@classes='paragraph']" mode="toc">
-        <br/><br/>
-        <li>
-            <xsl:value-of select="text"/><xsl:text> </xsl:text>
-            <xsl:number count="//object[@classes='paragraph']" format="I"/>
-            <a href="#{@id}"><xsl:value-of select="properties/stringProperty[@name='name']"/></a>
-        </li>
-        <br/><br/>
+        <xsl:choose>
+            <xsl:when test="not($nonempty_content)">
+                <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+            </xsl:when>
+            <xsl:otherwise>
+                <p>
+                    <xsl:call-template name="generate_markdown">
+                        <xsl:with-param name="content" select="$content"/>
+                    </xsl:call-template>
+                </p>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <!-- Glossary item generator template -->
+    <xsl:template name="create_glossary_item">
+        <p>
+            <strong>
+                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
+                <xsl:text>: </xsl:text>
+            </strong>
+
+            <xsl:variable name="description" select="properties/markdownProperty[@name='text']"/>
+            <xsl:variable name="nonempty_content" select="string-length(normalize-space($description)) > 0"/>
+
+            <xsl:choose>
+                <xsl:when test="not($nonempty_content)">
+                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="generate_markdown">
+                        <xsl:with-param name="content" select="$description"/>
+                    </xsl:call-template>
+                </xsl:otherwise>
+            </xsl:choose>
+        </p>
     </xsl:template>
 
 
