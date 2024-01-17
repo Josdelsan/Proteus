@@ -17,3 +17,8 @@ NAME_ATTRIBUTE = "name"
 LANGUAGE_ATTRIBUTE = "language"
 FILE_ATTRIBUTE = "file"
 DEFAULT_ATTRIBUTE = "default"
+
+# PyQt6 Search Paths
+RESOURCES_SEARCH_PATH = "resources"
+TEMPLATE_DUMMY_SEARCH_PATH = "templates"
+ASSETS_DUMMY_SEARCH_PATH = "assets"

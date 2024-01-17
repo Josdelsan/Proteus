@@ -31,23 +31,6 @@
             <div class="figure">
                 <!-- Get file name with extension -->
                 <xsl:variable name="file_name" select="properties/fileProperty[@name='file']"/>
-                <!-- Get the file extension -->
-                <xsl:variable name="image_extension" select="substring-after($file_name, '.')" />
-
-                <!-- Get the file encoded base64 -->
-                <xsl:variable name="image" select="proteus-utils:image_to_base64($file_name)"/>
-
-                <!-- Build src attribute prefix based on the extension -->
-                <xsl:variable name="src_prefix">
-                    <xsl:choose>
-                        <xsl:when test="$image_extension = 'png'">data:image/png;base64,</xsl:when>
-                        <xsl:when test="$image_extension = 'jpg'">data:image/jpeg;base64,</xsl:when>
-                        <xsl:when test="$image_extension = 'jpeg'">data:image/jpeg;base64,</xsl:when>
-                        <xsl:when test="$image_extension = 'gif'">data:image/gif;base64,</xsl:when>
-                        <xsl:when test="$image_extension = 'svg'">data:image/svg+xml;base64,</xsl:when>
-                        <xsl:otherwise>data:image/jpeg;base64,</xsl:otherwise>
-                    </xsl:choose>
-                </xsl:variable>
 
                 <!-- Get the image width percentage -->
                 <xsl:variable name="image_width_percentage">
@@ -61,7 +44,7 @@
 
                 <img class="figure_image">
                     <xsl:attribute name="src">
-                        <xsl:value-of select="concat($src_prefix, $image)" disable-output-escaping="yes"/>
+                        <xsl:value-of select="concat('assets:///', $file_name)" disable-output-escaping="no"/>
                     </xsl:attribute>
 
                     <xsl:attribute name="style">
