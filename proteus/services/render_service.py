@@ -30,6 +30,7 @@ from proteus.utils.config import Config
 # logging configuration
 log = logging.getLogger(__name__)
 
+
 # --------------------------------------------------------------------------
 # Class: RenderService
 # Description: Class for render service
@@ -51,7 +52,9 @@ class RenderService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, config: Config = None, plugin_manager: PluginManager = None) -> None:
+    def __init__(
+        self, config: Config = None, plugin_manager: PluginManager = None
+    ) -> None:
         """
         Initialize the RenderService object. Load the XSLT templates.
         """
@@ -142,9 +145,20 @@ class RenderService:
         try:
             result_tree = transform(xml)
         except:
+            # Print the errors found while rendering and create an error tree to return
+            result_tree = ET.Element("errors")
             for error in transform.error_log:
-                log.error(f"Error found while rendering xml using template {xslt_name}, line {error.line}, column {error.column}: {error.message}")
-        html_string = ET.tostring(result_tree, encoding="unicode", pretty_print=True, method="html")
+                error_string = f"Line {error.line}, column {error.column}: {error.message} \n Domain: {error.domain} \n Type: {error.type} \n Level: {error.level} \n Filename: {error.filename} \n"
+                log.critical(
+                    f"Error found while rendering xml using template {xslt_name}: \n {error_string}"
+                )
+
+                error_element = ET.SubElement(result_tree, "error")
+                error_element.text = error.message
+
+        html_string = ET.tostring(
+            result_tree, encoding="unicode", pretty_print=True, method="html"
+        )
         return html_string
 
     # ----------------------------------------------------------------------

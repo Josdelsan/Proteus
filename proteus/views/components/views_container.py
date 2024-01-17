@@ -98,9 +98,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # NOTE: QWebEngineView is used instead QTextBrowser because it supports
         #       javascript, external resources and other features that are
         #       needed to render the document.
-        # TODO: Find an alternative to avoid using multiple browsers. It
-        #       has an impact on memory usage but is faster than setHtml.
-        #       Multiple browsers are a solution to QTabWidget since a
+        # NOTE: Multiple browsers are a solution to QTabWidget since a
         #       QWebEngineView cannot be added to multiple parents.
         self.tabs: Dict[str, QWebEngineView] = {}
 
@@ -586,3 +584,5 @@ class DocumentPage(QWebEnginePage):
                 return False
 
         return super().acceptNavigationRequest(url, _type, isMainFrame)
+
+

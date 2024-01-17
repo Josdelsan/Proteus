@@ -62,9 +62,9 @@ class GlossaryHandler(ProteusComponent):
     link the item to the description, all descriptions will be displayed in the
     tooltip.
 
-    Glossary items are detected in text using the regex pattern '\b{item}(?!\w)\b'.
+    Glossary items are detected in text using the regex pattern '\b(?<!-){item}(?!-)\b'.
     This means that if the item is 'item', the text 'item', 'item/', 'Item' or
-    'ITEM,' will be detected as a glossary reference but not 'item1', 'item2', etc.
+    'ITEM,' will be detected as a glossary reference but not 'item1', '-item', etc.
     """
 
     # Class attributes
@@ -324,22 +324,30 @@ class GlossaryHandler(ProteusComponent):
     def _setup_pattern(self) -> None:
         """
         It sets up the regex pattern to highlight the glossary items.
+
+        The pattern is created from a list of glossary items. The list is
+        is converted to a TrieRegEx object and then to a regex pattern.
         """
-        GlossaryHandler.pattern = None
+        old_pattern = GlossaryHandler.pattern
+        try:
+            GlossaryHandler.pattern = None
 
-        # Get the glossary items
-        glossary_items: List[str] = list(GlossaryHandler.object_ids_by_item.keys())
+            # Get the glossary items
+            glossary_items: List[str] = list(GlossaryHandler.object_ids_by_item.keys())
 
-        if len(glossary_items) == 0:
-            return
+            if len(glossary_items) == 0:
+                return
 
-        # Order the items by length so items that contain other items are processed first
-        glossary_items = sorted(glossary_items, key=len, reverse=True)
+            # Order the items by length so items that contain other items are processed first
+            glossary_items = sorted(glossary_items, key=len, reverse=True)
 
-        tre = TRE(*glossary_items)
+            tre = TRE(*glossary_items)
 
-        # Create the pattern
-        GlossaryHandler.pattern = re.compile(rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE)
+            # Create the pattern
+            GlossaryHandler.pattern = re.compile(rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE)
+        except Exception as e:
+            log.error(f"There was an error while updating the glossary regex pattern: {e}")
+            GlossaryHandler.pattern = old_pattern
 
     # --------------------------------------------------------------------------
     # Method: highlight_glossary_items (static)
@@ -353,59 +361,49 @@ class GlossaryHandler(ProteusComponent):
         """
         It highlights the glossary items in the text.
 
+        If the glossary item has multiple descriptions, all descriptions
+        are displayed in the tooltip.
+
         Method used in the XSLT stylesheet.
-
-        NOTE: In order to avoid loops in tooltips references and allow multiple
-        descriptions for the same item, the description is set after the item
-        is wrapped with the html tags. To do this, a helper prefix is added to
-        the item description. Then, the item is replaced with the description
-        in the text. Prefix: ':RemusPluginGlossaryItemDescription$' where
-        '$' is the item name.
-
-        Similar approach is used when handling with the glossary item match. To
-        avoid nested glossary items (example: 'project' and 'project manager'),
-        they are ordered by length and a helper prefix is added to the item
-        match. The dummy prefix is replaced later with the correct glossary item
-        match. Prefix: ':RemusPluginGlossaryItemMatch$' where '$' is the text match.
-        The prefix is later removed to preserve the original text match (case sensitive).
-
-        Camel case is used in the helper prefixes to avoid conflicts with non
-        alphanumeric characters. Words separated by non alphanumeric characters
-        are considered as multiple glossary items.
         """
+        input_text = text
 
-        def highlight_item(match: re.Match) -> str:
-            # Get the match
-            match_text: str = match.group()
+        try:
+            def highlight_item(match: re.Match) -> str:
+                # Get the match
+                match_text: str = match.group()
 
-            # Get the item
-            item = match_text.lower()
+                # Get the item
+                item = match_text.lower()
 
-            # Get ids linked to the item
-            item_linked_ids = GlossaryHandler.object_ids_by_item[item]
-            descriptions: List[str] = [
-                GlossaryHandler.items_descriptions[item_id]
-                for item_id in item_linked_ids
-            ]
+                # Get ids linked to the item
+                item_linked_ids = GlossaryHandler.object_ids_by_item[item]
+                descriptions: List[str] = [
+                    GlossaryHandler.items_descriptions[item_id]
+                    for item_id in item_linked_ids
+                ]
 
-            # Create the description and set the item id
-            item_id = list(item_linked_ids)[0]
-            description_html = ""
-            for index, description in enumerate(descriptions):
-                # Insert space between descriptions if there are more than one
-                if index > 0:
-                    description_html += "<hr></hr>"
+                # Create the description and set the item id
+                item_id = list(item_linked_ids)[0]
+                description_html = ""
+                for index, description in enumerate(descriptions):
+                    # Insert space between descriptions if there are more than one
+                    if index > 0:
+                        description_html += "<hr></hr>"
 
-                # Add the description with a link to the item
-                description_html += f"{description}"
+                    # Add the description with a link to the item
+                    description_html += f"{description}"
 
-            return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{description_html}">{match_text}</a>'
-        
+                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{description_html}">{match_text}</a>'
+            
 
-        if GlossaryHandler.pattern is None:
-            return text
+            if GlossaryHandler.pattern is None:
+                return text
 
-        # Replace the items with the decorated items
-        text = re.sub(GlossaryHandler.pattern, highlight_item, text)
+            # Replace the items with the decorated items
+            text = re.sub(GlossaryHandler.pattern, highlight_item, text)
+        except Exception as e:
+            log.error(f"There was an error while highlighting the glossary items in text {input_text}. Error: {e}")
+            text = input_text
 
         return text
