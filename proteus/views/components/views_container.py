@@ -278,8 +278,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
             browser.page().setContent(html_array, "text/html")
 
-            # Connect to load finished signal to update the object list
-            # browser.page().loadFinished.connect(self.navigate_on_page_load_finished)
+            # NOTE: When using onLoadFinished signal make sure to disconnect
+            # the sender using self.sender().disconnect() to avoid multiple
+            # calls when page is reloaded.
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -393,9 +394,10 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         if navigate == False:
             return
 
-        # Create the javascript code to navigate to the object
-        # NOTE: The javascript code is defined in the document xslt
-        script: str = f"scrollToElementById('{selected_object_id}');"
+        # NOTE: This javascript function must be implemented in the xslt
+        #       template. If not implemented, a js error will be shown in
+        #       the python console.
+        script_template: str = "onTreeObjectSelected('{}');"
 
         # Get current view
         current_view: str = self._state_manager.get_current_view()
@@ -404,7 +406,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         if current_view in self.tabs:
             browser: QWebEngineView = self.tabs[current_view]
 
-            browser.page().runJavaScript(script)
+            browser.page().runJavaScript(script_template.format(selected_object_id))
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_view
@@ -445,32 +447,6 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # ======================================================================
     # Component methods
     # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : navigate_on_page_load_finished
-    # Description: Navigate to the selected object when the page is loaded.
-    # Date       : 02/01/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def navigate_on_page_load_finished(self, page_loaded: bool) -> None:
-        """
-        Navigate to the selected object when the page is loaded.
-
-        Connected to: QWebEnginePage.loadFinished
-
-        :param page_loaded: Flag to check if the page is loaded.
-        """
-        # If the page is loaded, navigate to the selected object
-        if page_loaded == True:
-            self.update_on_select_object(
-                self._state_manager.get_current_object(),
-                self._state_manager.get_current_document(),
-                True,
-            )
-
-        # Disconnect the signal to avoid multiple calls when page is reloaded
-        self.sender().disconnect()
 
     # ----------------------------------------------------------------------
     # Method     : close_tab
@@ -591,4 +567,34 @@ class DocumentPage(QWebEnginePage):
 
         return super().acceptNavigationRequest(url, _type, isMainFrame)
 
+    # ----------------------------------------------------------------------
+    # Method     : javaScriptConsoleMessage
+    # Description: Override the javaScriptConsoleMessage method to avoid
+    #              printing javascript errors in the python console.
+    # Date       : 22/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def javaScriptConsoleMessage(
+        self,
+        level: QWebEnginePage.JavaScriptConsoleMessageLevel,
+        message: str,
+        line: int,
+        sourceId: str,
+    ) -> None:
+        """
+        Override the javaScriptConsoleMessage method to avoid printing
+        javascript errors in the python console.
 
+        Uses the logging module to print javascript messages in the main
+        PROTEUS log file.
+        """
+        # Get the log level
+        log_level: int = logging.INFO
+        if level == QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel:
+            log_level = logging.WARNING
+        elif level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
+            log_level = logging.ERROR
+
+        # Print the message in the log file
+        log.log(log_level, f"QWebEnginePage console | {message}")

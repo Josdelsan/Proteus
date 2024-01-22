@@ -22,7 +22,7 @@ var documentInteractions = null;
 // Custom log function
 // -----------------------------------------------------------------------
 function log(message) {
-    proteusBasics.log(PROTEUS_XSLT_LOG_PREFIX + message);
+    console.log(PROTEUS_XSLT_LOG_PREFIX + message);
 }
 
 // -----------------------------------------------------------------------
@@ -39,7 +39,7 @@ function loadWebChannel() {
             // This improves user experience when the document has a lot of
             // resources (images, stylesheets, etc.)
             proteusBasics.get_current_object_id( function (oid) {
-                scrollToElementById(oid);
+                onTreeObjectSelected(oid);
             });
 
             log("QWebChannel loaded.")
@@ -115,13 +115,13 @@ function suscribeProteusId() {
 
 
 // -----------------------------------------------------------------------
-// Function    : scrollToElementById
+// Function    : onTreeObjectSelected
 // Description : Scroll the document to the element with the given Id.
 // Date        : 16/01/2024
 // Version     : 0.1
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
-function scrollToElementById(id) {
+function onTreeObjectSelected(id) {
     if (id == "" || id == null) {
         log("Scroll error, cannot scroll to an empty Id.");
         return;

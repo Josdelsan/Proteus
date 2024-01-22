@@ -330,13 +330,18 @@ class MainMenu(QDockWidget, ProteusComponent):
             archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
                 self, object_class
             )
-            archetype_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+            # NOTE: This could be achieved using 'InstantPopup' mode, but it
+            #       is a visual design decision
+            archetype_button.setPopupMode(
+                QToolButton.ToolButtonPopupMode.MenuButtonPopup
+            )
             archetype_button.setMenu(
                 ArchetypesMenuDropdown(
                     controller=self._controller,
                     archetype_list=object_archetypes_by_class[object_class],
                 )
             )
+            archetype_button.clicked.connect(archetype_button.showMenu)
 
             # Add the archetype button to the archetype buttons dictionary
             self.archetype_buttons[object_class] = archetype_button

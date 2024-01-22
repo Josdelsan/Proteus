@@ -115,17 +115,17 @@ def current_document(context) -> str:
 
 # --------------------------------------------------------------------------
 # Class      : ProteusBasicMethods
-# Description: Class that defines the basic methods for PROTEUS xslt templates.
+# Description: Class that defines the basic methods for PROTEUS HTML views.
 # Date       : 18/01/2024
 # Version    : 0.1
 # Author     : José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class ProteusBasicMethods(ProteusComponent):
     """
-    Class that defines the basic methods for PROTEUS xslt templates.
+    Class that defines the basic methods for PROTEUS HTML views.
 
     It provides a method to access the current selected object in the current
-    document and method to perform logging in main PROTEUS log file.
+    document.
     """
     @pyqtSlot(result=str)
     def get_current_object_id(self) -> str | None:
@@ -134,13 +134,6 @@ class ProteusBasicMethods(ProteusComponent):
         there is no object selected.
         """
         return self._state_manager.get_current_object()
-    
-    @pyqtSlot(str)
-    def log(self, message: str) -> None:
-        """
-        Logs a message in the main PROTEUS log file.
-        """
-        log.debug(message)
     
 
 
