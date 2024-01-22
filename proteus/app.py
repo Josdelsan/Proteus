@@ -22,6 +22,7 @@ import shutil
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtWebEngineCore import QWebEngineProfile
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -30,9 +31,10 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from proteus import PROTEUS_LOGGING_DIR
 from proteus.utils.config import Config
 from proteus.utils.plugin_manager import PluginManager
-from proteus.views.components.main_window import MainWindow
 from proteus.utils.translator import Translator
+from proteus.utils.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
+from proteus.views.components.main_window import MainWindow
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -53,6 +55,9 @@ class ProteusApplication:
         """
         self.config: Config = Config()
         self.plugin_manager: PluginManager = PluginManager()
+        self.request_interceptor: WebEngineUrlRequestInterceptor = (
+            WebEngineUrlRequestInterceptor()
+        )
         self.app: QApplication = None
         self.main_window: MainWindow = None
 
@@ -76,6 +81,12 @@ class ProteusApplication:
         sys.excepthook = self.excepthook
         self.app = QApplication(sys.argv)
 
+        # Setup the request interceptor
+        profile = QWebEngineProfile.defaultProfile()
+        profile.setUrlRequestInterceptor(self.request_interceptor)
+        self.app.aboutToQuit.connect(self.request_interceptor.stop_server)
+
+        # Set application style sheet
         with open(
             self.config.resources_directory / "stylesheets" / "proteus.qss", "r"
         ) as f:

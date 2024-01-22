@@ -29,16 +29,13 @@
                 <meta name="generatedBy" content="PROTEUS"/>
                 
                 <!-- Remus stylesheets -->
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/remus.css"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/amador-duran-toro/remus/assets/stylesheets/madeja.css"/>
+                <link rel="stylesheet" href="templates:///default/remus.css"/>
 
                 <title>
                     <xsl:value-of select="$proteus:lang_project"/>
                     <xsl:text> </xsl:text>
                     <xsl:value-of select="parent::*/parent::*/properties/stringProperty[@name=':Proteus-name']"/>
                 </title>
-                 
-                <xsl:call-template name="style"/>
                 
             </head>
             <body>
@@ -62,9 +59,9 @@
 
                 <script src="https://unpkg.com/@popperjs/core@2"></script>
                 <script src="https://unpkg.com/tippy.js@6"></script>
-                <xsl:call-template name="javascript"/>
+                <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+                <script src="templates:///default/proteus.js"></script> 
 
-                
             </body>
         </html>
     </xsl:template>

@@ -48,6 +48,9 @@ from proteus.utils import (
     LANGUAGE_ATTRIBUTE,
     FILE_ATTRIBUTE,
     DEFAULT_ATTRIBUTE,
+    RESOURCES_SEARCH_PATH,
+    TEMPLATE_DUMMY_SEARCH_PATH,
+    ASSETS_DUMMY_SEARCH_PATH,
 )
 
 # logging configuration
@@ -137,7 +140,17 @@ class Config:
         )
 
         # Configure PyQt search paths --------------------------------------
-        QtCore.QDir.addSearchPath("resources", self.resources_directory.as_posix())
+        QtCore.QDir.addSearchPath(
+            RESOURCES_SEARCH_PATH, self.resources_directory.as_posix()
+        )  # Used in PyQt stylesheets
+
+        # Configure dummy search paths -------------------------------------
+        # NOTE: This is used by the XSLT templates to access local files
+        # This allows to use search path syntax so it can be handled as a
+        # request by the request interceptor. It will build the path to the
+        # file and return it as an http response.
+        QtCore.QDir.addSearchPath(TEMPLATE_DUMMY_SEARCH_PATH, "")
+        QtCore.QDir.addSearchPath(ASSETS_DUMMY_SEARCH_PATH, "")
 
         # Application settings ---------------------------------------------
         self.settings = self.config[SETTINGS]
