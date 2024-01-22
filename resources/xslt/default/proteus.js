@@ -7,24 +7,45 @@
 // =========================================================================
 // NOTE: console.error is used because logs are not shown in python console,
 //       this is for debugging purposes only.
+// =========================================================================
 
-// -----------------------------------------------------------------------
-// QWebChannel objects declaration and loading
-// -----------------------------------------------------------------------
+// Constants
+const PROTEUS_XSLT_VERSION = "0.1";
+const PROTEUS_XSLT_NAME = "Proteus XSLT";
+const PROTEUS_XSLT_LOG_PREFIX = `${PROTEUS_XSLT_NAME}:${PROTEUS_XSLT_VERSION} - `;
 
-// DocumentInteraction object to access python functionalities
+// WebChannel objects
+var proteusBasics = null;
 var documentInteractions = null;
 
+// -----------------------------------------------------------------------
+// Custom log function
+// -----------------------------------------------------------------------
+function log(message) {
+    proteusBasics.log(PROTEUS_XSLT_LOG_PREFIX + message);
+}
+
+// -----------------------------------------------------------------------
 // QWebChannel loading
+// -----------------------------------------------------------------------
+
 function loadWebChannel() {
-    console.error("PROTEUS_XSLT: Loading QWebChannel...")
     try {
         new QWebChannel(qt.webChannelTransport, function (channel) {
+            proteusBasics = channel.objects.proteusBasics;
             documentInteractions = channel.objects.documentInteractions;
+
+            // Scroll to the current object as soon as the QWebChannel is loaded
+            // This improves user experience when the document has a lot of
+            // resources (images, stylesheets, etc.)
+            proteusBasics.get_current_object_id( function (oid) {
+                scrollToElementById(oid);
+            });
+
+            log("QWebChannel loaded.")
         });
-        console.error("PROTEUS_XSLT: QWebChannel loaded.")
     } catch (error) {
-        console.error("PROTEUS_XSLT: " + error.message);
+        console.error(error.message);
     }
 }
 
@@ -40,9 +61,9 @@ function loadWebChannel() {
 // -----------------------------------------------------------------------
 function propertiesDialog(id, event) {
     if (id == "" || id == null) {
-        console.error("PROTEUS_XSLT: " + "Doubleclicked on a symbolic linked object with empty Id, propagating event to parent.");
+        log("Doubleclicked on a symbolic linked object with empty Id, propagating event to parent.");
     } else {
-        console.error("PROTEUS_XSLT: " + "Doubleclicked on element with Id " + id)
+        log("Doubleclicked on element with Id " + id)
         documentInteractions.open_properties_dialog(id);
         event.stopPropagation();
     }
@@ -62,9 +83,9 @@ function propertiesDialog(id, event) {
 // -----------------------------------------------------------------------
 function selectAndNavigate(id, event) {
     if (id == "" || id == null) {
-        console.error("PROTEUS_XSLT: " + "selectAndNavigate received an empty Id, propagating event to parent.");
+        log("selectAndNavigate received an empty Id, propagating event to parent.");
     } else {
-        console.error("PROTEUS_XSLT: " + "Clicked on anchor element with Id " + id)
+        log("Clicked on anchor element with Id " + id)
         documentInteractions.select_and_navigate_to_object(id);
         event.stopPropagation();
     }
@@ -102,17 +123,17 @@ function suscribeProteusId() {
 // -----------------------------------------------------------------------
 function scrollToElementById(id) {
     if (id == "" || id == null) {
-        console.error("PROTEUS_XSLT: " + "Scroll error, cannot scroll to an empty Id.");
+        log("Scroll error, cannot scroll to an empty Id.");
         return;
     }
 
     const element = document.getElementById(id)
 
     if (element != null) {
-        console.error("PROTEUS_XSLT: " + "Scrolling to element with Id " + id)
+        log("Scrolling to element with Id " + id)
         element.scrollIntoView({ behavior: "smooth" });
     } else {
-        console.error("PROTEUS_XSLT: " + "Scroll error, element with Id " + id + " not found.");
+        log("Scroll error, element with Id " + id + " not found.");
     }
 }
 
@@ -146,9 +167,13 @@ function removeIdsInsideSymbolicLink() {
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
 function generateTooltip() {
-    tippy('[data-tippy-content]', {
-        allowHTML: true,
-    });
+    try {
+        tippy('[data-tippy-content]', {
+            allowHTML: true,
+        });
+    } catch (error) {
+        log("Error creating tooltips: " + error.message);
+    }
 }
 
 
@@ -168,3 +193,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Generate tooltips
     generateTooltip();
 });
+
+// =========================================================================
+// Execute code on load event
+// =========================================================================
+window.onload = function () {
+    
+};

@@ -179,12 +179,18 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         )
         browser.setPage(document_page)
 
-        # QWebChannel setup from plugins
+        # QWebChannel setup for plugins
+        channel_objects: Dict[str, ProteusComponent] = {}
         for name, _class in PluginManager().get_qwebchannel_classes().items():
             channel_object = _class(parent=self)
-            channel: QWebChannel = QWebChannel(browser)
-            browser.page().setWebChannel(channel)
-            channel.registerObject(name, channel_object)
+            channel_objects[name] = channel_object
+
+        channel: QWebChannel = QWebChannel(browser)
+        channel.registerObjects(channel_objects)
+        browser.page().setWebChannel(channel)
+        # NOTE: registeredObjects method causes a crash when the channel is loaded
+        #       in the browser. This is a PyQt6 bug, works in PySide6.
+        # log.debug(f"Registered QWebChannel objects: {channel.registeredObjects()}")
 
         # Build the tab code name
         # NOTE: The tab code name is used to access the tab name internationalization
@@ -273,7 +279,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             browser.page().setContent(html_array, "text/html")
 
             # Connect to load finished signal to update the object list
-            browser.page().loadFinished.connect(self.navigate_on_page_load_finished)
+            # browser.page().loadFinished.connect(self.navigate_on_page_load_finished)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
