@@ -29,6 +29,9 @@ function log(message) {
 // QWebChannel loading
 // -----------------------------------------------------------------------
 
+// NOTE: This function is used to interact with Python code, if you are
+//       using this script outside PROTEUS application, you can remove
+//       this function to prevent errors.
 function loadWebChannel() {
     try {
         new QWebChannel(qt.webChannelTransport, function (channel) {
@@ -59,6 +62,9 @@ function loadWebChannel() {
 // Version     : 0.1
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
+// NOTE: This function is used to interact with Python code, if you are
+//       using this script outside PROTEUS application, you can remove
+//       this function to prevent errors.
 function propertiesDialog(id, event) {
     if (id == "" || id == null) {
         log("Doubleclicked on a symbolic linked object with empty Id, propagating event to parent.");
@@ -81,6 +87,9 @@ function propertiesDialog(id, event) {
 // Version     : 0.1
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
+// NOTE: This function is used to interact with Python code, if you are
+//       using this script outside PROTEUS application, you can remove
+//       this function to prevent errors.
 function selectAndNavigate(id, event) {
     if (id == "" || id == null) {
         log("selectAndNavigate received an empty Id, propagating event to parent.");
@@ -100,6 +109,9 @@ function selectAndNavigate(id, event) {
 // Version     : 0.1
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
+// NOTE: This function is used to interact with Python code, if you are
+//       using this script outside PROTEUS application, you can remove
+//       this function to prevent errors.
 function suscribeProteusId() {
     const elements = document.querySelectorAll('*[data-proteus-id]');
     elements.forEach(element => {
@@ -121,6 +133,9 @@ function suscribeProteusId() {
 // Version     : 0.1
 // Author      : José María Delgado Sánchez
 // -----------------------------------------------------------------------
+// NOTE: This function is used to interact with Python code, if you are
+//       using this script outside PROTEUS application, you can remove
+//       this function to prevent errors.
 function onTreeObjectSelected(id) {
     if (id == "" || id == null) {
         log("Scroll error, cannot scroll to an empty Id.");

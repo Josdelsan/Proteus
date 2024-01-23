@@ -6,7 +6,7 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-from enum import StrEnum
+from strenum import StrEnum
 
 # Export formats -------------------------------------------------------------
 class ExportFormat(StrEnum):

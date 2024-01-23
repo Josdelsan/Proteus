@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QApplication
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import PROTEUS_NAME
+from proteus.model import PROTEUS_NAME, PROTEUS_ACRONYM
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
@@ -68,7 +68,7 @@ def test_edit_document(app):
     # Properties
     # NOTE: These are known existing properties
     NAME_PROP = PROTEUS_NAME
-    ACRONYM_PROP = "acronym"
+    ACRONYM_PROP = PROTEUS_ACRONYM
 
     # New values
     new_name = "New name"

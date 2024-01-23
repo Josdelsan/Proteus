@@ -72,6 +72,7 @@ PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
 PROTEUS_CODE = str(':Proteus-code')
 PROTEUS_NAME = str(':Proteus-name')
 PROTEUS_DATE = str(':Proteus-date')
+PROTEUS_ACRONYM = str(':Proteus-acronym')
 
 # Some predefined traceability types
 PROTEUS_DEPENDENCY = str(':Proteus-dependency')

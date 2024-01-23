@@ -26,7 +26,7 @@ from PyQt6.QtCore import QSize
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
+from proteus.model import ProteusID, PROTEUS_ACRONYM
 from proteus.model.object import Object
 from proteus.views import ACRONYM_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
@@ -148,7 +148,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         self.tabs[document.id] = tab
 
         # Get acronym, add the tab and store the index given by the addTab method
-        document_acronym: str = document.get_property("acronym").value
+        document_acronym: str = document.get_property(PROTEUS_ACRONYM).value
         if position is not None:
             tab_index = self.insertTab(position, tab, document_acronym)
         else:
@@ -292,7 +292,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
 
             # Get new acronym
             element: Object = self._controller.get_element(object_id)
-            document_acronym: str = element.get_property("acronym").value
+            document_acronym: str = element.get_property(PROTEUS_ACRONYM).value
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
