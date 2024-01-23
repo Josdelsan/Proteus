@@ -74,6 +74,9 @@ class GlossaryHandler(ProteusComponent):
     ] = dict()  # k: glossary item name, v: Set[ProteusID]
     pattern: re.Pattern = None
 
+    # NOTE: This pattern is build using <code> tags because text is already converted to html
+    code_block_pattern: re.Pattern = re.compile(r"(?s)<code>((?!</code>).)*</code>", re.IGNORECASE)
+
     # --------------------------------------------------------------------------
     # Method: __init__
     # Description: It initializes the glossary handler.
@@ -362,7 +365,9 @@ class GlossaryHandler(ProteusComponent):
         It highlights the glossary items in the text.
 
         If the glossary item has multiple descriptions, all descriptions
-        are displayed in the tooltip.
+        are displayed in the tooltip. Glossary items that are inside a
+        code block are not highlighted, this is done to prevent HTML 
+        loops errors when the tooltip is added.
 
         Method used in the XSLT stylesheet.
         """
@@ -372,6 +377,17 @@ class GlossaryHandler(ProteusComponent):
             def highlight_item(match: re.Match) -> str:
                 # Get the match
                 match_text: str = match.group()
+                match_start: int = match.start()
+
+                # Check if the match is inside a code block
+                code_block_matches = GlossaryHandler.code_block_pattern.finditer(text)
+                for code_block_match in code_block_matches:
+                    code_block_start = code_block_match.start()
+                    code_block_end = code_block_match.end()
+
+                    # If the match is inside a code block, return the match without decoration
+                    if code_block_start <= match_start <= code_block_end:
+                        return match_text
 
                 # Get the item
                 item = match_text.lower()
