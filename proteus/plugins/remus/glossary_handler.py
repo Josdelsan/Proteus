@@ -13,6 +13,7 @@
 import logging
 from typing import Dict, List, MutableSet
 import re
+from html import escape
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -75,7 +76,9 @@ class GlossaryHandler(ProteusComponent):
     pattern: re.Pattern = None
 
     # NOTE: This pattern is build using <code> tags because text is already converted to html
-    code_block_pattern: re.Pattern = re.compile(r"(?s)<code>((?!</code>).)*</code>", re.IGNORECASE)
+    code_block_pattern: re.Pattern = re.compile(
+        r"(?s)<code>((?!</code>).)*</code>", re.IGNORECASE
+    )
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -347,9 +350,13 @@ class GlossaryHandler(ProteusComponent):
             tre = TRE(*glossary_items)
 
             # Create the pattern
-            GlossaryHandler.pattern = re.compile(rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE)
+            GlossaryHandler.pattern = re.compile(
+                rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE
+            )
         except Exception as e:
-            log.error(f"There was an error while updating the glossary regex pattern: {e}")
+            log.error(
+                f"There was an error while updating the glossary regex pattern: {e}"
+            )
             GlossaryHandler.pattern = old_pattern
 
     # --------------------------------------------------------------------------
@@ -366,7 +373,7 @@ class GlossaryHandler(ProteusComponent):
 
         If the glossary item has multiple descriptions, all descriptions
         are displayed in the tooltip. Glossary items that are inside a
-        code block are not highlighted, this is done to prevent HTML 
+        code block are not highlighted, this is done to prevent HTML
         loops errors when the tooltip is added.
 
         Method used in the XSLT stylesheet.
@@ -374,6 +381,7 @@ class GlossaryHandler(ProteusComponent):
         input_text = text
 
         try:
+
             def highlight_item(match: re.Match) -> str:
                 # Get the match
                 match_text: str = match.group()
@@ -410,8 +418,7 @@ class GlossaryHandler(ProteusComponent):
                     # Add the description with a link to the item
                     description_html += f"{description}"
 
-                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{description_html}">{match_text}</a>'
-            
+                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{escape(description_html)}">{match_text}</a>'
 
             if GlossaryHandler.pattern is None:
                 return text
@@ -419,7 +426,9 @@ class GlossaryHandler(ProteusComponent):
             # Replace the items with the decorated items
             text = re.sub(GlossaryHandler.pattern, highlight_item, text)
         except Exception as e:
-            log.error(f"There was an error while highlighting the glossary items in text {input_text}. Error: {e}")
+            log.error(
+                f"There was an error while highlighting the glossary items in text {input_text}. Error: {e}"
+            )
             text = input_text
 
         return text
