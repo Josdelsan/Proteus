@@ -46,10 +46,25 @@ td {
 
 @media print {
   .page-break {
-      clear: both;
-      page-break-before: always;
+    clear: both;
+    page-break-before: always;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    page-break-after: avoid;
+  }
+
+  table,
+  figure {
+    page-break-inside: avoid;
+  }
+
 }
+
 
 /* general styles */
 

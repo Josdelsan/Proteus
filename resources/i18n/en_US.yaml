@@ -265,18 +265,30 @@ en_us: "English (United States)"
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------
-export_dialog.title: "Export current document"
+export_dialog.title: "Export current view"
 export_dialog.export_format.label: "Select export format:"
-export_dialog.filename.label: "Select filename:"
-export_dialog.filename.browser: "Browse"
-export_dialog.filename.warning.title: "File already exists"
-export_dialog.filename.warning.text: "The file {} already exists. Do you want to replace it?"
+export_dialog.export_button.text: "Export"
 export_dialog.finished.dialog.title: "Export finished"
-export_dialog.finished.dialog.text: "The document has been exported successfully in the path {}"
+export_dialog.finished.dialog.text: "Current view has been exported successfully in path {}"
 export_dialog.finished.dialog.error.title: "Error exporting"
-export_dialog.finished.dialog.error.text: "The document could not be exported"
-export_dialog.error.invalid_filename: "Please select a valid filename and path"
-export_dialog.error.invalid_extension: "File extension must match with the selected format"
+export_dialog.finished.dialog.error.text: "Current view could not be exported. For more information, check the log file."
+
+# Export PDF
+export_dialog.export_format.pdf: "PDF file"
+export_dialog.export_pdf.filename.label: "Enter file name and path:"
+export_dialog.export_pdf.filename.error.invalid_chars: 'The file name cannot contain the following characters: / \ : * ? \" < > |'
+export_dialog.export_pdf.filename.error.empty: "The file name cannot be empty"
+export_dialog.export_pdf.filename.error.folder_not_found: "Selected path does not exist"
+
+# Export HTML
+export_dialog.export_format.html: "HTML (with resources folder)"
+export_dialog.export_html.filepath.label: "Select destination directory:"
+export_dialog.export_html.folder_name.label: "Enter folder name:"
+export_dialog.export_html.error.empty: "The directory name cannot be empty"
+export_dialog.export_html.error.not_found: "The directory does not exist"
+export_dialog.export_html.error.not_directory: "The path is not a directory"
+export_dialog.export_html.error.invalid_folder_name: "The folder name is invalid"
+export_dialog.export_html.error.folder_exists: "The folder already exists, select another name"
 
 # ---------------------------------------------------------------------------
 # Information dialog

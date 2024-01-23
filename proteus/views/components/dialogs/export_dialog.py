@@ -10,26 +10,23 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import os
 from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QByteArray, QMarginsF, QSize
-from PyQt6.QtGui import QPageLayout, QPageSize, QIcon
-from PyQt6.QtWebEngineCore import QWebEnginePage
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
+    QWidget,
     QVBoxLayout,
-    QDialogButtonBox,
-    QDialog,
-    QLineEdit,
-    QLabel,
-    QFileDialog,
-    QMessageBox,
     QPushButton,
+    QDialog,
+    QLabel,
+    QMessageBox,
     QComboBox,
+    QSizePolicy,
 )
 
 
@@ -37,11 +34,10 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import PROTEUS_NAME
-from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.views import APP_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 
 
 # --------------------------------------------------------------------------
@@ -71,6 +67,16 @@ class ExportDialog(QDialog, ProteusComponent):
         the component. Store the page object and the controller instance.
         """
         super(ExportDialog, self).__init__(*args, **kwargs)
+
+        # Export strategy
+        self._export_strategy: ExportStrategy = None
+
+        # Widgets
+        self.export_format_selector: QComboBox = None
+        self.export_button: QPushButton = None  # Accept and cancel buttons
+        self.export_widget_holder: QVBoxLayout = None
+
+        # Create the component
         self.create_component()
 
     # ----------------------------------------------------------------------
@@ -85,50 +91,7 @@ class ExportDialog(QDialog, ProteusComponent):
         Create the component.
         """
 
-        # Helper function to select the file path
-        def select_file_path():
-            # File format variable
-            file_format: str = self.export_format_selector.currentText()
-
-            # Build default file name
-            current_document = self._state_manager.get_current_document()
-            current_view = self._state_manager.get_current_view()
-            document: Object = self._controller.get_element(current_document)
-            default_file_name: str = f"{document.get_property(PROTEUS_NAME).value}-{current_view}.{file_format}"
-
-            # Open the file dialog and set the default file name
-            file_dialog: QFileDialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-            file_dialog.setDefaultSuffix(file_format)
-            file_dialog.setNameFilter(f"{file_format} files (*.{file_format})")
-            file_dialog.selectFile(default_file_name)
-            file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-
-            # Get the selected file path and fix the extension if needed
-            if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
-                path: str = file_dialog.selectedFiles()[0]
-                if not path.endswith(f".{file_format}"):
-                    path += f".{file_format}"
-                # Check if the file already exists and ask for overwrite
-                if os.path.exists(path):
-                    msg_box = QMessageBox()
-                    msg_box.setIcon(QMessageBox.Icon.Warning)
-                    msg_box.setText(
-                        self._translator.text(
-                            "export_dialog.filename.warning.text", path
-                        )
-                    )
-                    msg_box.setWindowTitle(
-                        self._translator.text("export_dialog.filename.warning.title")
-                    )
-                    msg_box.setStandardButtons(
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-                    )
-                    if msg_box.exec() == QMessageBox.StandardButton.Yes:
-                        self.filename_input.setText(path)
-                else:
-                    self.filename_input.setText(path)
-
+        # Windows general settings ---------------------------------
         # Set the dialog title and width
         self.setWindowTitle(self._translator.text("export_dialog.title"))
         self.sizeHint = lambda: QSize(400, 0)
@@ -137,194 +100,119 @@ class ExportDialog(QDialog, ProteusComponent):
         proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
-        # Export format selector
+        # Expand policy
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+
+
+        # Export format selector ---------------------------------
         export_format_label = QLabel(
             self._translator.text("export_dialog.export_format.label")
         )
         self.export_format_selector = QComboBox()
-        # NOTE: This is done manually because there is no plan to support more formats
-        self.export_format_selector.addItem("pdf")
-        self.export_format_selector.addItem("html")
-
-        # Ask for filename and path
-        filename_label = QLabel(self._translator.text("export_dialog.filename.label"))
-        self.filename_input: QLineEdit = QLineEdit()
-        self.filename_input.setEnabled(False)
-        browse_button = QPushButton(
-            self._translator.text("export_dialog.filename.browser")
+        self.export_format_selector.addItem(
+            self._translator.text("export_dialog.export_format.pdf"), ExportFormat.PDF
         )
-        browse_button.clicked.connect(select_file_path)
-
-        # Error label
-        self.error_label = QLabel()
-        self.error_label.setObjectName("error_label")
-        self.error_label.setWordWrap(True)
-
-        # Create the buttons
-        self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        self.export_format_selector.addItem(
+            self._translator.text("export_dialog.export_format.html"), ExportFormat.HTML
         )
-        self.button_box.accepted.connect(self.accept_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
-
-        # Create the main layout
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
-
-        # Add the components to the main layout
-        self.main_layout.addWidget(export_format_label)
-        self.main_layout.addWidget(self.export_format_selector)
-        self.main_layout.addWidget(filename_label)
-        self.main_layout.addWidget(self.filename_input)
-        self.main_layout.addWidget(self.error_label)
-        self.main_layout.addWidget(browse_button)
-        self.main_layout.addWidget(self.button_box)
-
-    # ======================================================================
-    # Export methods
-    # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : export_to_pdf
-    # Description: Export the current document to pdf.
-    # Date       : 14/07/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def export_to_pdf(self, file_path: str) -> None:
-        """
-        Export the current document to pdf.
-        """
-        # NOTE: Page loading and pdf printing are asynchronous, so we need to
-        # wait until the page is loaded to print the pdf and the variable page
-        # must be a class attribute to avoid garbage collection.
-        # To solve this problem, helper functions are used to ensure that they
-        # are executed in the correct order.
-        self.page: QWebEnginePage = QWebEnginePage()
-
-        def load_page() -> None:
-            # Get current application state
-            current_view = self._state_manager.get_current_view()
-
-            # Generate html view
-            html_view: str = self._controller.get_html_view(
-                xslt_name=current_view
-            )
-
-            # Convert html to QByteArray
-            # NOTE: This is done to avoid 2mb limit on setHtml method
-            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
-            self.page.setContent(html_array, "text/html")
-
-        def print_page() -> None:
-            # Define the margin values (in millimeters)
-            margins: QMarginsF = QMarginsF(30, 20, 30, 20)
-
-            # Create a QPageLayout object from the options dictionary
-            page_layout = QPageLayout(
-                QPageSize(QPageSize.PageSizeId.A4),
-                QPageLayout.Orientation.Portrait,
-                margins,
-            )
-
-            # Print to pdf the current view with margins
-            self.page.printToPdf(file_path, page_layout)
-
-        # Create the page and print it to pdf
-        load_page()
-        self.page.loadFinished.connect(print_page)
-        # Show a dialog when the pdf printing is finished
-        self.page.pdfPrintingFinished.connect(self.export_finished_dialog)
-
-    # ----------------------------------------------------------------------
-    # Method     : export_to_html
-    # Description: Export the current document to html.
-    # Date       : 08/08/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def export_to_html(self, file_path: str) -> None:
-        """
-        Export the current document to html.
-        """
-        # Get current application state
-        current_view = self._state_manager.get_current_view()
-
-        # Generate html view
-        html_view: str = self._controller.get_html_view(
-            xslt_name=current_view
+        self.export_format_selector.currentIndexChanged.connect(
+            self.update_export_strategy
         )
 
-        # Write the html to a file
-        success = True
-        try:
-            with open(file_path, "w", encoding="utf-8") as file:
-                file.write(html_view)
-        except Exception as e:
-            success = False
+        # Specific export widget holder -----------------------------
+        self.export_widget_holder = QVBoxLayout()
+        self.export_widget_holder.setContentsMargins(0, 0, 0, 0)
 
-        # Show a dialog when the html file is created
-        self.export_finished_dialog(file_path, success)
+        # Accept and cancel buttons ---------------------------------
+        self.export_button = QPushButton(
+            self._translator.text("export_dialog.export_button.text")
+        )
+        self.export_button.setEnabled(False)
+        self.export_button.clicked.connect(self.export_button_clicked)
+
+        # Main layout setup ---------------------------------
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(export_format_label)
+        main_layout.addWidget(self.export_format_selector)
+        main_layout.addLayout(self.export_widget_holder)
+        main_layout.addStretch(1)
+        main_layout.addWidget(self.export_button)
+
+        self.setLayout(main_layout)
+
+        # First export strategy setup ---------------------------------
+        self.export_format_selector.setCurrentIndex(0)
+        self.export_format_selector.currentIndexChanged.emit(0)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Handle the cancel button clicked signal.
-    # Date       : 14/07/2023
+    # Method     : update_export_strategy
+    # Description: Update the export strategy when the export format is
+    #              changed.
+    # Date       : 22/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def cancel_button_clicked(self) -> None:
+    def update_export_strategy(self, index: int) -> None:
         """
-        Handle the cancel button clicked signal.
-        """
-        # Close the dialog
-        self.close()
+        Update the export strategy when the export format is changed.
+        The export strategy widget is replaced by the new one.
 
-    # ----------------------------------------------------------------------
-    # Method     : accept_button_clicked
-    # Description: Handle the accept button clicked signal.
-    # Date       : 14/07/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def accept_button_clicked(self) -> None:
+        Old export strategy must be deleted to disconnect the signals.
         """
-        Export when the accept button is clicked.
-        """
-        # Get the filename + path
-        file_path: str = self.filename_input.text()
-
-        # Validate the filename
-        if file_path == "" or file_path is None:
-            self.error_label.setText(
-                self._translator.text("export_dialog.error.invalid_filename")
-            )
-            return
-
         # Get the selected export format
-        export_format: str = self.export_format_selector.currentText()
+        export_format: str = self.export_format_selector.currentData()
 
-        # Check the export format and the filename extension match
-        if not file_path.endswith(export_format):
-            self.error_label.setText(
-                self._translator.text("export_dialog.error.invalid_extension")
-            )
-            return
-        
-        self.button_box.setEnabled(False)
+        # Update button box
+        self.export_button.setEnabled(False)
 
-        # Export depending on the selected format
-        if export_format == "pdf":
-            self.export_to_pdf(file_path)
-        elif export_format == "html":
-            self.export_to_html(file_path)
+        # Delete the current export strategy
+        # This is neccessary to disconnect the signals
+        if self._export_strategy is not None:
+            self._export_strategy.deleteLater()
+            self._export_strategy = None
 
-        # Close the dialog when the export is finished in export_finished_dialog method
+        # Clear the export widget holder
+        for i in reversed(range(self.export_widget_holder.count())):
+            self.export_widget_holder.itemAt(i).widget().setParent(None)
+
+        # Update the export strategy ---------------------------------
+        if export_format == ExportFormat.PDF:
+            self._export_strategy = ExportPDF(self._controller)
+        elif export_format == ExportFormat.HTML:
+            self._export_strategy = ExportHTML(self._controller)
+        else:
+            raise ValueError("Invalid export format")
+
+        # Setup new export strategy ---------------------------------
+        # Strategy export widget
+        export_widget: QWidget = self._export_strategy.exportFormWidget()
+        self.export_widget_holder.addWidget(export_widget)
+
+        # TODO: Find a way to resize the dialog to fit the export widget,
+        #       resize() method does not work.
+
+        # Connect strategy signals
+        self._export_strategy.readyToExportSignal.connect(self.export_button.setEnabled)
+        self._export_strategy.exportFinishedSignal.connect(self.export_finished_dialog)
+
+    # ----------------------------------------------------------------------
+    # Method     : export_button_clicked
+    # Description: Handle the export button click.
+    # Date       : 22/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def export_button_clicked(self) -> None:
+        """
+        Handle the export button click. Call the export strategy export
+        method and disable the button box to avoid multiple exports.
+        """
+        self._export_strategy.export()
+        self.export_button.setEnabled(False)
 
     # ----------------------------------------------------------------------
     # Method     : print_pdf_finished_dialog
@@ -336,6 +224,9 @@ class ExportDialog(QDialog, ProteusComponent):
     def export_finished_dialog(self, filePath: str, success: bool) -> None:
         """
         Show a dialog when the export is finished.
+
+        :param filePath: The path to the exported file.
+        :param success: True if the export was successful, False otherwise.
         """
         if success:
             QMessageBox.information(

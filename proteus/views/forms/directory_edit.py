@@ -39,8 +39,8 @@ from proteus.utils.config import Config
 # --------------------------------------------------------------------------
 class DirectoryEdit(QWidget):
     """
-    Directory edit input widget for forms. It copies the selected file into the
-    assets directory if it is not already there.
+    Directory edit input widget for forms. It allows the user to select a
+    directory from the file system.
 
     Similar to PyQt6 QLineEdit, QTextEdit, etc. It is used to retrieve the
     value of the user input.
