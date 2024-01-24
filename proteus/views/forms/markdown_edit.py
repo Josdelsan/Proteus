@@ -127,7 +127,7 @@ class MarkdownEdit(QWidget):
     # ----------------------------------------------------------------------
     def markdown(self) -> bool:
         """
-        Returns the checked state of the checkbox.
+        Returns the text of the input in plain text format.
         """
         return self.input_box.toPlainText()
 
@@ -140,7 +140,7 @@ class MarkdownEdit(QWidget):
     # ----------------------------------------------------------------------
     def setMarkdown(self, text: str) -> None:
         """
-        Sets the checked state of the checkbox.
+        Sets the text in plain text format to the input box.
         """
         self.input_box.setPlainText(text)
 

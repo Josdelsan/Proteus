@@ -6,24 +6,16 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-import shutil
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import (
-    QLineEdit,
-    QFileDialog,
-)
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ASSETS_REPOSITORY
-from proteus.utils.config import Config
 from proteus.model.properties.file_property import FileProperty
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.asset_edit import AssetEdit
@@ -68,7 +60,13 @@ class FilePropertyInput(PropertyInput):
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
-        pass
+        file_name: str = self.get_value()
+        
+        # Check if text contains CDATA section delimiters
+        if file_name.find("<![CDATA[") != -1 or file_name.find("]]>") != -1:
+            return "file_property_input.validator.error.cdata"
+        
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

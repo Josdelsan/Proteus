@@ -27,6 +27,7 @@ from proteus.model.properties.markdown_property import MarkdownProperty
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.markdown_edit import MarkdownEdit
 
+
 # --------------------------------------------------------------------------
 # Class: MarkdownPropertyInput
 # Description: Markdown property input widget for properties forms.
@@ -38,7 +39,7 @@ class MarkdownPropertyInput(PropertyInput):
     """
     Markdown property input widget for properties forms.
     """
-        
+
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.
@@ -64,8 +65,17 @@ class MarkdownPropertyInput(PropertyInput):
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
+
+        Text cannot contain CDATA section delimiters because it is used
+        to store the value of the property.
         """
-        pass
+        text: str = self.get_value()
+
+        # Check if text contains CDATA section delimiters
+        if text.find("<![CDATA[") != -1 or text.find("]]>") != -1:
+            return "markdown_property_input.validator.error.cdata"
+
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

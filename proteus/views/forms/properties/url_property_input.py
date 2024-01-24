@@ -66,7 +66,13 @@ class UrlPropertyInput(PropertyInput):
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
-        pass
+        url: str = self.get_value()
+
+        # Check if text contains CDATA section delimiters
+        if url.find("<![CDATA[") != -1 or url.find("]]>") != -1:
+            return "url_property_input.validator.error.cdata"
+        
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

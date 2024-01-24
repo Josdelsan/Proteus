@@ -77,6 +77,10 @@ class StringPropertyInput(PropertyInput):
         # Check if the input is valid
         if text is None or (name == PROTEUS_NAME and text == ""):
             return "string_property_input.validator.error"
+        
+        # Check if text contains CDATA section delimiters
+        if text.find("<![CDATA[") != -1 or text.find("]]>") != -1:
+            return "string_property_input.validator.error.cdata"
 
         # Return None if the input is valid
         return None

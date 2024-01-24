@@ -90,6 +90,11 @@ property.width.tooltip: "Percentage of the page width that the image will occupy
 
 # Properties validation messages
 string_property_input.validator.error: "This field cannot be empty"
+markdown_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+url_property_input.validator.error.cdata: "URL cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+string_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+file_property_input.validator.error.cdata: "File name cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+code_property_input.validator.error.cdata: "Code cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
 float_property_input.validator.error: "This field must be a float number"
 integer_property_input.validator.error: "This field must be an integer number"
 

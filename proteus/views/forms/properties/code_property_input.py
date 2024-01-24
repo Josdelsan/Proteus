@@ -15,9 +15,6 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import (
-    QLineEdit,
-)
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -68,8 +65,11 @@ class CodePropertyInput(PropertyInput):
         Validates the input widget information. Returns None if the input is
         valid, otherwise returns the error message.
         """
-        prefix, number, _ = self.input.code()
-        
+        prefix: str
+        number: str
+        suffix: str
+        prefix, number, suffix = self.input.code()
+
         if prefix == "":
             return "code_property_input.validator.error.prefix"
 
@@ -77,9 +77,18 @@ class CodePropertyInput(PropertyInput):
             int(number)
         except ValueError:
             return "code_property_input.validator.error.number_type"
-        
+
         if int(number) <= 0:
             return "code_property_input.validator.error.number_value"
+
+        # Check if text contains CDATA section delimiters
+        if (
+            prefix.find("<![CDATA[") != -1
+            or prefix.find("]]>") != -1
+            or suffix.find("<![CDATA[") != -1
+            or suffix.find("]]>") != -1
+        ):
+            return "code_property_input.validator.error.cdata"
 
         # Return None if the input is valid
         return None
