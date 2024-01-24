@@ -28,9 +28,9 @@ from PyQt6.QtCore import QSize
 
 from proteus.model import ProteusID, PROTEUS_ACRONYM
 from proteus.model.object import Object
-from proteus.views import ACRONYM_ICON_TYPE
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
+from proteus.utils import ProteusIconType
 from proteus.utils.events import (
     AddDocumentEvent,
     ModifyObjectEvent,
@@ -155,7 +155,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
-        icon_path: Path = self._config.get_icon(ACRONYM_ICON_TYPE, document_acronym)
+        icon_path: Path = self._config.get_icon(ProteusIconType.Acronym, document_acronym)
         self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
 
         # Drop configuration to allow objects moves between tabs
@@ -296,7 +296,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
-            icon_path: Path = self._config.get_icon(ACRONYM_ICON_TYPE, document_acronym)
+            icon_path: Path = self._config.get_icon(ProteusIconType.Acronym, document_acronym)
             self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
 
     # ----------------------------------------------------------------------

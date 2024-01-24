@@ -40,6 +40,8 @@ from PyQt6 import QtCore
 import proteus
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.utils import (
+    ProteusIconType,
+    DEFAULT_ICON,
     ENTRY_POINTS_TAG,
     ENTRY_POINT_TAG,
     DEPENCENCIES_TAG,
@@ -191,9 +193,12 @@ class Config:
         with open(self.config_file_path, "w") as configfile:
             self.config.write(configfile)
 
-    def get_icon(self, type: str, name: str) -> Path:
+    def get_icon(self, type: ProteusIconType, name: str) -> Path:
         """
         It returns the icon path for the given type and name.
+
+        :param type: Icon type.
+        :param name: Icon code name.
         """
         assert (
             type in self._icons_dictionary
@@ -202,41 +207,151 @@ class Config:
         # Check if name exists
         if name not in self._icons_dictionary[type]:
             log.warning(
-                f"Icon name {name} not found for type {type}, using default icon"
+                f"Icon name '{name}' not found for type '{type}', using default icon"
             )
-            name = "default"
+            name = DEFAULT_ICON
 
         return self._icons_dictionary[type][name]
 
-    def _create_icons_dictionary(self) -> Dict[str, Dict[str, Path]]:
+    # TODO: Refactor this method to improve readability
+    def _create_icons_dictionary(self) -> Dict[ProteusIconType, Dict[str, Path]]:
         """
         Private method that reads the icons.xml file and creates a nested
         dictionary structure to access icons by type and name.
+
+        It reads the icons file from the resources directory and the archetype
+        repository.
+
+        Archetype repository icons can only add values for archetypes and acronyms.
+        Other types found will be ignored.
+
+        All the repeated values (included default) defined in the icons file inside
+        archetype repository will override the values defined in the resources
+        directory. This allows mantaining default values in the application while
+        it is possible to override them in the archetype repository specific
+        implementation.
         """
+        # ----------------------------
         # Initialize dictionary
-        icons_dictionary: Dict[str, Dict[str, Path]] = {}
+        # ----------------------------
+        icons_dictionary: Dict[ProteusIconType, Dict[str, Path]] = {}
+
+        # ----------------------------
+        # Resources icons file handling
+        # ----------------------------
 
         # Parse icons file
-        icons_tree: ET._ElementTree = ET.parse(self.icons_directory / ICONS_FILE)
-        icons_root: ET._Element = icons_tree.getroot()
+        resource_icon_file: Path = self.icons_directory / ICONS_FILE
+        resources_icons_tree: ET._ElementTree = ET.parse(resource_icon_file)
+        resources_icons_root: ET._Element = resources_icons_tree.getroot()
 
-        # Iterate over icons tag children type to create each type dictionary
-        for type in icons_root:
+        # Iterate over icons tag children (type tag) to create each type dictionary
+        for type_tag in resources_icons_root.iterchildren():
+            # Get name attribute to check if it is a valid icon type
+            type_name: str = type_tag.attrib.get("name", None)
+            assert (
+                type_name in ProteusIconType._member_map_.values()
+            ), f"Icon type '{type_name}' is not a valid ProteusIconType, check {resource_icon_file.as_posix()} file."
+
             # Initialize type dictionary
             type_dictionary: Dict[str, Path] = {}
 
-            # Store default icon
-            type_dictionary["default"] = self.icons_directory / type.attrib["default"]
-
-            # Iterate over icons tag children icon
-            for icon in type:
-                # Add icon to type dictionary
-                type_dictionary[icon.attrib["key"]] = (
-                    self.icons_directory / icon.attrib["file"]
+            # Get the default icon and store if it exists
+            default_icon: str = type_tag.attrib.get("default", None)
+            if default_icon is not None:
+                type_dictionary[DEFAULT_ICON] = self.icons_directory / default_icon
+            else:
+                log.error(
+                    f"Default icon not found for icon type '{type_name}'. This could crash the application. Check {resource_icon_file.as_posix()} file."
                 )
 
+            # Iterate over icons tag children icon
+            for icon in type_tag.iterchildren():
+                # Get key and file attributes for the icon tag
+                key = icon.attrib.get("key", None)
+                file = icon.attrib.get("file", None)
+
+                if key is None or key == "" or file is None or file == "":
+                    log.error(
+                        f"Icon key or file are not correctly defined for icon type '{type_name}'. Check {resource_icon_file.as_posix()} file. Key value: {key}, File value: {file}"
+                    )
+
+                # Check if icon file exists
+                file_path: Path = self.icons_directory / file
+                if not file_path.exists():
+                    log.error(
+                        f"Icon file '{file_path}' does not exist. Check {resource_icon_file.as_posix()} file."
+                    )
+
+                # Add icon to type dictionary
+                type_dictionary[key] = file_path
+
             # Add type dictionary to icons dictionary
-            icons_dictionary[type.attrib["name"]] = type_dictionary
+            icons_dictionary[type_name] = type_dictionary
+
+        # ----------------------------
+        # Archetypes icons file handling
+        # ----------------------------
+
+        # Parse icons file
+        archetypes_icon_file: Path = self.archetypes_directory / "icons" / ICONS_FILE
+        archetypes_icons_tree: ET._ElementTree = ET.parse(archetypes_icon_file)
+        archetypes_icons_root: ET._Element = archetypes_icons_tree.getroot()
+
+        # Iterate over icons tag children (type tag) to create each type dictionary
+        # NOTE: This will override the values defined in the resources directory
+        for type_tag in archetypes_icons_root.iterchildren():
+            # Get name attribute to check if it is a valid icon type
+            type_name: str = type_tag.attrib.get("name", None)
+
+            accepted_types: List[ProteusIconType] = [
+                ProteusIconType.Archetype,
+                ProteusIconType.Acronym,
+            ]
+
+            # Check if type is valid
+            if type_name not in accepted_types:
+                log.warning(
+                    f"Icon type '{type_name}' cannot be defined in archetype repository, check {archetypes_icon_file.as_posix()} file."
+                )
+                continue
+
+            # Retrieve type dictionary if it exists
+            type_dictionary: Dict[str, Path] = icons_dictionary.get(type_name, {})
+
+            # Get the default icon and store if it exists
+            default_icon: str = type_tag.attrib.get("default", None)
+            if default_icon is not None:
+                log.info(
+                    f"Default icon found for icon type '{type_name}'. This will override the default icon defined in the resources directory."
+                )
+                type_dictionary[DEFAULT_ICON] = (
+                    self.archetypes_directory / "icons" / default_icon
+                )
+
+            # Iterate over icons tag children icon
+            for icon in type_tag.iterchildren():
+                # Get key and file attributes for the icon tag
+                key = icon.attrib.get("key", None)
+                file = icon.attrib.get("file", None)
+
+                if key is None or key == "" or file is None or file == "":
+                    log.error(
+                        f"Icon key or file are not correctly defined for icon type '{type_name}'. Check {archetypes_icon_file.as_posix()} file. Key value: {key}, File value: {file}"
+                    )
+
+                # Check if icon file exists
+                file_path: Path = self.archetypes_directory / "icons" / file
+                if not file_path.exists():
+                    log.error(
+                        f"Icon file '{file_path}' does not exist. Check {archetypes_icon_file.as_posix()} file."
+                    )
+
+                # Add icon to type dictionary
+                type_dictionary[key] = file_path
+
+            # Add type dictionary to icons dictionary
+            icons_dictionary[type_name] = type_dictionary
 
         return icons_dictionary
 

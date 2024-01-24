@@ -35,7 +35,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
-from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 
@@ -191,7 +191,7 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         # Set icon
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
+        icon_path: Path = self._config.get_icon(ProteusIconType.Archetype, object_class)
         item.setIcon(0, QIcon(icon_path.as_posix()))
         return item
 

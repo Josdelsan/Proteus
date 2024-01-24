@@ -47,7 +47,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
-from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
@@ -274,7 +274,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Set the icon based on the object last class
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = self._config.get_icon(TREE_MENU_ICON_TYPE, object_class)
+        icon_path: Path = self._config.get_icon(ProteusIconType.Archetype, object_class)
         tree_item.setIcon(0, QIcon(icon_path.as_posix()))
 
         # Set the item data to store the object id

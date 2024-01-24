@@ -35,7 +35,7 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
-from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
@@ -318,7 +318,7 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
         Create the component.
         """
         icon: QIcon = QIcon(
-            self._config.get_icon(TREE_MENU_ICON_TYPE, self.class_name).as_posix()
+            self._config.get_icon(ProteusIconType.Archetype, self.class_name).as_posix()
         )
         self.setIcon(icon)
         self.setTitle(
@@ -334,7 +334,7 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
             )
             icon: QIcon = QIcon(
                 self._config.get_icon(
-                    TREE_MENU_ICON_TYPE, archetype.classes[-1]
+                    ProteusIconType.Archetype, archetype.classes[-1]
                 ).as_posix()
             )
             action.setIcon(icon)

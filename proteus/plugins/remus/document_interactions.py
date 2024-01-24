@@ -25,7 +25,7 @@ from PyQt6.QtGui import QIcon
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -134,7 +134,7 @@ class DocumentInteractions(ProteusComponent):
             message_box = QMessageBox()
 
             # Set icon
-            proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+            proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
             message_box.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
             # Set title and text

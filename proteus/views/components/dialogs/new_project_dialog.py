@@ -41,7 +41,7 @@ from proteus.model.project import Project
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
 from proteus.controller.command_stack import Controller
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -102,7 +102,7 @@ class NewProjectDialog(QDialog, ProteusComponent):
         self.sizeHint = lambda: QSize(350, 0)
 
         # Set window icon
-        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Create a separator widget

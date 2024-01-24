@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID, PROTEUS_NAME
-from proteus.views import ARCHETYPE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 
@@ -103,7 +103,7 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
                 archetype.get_property(PROTEUS_NAME).value,
             )
             icon: QIcon = QIcon(
-                self._config.get_icon(ARCHETYPE_MENU_ICON_TYPE, arch_class).as_posix()
+                self._config.get_icon(ProteusIconType.Archetype, arch_class).as_posix()
             )
             clone_action.setIcon(icon)
             clone_action.triggered.connect(

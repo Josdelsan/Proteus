@@ -22,3 +22,14 @@ DEFAULT_ATTRIBUTE = "default"
 RESOURCES_SEARCH_PATH = "resources"
 TEMPLATE_DUMMY_SEARCH_PATH = "templates"
 ASSETS_DUMMY_SEARCH_PATH = "assets"
+
+# Proteus Icons
+from strenum import StrEnum
+
+DEFAULT_ICON = ":Proteus-default-icon"
+
+class ProteusIconType(StrEnum):
+    App = "app"
+    MainMenu = "main_menu"
+    Archetype = "archetype"
+    Acronym = "acronym"

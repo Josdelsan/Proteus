@@ -35,7 +35,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 
@@ -97,7 +97,7 @@ class ExportDialog(QDialog, ProteusComponent):
         self.sizeHint = lambda: QSize(400, 0)
 
         # Set window icon
-        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Expand policy

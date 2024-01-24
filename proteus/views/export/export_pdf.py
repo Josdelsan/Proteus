@@ -39,7 +39,7 @@ from proteus.utils.config import Config
 from proteus.utils.translator import Translator
 from proteus.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.export.export_strategy import ExportStrategy
 
 # --------------------------------------------------------------------------
@@ -166,7 +166,7 @@ class ExportPDF(ExportStrategy):
         self._input.setDisabled(True)
 
         # Browse button
-        browse_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "browse_file_icon")
+        browse_icon_path: Path = Config().get_icon(ProteusIconType.App, "browse_file_icon")
         browse_button_icon = QIcon()
         browse_button_icon.addFile(browse_icon_path.as_posix())
 

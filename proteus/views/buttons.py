@@ -33,8 +33,8 @@ from PyQt6.QtCore import Qt, QSize
 # --------------------------------------------------------------------------
 
 from proteus.utils.config import Config
+from proteus.utils import ProteusIconType
 from proteus.model import ProteusClassTag
-from proteus.views import ARCHETYPE_MENU_ICON_TYPE, MAIN_MENU_ICON_TYPE
 from proteus.utils.translator import Translator
 
 
@@ -52,7 +52,7 @@ def new_project_button(parent: QWidget) -> QToolButton:
     new_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "new-project")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "new-project")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     new_button.setIcon(button_icon)
@@ -81,7 +81,7 @@ def open_project_button(parent: QWidget) -> QToolButton:
     open_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "open-project")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "open-project")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     open_button.setIcon(QIcon(button_icon))
@@ -110,7 +110,7 @@ def save_project_button(parent: QWidget) -> QToolButton:
     save_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "save")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "save")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     save_button.setIcon(button_icon)
@@ -142,7 +142,7 @@ def undo_button(parent: QWidget) -> QToolButton:
     undo_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "undo")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "undo")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     undo_button.setIcon(button_icon)
@@ -174,7 +174,7 @@ def redo_button(parent: QWidget) -> QToolButton:
     redo_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "redo")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "redo")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     redo_button.setIcon(button_icon)
@@ -206,7 +206,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     properties_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "edit")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "edit")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     properties_button.setIcon(button_icon)
@@ -241,7 +241,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().get_icon(MAIN_MENU_ICON_TYPE, "new-file")
+        Config().get_icon(ProteusIconType.MainMenu, "new-file")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -275,7 +275,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().get_icon(MAIN_MENU_ICON_TYPE, "delete-file")
+        Config().get_icon(ProteusIconType.MainMenu, "delete-file")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -306,7 +306,7 @@ def settings_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().get_icon(MAIN_MENU_ICON_TYPE, "settings")
+        Config().get_icon(ProteusIconType.MainMenu, "settings")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -333,7 +333,7 @@ def export_button(parent: QWidget) -> QToolButton:
 
     # Set file icon
     icon_path: Path = (
-        Config().get_icon(MAIN_MENU_ICON_TYPE, "export")
+        Config().get_icon(ProteusIconType.MainMenu, "export")
     )
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
@@ -362,7 +362,7 @@ def info_button(parent: QWidget) -> QToolButton:
     info_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(MAIN_MENU_ICON_TYPE, "info")
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "info")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     info_button.setIcon(QIcon(button_icon))
@@ -433,7 +433,7 @@ class ArchetypeMenuButton(QToolButton):
 
         # Build icon path from object_class or use default icon
         icon_path: Path = (
-            Config().get_icon(ARCHETYPE_MENU_ICON_TYPE,object_class)
+            Config().get_icon(ProteusIconType.Archetype,object_class)
         )
         
         # Add icon

@@ -41,8 +41,8 @@ from proteus.model.object import Object
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
-from proteus.views import APP_ICON_TYPE
-from proteus.views import TREE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
+from proteus.utils import ProteusIconType
 from proteus.utils.config import Config
 from proteus.utils.translator import Translator
 
@@ -128,14 +128,14 @@ class TraceEdit(QWidget):
 
         # Create QPushButtons
         self.add_button = QPushButton()
-        add_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "add_trace_icon")
+        add_icon_path: Path = Config().get_icon(ProteusIconType.App, "add_trace_icon")
         add_button_icon = QIcon()
         add_button_icon.addFile(add_icon_path.as_posix())
         self.add_button.setIcon(add_button_icon)
 
         self.remove_button = QPushButton()
         self.remove_button.setEnabled(False)
-        remove_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "remove_trace_icon")
+        remove_icon_path: Path = Config().get_icon(ProteusIconType.App, "remove_trace_icon")
         remove_button_icon = QIcon()
         remove_button_icon.addFile(remove_icon_path.as_posix())
         self.remove_button.setIcon(remove_button_icon)
@@ -364,7 +364,7 @@ class TraceEditDialog(QDialog):
         self.setWindowTitle(title)
 
         # Set window icon
-        proteus_icon: Path = Config().get_icon(APP_ICON_TYPE, "proteus_icon")
+        proteus_icon: Path = Config().get_icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Create a QListWidget
@@ -539,5 +539,5 @@ def _list_item_setup(list_item: QListWidgetItem, object: Object) -> None:
 
     # Set icon
     object_class: ProteusClassTag = object.classes[-1]
-    icon_path: Path = Config().get_icon(TREE_MENU_ICON_TYPE, object_class)
+    icon_path: Path = Config().get_icon(ProteusIconType.Archetype, object_class)
     list_item.setIcon(QIcon(icon_path.as_posix()))

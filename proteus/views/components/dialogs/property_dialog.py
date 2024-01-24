@@ -38,7 +38,7 @@ from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property
-from proteus.views import APP_ICON_TYPE, TREE_MENU_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
@@ -149,12 +149,12 @@ class PropertyDialog(QDialog, ProteusComponent):
 
             # Object icon
             dialog_icon: QIcon = QIcon(
-                self._config.get_icon(TREE_MENU_ICON_TYPE, self.object.classes[-1]).as_posix()
+                self._config.get_icon(ProteusIconType.Archetype, self.object.classes[-1]).as_posix()
             )
         else:
             # Proteus icon
             dialog_icon: QIcon = QIcon(
-                self._config.get_icon(APP_ICON_TYPE, "proteus_icon").as_posix()
+                self._config.get_icon(ProteusIconType.App, "proteus_icon").as_posix()
             )
 
         # Set the dialog icon
@@ -223,7 +223,7 @@ class PropertyDialog(QDialog, ProteusComponent):
         buttons_layout.addWidget(self.button_box)
 
         # Add US logo to the buttons layour and push it to the bottom
-        us_logo: QIcon = QIcon(self._config.get_icon(APP_ICON_TYPE, "US-digital").as_posix())
+        us_logo: QIcon = QIcon(self._config.get_icon(ProteusIconType.App, "US-digital").as_posix())
         us_logo_label: QLabel = QLabel()
         us_logo_label.setPixmap(us_logo.pixmap(80, 80))
         buttons_layout.addStretch(1)

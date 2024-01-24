@@ -28,7 +28,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
@@ -93,7 +93,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         self.setWindowTitle(self._translator.text("main_window.title"))
 
         # Set the window icon
-        proteus_icon: Path = self._config.get_icon(APP_ICON_TYPE, "proteus_icon")
+        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Set the window size

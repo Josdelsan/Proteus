@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views import APP_ICON_TYPE
+from proteus.utils import ProteusIconType
 from proteus.utils.config import Config
 
 
@@ -85,7 +85,7 @@ class DirectoryEdit(QWidget):
         self.input.setDisabled(True)
         
         # Browse button
-        browse_icon_path: Path = Config().get_icon(APP_ICON_TYPE, "browse_dir_icon")
+        browse_icon_path: Path = Config().get_icon(ProteusIconType.App, "browse_dir_icon")
         browse_button_icon = QIcon()
         browse_button_icon.addFile(browse_icon_path.as_posix())
 
