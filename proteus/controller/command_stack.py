@@ -112,6 +112,7 @@ class Controller:
         self.stack.canRedoChanged.connect(StackChangedEvent().notify)
         self.stack.canUndoChanged.connect(StackChangedEvent().notify)
         self.stack.cleanChanged.connect(StackChangedEvent().notify)
+        self.stack.indexChanged.connect(self.check_unsaved_changes)
 
     # ======================================================================
     # Command stack methods
@@ -415,8 +416,8 @@ class Controller:
         Load a project from a given path. It initializes a new the project
         service and clears command stack and state manager.
 
-        Notify the frontend components when the command is executed. OPEN_PROJECT
-        event is triggered.
+        Notify the frontend components when the command is executed.
+        OpenProjectEvent is triggered.
 
         :param project_path: The path of the project to load.
         """
@@ -500,8 +501,45 @@ class Controller:
         """
         log.info("Saving current project")
         self._project_service.save_project()
+        # TODO: Refactor redo/undo commands to handle objects states in a way
+        # that does not stores the previous state but calculates it from the
+        # current state. This will allow to save the project without clearing
+        # the command stack.
         self.stack.clear()
         SaveProjectEvent().notify()
+
+        if self.check_unsaved_changes():
+            log.critical("Project saved was executed but unsaved changes were detected")
+
+    # ----------------------------------------------------------------------
+    # Method     : check_unsaved_changes
+    # Description: Check if the current project has unsaved changes.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def check_unsaved_changes(self) -> bool:
+        """
+        Check if the current project has unsaved changes. Event
+        RequiredSaveActionEvent is triggered with the result.
+
+        Triggers RequiredSaveActionEvent.
+        """
+        # If the project service is not initialized return False
+        if self._project_service is None:
+            log.debug("Cannot check unsaved changes. Project service is not initialized")
+            return False
+
+        log.info("Checking if current project has unsaved changes")
+        check_unsaved_changes = self._project_service.has_unsaved_changes()
+
+        assert isinstance(
+            check_unsaved_changes, bool
+        ), f"Error checking if project has unsaved changes. Result: {check_unsaved_changes}"
+
+        RequiredSaveActionEvent().notify(check_unsaved_changes)
+
+        return check_unsaved_changes
 
     # ----------------------------------------------------------------------
     # Method     : get_element
@@ -536,7 +574,7 @@ class Controller:
         """
         if self._project_service is None:
             return None
-        
+
         current_project: Project = self._project_service.project
 
         assert current_project is not None, "Project is not loaded"
@@ -631,7 +669,7 @@ class Controller:
         """
         Add a new project template to the project.
 
-        Triggers: Event.ADD_VIEW
+        Triggers AddViewEvent.
 
         :param template_name: The name of the template to add.
         """
@@ -657,7 +695,7 @@ class Controller:
         """
         Remove a project template from the project.
 
-        Triggers: Event.DELETE_VIEW
+        Triggers DeleteViewEvent.
 
         :param template_name: The name of the template to remove.
         """

@@ -429,6 +429,29 @@ class ProjectService:
         self.project.save_project()
 
     # ----------------------------------------------------------------------
+    # Method     : has_unsaved_changes
+    # Description: Checks if the project has unsaved changes.
+    # Date       : 25/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def has_unsaved_changes(self) -> bool:
+        """
+        Checks if the project has unsaved changes.
+
+        Iterates over the project index and checks if any object is not in
+        CLEAN state. Returns True in the first object found with unsaved
+        changes.
+        
+        :return: True if the project has unsaved changes, False otherwise.
+        """
+        for object in self.project_index.values():
+            if object.state != ProteusState.CLEAN:
+                return True
+        
+        return False
+
+    # ----------------------------------------------------------------------
     # Method     : change_state_recursive
     # Description: Changes the state of the object with the given id and
     #              all its children recursively.

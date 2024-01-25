@@ -595,20 +595,25 @@ class RequiredSaveActionEvent(ProteusEvent):
     Event to handle the required save action in the PROTEUS application.
     """
 
-    signal = pyqtSignal()
+    signal = pyqtSignal(bool)
 
-    def notify(self) -> None:
+    def notify(self, save_required: bool=True) -> None:
         """
-        Notify the event that a save action is required.
+        Notify the event if a save action is required (project has unsaved
+        changes). Receives a boolean indicating whether a save action is
+        required.
+
+        :param save_required: Whether a save action is required.
         """
-        log.debug("Emitting REQUIRED SAVE ACTION EVENT signal...")
+        log.debug(f"Emitting REQUIRED SAVE ACTION EVENT signal... | save_required: {save_required}")
 
-        self.signal.emit()
+        self.signal.emit(save_required)
 
-    def connect(self, method: Callable[[], None]) -> None:
+    def connect(self, method: Callable[[bool], None]) -> None:
         """
         Connect a method to the required save action event. The method should
-        take no arguments.
+        take one argument: a boolean indicating whether a save action is
+        required.
 
         :param method: The method to connect to the event.
         """

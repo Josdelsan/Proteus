@@ -416,11 +416,10 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         can_undo: bool = self._controller.stack.canUndo()
         can_redo: bool = self._controller.stack.canRedo()
-        unsaved_changes: bool = not self._controller.stack.isClean()
 
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
-        self.save_button.setEnabled(unsaved_changes)
+
 
     # ----------------------------------------------------------------------
     # Method     : update_on_required_save_action
@@ -430,13 +429,14 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_on_required_save_action(self) -> None:
+    def update_on_required_save_action(self, unsaved_changes: bool) -> None:
         """
-        Update the state of save button when a save action is required.
+        Update the state of save button if save action is required.
 
         Triggered by: RequiredSaveActionEvent
         """
-        self.save_button.setEnabled(True)
+        self.save_button.setEnabled(unsaved_changes)
+
 
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
@@ -445,10 +445,6 @@ class MainMenu(QDockWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    # NOTE: This is neccesary because save button is only disabled/enabled when
-    # cleanChanged signal of the command stack is emitted (stack changed event)
-    # If the save button is pressed when just a non-undoable command was executed,
-    # the save button will not be disabled because stack was already clean.
     def update_on_save_project(self) -> None:
         """
         Update the state of save button when a project is saved.
@@ -456,6 +452,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         Triggered by: SaveProjectEvent
         """
         self.save_button.setEnabled(False)
+
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -502,6 +499,7 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Enable or disable the archetype button
                 archetype_button.setEnabled(enable)
 
+
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
     # Description: Enable the project properties and add document buttons
@@ -519,6 +517,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
+
 
     # ----------------------------------------------------------------------
     # Method     : update_on_current_document_changed
@@ -547,6 +546,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         if document_id == self._state_manager.get_current_document():
             current_object_id = self._state_manager.get_current_object()
             self.update_on_select_object(current_object_id)
+
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -636,6 +636,7 @@ class MainMenu(QDockWidget, ProteusComponent):
                 error_dialog.setInformativeText(informative_text)
                 error_dialog.exec()
 
+
     # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Manage the save project action, save the current project.
@@ -652,6 +653,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Write the state to a file
         project_path: str = self._controller.get_current_project().path
         write_state_to_file(Path(project_path).parent, self._state_manager)
+
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document

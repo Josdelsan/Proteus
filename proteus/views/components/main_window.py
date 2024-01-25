@@ -275,6 +275,11 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Clean the command stack
             self._controller.stack.clear()
 
+            if unsaved_changes:
+                # Write the state to a file if there is a project opened
+                if self._controller.get_current_project() is not None:
+                    project_path: str = self._controller.get_current_project().path
+                    write_state_to_file(Path(project_path).parent, self._state_manager)
             # Close the application
             event.accept()
 
@@ -294,16 +299,9 @@ class MainWindow(QMainWindow, ProteusComponent):
             event.ignore()
 
         # Check if the project has unsaved changes
-        unsaved_changes: bool = not self._controller.stack.isClean()
+        unsaved_changes: bool = self._controller.check_unsaved_changes()
 
-        # Workaround to prevent closing when non undoable actions were not saved
-        save_button_enabled: bool = False
-        try:
-            save_button_enabled = self.main_menu.save_button.isEnabled()
-        except AttributeError:
-            pass
-
-        if unsaved_changes or save_button_enabled:
+        if unsaved_changes:
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
@@ -322,10 +320,4 @@ class MainWindow(QMainWindow, ProteusComponent):
             confirmation_dialog.closeEvent = cancel
             confirmation_dialog.exec()
         else:
-            # Write the state to a file if there is a project opened
-            if self._controller.get_current_project() is not None:
-                project_path: str = self._controller.get_current_project().path
-                write_state_to_file(Path(project_path).parent, self._state_manager)
-
-    
             close_without_saving()
