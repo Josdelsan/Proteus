@@ -171,6 +171,10 @@ class Config:
             if archetype_repository_path.exists():
                 self.archetypes_directory = archetype_repository_path
                 self.default_repository = False
+            else:
+                log.warning(
+                    f"Archetype repository '{archetype_repository_path}' does not exist. Using default repository."
+                )
 
         # Store settings to keep track of user changes
         # TODO: This is a workaround to preserve user settings changes until
@@ -325,6 +329,14 @@ class Config:
 
         # Parse icons file
         archetypes_icon_file: Path = self.archetypes_directory / "icons" / ICONS_FILE
+
+        # If no icons file is found, return the current icons dictionary
+        if not archetypes_icon_file.exists():
+            log.info(
+                f"Icons file not found in archetype repository. Using default icons."
+            )
+            return icons_dictionary
+
         archetypes_icons_tree: ET._ElementTree = ET.parse(archetypes_icon_file)
         archetypes_icons_root: ET._Element = archetypes_icons_tree.getroot()
 

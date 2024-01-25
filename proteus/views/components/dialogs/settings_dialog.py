@@ -239,6 +239,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         # Directory edit
         self.default_repository_edit: DirectoryEdit = DirectoryEdit()
         # If it is not using the default repository, set the directory
+        self.default_repository_edit.setEnabled(not using_default_repository)
         if not using_default_repository:
             self.default_repository_edit.setDirectory(current_repository)
 
