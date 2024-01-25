@@ -126,6 +126,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # items on update events. Access by object id.
         self.tree_items: Dict[ProteusID, QTreeWidgetItem] = {}
 
+        # Dead objects expanded state
+        # This allows to restore the expanded state of dead and moved objects
+        self.dead_objects_expanded_state: Dict[ProteusID, bool] = {}
+
         # Create the component
         self.create_component()
 
@@ -310,6 +314,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         item_string = f"{code_str} {name_str}".strip()
         tree_item.setText(0, item_string)
 
+        # Set the expanded state of the item if it is stored in the dead objects
+        # expanded state dictionary
+        if object.id in self.dead_objects_expanded_state:
+            tree_item.setExpanded(self.dead_objects_expanded_state[object.id])
+            self.dead_objects_expanded_state.pop(object.id)
+
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
@@ -459,11 +469,17 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             for child_widget in children_widgets:
                 delete_item(child_widget)
 
+            # Item id
+            item_id: ProteusID = item.data(1, Qt.ItemDataRole.UserRole)
+
+            # Save the expanded state of the item
+            self.dead_objects_expanded_state[item_id] = item.isExpanded()
+
             # Remove the item from its parent
             item.parent().removeChild(item)
 
             # Remove the item from the tree items dictionary
-            self.tree_items.pop(item.data(1, Qt.ItemDataRole.UserRole))
+            self.tree_items.pop(item_id)
 
         # Check the element id is not None
         assert (
