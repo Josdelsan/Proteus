@@ -29,7 +29,7 @@
                 <meta name="generatedBy" content="PROTEUS"/>
                 
                 <!-- Remus stylesheets -->
-                <link rel="stylesheet" href="templates:///default/remus.css"/>
+                <link rel="stylesheet" href="templates:///default/resources/css/remus.css"/>
 
                 <title>
                     <xsl:value-of select="$proteus:lang_project"/>
@@ -60,7 +60,7 @@
                 <script src="https://unpkg.com/@popperjs/core@2"></script>
                 <script src="https://unpkg.com/tippy.js@6"></script>
                 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
-                <script src="templates:///default/proteus.js"></script> 
+                <script src="templates:///default/resources/javascript/proteus.js"></script> 
 
             </body>
         </html>

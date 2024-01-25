@@ -32,23 +32,24 @@
     <xsl:include href="PROTEUS_utilities.xsl" />
     <xsl:include href="PROTEUS_properties.xsl" />
     <xsl:include href="PROTEUS_cover.xsl" />
-    <xsl:include href="PROTEUS_section.xsl" />
     <xsl:include href="PROTEUS_document.xsl" />
-    <xsl:include href="PROTEUS_paragraph.xsl" />
-    <xsl:include href="PROTEUS_actor.xsl" />
-    <xsl:include href="PROTEUS_graphic_file.xsl" />
-    <xsl:include href="PROTEUS_external_resource.xsl" />
-    <xsl:include href="PROTEUS_default.xsl" />
-    <xsl:include href="PROTEUS_information_requirement.xsl" />
-    <xsl:include href="PROTEUS_objective.xsl" />
-    <xsl:include href="PROTEUS_use_case.xsl" />
-    <xsl:include href="PROTEUS_constraint.xsl" />
-    <xsl:include href="PROTEUS_functional_requirement.xsl" />
-    <xsl:include href="PROTEUS_nonfunctional_requirement.xsl" />
-    <xsl:include href="PROTEUS_organization.xsl" />
-    <xsl:include href="PROTEUS_stakeholder.xsl" />
-    <xsl:include href="PROTEUS_meeting.xsl" />
-    <xsl:include href="PROTEUS_archetype_link.xsl" />
+
+    <xsl:include href="archetypes/PROTEUS_section.xsl" />
+    <xsl:include href="archetypes/PROTEUS_paragraph.xsl" />
+    <xsl:include href="archetypes/PROTEUS_actor.xsl" />
+    <xsl:include href="archetypes/PROTEUS_graphic_file.xsl" />
+    <xsl:include href="archetypes/PROTEUS_external_resource.xsl" />
+    <xsl:include href="archetypes/PROTEUS_default.xsl" />
+    <xsl:include href="archetypes/PROTEUS_information_requirement.xsl" />
+    <xsl:include href="archetypes/PROTEUS_objective.xsl" />
+    <xsl:include href="archetypes/PROTEUS_use_case.xsl" />
+    <xsl:include href="archetypes/PROTEUS_constraint.xsl" />
+    <xsl:include href="archetypes/PROTEUS_functional_requirement.xsl" />
+    <xsl:include href="archetypes/PROTEUS_nonfunctional_requirement.xsl" />
+    <xsl:include href="archetypes/PROTEUS_organization.xsl" />
+    <xsl:include href="archetypes/PROTEUS_stakeholder.xsl" />
+    <xsl:include href="archetypes/PROTEUS_meeting.xsl" />
+    <xsl:include href="archetypes/PROTEUS_archetype_link.xsl" />
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>
