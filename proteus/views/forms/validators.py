@@ -40,7 +40,7 @@ def is_valid_folder_name(folder_name) -> bool:
 
     # Check for reserved names on Windows
     if os.name == 'nt':
-        reserved_names = re.compile(r'(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]|CON\..*|PRN\..*|AUX\..*|NUL\..*|COM[1-9]\..*|LPT[1-9]\..*)', re.IGNORECASE)
+        reserved_names = re.compile(r'\b(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]|CON\..*|PRN\..*|AUX\..*|NUL\..*|COM[1-9]\..*|LPT[1-9]\..*)\b', re.IGNORECASE)
         if reserved_names.match(folder_name):
             return False
 

@@ -68,7 +68,8 @@ ICONS_FILE: str = "icons.xml"
 
 # Settings
 SETTINGS: str = "settings"
-LANGUAGE: str = "language"
+SETTING_LANGUAGE: str = "language"
+SETTING_ARCHETYPE_REPOSITORY: str = "archetype_repository"
 
 # Directories
 DIRECTORIES: str = "directories"
@@ -156,7 +157,33 @@ class Config:
 
         # Application settings ---------------------------------------------
         self.settings = self.config[SETTINGS]
-        self.language: str = self.settings[LANGUAGE]
+
+        # Language
+        self.language: str = self.settings[SETTING_LANGUAGE]
+
+        # Archetype repository
+        self.default_repository: bool = True
+        archetype_repository: str = self.settings[SETTING_ARCHETYPE_REPOSITORY]
+        if archetype_repository != "":
+            archetype_repository_path: Path = (
+                self.base_directory / archetype_repository
+            ).resolve()
+            if archetype_repository_path.exists():
+                self.archetypes_directory = archetype_repository_path
+                self.default_repository = False
+
+        # Store settings to keep track of user changes
+        # TODO: This is a workaround to preserve user settings changes until
+        # the application is restarted. This is required because the config
+        # setting dialog do not access the config file directly but this class
+        # instance to check settings values. This class cannot modify most of
+        # its variables during runtime because it will 
+        self.current_config_file_user_settings: Dict[str, str] = {}
+        self.current_config_file_user_settings[SETTING_LANGUAGE] = self.language
+        self.current_config_file_user_settings[
+            SETTING_ARCHETYPE_REPOSITORY
+        ] = archetype_repository
+        
 
         # Icons dictionary -------------------------------------------------
         # NOTE: Use get_icon method to access icons to ensure default icon is
@@ -192,6 +219,9 @@ class Config:
         # Save settings
         with open(self.config_file_path, "w") as configfile:
             self.config.write(configfile)
+
+        # Update current config file user settings
+        self.current_config_file_user_settings.update(settings)
 
     def get_icon(self, type: ProteusIconType, name: str) -> Path:
         """

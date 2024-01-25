@@ -264,7 +264,15 @@ new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
 settings_dialog.title: "Proteus configuración"
 settings_dialog.language.label: "Seleccione un idioma:"
 settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido"
+
+settings_dialog.default_repository.label: "Repositorio de arquetipos:"
+settings_dialog.default_repository.checkbox: "Usar repositorio por defecto"
+settings_dialog.error.repository.empty_path: "Por favor, introduzca una ruta válida"
+settings_dialog.error.repository.invalid_path: "La ruta seleccionada no existe"
+settings_dialog.error.repository.invalid_repository: "La ruta seleccionada no es un repositorio de arquetipos válido, consulte el archivo de registro de la aplicación para más información"
+
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
+
 es_es: "Español (España)"
 en_us: "Inglés (Estados Unidos)"
 

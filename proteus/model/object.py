@@ -175,7 +175,7 @@ class Object(AbstractObject):
         self.project: Project = project
 
         # Parse and load XML into memory
-        root: ET.Element = ET.parse(object_file_path).getroot()
+        root: ET._Element = ET.parse(object_file_path).getroot()
 
         # Check root tag is <object>
         assert (

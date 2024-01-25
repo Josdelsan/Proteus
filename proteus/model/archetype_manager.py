@@ -95,7 +95,9 @@ class ArchetypesType(StrEnum):
 class ArchetypeManager:
     """
     An utility class for managing PROTEUS archetypes. It must provide a way
-    to get the project, document, and object archetypes on demand.
+    to get the project, document, and object archetypes on demand from an
+    archetype repository.
+
     TODO: in the future, it will also be responsible for adding new archetypes.
     """
 
@@ -109,15 +111,20 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_object_archetypes() -> Dict[str, Dict[str, List[Object]]]:
+    def load_object_archetypes(archetypes_folder: Path = None) -> Dict[str, Dict[str, List[Object]]]:
         """
-        Method that loads the object archetypes.
-        :return: A dict with key archetype group type and value
-        dict of object lists by class.
+        Method that loads the object archetypes from an archetype repository.
+        If no archetype repository is provided, it will use the default one.
+
+        :param archetypes_folder: The path to the archetype repository.
+
+        :return: A dict with key archetype group/category type and value
+        dict of object lists by class (its main  class).
         """
         log.info("ArchetypeManager - load object archetypes")
         # Build archetypes directory name from archetype type
-        archetypes_folder: Path = Config().archetypes_directory
+        if archetypes_folder is None:
+            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
@@ -165,7 +172,7 @@ class ArchetypeManager:
             ), f"Unexpected files or directories in {join(archetypes_dir, group_subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
-            objects_pointer_xml: ET.Element = ET.parse(objects_pointer_file)
+            objects_pointer_xml: ET._Element = ET.parse(objects_pointer_file)
             objects_id_list: list[str] = [
                 child.attrib[ID_ATTRIBUTE] for child in objects_pointer_xml.getroot()
             ]
@@ -193,7 +200,8 @@ class ArchetypeManager:
 
             # Parse subdirectory name to get the group name
             # NOTE: objects group directories are named as XX_name_of_the_group
-            # where XX is a number. This is done to order the groups.
+            # where XX is a number. This is done to order the groups. Max number
+            # of groups is 99.
             group_subdir_name: str = group_subdir[3:]
 
             # We add the list to the dictionary
@@ -211,14 +219,19 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_document_archetypes() -> list[Object]:
+    def load_document_archetypes(archetypes_folder: Path = None) -> list[Object]:
         """
-        Method that loads the document archetypes.
+        Method that loads the document archetypes from an archetype repository.
+        If no archetype repository is provided, it will use the default one.
+
+        :param archetypes_folder: The path to the archetype repository.
+
         :return: A list of documents (Objects) objects.
         """
         log.info("ArchetypeManager - load document archetypes")
         # Build archetypes directory name from archetype type
-        archetypes_folder: Path = Config().archetypes_directory
+        if archetypes_folder is None:
+            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
@@ -262,7 +275,7 @@ class ArchetypeManager:
             ), f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
-            document_pointer_xml: ET.Element = ET.parse(document_pointer_file)
+            document_pointer_xml: ET._Element = ET.parse(document_pointer_file)
 
             # Get the id of the root document from document.xml
             document_id: str = document_pointer_xml.getroot().attrib[ID_ATTRIBUTE]
@@ -294,14 +307,20 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_project_archetypes() -> list[Project]:
+    def load_project_archetypes(archetypes_folder: Path = None) -> list[Project]:
         """
-        Method that loads the project archetypes in a list.
+        Method that loads the project archetypes in a list from an archetype
+        repository. If no archetype repository is provided, it will use the
+        default one.
+
+        :param archetypes_folder: The path to the archetype repository.
+
         :return: A list of Project objects.
         """
         log.info("ArchetypeManager - load project archetypes")
         # Build archetypes directory name from archetype type (project)
-        archetypes_folder: Path = Config().archetypes_directory
+        if archetypes_folder is None:
+            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.PROJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
