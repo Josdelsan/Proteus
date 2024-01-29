@@ -6,14 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -23,8 +15,8 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
-from PyQt6.QtCore import QPoint, QTimer
+from PyQt6.QtWidgets import QTreeWidgetItem
+from PyQt6.QtCore import QPoint
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -35,14 +27,14 @@ from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.tests.fixtures import SampleData
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_context_menu
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-DOCUMENT_ID = SampleData.get('document_1')
-OBJECT_ID = SampleData.get('simple_section')
+DOCUMENT_ID = SampleData.get("document_1")
+OBJECT_ID = SampleData.get("simple_section")
 
 # --------------------------------------------------------------------------
 # End to end "change object position" tests
@@ -51,6 +43,7 @@ OBJECT_ID = SampleData.get('simple_section')
 # second position of the document.
 # TODO: Drag and drop actions (limited by pytest-qt)
 # TODO: Move while dead objects between target position
+
 
 def test_change_object_position_up(app):
     """
@@ -95,22 +88,14 @@ def test_change_object_position_up(app):
     # Act
     # --------------------------------------------
 
-    def handle_menu():
-        menu: ContextMenu = QApplication.activePopupWidget()
-        while menu is None:
-            menu = QApplication.activePopupWidget()
-
-        # Click the clone action
-        menu.action_move_up_object.trigger()
-
-        # Manual trigger of actions does not close the menu
-        menu.close()
-
-    # Get element position
+    # Get element position and emit context menu
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
-    QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    document_tree.customContextMenuRequested.emit(element_position)  
+    context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(element_position)
+    )
 
+    # Click the move up action
+    context_menu.action_move_up_object.trigger()
 
     # --------------------------------------------
     # Assert
@@ -128,11 +113,12 @@ def test_change_object_position_up(app):
 
     # Check element position changed
     new_element_position = document_tree.indexFromItem(tree_element).row()
-    assert tree_element_position-1 != new_element_position, (
+    assert tree_element_position - 1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"
         f"Expected position: {tree_element_position-1}"
     )
+
 
 def test_change_object_position_down(app):
     """
@@ -177,22 +163,15 @@ def test_change_object_position_down(app):
     # Act
     # --------------------------------------------
 
-    def handle_menu():
-        menu: ContextMenu = QApplication.activePopupWidget()
-        while menu is None:
-            menu = QApplication.activePopupWidget()
-
-        # Click the clone action
-        menu.action_move_down_object.trigger()
-
-        # Manual trigger of actions does not close the menu
-        menu.close()
-
-    # Get element position
+    # Get element position and emit context menu
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
-    QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    document_tree.customContextMenuRequested.emit(element_position)  
+    context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(element_position)
+    )
 
+    # Click the move down action
+    context_menu.action_move_down_object.trigger()
+    
 
     # --------------------------------------------
     # Assert
@@ -210,7 +189,7 @@ def test_change_object_position_down(app):
 
     # Check element position changed
     new_element_position = document_tree.indexFromItem(tree_element).row()
-    assert tree_element_position+1 != new_element_position, (
+    assert tree_element_position + 1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"
         f"Expected position: {tree_element_position+1}"

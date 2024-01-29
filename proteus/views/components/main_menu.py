@@ -568,8 +568,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         new project.
         """
         # Open the file dialog
-        self.directory_dialog: QFileDialog = QFileDialog(self)
-        directory_path: str = self.directory_dialog.getExistingDirectory(
+        directory_path: str = QFileDialog.getExistingDirectory(
             None, self._translator.text("main_menu.open_project.caption"), ""
         )
 

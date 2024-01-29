@@ -6,15 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
@@ -23,8 +14,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -33,7 +23,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 from proteus.model import PROTEUS_NAME
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -70,9 +60,6 @@ def test_edit_project(app):
     VERSION_PROP = "version"
     DESCRIPTION_PROP = "description"
 
-    # old name value
-    old_name = None
-
     # New values
     new_name = "New name"
     new_version = "3.0"
@@ -81,56 +68,39 @@ def test_edit_project(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Get old name
-        nonlocal old_name
-        old_name = dialog.input_widgets[NAME_PROP].get_value()
-
-        # Change properties
-        # NOTE: inputs types are known so we can use setText and setPlainText
-        dialog.input_widgets[NAME_PROP].input.setText(new_name)
-        dialog.input_widgets[VERSION_PROP].input.setText(new_version)
-        dialog.input_widgets[DESCRIPTION_PROP].input.setMarkdown(new_description)
-
-        # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    
 
     # Open project button click
     edit_project_button = main_window.main_menu.project_properties_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    edit_project_button.click()
+    first_dialog: PropertyDialog = get_dialog(edit_project_button.click)
+
+    # Store old name to compare window title
+    old_name = first_dialog.input_widgets[NAME_PROP].get_value()
+
+    # Change properties
+    # NOTE: inputs types are known so we can use setText and setPlainText
+    first_dialog.input_widgets[NAME_PROP].input.setText(new_name)
+    first_dialog.input_widgets[VERSION_PROP].input.setText(new_version)
+    first_dialog.input_widgets[DESCRIPTION_PROP].input.setMarkdown(new_description)
+
+    # Accept dialog
+    first_dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    first_dialog.deleteLater()
+
 
     # --------------------------------------------
     # Assert
     # --------------------------------------------
 
-    # Variable to store current values
-    # NOTE: Assertion cannot be done in nested functions
-    current_name = None
-    current_version = None
-    current_description = None
+    assert_dialog: PropertyDialog = get_dialog(edit_project_button.click)
 
-    def handle_dialog_assert():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
+    # Check properties changed
+    current_name = str(assert_dialog.input_widgets[NAME_PROP].get_value())
+    current_version = str(assert_dialog.input_widgets[VERSION_PROP].get_value())
+    current_description = str(assert_dialog.input_widgets[DESCRIPTION_PROP].get_value())
 
-        # Check properties changed
-        nonlocal current_name, current_version, current_description
-        current_name = str(dialog.input_widgets[NAME_PROP].get_value())
-        current_version = str(dialog.input_widgets[VERSION_PROP].get_value())
-        current_description = str(dialog.input_widgets[DESCRIPTION_PROP].get_value())
-        # Close the dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
+    assert_dialog.deleteLater()
 
-    # Access properties post edit
-    QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
-    edit_project_button.click()
 
     # Check title changed to replace old project name
     assert main_window.windowTitle() == old_window_title.replace(old_name, new_name), (

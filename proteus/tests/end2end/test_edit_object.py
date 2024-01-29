@@ -10,14 +10,6 @@
 # menu, access from double click is tested in test_edit_document.py
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -28,8 +20,8 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget, QApplication, QDialogButtonBox
-from PyQt6.QtCore import QPoint, QTimer
+from PyQt6.QtWidgets import QTreeWidgetItem, QDialogButtonBox
+from PyQt6.QtCore import QPoint
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -42,7 +34,7 @@ from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.fixtures import SampleData
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_context_menu, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -113,36 +105,20 @@ def test_edit_object(app, object_name, document_name):
     # Act
     # --------------------------------------------
 
-    def handle_menu():
-        menu: ContextMenu = QApplication.activePopupWidget()
-        while menu is None:
-            menu = QApplication.activePopupWidget()
-
-        # Click the clone action
-        QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-        menu.action_edit_object.trigger()
-
-        # Manual trigger of actions does not close the menu
-        menu.close()
-
-    def handle_dialog():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Change properties
-        # NOTE: inputs types are known so we can use setText
-        dialog.input_widgets[NAME_PROP].input.setText(NEW_NAME)
-
-        # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
-
     # Get element position
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
-    QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    document_tree.customContextMenuRequested.emit(element_position)
-    
 
+    context_menu: ContextMenu = get_context_menu(lambda: document_tree.customContextMenuRequested.emit(element_position))
+    first_dialog: PropertyDialog = get_dialog(context_menu.action_edit_object.trigger)
+
+    # Change properties
+    # NOTE: inputs types are known so we can use setText
+    first_dialog.input_widgets[NAME_PROP].input.setText(NEW_NAME)
+
+    # Accept dialog
+    first_dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    first_dialog.deleteLater()
+    
     # --------------------------------------------
     # Assert
     # --------------------------------------------
@@ -161,3 +137,13 @@ def test_edit_object(app, object_name, document_name):
     assert (
         tree_element.text(0) == NEW_NAME
     ), f"Tree item name must be '{NEW_NAME}' but it is '{tree_element.text(0)}'"
+
+    # Open dialog again to check properties were updated
+    assert_dialog: PropertyDialog = get_dialog(context_menu.action_edit_object.trigger)
+
+    # Check properties changed
+    current_name = str(assert_dialog.input_widgets[NAME_PROP].get_value())
+
+    assert (
+        current_name == NEW_NAME
+    ), f"Expected name to be '{NEW_NAME}' but it is '{current_name}'"

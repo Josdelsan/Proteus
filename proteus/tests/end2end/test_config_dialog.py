@@ -6,15 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
@@ -26,9 +17,7 @@ from copy import deepcopy
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QApplication, QDialogButtonBox
-from PyQt6.QtCore import QTimer
-
+from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -180,6 +169,7 @@ def test_config_dialog_change_settings(app, file_settings):
 
     # Save settings
     dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.deleteLater()
 
     # --------------------------------------------
     # Assert
@@ -190,28 +180,28 @@ def test_config_dialog_change_settings(app, file_settings):
     # ---------------------
 
     # Open again the config dialog and check if the settings were correctly changed
-    dialog: SettingsDialog = get_dialog(settings_button.click)
+    second_dialog: SettingsDialog = get_dialog(settings_button.click)
 
     # Check language setting was correctly set in the combo box
-    current_language = dialog.language_combo.currentData()
+    current_language = second_dialog.language_combo.currentData()
 
     assert (
         current_language == new_language
     ), f"Language setting is {current_language} but should be {new_language}"
 
     # Check archetype repository setting was correctly set in directory edit and checkbox
-    current_archetype_repository = dialog.default_repository_edit.directory()
+    current_archetype_repository = second_dialog.default_repository_edit.directory()
 
     assert (
         current_archetype_repository == new_archetype_repository
     ), f"Archetype repository setting is {current_archetype_repository} but should be {new_archetype_repository}"
 
     assert (
-        dialog.default_repository_edit.isEnabled() is True
+        second_dialog.default_repository_edit.isEnabled() is True
     ), "Default repository directory edit should be enabled"
 
     assert (
-        dialog.default_repository_checkbox.isChecked() is False
+        second_dialog.default_repository_checkbox.isChecked() is False
     ), "Default repository checkbox should not be checked"
 
     # ---------------------

@@ -6,14 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports

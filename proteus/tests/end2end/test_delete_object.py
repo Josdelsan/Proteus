@@ -6,15 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
@@ -25,8 +16,8 @@
 
 import pytest
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
-from PyQt6.QtCore import QPoint, QTimer
+from PyQt6.QtWidgets import QTreeWidgetItem
+from PyQt6.QtCore import QPoint
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -41,7 +32,12 @@ from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.tests.fixtures import SampleData
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import (
+    app,
+    load_project,
+    get_dialog,
+    get_context_menu,
+)
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -108,7 +104,7 @@ def test_delete_object(app, object_name, document_name):
     old_parent_children_number = parent_element.childCount()
 
     # Calculate number of objects cloned (including children)
-    object_to_delete_id: ProteusID = tree_element.data(1,Qt.ItemDataRole.UserRole)
+    object_to_delete_id: ProteusID = tree_element.data(1, Qt.ItemDataRole.UserRole)
     object_to_delete: Object = main_window._controller.get_element(object_to_delete_id)
     objects_deleted_number = len(object_to_delete.get_ids())
 
@@ -116,33 +112,15 @@ def test_delete_object(app, object_name, document_name):
     # Act
     # --------------------------------------------
 
-    # Handle delete confirmation
-    def handle_dialog():
-        dialog: DeleteDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Accept dialog
-        dialog.button_box.accepted.emit()
-
-    # Handle context menu
-    def handle_menu():
-        menu: ContextMenu = QApplication.activePopupWidget()
-        while menu is None:
-            menu = QApplication.activePopupWidget()
-
-        # Click the clone action
-        QTimer.singleShot(100, handle_dialog)  # Wait for the dialog to be created
-        menu.action_delete_object.trigger()
-        # Manual trigger of actions does not close the menu
-        menu.close()
-
-
-    # Get element position
+    # Trigger context menu
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
-    QTimer.singleShot(5, handle_menu)  # Wait for the menu to be created
-    document_tree.customContextMenuRequested.emit(element_position)
+    context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(element_position)
+    )
 
+    # Trigger delete action
+    delete_dialog: DeleteDialog = get_dialog(context_menu.action_delete_object.trigger)
+    delete_dialog.button_box.accepted.emit()
 
     # --------------------------------------------
     # Assert

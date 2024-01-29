@@ -6,14 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -23,9 +15,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-import pytest
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QTimer
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -33,7 +22,7 @@ from PyQt6.QtCore import QTimer
 
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.information_dialog import InformationDialog
-from proteus.tests.end2end.fixtures import app
+from proteus.tests.end2end.fixtures import app, get_dialog
 
 
 # --------------------------------------------------------------------------
@@ -58,19 +47,7 @@ def test_info_dialog(app):
     # Act
     # --------------------------------------------
 
-    dialog: InformationDialog = None
-
-    def handle_dialog():
-        nonlocal dialog
-        dialog = QApplication.activeModalWidget()
-        while dialog is None:
-            dialog = QApplication.activeModalWidget()
-
-        dialog.close()
-
-    # Open info dialog
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    info_button.click()
+    dialog: InformationDialog = get_dialog(info_button.click)
 
     # --------------------------------------------
     # Assert

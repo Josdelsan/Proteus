@@ -6,14 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -27,8 +19,7 @@ import shutil
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -37,7 +28,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
-from proteus.tests.end2end.fixtures import app
+from proteus.tests.end2end.fixtures import app, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -76,24 +67,18 @@ def test_create_project(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        dialog: NewProjectDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Select empty-project archetype
-        # NOTE: archetypes might be loaded in different order, this is a workaround
-        # to select the correct archetype
-        dialog._archetype_id = "empty-project"
-        dialog.name_input.setText(PROJECT_NAME)
-        dialog.path_input.setDirectory(str(PROJECT_PATH))
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # Open project button click
     create_project_button = main_window.main_menu.new_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    create_project_button.click()
+    dialog: NewProjectDialog = get_dialog(create_project_button.click)
+
+    # Select empty-project archetype
+    # NOTE: archetypes might be loaded in different order, this is a workaround
+    # to select the correct archetype
+    dialog._archetype_id = "empty-project"
+    dialog.name_input.setText(PROJECT_NAME)
+    dialog.path_input.setDirectory(str(PROJECT_PATH))
+    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # --------------------------------------------
     # Assert
@@ -181,9 +166,7 @@ def test_create_project(app):
         ),  # Existing project
     ],
 )
-def test_create_project_negative(
-    app, project_path, project_name, expected_error
-):
+def test_create_project_negative(app, project_path, project_name, expected_error):
     """
     Test the ocreate project use case. Create a project from an archetype and open it
     automatically. It tests the following steps:
@@ -202,35 +185,18 @@ def test_create_project_negative(
     # Translator instace to translate error messages
     translator = main_window._translator
 
-    # Variables to later checking
-    # NOTE: Assertions cannot be done inside nested functions
-    dialog: NewProjectDialog = None
-    error_label_text = None
-
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        nonlocal dialog, error_label_text
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
-        dialog.name_input.setText(project_name)
-        dialog.path_input.setDirectory(str(project_path))
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
-
-        # Store error label text
-        error_label_text = dialog.error_label.text()
-
-        # Close the dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
 
     # Open project button click
     create_project_button = main_window.main_menu.new_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    create_project_button.click()
+    dialog: NewProjectDialog = get_dialog(create_project_button.click)
+
+    dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
+    dialog.name_input.setText(project_name)
+    dialog.path_input.setDirectory(str(project_path))
+    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # --------------------------------------------
     # Assert
@@ -238,6 +204,7 @@ def test_create_project_negative(
     assert isinstance(
         dialog, NewProjectDialog
     ), f"Dialog is not a NewProjectDialog, '{dialog.__class__.__name__}'"
+
     assert dialog.error_label.text() == translator.text(expected_error), (
         f"Error label text is not the expected"
         f"current: '{dialog.error_label.text()}'"

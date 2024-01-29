@@ -23,8 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -32,7 +31,7 @@ from PyQt6.QtWidgets import QDialogButtonBox, QApplication
 
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -69,22 +68,11 @@ def test_create_document(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        dialog: NewDocumentDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # No need to select archetype. We use the default one
-        # TODO: Check archetypes are loaded correctly
-
-        # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # Add document button click
     add_document_button = main_window.main_menu.add_document_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    add_document_button.click()
+    dialog: NewDocumentDialog = get_dialog(add_document_button.click)
+    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
     # --------------------------------------------
     # Assert

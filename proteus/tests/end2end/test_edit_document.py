@@ -23,8 +23,7 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox, QTreeWidgetItem
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -36,7 +35,7 @@ from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.fixtures import SampleData
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -77,59 +76,39 @@ def test_edit_document(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Change properties
-        # NOTE: inputs types are known so we can use setText
-        dialog.input_widgets[NAME_PROP].input.setText(new_name)
-        dialog.input_widgets[ACRONYM_PROP].input.setText(new_acronym)
-
-        # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
-
     # Edit document button, double click in the tree item
     documents_container: DocumentsContainer = (
         main_window.project_container.documents_container
     )
-    document_tree: DocumentTree = documents_container.tabs[
-        DOCUMENT_ID
-    ]
+    document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     doc_tree_element: QTreeWidgetItem = document_tree.tree_items[DOCUMENT_ID]
 
-    # Wait for the dialog to be created
-    QTimer.singleShot(5, handle_dialog)
-    # Double click in the tree item cannot be done using qbot
-    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
+    # Create dialog
+    dialog: PropertyDialog = get_dialog(
+        lambda: document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
+    )
+
+    # Change properties
+    # NOTE: inputs types are known so we can use setText
+    dialog.input_widgets[NAME_PROP].input.setText(new_name)
+    dialog.input_widgets[ACRONYM_PROP].input.setText(new_acronym)
+
+    # Accept dialog
+    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.deleteLater()
 
     # --------------------------------------------
     # Assert
     # --------------------------------------------
 
-    # Variable to store current values
-    # NOTE: Assertion cannot be done in nested functions
-    current_name = None
-    current_acronym = None
+    # Get dialog again
+    assert_dialog: PropertyDialog = get_dialog(
+        lambda: document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
+    )
 
-    def handle_dialog_assert():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
-
-        # Check properties changed
-        nonlocal current_name, current_acronym
-        current_name = dialog.input_widgets[NAME_PROP].get_value()
-        current_acronym = dialog.input_widgets[ACRONYM_PROP].get_value()
-        # Close the dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
-
-    # Access properties post edit
-    QTimer.singleShot(5, handle_dialog_assert)  # Wait for the dialog to be created
-    # Double click in the tree item cannot be done using qbot
-    document_tree.itemDoubleClicked.emit(doc_tree_element, 0)
+    # Check properties changed
+    current_name = assert_dialog.input_widgets[NAME_PROP].get_value()
+    current_acronym = assert_dialog.input_widgets[ACRONYM_PROP].get_value()
 
     # Check properties changed
     assert (

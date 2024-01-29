@@ -24,8 +24,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QDialogButtonBox, QApplication
+from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -35,7 +34,7 @@ from proteus.model import PROTEUS_NAME
 from proteus.views.components.main_window import MainWindow
 from proteus.utils.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -89,29 +88,20 @@ def test_property_input_validation(app, property_name, property_value, expected_
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle form filling
-    def handle_dialog():
-        dialog: PropertyDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
 
-        # Change properties
-        # NOTE: we can use setText() because we are using QLineEdit
-        dialog.input_widgets[property_name].input.setText(property_value)
+    project_properties_button = main_window.main_menu.project_properties_button
+    dialog: PropertyDialog = get_dialog(project_properties_button.click)
 
-        # Accept dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    # Change properties
+    # NOTE: we can use setText() because we are using QLineEdit
+    dialog.input_widgets[property_name].input.setText(property_value)
 
-        # Store error message
-        nonlocal error_message
-        error_message = dialog.input_widgets[property_name].error_label.text()
+    # Accept dialog
+    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
 
-        # Close the dialog
-        dialog.button_box.button(QDialogButtonBox.StandardButton.Cancel).click()
+    # Store error message
+    error_message = dialog.input_widgets[property_name].error_label.text()
 
-    # Edit project properties
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    main_window.main_menu.project_properties_button.click()
 
     # --------------------------------------------
     # Assert

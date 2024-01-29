@@ -6,14 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -23,7 +15,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -66,13 +57,6 @@ def test_open_project(mocker, app):
         return_value=str(SAMPLE_PROJECT_PATH),
     )
 
-    def handle_dialog():
-        dialog = main_window.main_menu.directory_dialog
-        while not dialog:
-            dialog = main_window.main_menu.directory_dialog
-        dialog.close()
-        dialog.deleteLater()
-
     # Store previous information
     old_window_title = main_window.windowTitle()
     old_central_widget = main_window.centralWidget()
@@ -82,7 +66,6 @@ def test_open_project(mocker, app):
     # --------------------------------------------
     # Open project button click
     open_project_button = main_window.main_menu.open_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
     open_project_button.click()
 
     # --------------------------------------------

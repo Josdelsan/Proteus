@@ -6,15 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/37
-# QApplication instace cannot be deleted. This might cause tests failures.
-
-# NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
-# Dialog handling can interfere with running tests together. Workaround
-# listed in the issue with 5ms delay in QTimer seems to work. Since
-# dialogs are an important part of the app, this might be a problem
-# in the future. No complete solution found yet.
-
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
@@ -23,8 +14,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QApplication
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -32,7 +21,7 @@ from PyQt6.QtWidgets import QApplication
 
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.views.components.main_window import MainWindow
-from proteus.tests.end2end.fixtures import app, load_project
+from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -70,19 +59,11 @@ def test_delete_document(app):
     # --------------------------------------------
     # Act
     # --------------------------------------------
-    # Handle confirmation accept
-    def handle_dialog():
-        dialog: DeleteDialog = QApplication.activeModalWidget()
-        while not dialog:
-            dialog = QApplication.activeModalWidget()
 
-        # Accept dialog
-        dialog.button_box.accepted.emit()
-
-    # Delete document button click
+    # Dialog handling and delete button click
     delete_document_button = main_window.main_menu.delete_document_button
-    QTimer.singleShot(5, handle_dialog)  # Wait for the dialog to be created
-    delete_document_button.click()
+    dialog: DeleteDialog = get_dialog(delete_document_button.click)
+    dialog.button_box.accepted.emit()
 
     # --------------------------------------------
     # Assert
