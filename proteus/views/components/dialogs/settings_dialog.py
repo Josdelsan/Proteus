@@ -74,7 +74,12 @@ class SettingsDialog(QDialog, ProteusComponent):
         """
         super(SettingsDialog, self).__init__(*args, **kwargs)
 
+        # Button box
+        self.button_box: QDialogButtonBox = None
+
+        # Settings edit widgets
         self.language_combo: QComboBox = None
+        self.default_repository_edit: DirectoryEdit = None
         self.default_repository_checkbox: QCheckBox = None
 
         # Error message labels
@@ -103,14 +108,14 @@ class SettingsDialog(QDialog, ProteusComponent):
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Create Save and Cancel buttons
-        button_box: QDialogButtonBox = QDialogButtonBox(
+        self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
 
         # Connect the buttons to the slots, combo current text is the view name
-        button_box.accepted.connect(self.save_button_clicked)
-        button_box.rejected.connect(self.cancel_button_clicked)
+        self.button_box.accepted.connect(self.save_button_clicked)
+        self.button_box.rejected.connect(self.cancel_button_clicked)
 
         # Setting message label
         setting_info_label: QLabel = QLabel(
@@ -132,7 +137,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         layout.addWidget(setting_info_label)
         layout.addLayout(language_layout)
         layout.addLayout(default_repository_layout)
-        layout.addWidget(button_box)
+        layout.addWidget(self.button_box)
 
     # ======================================================================
     # Layouts methods (create the component sub layouts)

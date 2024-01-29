@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus import PROTEUS_VERSION
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
@@ -88,7 +89,7 @@ class InformationDialog(QDialog, ProteusComponent):
         app_name = QLabel("PROTEUS")
         app_name.setStyleSheet("font-size: 20px; font-weight: bold;")
 
-        app_version = QLabel("v1.0.0-alpha.1")
+        app_version = QLabel(PROTEUS_VERSION)
         app_version.setStyleSheet("font-size: 16px; font-weight: bold;")
         app_version.setContentsMargins(0, 0, 0, 20)
 

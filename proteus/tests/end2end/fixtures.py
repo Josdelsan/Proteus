@@ -20,8 +20,11 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
+from typing import Callable
 import pytest
-from PyQt6.QtWidgets import QApplication
+import time
+from PyQt6.QtWidgets import QApplication, QDialog
+from PyQt6.QtCore import QTimer
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -49,7 +52,7 @@ def app(qtbot, mocker):
     Handle the creation of the QApplication instance and the main window.
     """
     # NOTE: Its important to restore the singleton instances when
-    # running tests together, otherwise stores information might
+    # running tests together, otherwise stored information might
     # screw up the tests
     restore_app_singleton_instances()
 
@@ -62,12 +65,11 @@ def app(qtbot, mocker):
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
     main_window.show()
-    qtbot.addWidget(main_window) # Cannot use waitExposed with addWidget
+    qtbot.addWidget(main_window)
 
     # Return the main window when it is exposed
     with qtbot.waitExposed(main_window):
         return main_window
-
 
 
 def load_project(
@@ -134,3 +136,35 @@ def mock_views_container(mocker):
         "proteus.views.components.views_container.ViewsContainer.update_on_delete_view",
         lambda *args, **kwargs: None,
     )
+
+
+def get_dialog(dialog_trigger: Callable, time_out: int = 5000) -> QDialog:
+    """
+    Returns the current dialog (active modal widget). If there is no
+    dialog, it waits until one is created for a maximum of 5 seconds (by
+    default).
+
+    :param dialog_trigger: Callable that triggers the dialog creation.
+    :param time_out: Maximum time to wait for the dialog creation.
+    """
+
+    dialog: QDialog = None
+
+    def dialog_creation():
+        start_time = time.time()
+
+        nonlocal dialog
+        dialog = QApplication.activeModalWidget()
+        while dialog is None and time.time() - start_time < time_out:
+            dialog = QApplication.activeModalWidget()
+
+        # If dialog is None after the timeout, raise an error
+        if dialog is None:
+            raise TimeoutError(f"No dialog was created after {time_out / 1000} seconds.")
+
+        dialog.close()
+    
+    QTimer.singleShot(5, dialog_creation)  # Wait for the dialog to be created
+    dialog_trigger()
+
+    return dialog

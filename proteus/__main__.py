@@ -6,6 +6,7 @@
 # Author: Amador Durán Toro
 # ==========================================================================
 
+from proteus import PROTEUS_VERSION
 from proteus.app import ProteusApplication
 
 # --------------------------------------------------------------------------
@@ -18,7 +19,7 @@ from proteus.app import ProteusApplication
 
 def main() -> int:
     print("="*40)
-    print("PROTEUS application v1.0.0-alpha.1")
+    print(f"PROTEUS application {PROTEUS_VERSION}")
     print("="*40)
 
     app = ProteusApplication()
