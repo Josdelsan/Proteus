@@ -75,13 +75,11 @@ class PropertyDialog(QDialog, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, element_id=None, *args, **kwargs
-    ) -> None:
+    def __init__(self, element_id=None, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
-        
+
         Store the element id, reference to the element whose properties and
         traces will be displayed, and the PropertyInput widgets in a dictionary.
 
@@ -149,7 +147,9 @@ class PropertyDialog(QDialog, ProteusComponent):
 
             # Object icon
             dialog_icon: QIcon = QIcon(
-                self._config.get_icon(ProteusIconType.Archetype, self.object.classes[-1]).as_posix()
+                self._config.get_icon(
+                    ProteusIconType.Archetype, self.object.classes[-1]
+                ).as_posix()
             )
         else:
             # Proteus icon
@@ -193,11 +193,12 @@ class PropertyDialog(QDialog, ProteusComponent):
                 category_widget: QWidget = category_widgets[category]
                 category_layout: QFormLayout = category_widget.layout()
 
-            # Create the property input widget
+            # Create the property input widget and label
             input_field_widget: PropertyInput = PropertyInputFactory.create(
                 prop, controller=self._controller
             )
-            category_layout.addRow(self._translator.text(prop.name), input_field_widget)
+            input_label: QLabel = PropertyInputFactory.generate_label(prop)
+            category_layout.addRow(input_label, input_field_widget)
 
             # Add the input field widget to the input widgets dictionary
             # NOTE: This is used to retrieve the values of the widgets that changed
@@ -223,12 +224,13 @@ class PropertyDialog(QDialog, ProteusComponent):
         buttons_layout.addWidget(self.button_box)
 
         # Add US logo to the buttons layour and push it to the bottom
-        us_logo: QIcon = QIcon(self._config.get_icon(ProteusIconType.App, "US-digital").as_posix())
+        us_logo: QIcon = QIcon(
+            self._config.get_icon(ProteusIconType.App, "US-digital").as_posix()
+        )
         us_logo_label: QLabel = QLabel()
         us_logo_label.setPixmap(us_logo.pixmap(80, 80))
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(us_logo_label)
-        
 
         # Add the layouts to the main layout
         window_layout.addLayout(tabbed_layout)
@@ -254,7 +256,7 @@ class PropertyDialog(QDialog, ProteusComponent):
         Manage the save button clicked event. It gets the values of the
         input widgets and updates the propertie and traces of the element.
 
-        This method compares the values of the input widgets with the 
+        This method compares the values of the input widgets with the
         original properties and traces of the element. If there are changes,
         just the properties and traces that changed are updated.
 
@@ -350,7 +352,9 @@ class PropertyDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_dialog(controller: Controller, element_id: ProteusID) -> 'PropertyDialog':
+    def create_dialog(
+        controller: Controller, element_id: ProteusID
+    ) -> "PropertyDialog":
         """
         Handle the creation and display of the form window.
 

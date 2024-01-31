@@ -57,8 +57,8 @@ def test_edit_project(app):
     # Properties
     # NOTE: These are known existing properties
     NAME_PROP = PROTEUS_NAME
-    VERSION_PROP = "version"
-    DESCRIPTION_PROP = "description"
+    VERSION_PROP = "float input"
+    DESCRIPTION_PROP = "markdown input"
 
     # New values
     new_name = "New name"

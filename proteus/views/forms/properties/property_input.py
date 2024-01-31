@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 import logging
-from typing import Union
 from datetime import date
 from abc import ABC, abstractmethod
 
@@ -20,6 +19,7 @@ from abc import ABC, abstractmethod
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
@@ -38,6 +38,7 @@ from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
 from proteus.utils.translator import Translator
+from proteus.utils.config import Config, ProteusIconType
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -59,6 +60,7 @@ class AbstractWidgetMeta(type(QWidget), type(ABC)):
     PropertyInput class. It is used to create an abstract class that
     inherits from QWidget and ABC.
     """
+
     pass
 
 
@@ -78,55 +80,137 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
     """
 
     def __init__(
-        self,
-        property: Union[Property, Trace],
-        controller: Controller = None,
-        *args,
-        **kwargs
+        self, property: Property | Trace, controller: Controller = None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
 
         # Initialize controller
         self.controller: Controller = controller
 
-        # Translator variable
+        # Translator and config variables
         self._translator: Translator = Translator()
+        self._config: Config = Config()
 
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller)
-        self.property: Union[Property, Trace] = property
+        self.property: Property | Trace = property
 
-        # Initialize error label
+        # Create the component
+        self.create_component()
+
+    # ======================================================================
+    # Component setup (creation) methods
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : create_component
+    # Description: Creates the component.
+    # Date       : 31/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_component(self) -> None:
+        """
+        Creates the dialog input component. It creates a layout using the
+        input widget, error label and inmutable checkbox (if property is
+        inmutable). Adds the property tooltip if any.
+        """
+        # Initialize error label -------------------------
         self.error_label: QLabel = QLabel()
         self.error_label.setObjectName("error_label")
         self.error_label.setWordWrap(True)
         self.error_label.hide()
 
-        # Set tooltip
-        if property.tooltip and property.tooltip != "":
-            self.setToolTip(self._translator.text(property.tooltip))
+        # Set property tooltip ---------------------------
+        if self.property.tooltip and self.property.tooltip != "":
+            self.setToolTip(self._translator.text(self.property.tooltip))
 
-        # Horizontal layout
+        # Input layout -----------------------------------
+        # Input layout is an horizontal layout that contains the input
+        # widget and the inmutable checkbox if necessary
         horizontal_layout = QHBoxLayout()
         horizontal_layout.addWidget(self.input)
 
-        # Initialize inmutable checkbox, if the property is inmutable
-        # the checkbox will be shown and the input will be disabled
-        self.inmutable_checkbox: QCheckBox = None
-        if isinstance(property, Property):
-            inmutable: bool = property.inmutable
-            if inmutable:
-                self.inmutable_checkbox = QCheckBox()
-                self.inmutable_checkbox.setChecked(inmutable)
-                self.input.setEnabled(not inmutable)
-                self.inmutable_checkbox.stateChanged.connect(self._update_enabled)
-                horizontal_layout.addWidget(self.inmutable_checkbox)
+        # Inmutable checkbox setup - input widget is disabled by create_inmutable_checkbox
+        self.inmutable_checkbox: QCheckBox = self.create_inmutable_checkbox()
+        if self.inmutable_checkbox:
+            horizontal_layout.addWidget(self.inmutable_checkbox)
 
-        # Vertical layout
+        # Required input setup
+        self.setup_required_input()
+
+        # Vertical main layout ---------------------------
         vertical_layout = QVBoxLayout()
         vertical_layout.addLayout(horizontal_layout)
         vertical_layout.addWidget(self.error_label)
         self.setLayout(vertical_layout)
+
+    # ----------------------------------------------------------------------
+    # Method     : create_inmutable_checkbox
+    # Description: Creates the inmutable checkbox.
+    # Date       : 31/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_inmutable_checkbox(self) -> QCheckBox | None:
+        """
+        Creates the inmutable checkbox if the property is inmutable.
+
+        By default, the inmutable checkbox is checked and the input is
+        disabled.
+        """
+        # Check if property is Property class and inmutable is True
+        if isinstance(self.property, Property):
+            inmutable: bool = self.property.inmutable
+            if inmutable:
+
+                # Create the inmutable checkbox
+                inmutable_checkbox: QCheckBox = QCheckBox()
+                inmutable_checkbox.setChecked(True)
+                inmutable_checkbox.stateChanged.connect(self._update_enabled)
+
+                # Set the icon
+                icon: QIcon = QIcon(
+                    self._config.get_icon(
+                        ProteusIconType.App, "inmutable-property-edit-disabled"
+                    ).as_posix()
+                )
+                inmutable_checkbox.setIcon(icon)
+
+                # Set the checkbox tooltip
+                inmutable_checkbox.setToolTip(
+                    self._translator.text("property_input.inmutable_checkbox_tooltip")
+                )
+
+                # Disable the input widget
+                self.input.setEnabled(False)
+
+                return inmutable_checkbox
+        return None
+
+    # ----------------------------------------------------------------------
+    # Method     : setup_required_input
+    # Description: Modify the input widget if the property is required.
+    # Date       : 31/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def setup_required_input(self) -> None:
+        """
+        Modify the input widget if the property is required to highlight
+        the input widget.
+        """
+        # Check if property is Property class and required is True
+        if isinstance(self.property, Property):
+            required: bool = self.property.required
+            if required:
+                self.input.setStyleSheet(
+                    "border: 1px solid; border-radius: 3px;"
+                )
+
+    # ======================================================================
+    # Public methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : has_errors
@@ -150,6 +234,10 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
             self.error_label.hide()
             return False
 
+    # ======================================================================
+    # Abstract methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
     # Method     : get_value (abstract)
     # Description: Returns the value of the input widget.
@@ -158,7 +246,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @abstractmethod
-    def get_value(self) -> Union[str, int, float, bool, date, list, ProteusCode]:
+    def get_value(self) -> str | int | float | bool | date | list | ProteusCode:
         """
         Returns the value of the input widget. The value is converted to a
         string.
@@ -173,7 +261,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @abstractmethod
-    def validate(self) -> Union[str, None]:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
@@ -219,6 +307,19 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
 
         # Update the enabled state of the input widget
         self.input.setEnabled(not checked)
+
+        # Update check box icon
+        if self.inmutable_checkbox:
+            icon_str = (
+                "inmutable-property-edit-disabled"
+                if checked
+                else "inmutable-property-edit-enabled"
+            )
+
+            icon: QIcon = QIcon(
+                self._config.get_icon(ProteusIconType.App, icon_str).as_posix()
+            )
+            self.inmutable_checkbox.setIcon(icon)
 
         # Trigger inmutable property warning
         if not checked:

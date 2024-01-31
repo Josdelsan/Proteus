@@ -60,12 +60,12 @@ class TimePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Time property input does not need validation because it is validated
         by the QTimeEdit widget.
         """
-        pass
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

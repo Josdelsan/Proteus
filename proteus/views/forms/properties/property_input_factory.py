@@ -11,19 +11,21 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, List, Union
+from typing import Dict, Union
 import logging
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtWidgets import QLabel
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
+from proteus.utils.translator import Translator
 
 # Properties imports
 from proteus.model.trace import Trace
@@ -123,3 +125,49 @@ class PropertyInputFactory:
         except KeyError:
             log.error(f"Property input widget for {type(property)} was not found")
             return None
+
+    # ----------------------------------------------------------------------
+    # Method     : generate_label
+    # Description: Generates the label for the given property.
+    # Date       : 31/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    # TODO: Consider implementing this method in PropertyInput class in order
+    # to allow custom label generation for each property class. Future feature.
+    @staticmethod
+    def generate_label(property: Union[Property, Trace]) -> QLabel:
+        """
+        Generates the label for the given property. The label is generated
+        using the property name and checking if the property is marked as
+        required.
+
+        Required properties will have a * at the end of the label and text
+        is bolded.
+        """
+        # Create the label
+        label = QLabel()
+        name = Translator().text(property.name)
+        label.setWordWrap(True)
+
+        # Check if the property is required
+        if isinstance(property, Property):
+            if property.required:
+                # Get the translation
+                name = Translator().text(property.name)
+
+                # Add the * to the name
+                name = f"{name}*"
+
+                # Bold the text
+                font = label.font()
+                font.setBold(True)
+                label.setFont(font)
+
+                # Set the tooltip
+                label.setToolTip(Translator().text("property_input.required_tooltip"))
+
+        # Set the label text
+        label.setText(name)
+
+        return label

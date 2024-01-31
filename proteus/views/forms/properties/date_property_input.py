@@ -61,12 +61,12 @@ class DatePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Date property input does not need validation because it is validated
         by the QDateEdit widget.
         """
-        pass
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

@@ -220,6 +220,7 @@ def test_generate_project_xml(
         document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
+
     # Assert --------------------------
     assert project_xml_string == example_xml_string, (
         f"The generated xml is different from the example xml, check {EXAMPLE_XML_PATH}"

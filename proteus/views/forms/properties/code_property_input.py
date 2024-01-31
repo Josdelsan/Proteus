@@ -60,10 +60,13 @@ class CodePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget information. Returns None if the input is
         valid, otherwise returns the error message.
+
+        Code property must have a prefix and a number greater than 0. Prefix
+        and suffix must not contain CDATA section delimiters.
         """
         prefix: str
         number: str

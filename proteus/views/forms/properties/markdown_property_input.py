@@ -61,7 +61,7 @@ class MarkdownPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
@@ -74,6 +74,10 @@ class MarkdownPropertyInput(PropertyInput):
         # Check if text contains CDATA section delimiters
         if text.find("<![CDATA[") != -1 or text.find("]]>") != -1:
             return "markdown_property_input.validator.error.cdata"
+        
+        # Check required
+        if self.property.required and (text == None or text == ""):
+            return "property_input.validator.error.required"
 
         return None
 

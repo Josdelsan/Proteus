@@ -43,6 +43,7 @@ from proteus.model.properties.code_property import CodeProperty, ProteusCode
 from proteus.model import (
     NAME_ATTRIBUTE,
     CATEGORY_ATTRIBUTE,
+    REQUIRED_ATTRIBUTE,
     INMUTABLE_ATTRIBUTE,
     TOOLTIP_ATTRIBUTE,
 )
@@ -113,6 +114,10 @@ class PropertyFactory:
         # Get category (checked in property constructors)
         category = element.attrib.get(CATEGORY_ATTRIBUTE, DEFAULT_CATEGORY)
 
+        # Get required (checked in property constructors)
+        required_str = element.attrib.get(REQUIRED_ATTRIBUTE, "false")
+        required: bool = True if required_str.lower() == "true" else False
+
         # Get inmutable (checked in property constructors)
         inmutable_str = element.attrib.get(INMUTABLE_ATTRIBUTE, "false")
         inmutable: bool = True if inmutable_str.lower() == "true" else False
@@ -151,7 +156,9 @@ class PropertyFactory:
         if property_class is EnumProperty:
             # We need to collect its choices
             choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
-            return EnumProperty(name, category, value, tooltip, inmutable, choices)
+            return EnumProperty(
+                name, category, value, tooltip, required, inmutable, choices
+            )
 
         # Ordinary case: rest of property classes
-        return property_class(name, category, value, tooltip, inmutable)
+        return property_class(name, category, value, tooltip, required, inmutable)

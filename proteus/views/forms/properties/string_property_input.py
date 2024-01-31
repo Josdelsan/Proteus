@@ -63,7 +63,7 @@ class StringPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
@@ -74,10 +74,19 @@ class StringPropertyInput(PropertyInput):
         # Get Property or Trace name
         name = self.property.name
 
-        # Check if the input is valid
-        if text is None or (name == PROTEUS_NAME and text == ""):
-            return "string_property_input.validator.error"
-        
+        # Check if the input is valid (not None)
+        # Check if the input is required
+        # :Proteus-name is always required
+        # TODO: Consider if :Proteus-name must be checked or we can
+        # assume that the archetypes will always include required=True
+        # in this mandatory property
+        if (
+            text is None
+            or (self.property.required and text == "")
+            or (name == PROTEUS_NAME and text == "")
+        ):
+            return "property_input.validator.error.required"
+
         # Check if text contains CDATA section delimiters
         if text.find("<![CDATA[") != -1 or text.find("]]>") != -1:
             return "string_property_input.validator.error.cdata"

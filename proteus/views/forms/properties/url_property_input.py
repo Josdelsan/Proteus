@@ -61,7 +61,7 @@ class UrlPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
@@ -71,6 +71,10 @@ class UrlPropertyInput(PropertyInput):
         # Check if text contains CDATA section delimiters
         if url.find("<![CDATA[") != -1 or url.find("]]>") != -1:
             return "url_property_input.validator.error.cdata"
+        
+        # Check required
+        if self.property.required and (url == None or url == ""):
+            return "property_input.validator.error.required"
         
         return None
 

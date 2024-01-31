@@ -87,9 +87,11 @@ property.is-appendix.tooltip: "Check if it is an appendix."
 property.is-glossary.tooltip: "Check if it is a glossary item."
 property.file.tooltip: "Select a graphic file from your local system to copy it to the assets folder."
 property.width.tooltip: "Percentage of the page width that the image will occupy."
+property_input.required_tooltip: "This property is required."
+property_input.inmutable_checkbox_tooltip: "This property is marked as inmutable, uncheck it to modify it at your own risk."
 
 # Properties validation messages
-string_property_input.validator.error: "This field cannot be empty"
+property_input.validator.error.required: "This field is required"
 markdown_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
 url_property_input.validator.error.cdata: "URL cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
 string_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"

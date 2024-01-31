@@ -65,12 +65,17 @@ class BooleanPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
-        Boolean property input does not need validation because it is validated
-        by the QCheckBox widget.
+        Validates the input widget. Returns an error message if the input
+        is  empty, None otherwise. Qt checkboxes value cannot be None,
+        anyways is checked.
         """
-        pass
+        
+        if self.get_value() is None:
+            return "property_input.validator.error.required"
+        
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

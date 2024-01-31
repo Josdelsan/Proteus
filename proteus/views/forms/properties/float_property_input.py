@@ -60,7 +60,7 @@ class FloatPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
@@ -71,6 +71,10 @@ class FloatPropertyInput(PropertyInput):
             float(text)
         except ValueError:
             return "float_property_input.validator.error"
+
+        # Check required
+        if self.property.required and (text == None or text == ""):
+            return "property_input.validator.error.required"
 
         # Return None if the input is valid
         return None

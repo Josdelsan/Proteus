@@ -48,21 +48,35 @@ from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 # NOTE: PropertyInput would need a set_value() method to be able to
 # test validation of different property types in the same test. This would
 # only be use in testing.
+# TODO: This validation must not be performed as an end2end test. This has to
+# be implement as PropertyInput unit test mocking input widgets if necessary.
 @pytest.mark.parametrize(
     "property_name, property_value, expected_error",
     [
-        (PROTEUS_NAME, "", "string_property_input.validator.error"),  # stringProperty
-        (PROTEUS_NAME, None, "string_property_input.validator.error"),
-        ("version", "", "float_property_input.validator.error"),  # floatProperty
-        ("version", None, "float_property_input.validator.error"),
-        ("version", "a", "float_property_input.validator.error"),
-        ("version", "1.2.3", "float_property_input.validator.error"),
-        ("version", "1.2a", "float_property_input.validator.error"),
-        ("numberOfUsers", "", "integer_property_input.validator.error"),  # intProperty
-        ("numberOfUsers", None, "integer_property_input.validator.error"),
-        ("numberOfUsers", "a", "integer_property_input.validator.error"),
-        ("numberOfUsers", "1.2", "integer_property_input.validator.error"),
-        ("numberOfUsers", "1a", "integer_property_input.validator.error"),
+        (PROTEUS_NAME, "", "property_input.validator.error.required"),  # stringProperty
+        (PROTEUS_NAME, None, "property_input.validator.error.required"),
+        ("string input", "]]>", "string_property_input.validator.error.cdata"),
+        ("string input", "<![CDATA[", "string_property_input.validator.error.cdata"),
+        ("string input", "<![CDATA[dummy cdata]]>", "string_property_input.validator.error.cdata"),
+        ("float input", "", "float_property_input.validator.error"),  # floatProperty
+        ("float input", None, "float_property_input.validator.error"),
+        ("float input", "a", "float_property_input.validator.error"),
+        ("float input", "1.2.3", "float_property_input.validator.error"),
+        ("float input", "1.2a", "float_property_input.validator.error"),
+        ("int input", "", "integer_property_input.validator.error"),  # intProperty
+        ("int input", None, "integer_property_input.validator.error"),
+        ("int input", "a", "integer_property_input.validator.error"),
+        ("int input", "1.2", "integer_property_input.validator.error"),
+        ("int input", "1a", "integer_property_input.validator.error"),
+        ("url input", "]]>", "url_property_input.validator.error.cdata"),  # urlProperty
+        ("url input", "<![CDATA[", "url_property_input.validator.error.cdata"),
+        ("url input", "https://url.url/]]>/", "url_property_input.validator.error.cdata"),
+        
+        # Required validation
+        ("required string input", "", "property_input.validator.error.required"),
+        ("required string input", None, "property_input.validator.error.required"),
+        ("required url input", "", "property_input.validator.error.required"),
+        ("required url input", None, "property_input.validator.error.required"),
     ],
 )
 def test_property_input_validation(app, property_name, property_value, expected_error):

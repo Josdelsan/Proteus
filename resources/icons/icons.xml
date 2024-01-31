@@ -12,6 +12,8 @@
         <icon key="browse_file_icon" file="browse_file.png"/>
         <icon key="add_trace_icon" file="plus-button.svg"/>
         <icon key="remove_trace_icon" file="minus-button.svg"/>
+        <icon key="inmutable-property-edit-enabled" file="lock-open.png"/>
+        <icon key="inmutable-property-edit-disabled" file="lock-close.png"/>
     </type>
     <type name="main_menu" default="default-archetype.png">
         <icon key="new-project" file="new-project-button.png" />

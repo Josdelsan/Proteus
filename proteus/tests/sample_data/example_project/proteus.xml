@@ -2,16 +2,20 @@
 <project id="QSDQUqqQh8NrCdrSL3QYVA">
   <properties>
     <stringProperty name=":Proteus-name" category="general"><![CDATA[Proyecto Proteus]]></stringProperty>
-    <floatProperty name="version" category="general">0.1</floatProperty>
-    <urlProperty name="google" category="general"><![CDATA[https://google.com]]></urlProperty>
+    <stringProperty name="string input" category="general"><![CDATA[dummy]]></stringProperty>
+    <floatProperty name="float input" category="general">0.1</floatProperty>
+    <urlProperty name="url input" category="general"><![CDATA[https://google.com]]></urlProperty>
     <dateProperty name=":Proteus-date" category="general">2022-08-10</dateProperty>
-    <stringProperty name="author" category="general"><![CDATA[Amador Durán]]></stringProperty>
-    <markdownProperty name="description" category="details"><![CDATA[Descripción del proyecto]]></markdownProperty>
-    <markdownProperty name="comments" category="comments"><![CDATA[Comentarios del proyecto con un & y < y >.]]></markdownProperty>
-    <integerProperty name="numberOfUsers" category="general">15</integerProperty>
-    <floatProperty name="money" category="general">10.5</floatProperty>
-    <booleanProperty name="info" category="estilo">false</booleanProperty>
-    <enumProperty name="stability" category="general" choices="baja PD media">baja</enumProperty>
+    <markdownProperty name="markdown input" category="comments"><![CDATA[Comentarios del proyecto con un & y < y >.]]></markdownProperty>
+    <integerProperty name="int input" category="general">15</integerProperty>
+    <booleanProperty name="boolean input" category="general">false</booleanProperty>
+    <enumProperty name="enum input" category="general" choices="baja PD media">baja</enumProperty>
+    <fileProperty name="file input" category="general"><![CDATA[data.csv]]></fileProperty>
+    <integerProperty name="required int input" category="general" required="true">15</integerProperty>
+    <stringProperty name="required string input" category="general" required="true"><![CDATA[dummy]]></stringProperty>
+    <urlProperty name="required url input" category="general" required="true"><![CDATA[https://google.com]]></urlProperty>
+    <markdownProperty name="required markdown input" category="comments" required="true"><![CDATA[Comments]]></markdownProperty>
+    <fileProperty name="required file input" category="general" required="true"><![CDATA[data.csv]]></fileProperty>
   </properties>
   <documents>
     <document id="SS2yr44xAPqq"/>

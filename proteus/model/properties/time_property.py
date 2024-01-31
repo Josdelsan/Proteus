@@ -27,7 +27,6 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import TIME_PROPERTY_TAG, TIME_FORMAT
 
@@ -92,4 +91,12 @@ class TimeProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return self.value.strftime(TIME_FORMAT)
+
+        _value = self.value
+
+        # Check value is instance of time class before converting it to string
+        assert isinstance(
+            _value, time
+        ), f"timeProperty '{self.name}' is not 'time' class. Value type: {type(_value)}"
+
+        return _value.strftime(TIME_FORMAT)

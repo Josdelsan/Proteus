@@ -89,4 +89,13 @@ class FileProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return ET.CDATA(self.value)
+
+        _value = self.value
+
+        # Check the value is not empty when required
+        if self.required:
+            assert not (
+                _value == None or _value == ""
+            ), f"fileProperty '{self.name}' is required but has no value"
+
+        return ET.CDATA(_value)

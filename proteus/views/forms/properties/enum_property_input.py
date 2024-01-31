@@ -62,12 +62,19 @@ class EnumPropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
+
+        Checks if the current data in valid. If the data is not valid it
+        may indicate that the combobox was not initialized correctly.
         """
-        pass
+        
+        if self.get_value() is None:
+            return "property_input.validator.error.required"
+        
+        return None
 
     # ----------------------------------------------------------------------
     # Method     : create_input

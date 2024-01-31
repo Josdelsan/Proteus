@@ -55,12 +55,16 @@ class FilePropertyInput(PropertyInput):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def validate(self) -> str:
+    def validate(self) -> str | None:
         """
         Validates the input widget. Returns an error message if the input
         has errors, None otherwise.
         """
         file_name: str = self.get_value()
+
+        # Check if required and empty
+        if self.property.required and not file_name:
+            return "property_input.validator.error.required"
         
         # Check if text contains CDATA section delimiters
         if file_name.find("<![CDATA[") != -1 or file_name.find("]]>") != -1:

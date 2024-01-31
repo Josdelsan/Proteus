@@ -92,4 +92,11 @@ class BooleanProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
+
+        # Check string is correct (True or False ignored case)
+        assert self.value in [
+            True,
+            False,
+        ], f"booleanProperty '{self.name}' is wrong type. Value must be True or False. Value: {self.value}"
+
         return str(self.value).lower()

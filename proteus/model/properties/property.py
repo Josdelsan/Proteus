@@ -31,6 +31,7 @@ from proteus.model import (
     NAME_ATTRIBUTE,
     CATEGORY_ATTRIBUTE,
     INMUTABLE_ATTRIBUTE,
+    REQUIRED_ATTRIBUTE,
     TOOLTIP_ATTRIBUTE,
 )
 from proteus.model.properties import DEFAULT_NAME, DEFAULT_CATEGORY
@@ -64,6 +65,7 @@ class Property(ABC):
     category: str = str(DEFAULT_CATEGORY)
     value: Any = str()
     tooltip: str = str()
+    required: bool = False
     inmutable: bool = False
 
     def __post_init__(self) -> None:
@@ -84,8 +86,13 @@ class Property(ABC):
             # self.category = DEFAULT_CATEGORY cannot be used when frozen=True
             object.__setattr__(self, "category", DEFAULT_CATEGORY)
 
+        # Required validation
+        if not isinstance(self.required, bool):
+            # self.required = False cannot be used when frozen=True
+            object.__setattr__(self, "required", False)
+
         # Inmutable validation
-        if not self.inmutable:
+        if not isinstance(self.inmutable, bool):
             # self.inmutable = False cannot be used when frozen=True
             object.__setattr__(self, "inmutable", False)
 
@@ -117,6 +124,9 @@ class Property(ABC):
 
         if self.tooltip and self.tooltip != str():
             property_element.set(TOOLTIP_ATTRIBUTE, self.tooltip)
+
+        if self.required:
+            property_element.set(REQUIRED_ATTRIBUTE, str(self.required).lower())
 
         if self.inmutable:
             property_element.set(INMUTABLE_ATTRIBUTE, str(self.inmutable).lower())

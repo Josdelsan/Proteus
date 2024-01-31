@@ -90,4 +90,12 @@ class DateProperty(Property):
         """
         It generates the value of the property for its XML element.
         """
-        return self.value.strftime(DATE_FORMAT)
+
+        _value = self.value
+
+        # Check value is instance of time class before converting it to string
+        assert isinstance(
+            _value, date
+        ), f"dateProperty '{self.name}' is not 'date' class. Value type: {type(_value)}"
+
+        return _value.strftime(DATE_FORMAT)

@@ -275,7 +275,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Clean the command stack
             self._controller.stack.clear()
 
-            if unsaved_changes:
+            if not unsaved_changes:
                 # Write the state to a file if there is a project opened
                 if self._controller.get_current_project() is not None:
                     project_path: str = self._controller.get_current_project().path
