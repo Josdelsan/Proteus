@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
-    <type name="acronym"/>
+    <type name="document"/>
     <type name="archetype">
         <icon key=":Proteus-document" file="document.png" />
         <icon key="actor" file="actor.png" />

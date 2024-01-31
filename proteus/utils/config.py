@@ -41,7 +41,7 @@ import proteus
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.utils import (
     ProteusIconType,
-    DEFAULT_ICON,
+    DEFAULT_ICON_KEY,
     ENTRY_POINTS_TAG,
     ENTRY_POINT_TAG,
     DEPENCENCIES_TAG,
@@ -243,7 +243,7 @@ class Config:
             log.warning(
                 f"Icon name '{name}' not found for type '{type}', using default icon"
             )
-            name = DEFAULT_ICON
+            name = DEFAULT_ICON_KEY
 
         return self._icons_dictionary[type][name]
 
@@ -293,7 +293,7 @@ class Config:
             # Get the default icon and store if it exists
             default_icon: str = type_tag.attrib.get("default", None)
             if default_icon is not None:
-                type_dictionary[DEFAULT_ICON] = self.icons_directory / default_icon
+                type_dictionary[DEFAULT_ICON_KEY] = self.icons_directory / default_icon
             else:
                 log.error(
                     f"Default icon not found for icon type '{type_name}'. This could crash the application. Check {resource_icon_file.as_posix()} file."
@@ -348,7 +348,7 @@ class Config:
 
             accepted_types: List[ProteusIconType] = [
                 ProteusIconType.Archetype,
-                ProteusIconType.Acronym,
+                ProteusIconType.Document,
             ]
 
             # Check if type is valid
@@ -367,7 +367,7 @@ class Config:
                 log.info(
                     f"Default icon found for icon type '{type_name}'. This will override the default icon defined in the resources directory."
                 )
-                type_dictionary[DEFAULT_ICON] = (
+                type_dictionary[DEFAULT_ICON_KEY] = (
                     self.archetypes_directory / "icons" / default_icon
                 )
 

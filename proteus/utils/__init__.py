@@ -26,10 +26,10 @@ ASSETS_DUMMY_SEARCH_PATH = "assets"
 # Proteus Icons
 from strenum import StrEnum
 
-DEFAULT_ICON = ":Proteus-default-icon"
+DEFAULT_ICON_KEY = ":Proteus-default-icon"
 
 class ProteusIconType(StrEnum):
     App = "app"
     MainMenu = "main_menu"
     Archetype = "archetype"
-    Acronym = "acronym"
+    Document = "document"
