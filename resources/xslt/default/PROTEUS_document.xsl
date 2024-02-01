@@ -57,8 +57,6 @@
                 <!-- Document body -->
                 <xsl:apply-templates select="children/object"/>
 
-                <script src="https://unpkg.com/@popperjs/core@2"></script>
-                <script src="https://unpkg.com/tippy.js@6"></script>
                 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
                 <script src="templates:///default/resources/javascript/proteus.js"></script> 
 

@@ -13,6 +13,7 @@
 import logging
 from typing import Dict, List, MutableSet
 import re
+from io import StringIO
 from html import escape
 
 # --------------------------------------------------------------------------
@@ -43,6 +44,36 @@ log = logging.getLogger(__name__)
 
 PARAGRAPH_CLASS = "paragraph"
 GLOSSARY_PROPERTY = "is-glossary"
+
+
+# ==========================================================================
+# Markdown patch
+# ==========================================================================
+# Since markdown instance is created as a class variable, this patch has to
+# be done before the class definition, otherwise the patch cannot be used.
+
+
+# --------------------------------------------------------------------------
+# Function: unmark_element
+# Description: Plain text rendering function
+# Date: 01/02/2024
+# Version: 0.1
+# Author: https://stackoverflow.com/a/54923798
+# --------------------------------------------------------------------------
+def unmark_element(element, stream=None):
+    if stream is None:
+        stream = StringIO()
+    if element.text:
+        stream.write(element.text)
+    for sub in element:
+        unmark_element(sub, stream)
+    if element.tail:
+        stream.write(element.tail)
+    return stream.getvalue()
+
+
+# Markdown patch
+markdown.Markdown.output_formats["plain"] = unmark_element
 
 
 # --------------------------------------------------------------------------
@@ -79,6 +110,10 @@ class GlossaryHandler(ProteusComponent):
     code_block_pattern: re.Pattern = re.compile(
         r"(?s)<code>((?!</code>).)*</code>", re.IGNORECASE
     )
+
+    markdown_instance = markdown.Markdown(
+        output_format="plain"
+    )  # This is used to convert markdown to plaintext
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -255,7 +290,7 @@ class GlossaryHandler(ProteusComponent):
     def _add_glossary_item(self, object: Object) -> None:
         """
         It adds a glossary item to the glossary. The description is stored
-        by object id, previously converted from markdown to html. The item
+        by object id, previously converted from markdown to plaintext. The item
         is stored by item name, adding the object id to the list of ids
         linked to the glossary item name (this allows multiple descriptions).
 
@@ -266,17 +301,19 @@ class GlossaryHandler(ProteusComponent):
         # Get items
         items: str = object.get_property(PROTEUS_NAME).value
 
-        # Get description and convert markdown to html
+        # Get description and convert markdown to plaintext
+        # TODO: Now conversion is done from markdown to plaintext, ignoring
+        # html tags. Consider if HTML tags should be also ignored since
+        # markdownProperty can accept HTML tags and they will be processed
+        # in the browser and the tooltip.
+        # Posible solution to get rid of HTML tags using Re or lxml:
+        # https://stackoverflow.com/a/9662410
+        # Current solution to get rid of Markdown using markdown module:
+        # https://stackoverflow.com/a/54923798
         _description: str = object.get_property("text").value
-        description = markdown.markdown(
-            _description,
-            extensions=[
-                "markdown.extensions.fenced_code",
-                "markdown.extensions.codehilite",
-                "markdown.extensions.tables",
-                "markdown.extensions.toc",
-            ],
-        )
+
+        self.markdown_instance.stripTopLevelTags = False
+        description = self.markdown_instance.convert(_description)
 
         # Split the items
         glossary_items: List[str] = [item.strip() for item in items.split(",")]
@@ -418,7 +455,7 @@ class GlossaryHandler(ProteusComponent):
                     # Add the description with a link to the item
                     description_html += f"{description}"
 
-                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" data-tippy-content="{escape(description_html)}">{match_text}</a>'
+                return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" title="{escape(description_html)}">{match_text}</a>'
 
             if GlossaryHandler.pattern is None:
                 return text

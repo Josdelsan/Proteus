@@ -112,14 +112,6 @@ class InformationDialog(QDialog, ProteusComponent):
         terms_of_use.setWordWrap(True)
         terms_of_use.setContentsMargins(0, 0, 0, 20)
 
-        # Important notes
-        important_notes = QLabel(
-            self.translator.text("information_dialog.important_notes.text")
-        )
-        important_notes.setStyleSheet("font-weight: bold;")
-        important_notes.setWordWrap(True)
-        important_notes.setContentsMargins(0, 0, 0, 20)
-
         # Icons8 attribution
         icons8_attribution = QLabel("Icons by <a href='https://icons8.com'>Icons8</a>")
         icons8_attribution.setOpenExternalLinks(True)
@@ -132,7 +124,6 @@ class InformationDialog(QDialog, ProteusComponent):
         layout.addWidget(app_description)
         layout.addWidget(license)
         layout.addWidget(terms_of_use)
-        layout.addWidget(important_notes)
         layout.addWidget(icons8_attribution)
 
         # Set the layout

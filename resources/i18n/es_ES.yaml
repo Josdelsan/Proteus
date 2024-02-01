@@ -313,7 +313,6 @@ information_dialog.title: "Proteus información"
 information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
 information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
 information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."
-information_dialog.important_notes.text: "Esta versión requiere de conexión a internet para mostrar y exportar el renderizado de la plantilla por defecto correctamente."
 
 # ---------------------------------------------------------------------------
 # Trace edit dialog

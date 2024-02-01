@@ -173,25 +173,6 @@ function removeIdsInsideSymbolicLink() {
 }
 
 
-// -----------------------------------------------------------------------
-// Function    : generateTooltip
-// Description : Generate tooltips for all the elements with the
-//               data-tippy-content attribute. Use tippy.js library.
-// Date        : 16/01/2024
-// Version     : 0.1
-// Author      : José María Delgado Sánchez
-// -----------------------------------------------------------------------
-function generateTooltip() {
-    try {
-        tippy('[data-tippy-content]', {
-            allowHTML: true,
-        });
-    } catch (error) {
-        log("Error creating tooltips: " + error.message);
-    }
-}
-
-
 // =========================================================================
 // Execute code on DOMContentLoaded event
 // =========================================================================
@@ -204,9 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Suscribe all the elements with data-proteus-id to the necessary events
     suscribeProteusId();
-
-    // Generate tooltips
-    generateTooltip();
 });
 
 // =========================================================================
