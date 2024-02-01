@@ -442,13 +442,21 @@ class ProjectService:
         Iterates over the project index and checks if any object is not in
         CLEAN state. Returns True in the first object found with unsaved
         changes.
-        
+
+        NOTE: DEAD objects are not considered as unsaved changes. They are kept
+        in the project index even if they are deleted. This will allow to restore
+        delete objects in the future. This is not a problem because when an object
+        is deleted its parent is set to DIRTY.
+
         :return: True if the project has unsaved changes, False otherwise.
         """
         for object in self.project_index.values():
-            if object.state != ProteusState.CLEAN:
+            if object.state != ProteusState.CLEAN and object.state != ProteusState.DEAD:
+                log.debug(
+                    f"Found object '{object.id}' with unsaved changes. Object state: {object.state}"
+                )
                 return True
-        
+
         return False
 
     # ----------------------------------------------------------------------
@@ -825,7 +833,6 @@ class ProjectService:
             document: Object = self._get_element_by_id(document_id)
             document_xml: ET._Element = document.generate_xml()
             parent_element.replace(document_element, document_xml)
-
 
         # Iterate until no chil tags are found
         while root.findall(f".//{CHILD_TAG}"):

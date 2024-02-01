@@ -188,6 +188,7 @@ class PropertyDialog(QDialog, ProteusComponent):
             if category not in category_widgets:
                 category_widget: QWidget = QWidget()
                 category_layout: QFormLayout = QFormLayout(category_widget)
+                category_layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.DontWrapRows)
                 category_widgets[category] = category_widget
             else:
                 category_widget: QWidget = category_widgets[category]

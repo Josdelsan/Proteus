@@ -134,9 +134,10 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        edit_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_FileDialogDetailedView
+        edit_icon_path = (
+            self._config.get_icon(ProteusIconType.App, "context-menu-edit")
         )
+        edit_icon = QIcon(edit_icon_path.as_posix())
         self.action_edit_object.setIcon(edit_icon)
 
         # Create the delete action ------------------------------------------
@@ -148,9 +149,10 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        delete_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_TrashIcon
+        delete_icon_path = (
+            self._config.get_icon(ProteusIconType.App, "context-menu-delete")
         )
+        delete_icon = QIcon(delete_icon_path.as_posix())
         self.action_delete_object.setIcon(delete_icon)
 
         # Create clone action -----------------------------------------------
@@ -160,9 +162,10 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_clone_object.triggered.connect(
             lambda: self._controller.clone_object(selected_item_id)
         )
-        clone_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_DialogApplyButton
+        clone_icon_path = (
+            self._config.get_icon(ProteusIconType.App, "context-menu-clone")
         )
+        clone_icon = QIcon(clone_icon_path.as_posix())
         self.action_clone_object.setIcon(clone_icon)
 
         # Create move up action ---------------------------------------------
@@ -174,9 +177,10 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index - 1, parent_id
             )
         )
-        move_up_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_ArrowUp
+        move_up_icon_path = (
+            self._config.get_icon(ProteusIconType.App, "context-menu-up")
         )
+        move_up_icon = QIcon(move_up_icon_path.as_posix())
         self.action_move_up_object.setIcon(move_up_icon)
 
         # Create move down action -------------------------------------------
@@ -188,9 +192,10 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index + 2, parent_id
             )
         )
-        move_down_icon = QApplication.style().standardIcon(
-            QStyle.StandardPixmap.SP_ArrowDown
+        move_down_icon_path = (
+            self._config.get_icon(ProteusIconType.App, "context-menu-down")
         )
+        move_down_icon = QIcon(move_down_icon_path.as_posix())
         self.action_move_down_object.setIcon(move_down_icon)
 
         # Disable the move up action if the selected item is the first

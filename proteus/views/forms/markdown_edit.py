@@ -21,6 +21,7 @@ from PyQt6.QtCore import (
 from PyQt6.QtWidgets import (
     QWidget,
     QTextEdit,
+    QPlainTextEdit,
     QVBoxLayout,
     QSizePolicy,
     QPushButton,
@@ -64,7 +65,7 @@ class MarkdownEdit(QWidget):
         super().__init__(*args, **kwargs)
 
         # Initialize widgets variables
-        self.input_box: QTextEdit = None
+        self.input_box: QPlainTextEdit = None
         self.display_box: QTextEdit = None
         self.mode_button: QPushButton = None
 
@@ -97,8 +98,7 @@ class MarkdownEdit(QWidget):
         # self.display_box.setStyleSheet("background-color: white;")
 
         # Input box --------------------------------------------------------
-        self.input_box = QTextEdit()
-        self.input_box.setAcceptRichText(True)
+        self.input_box = QPlainTextEdit()
         self.input_box.sizeHint = lambda: QSize(250, 100)
         self.input_box.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding

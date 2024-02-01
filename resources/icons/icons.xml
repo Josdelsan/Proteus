@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
-    <type name="document" default="default-acronym.svg"/>
+    <type name="document" default="default-acronym.png"/>
     <type name="archetype" default="default-archetype.png"/>
     <type name="app" default="proteus_logo.png">
         <icon key="proteus_icon" file="proteus_logo.ico" />
@@ -14,6 +14,11 @@
         <icon key="remove_trace_icon" file="minus-button.svg"/>
         <icon key="inmutable-property-edit-enabled" file="lock-open.png"/>
         <icon key="inmutable-property-edit-disabled" file="lock-close.png"/>
+        <icon key="context-menu-edit" file="edit-button.png"/>
+        <icon key="context-menu-delete" file="delete-object-button.png"/>
+        <icon key="context-menu-clone" file="clone-object-button.png"/>
+        <icon key="context-menu-up" file="up-arrow.png"/>
+        <icon key="context-menu-down" file="down-arrow.png"/>
     </type>
     <type name="main_menu" default="default-archetype.png">
         <icon key="new-project" file="new-project-button.png" />

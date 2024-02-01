@@ -157,6 +157,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
         # Set the tab icon
         icon_path: Path = self._config.get_icon(ProteusIconType.Document, document_acronym)
         self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+        self.setIconSize(QSize(32, 32))
 
         # Drop configuration to allow objects moves between tabs
         tabbar = self.tabBar()
