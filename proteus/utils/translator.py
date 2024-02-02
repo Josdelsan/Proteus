@@ -183,9 +183,9 @@ class Translator:
                 language_code: str = language.get("key")
 
                 # Get the language directory
-                language_directory: str = language.get("directory")
+                language_directory: str = language.get("path")
 
-                # Check if the language directory exists and it contain yaml file on any level
+                # Check if the language path exists
                 if language_directory is not None:
                     language_directory_path: Path = (
                         self.config.i18n_directory / language_directory
@@ -212,14 +212,14 @@ class Translator:
     def _read_config_file(self, language_config_file: Path) -> Path:
         """
         Reads the language configuration file and return the path to the lagnuage
-        directory.
+        directory or file.
 
         Check if the language configuration file has the language entry for the
         current application language. If not, it returns the default language if
         it exists. If there is no default language or current language is not
         found, it returns None.
 
-        :return: Path to the translations directory or None if not found any.
+        :return: Path to the translations directory/file or None if not found any.
         """
         # Check if the language configuration file exists
         if not language_config_file.exists():
@@ -242,7 +242,7 @@ class Translator:
                 )
 
                 # Get the language directory
-                language_directory: str = language.get("directory")
+                language_directory: str = language.get("path")
 
                 # Check if the language directory exists
                 if language_directory is not None:
@@ -267,27 +267,33 @@ class Translator:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def _load_translations(self, translations_directory: Path) -> None:
+    def _load_translations(self, translations_path: Path) -> None:
         """
-        Loads the translations files found in the given directory. It reads the
-        yaml files and stores the translations in the _translations variable.
+        Loads the translations files found in the given directory/file. It reads
+        the yaml files and stores the translations in the _translations variable.
         Loads both .yaml and .yml files.
 
         Updates the _translations variable dictionary with the new translations.
         This means it overwrites the translations for the same key if repeated.
+
+        :param translations_path: Path to the translations directory or file.
         """
         log.info(
-            f"Loading translations from directory: {translations_directory.as_posix()}"
+            f"Loading translations from: {translations_path.as_posix()}"
         )
 
-        # Get all the yaml files in the directory
-        translations_yaml_files: List[Path] = list(
-            translations_directory.rglob("*.yaml")
-        )
-        translations_yml_files: List[Path] = list(translations_directory.rglob("*.yml"))
-        translations_files: List[Path] = (
-            translations_yaml_files + translations_yml_files
-        )
+        # Check if the translations_path is a directory or a file
+        if translations_path.is_dir():
+            # Get all the yaml files in the directory
+            translations_yaml_files: List[Path] = list(
+                translations_path.rglob("*.yaml")
+            )
+            translations_yml_files: List[Path] = list(translations_path.rglob("*.yml"))
+            translations_files: List[Path] = (
+                translations_yaml_files + translations_yml_files
+            )
+        else:
+            translations_files = [translations_path]
 
         # Iterate over the yaml files
         for file in translations_files:

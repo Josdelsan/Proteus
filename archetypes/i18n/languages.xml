@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<languages default="en_us">
-    <language key="en_US" directory="en_us" />
-    <language key="es_ES" directory="es_es" />
+<languages default="en_us.yaml">
+    <language key="en_US" path="en_us.yaml" />
+    <language key="es_ES" path="es_es.yaml" />
 </languages>
