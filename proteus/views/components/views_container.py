@@ -199,7 +199,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
-        self.addTab(browser, self._translator.text(tab_code_name))
+        self.addTab(
+            browser, self._translator.text(tab_code_name, alternative_text=xslt_name)
+        )
 
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser

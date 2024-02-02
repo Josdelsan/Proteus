@@ -36,6 +36,7 @@ from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 
+
 # --------------------------------------------------------------------------
 # Class: NewViewDialog
 # Description: PyQT6 new view dialog component for the PROTEUS application
@@ -57,9 +58,7 @@ class NewViewDialog(QDialog, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, *args, **kwargs
-    ) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Create properties to store the new document data.
@@ -99,7 +98,9 @@ class NewViewDialog(QDialog, ProteusComponent):
 
         # Add the view names to the combo box
         for view in xls_templates:
-            view_translation: str = self._translator.text(f"xslt_templates.{view}")
+            view_translation: str = self._translator.text(
+                f"xslt_templates.{view}", alternative_text=view
+            )
             view_combo.addItem(view_translation, view)
 
         # Create view message label

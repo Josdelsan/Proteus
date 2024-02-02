@@ -210,9 +210,9 @@ class ContextMenu(QMenu, ProteusComponent):
         self.addAction(self.action_clone_object)
         self.addSeparator()
         # Insert the accepted archetypes clone menus
-        accepted_archetypes: Dict[
-            str, List[Object]
-        ] = self._controller.get_accepted_object_archetypes(selected_item_id)
+        accepted_archetypes: Dict[str, List[Object]] = (
+            self._controller.get_accepted_object_archetypes(selected_item_id)
+        )
         for archetype_class in accepted_archetypes.keys():
             # Create the archetype menu
             archetype_menu: AvailableArchetypesMenu = AvailableArchetypesMenu(
@@ -323,7 +323,7 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
         )
         self.setIcon(icon)
         translated_class_name: str = self._translator.text(
-            f"archetype.class.{self.class_name}"
+            f"archetype.class.{self.class_name}", alternative_text=self.class_name
         )
         self.setTitle(
             self._translator.text(

@@ -136,9 +136,9 @@ class PropertyDialog(QDialog, ProteusComponent):
             self.project_dialog = True
 
         # Get the object's properties dictionary
-        properties_form_dict: Dict[
-            str, Union[Property, Trace]
-        ] = self.object.properties.copy()
+        properties_form_dict: Dict[str, Union[Property, Trace]] = (
+            self.object.properties.copy()
+        )
 
         # If the object is Object class, include traces in the properties
         if not self.project_dialog:
@@ -182,7 +182,9 @@ class PropertyDialog(QDialog, ProteusComponent):
         prop: Property = None
         for prop in properties_form_dict.values():
             # Get the category for the property (or trace)
-            category: str = self._translator.text(f"archetype.category.{prop.category}")
+            category: str = self._translator.text(
+                f"archetype.category.{prop.category}", alternative_text=prop.category
+            )
 
             # Create a QWidget for the category if it doesn't exist
             if category not in category_widgets:

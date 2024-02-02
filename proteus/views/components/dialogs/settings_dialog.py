@@ -173,7 +173,10 @@ class SettingsDialog(QDialog, ProteusComponent):
 
         for lang in languages:
             self.language_combo.addItem(
-                self._translator.text(f"settings.language.{lang}"), lang
+                self._translator.text(
+                    f"settings.language.{lang}", alternative_text=lang
+                ),
+                lang,
             )
 
         # Set the current language

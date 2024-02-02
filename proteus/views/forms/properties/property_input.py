@@ -123,7 +123,12 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
 
         # Set property tooltip ---------------------------
         if self.property.tooltip and self.property.tooltip != "":
-            self.setToolTip(self._translator.text(f"archetype.tooltip.{self.property.tooltip}"))
+            self.setToolTip(
+                self._translator.text(
+                    f"archetype.tooltip.{self.property.tooltip}",
+                    alternative_text=self.property.tooltip,
+                )
+            )
 
         # Input layout -----------------------------------
         # Input layout is an horizontal layout that contains the input
@@ -204,9 +209,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         if isinstance(self.property, Property):
             required: bool = self.property.required
             if required:
-                self.input.setStyleSheet(
-                    "border: 1px solid; border-radius: 3px;"
-                )
+                self.input.setStyleSheet("border: 1px solid; border-radius: 3px;")
 
     # ======================================================================
     # Public methods

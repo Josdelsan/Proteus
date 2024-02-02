@@ -240,9 +240,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
     add_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = (
-        Config().get_icon(ProteusIconType.MainMenu, "new-file")
-    )
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "new-file")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     add_button.setIcon(button_icon)
@@ -274,9 +272,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     delete_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = (
-        Config().get_icon(ProteusIconType.MainMenu, "delete-file")
-    )
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "delete-file")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     delete_button.setIcon(button_icon)
@@ -305,9 +301,7 @@ def settings_button(parent: QWidget) -> QToolButton:
     settings_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = (
-        Config().get_icon(ProteusIconType.MainMenu, "settings")
-    )
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "settings")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     settings_button.setIcon(button_icon)
@@ -323,6 +317,7 @@ def settings_button(parent: QWidget) -> QToolButton:
 
     return settings_button
 
+
 def export_button(parent: QWidget) -> QToolButton:
     """
     Creates a export button adapted to the PROTEUS application style.
@@ -332,9 +327,7 @@ def export_button(parent: QWidget) -> QToolButton:
     export_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = (
-        Config().get_icon(ProteusIconType.MainMenu, "export")
-    )
+    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "export")
     button_icon = QIcon()
     button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
     export_button.setIcon(button_icon)
@@ -352,6 +345,7 @@ def export_button(parent: QWidget) -> QToolButton:
     export_button.setEnabled(False)
 
     return export_button
+
 
 def info_button(parent: QWidget) -> QToolButton:
     """
@@ -413,6 +407,7 @@ def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
 # Classes
 # --------------------------------------------------------------------------
 
+
 # NOTE: ArchetypesMenuDropdown is set as menu for each button in the
 # MainMenu component when the application is initialized.
 class ArchetypeMenuButton(QToolButton):
@@ -432,10 +427,8 @@ class ArchetypeMenuButton(QToolButton):
         archetype_icon = QIcon()
 
         # Build icon path from object_class or use default icon
-        icon_path: Path = (
-            Config().get_icon(ProteusIconType.Archetype,object_class)
-        )
-        
+        icon_path: Path = Config().get_icon(ProteusIconType.Archetype, object_class)
+
         # Add icon
         archetype_icon.addFile(icon_path.as_posix(), QSize(32, 32))
         self.setIcon(archetype_icon)
@@ -443,7 +436,9 @@ class ArchetypeMenuButton(QToolButton):
 
         # Set tooltip
         name_code = f"archetype.class.{object_class}"
-        self.setToolTip(Translator().text(f"{name_code}"))
+        self.setToolTip(
+            Translator().text(f"{name_code}", alternative_text=object_class)
+        )
 
         # Set text
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)

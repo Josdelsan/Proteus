@@ -6,11 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-# NOTE: If you want to add a custom translation for a language code, you must
-# introduce a new entry. The key must be the language code lowercase and the
-# value must be the language name (in English for this file).
 
-settings:
-  language:
-    es_es: "Spanish (Spain)"
-    en_us: "English (United States)"
+settings.language.es_es: "Spanish (Spain)"
+settings.language.en_us: "English (United States)"

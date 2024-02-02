@@ -7,6 +7,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-xslt_templates:
-  default: "Principal"
-  figures: "Figuras del proyecto"
+
+xslt_templates.default: "Principal"
+xslt_templates.figures: "Figuras del proyecto"

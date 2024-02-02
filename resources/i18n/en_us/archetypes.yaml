@@ -6,41 +6,30 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-archetype:
-  # -----------------------------------------------------------------------
-  # Archetype clone prefix
-  # -----------------------------------------------------------------------
-  copy-of: "Copy of"
 
-  # -----------------------------------------------------------------------
-  # Archetype classes
-  # -----------------------------------------------------------------------
-  class:
-    ':proteus-any': "Any class"
-    ':proteus-document': "Document"
-  
-  # -----------------------------------------------------------------------
-  # Archetype categories
-  # -----------------------------------------------------------------------
-  category:
-    general: "General"
-    dependencies: "Dependencies"
-  
-  # -----------------------------------------------------------------------
-  # Archetypes enum choices
-  # -----------------------------------------------------------------------
-  enum_choices:
-  
-  # -----------------------------------------------------------------------
-  # Archetype tooltips
-  # -----------------------------------------------------------------------
-  tooltip:
+# -----------------------------------------------------------------------
+# Archetype clone prefix
+# -----------------------------------------------------------------------
+archetype.copy-of: "Copy of"
 
-  # -----------------------------------------------------------------------
-  # Archetype property names
-  # -----------------------------------------------------------------------
-  prop_name:
-    ':proteus-name': "Name"
-    ':proteus-date': "Date"
-    ':proteus-code': "Code"
-    ':proteus-acronym': "Acronym"
+# -----------------------------------------------------------------------
+# Archetype classes
+# -----------------------------------------------------------------------
+'archetype.class.:proteus-any': "Any class"
+'archetype.class.:proteus-document': "Document"
+'archetype.class.:proteus-none': "None class"
+
+# -----------------------------------------------------------------------
+# Archetype categories
+# -----------------------------------------------------------------------
+archetype.category.general: "General"
+archetype.category.dependencies: "Dependencies"
+
+
+# -----------------------------------------------------------------------
+# Archetype property names
+# -----------------------------------------------------------------------
+'archetype.prop_name.:proteus-name': "Name"
+'archetype.prop_name.:proteus-date': "Date"
+'archetype.prop_name.:proteus-code': "Code"
+'archetype.prop_name.:proteus-acronym': "Acronym"

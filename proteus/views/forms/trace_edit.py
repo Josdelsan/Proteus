@@ -440,13 +440,15 @@ class TraceEditDialog(QDialog):
             Translator().text("trace_edit_dialog.class_selector_button.text")
         )
 
-
         # Create dropdown menu
         class_selector_menu: QMenu = QMenu()
         class_selector_button.setMenu(class_selector_menu)
         for _class in classes_list:
             # Create action
-            action: QAction = QAction(Translator().text(f"archetype.class.{_class}"), self)
+            action: QAction = QAction(
+                Translator().text(f"archetype.class.{_class}", alternative_text=_class),
+                self,
+            )
             action.setCheckable(True)
             action.setChecked(True)
 
@@ -462,14 +464,12 @@ class TraceEditDialog(QDialog):
         # -----------------------
         # Name filter
         # -----------------------
-            
+
         self.name_filter_widget = QLineEdit()
         self.name_filter_widget.setPlaceholderText(
             Translator().text("trace_edit_dialog.name_filter_widget.placeholder_text")
         )
-        self.name_filter_widget.textChanged.connect(
-            self.update_on_name_filter_change
-        )
+        self.name_filter_widget.textChanged.connect(self.update_on_name_filter_change)
 
         # -----------------------
         # Buttonbox and layout
@@ -612,7 +612,9 @@ class TraceEditDialog(QDialog):
                 False
             )
         else:
-            self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
+            self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(
+                True
+            )
 
     # ----------------------------------------------------------------------
     # Method     : accept

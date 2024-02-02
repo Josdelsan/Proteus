@@ -52,22 +52,8 @@ class Translator:
     Provides methods to get the current translation for a given key.
 
     Translations are stored in i18n directory. Each language has its own
-    directory with the translations files. The translations files are yaml files.
-
-    Translations are stored in nested dictionaries. When the yaml file contains
-    multiple levels, they are treated as 'context' for the defined translations.
-    Contexts are not returned if they are defined in the yaml file but the
-    translation is not found.
-
-    Example without indentation(context):
-    - (YAML file content | archetype.class.paragraph: "paragraph")
-    - Translator().text("archetype.class.paragraph") -> "paragraph"
-    - Translator().text("archetype.class.section") -> "archetype.class.section"
-
-    Example with indentation(context), the context are defined in the yaml file:
-    - (YAML file content | archetype: class: paragraph: "paragraph")
-    - Translator().text("archetype.class.paragraph") -> "paragraph"
-    - Translator().text("archetype.class.section") -> "section"
+    directory with the translations files or file. The translations files
+    are yaml files.
     """
 
     # Singleton instance
@@ -117,7 +103,7 @@ class Translator:
         self._available_languages = None
 
         # Translations variable
-        self._translations: Dict[str, dict] = {}
+        self._translations: Dict[str, str] = {}
 
         # Load system translations ------------------------------
         system_lang_file: Path = self.config.i18n_directory / LANGUAGE_CONFIG_FILE
@@ -304,74 +290,8 @@ class Translator:
                 translations: dict = yaml.safe_load(f)
 
                 # Update the translations dictionary
-                self._translations = self._recursive_translation_update(
-                    self._translations, translations
-                )
+                self._translations.update(translations)
 
-    # --------------------------------------------------------------------------
-    # Method: _recursive_translation_update
-    # Description: Recursively updates the translations dictionary with the
-    #              given translations.
-    # Date: 02/02/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def _recursive_translation_update(
-        self,
-        stored_translations: dict,
-        new_translations: dict,
-        previous_context: str = "",
-    ) -> Dict:
-        """
-        Update the stored_translations dictionary with the new_translations
-        dictionary. It uses recursion to update the nested dictionaries avoiding
-        overwriting the whole dictionary.
-
-        :param stored_translations: Dictionary with the stored translations.
-        :param new_translations: Dictionary with the new translations to update.
-        :return: Dictionary with the updated translations.
-        """
-        # Copy so the original dictionary is not modified
-        updated_translations: dict = stored_translations.copy()
-
-        context: str  # Dict key, translation context
-        value: dict | str  # Dict value, translation value str or another context dict
-
-        # Iterate over the new translations to check if they should be updated
-        for context, value in new_translations.items():
-            # If context is not in the stored_translations, it can be directly added and return
-            if context in stored_translations:
-                
-                context_value: str | dict = stored_translations[context]
-                # If the context value is None, it means that it is a leaf node and it can be updated
-                if context_value is None:
-                    updated_translations[context] = value
-
-                # If the value type do not match, it means that there might be an error in the file.
-                # Contexts must be dictionaries and translations must be strings.
-                elif isinstance(value, type(context_value)):
-                    # For nested dictionaries, call the function recursively
-                    if isinstance(value, dict):
-                        updated_value = self._recursive_translation_update(
-                            context_value, value, f"{previous_context}.{context}"
-                        )
-                        updated_translations[context] = updated_value
-
-                    # For strings(leaf node), update the value
-                    else:
-                        updated_translations[context] = value
-
-                # Log type mismatch to check for inconsistencies in the translations files
-                else:
-                    log.warning(
-                        f"Type mismatch for translation '{previous_context}.{context}'."
-                        f"Data stored in the context '{context}' will not be overwritten with new value."
-                        f"Context type: {type(stored_translations[context])}, new value type: {type(value)}"
-                    )
-            else:
-                updated_translations[context] = value
-
-        return updated_translations
 
     # ==========================================================================
     # Public methods
@@ -384,60 +304,38 @@ class Translator:
     # Version: 0.2
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def text(self, key: str, *args) -> str:
+    def text(self, key: str, *args, alternative_text: str = None) -> str:
         """
         Returns the translation found for the given key. If no translation is
         found, it returns the key without the contexts found in the key.
 
         If there are arguments, they are formatted in the translation.
+        Key is processed to lowercase and replace spaces with underscores.
 
         :param key: Key to find the translation.
         :param args: Arguments to format the translation.
+        :param alternative_text: Text to return if no translation is found.
         """
-        final_translation: str = key
-
-        current_context_dict: dict = self._translations
+        # Check type of key
+        assert isinstance(key, str), f"Language code key must be string type '{key}'"
 
         # Preprocess the key
-        proccesed_key: str = key.lower().replace(" ", "_")
+        text_code: str = key.lower().replace(" ", "_")
 
-        # Check if the key is in the translations dictionary
-        if proccesed_key in self._translations:
-            final_translation = self._translations[proccesed_key]
-        else:
-            # If the key is not found, iterate splitting the key by the dots
-            # and check if the key is in the translations dictionary
-            dots_number: int = key.count(".")
-            acumulated_context: str = (
-                ""  # Used to restore the original key if no translation is found
-            )
-            while range(0, dots_number):
-                key_parts: List[str] = proccesed_key.split(".", 1)
-
-                # If list len is 1, it means that there are no more contexts
-                # (no dots)
-                context: str = key_parts[0]
-                if len(key_parts) == 1:
-                    proccesed_key = context
-                else:
-                    proccesed_key = key_parts[1]
-
-                if context in current_context_dict:
-                    acumulated_context += f"{context}."
-                    # If the context is a dictionary, update the current_context_dict
-                    if isinstance(current_context_dict[context], dict):
-                        current_context_dict = current_context_dict[context]
-                    # If the content is not a dictionary, it is the final translation
-                    else:
-                        final_translation = current_context_dict[context]
-                        break
-                else:
-                    # If the translation is not found, remove the found contexts
-                    final_translation = key.removeprefix(acumulated_context)
-                    break
+        # Get the translation for the given key
+        translation: str = ""
+        try:
+            translation = self._translations[text_code]
+        except KeyError:
+            # If translation not found return the key itself or the alternative text
+            if alternative_text:
+                translation = alternative_text
+            else:
+                translation = key
+            log.warning(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
 
         # Check if there are arguments to format the translation
         if args:
-            final_translation = final_translation.format(*args)
-
-        return final_translation
+            translation = translation.format(*args)
+        
+        return translation

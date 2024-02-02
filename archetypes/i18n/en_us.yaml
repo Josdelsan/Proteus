@@ -6,106 +6,101 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-archetype:
-  # -----------------------------------------------------------------------
-  # Archetype classes
-  # -----------------------------------------------------------------------
-  class:
-    use-case-step: "Use case step"
-    specific-data: "Specific data"
-    paragraph: "Paragraph"
-    section: "Section"
-    graphic-file: "Graphic file"
-    external-resource: "Ext. resource"
-    use-case: "Use case"
-    actor: "System actor"
-    information-requirement: "Information"
-    functional-requirement: "Functional"
-    non-functional-requirement: "Non-functional"
-    constraint: "Constraint"
-    objective: "Objective"
-    organization: "Organization"
-    stakeholder: "Stakeholder"
-    meeting: "Meeting"
-    archetype-link: "Symbolic link"
+
+# -----------------------------------------------------------------------
+# Archetype classes
+# -----------------------------------------------------------------------
+archetype.class.use-case-step: "Use case step"
+archetype.class.specific-data: "Specific data"
+archetype.class.paragraph: "Paragraph"
+archetype.class.section: "Section"
+archetype.class.graphic-file: "Graphic file"
+archetype.class.external-resource: "Ext. resource"
+archetype.class.use-case: "Use case"
+archetype.class.actor: "System actor"
+archetype.class.information-requirement: "Information"
+archetype.class.functional-requirement: "Functional"
+archetype.class.non-functional-requirement: "Non-functional"
+archetype.class.constraint: "Constraint"
+archetype.class.objective: "Objective"
+archetype.class.organization: "Organization"
+archetype.class.stakeholder: "Stakeholder"
+archetype.class.meeting: "Meeting"
+archetype.class.archetype-link: "Symbolic link"
   
-  # -----------------------------------------------------------------------
-  # Archetype categories
-  # -----------------------------------------------------------------------
-  category:
-    general: "General"
-    details: "Details"
-    detail: "Detail"
-    comments: "Comments"
-    conditions: "Conditions"
-    priority: "Priority"
-    description: "Description"
-    dependencies: "Dependencies"
+# -----------------------------------------------------------------------
+# Archetype categories
+# -----------------------------------------------------------------------
+archetype.category.general: "General"
+archetype.category.details: "Details"
+archetype.category.detail: "Detail"
+archetype.category.comments: "Comments"
+archetype.category.conditions: "Conditions"
+archetype.category.priority: "Priority"
+archetype.category.description: "Description"
+archetype.category.dependencies: "Dependencies"
   
-  # -----------------------------------------------------------------------
-  # Archetypes enum choices
-  # -----------------------------------------------------------------------
-  enum_choices:
-    nd: "Not defined"
-    developer: "Developer"
-    user: "User"
-    customer: "Customer"
-    vital: "Vital"
-    important: "Important"
-    immediately: "Immediately"
-    pressure: "Pressure"
-    developing: "Developing"
-    pending: "Pending"
-    high: "High"
-    medium: "Medium"
-    low: "Low"
+# -----------------------------------------------------------------------
+# Archetypes enum choices
+# -----------------------------------------------------------------------
+archetype.enum_choices.nd: "Not defined"
+archetype.enum_choices.developer: "Developer"
+archetype.enum_choices.user: "User"
+archetype.enum_choices.customer: "Customer"
+archetype.enum_choices.vital: "Vital"
+archetype.enum_choices.important: "Important"
+archetype.enum_choices.immediately: "Immediately"
+archetype.enum_choices.pressure: "Pressure"
+archetype.enum_choices.developing: "Developing"
+archetype.enum_choices.pending: "Pending"
+archetype.enum_choices.high: "High"
+archetype.enum_choices.medium: "Medium"
+archetype.enum_choices.low: "Low"
   
-  # -----------------------------------------------------------------------
-  # Archetype tooltips
-  # -----------------------------------------------------------------------
-  tooltip:
-    is-appendix: "Check if it is an appendix."
-    is-glossary: "Check if it is a glossary item."
-    file-info: "Select a graphic file from your local system to copy it to the assets folder."
-    width-info: "Percentage of the page width that the image will occupy."
+# -----------------------------------------------------------------------
+# Archetype tooltips
+# -----------------------------------------------------------------------
+archetype.tooltip.is-appendix: "Check if it is an appendix."
+archetype.tooltip.is-glossary: "Check if it is a glossary item."
+archetype.tooltip.file-info: "Select a graphic file from your local system to copy it to the assets folder."
+archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
   
-  # -----------------------------------------------------------------------
-  # Archetype property names
-  # -----------------------------------------------------------------------
-  prop_name:
-    name: "Name"
-    version: "Version"
-    role: "Role"
-    date: "Date"
-    author: "Author"
-    comments: "Comments"
-    description: "Description"
-    specificdata: "Specific data"
-    precondition: "Precondition"
-    postcondition: "Postcondition"
-    text: "Text"
-    url: "URL"
-    file: "File"
-    created-by: "Authors"
-    dependencies: "Dependencies"
-    is-appendix: "Appendix"
-    is-glossary: "Glossary item"
-    address: "Address"
-    phone-number: "Phone number"
-    fax: "Fax"
-    category: "Category"
-    organization: "Organization"
-    attenders: "Attenders"
-    time: "Time"
-    place: "Place"
-    results: "Results"
-    importance: "Importance"
-    urgency: "Urgency"
-    development-status: "Status"
-    stability: "Stability"
-    source: "Source"
-    works-for: "Works for"
-    prepared-by: "Prepared by"
-    prepared-for: "Prepared for"
-    width: "Width (%)"
-    link: "Link"
+# -----------------------------------------------------------------------
+# Archetype property names
+# -----------------------------------------------------------------------
+archetype.prop_name.name: "Name"
+archetype.prop_name.version: "Version"
+archetype.prop_name.role: "Role"
+archetype.prop_name.date: "Date"
+archetype.prop_name.author: "Author"
+archetype.prop_name.comments: "Comments"
+archetype.prop_name.description: "Description"
+archetype.prop_name.specificdata: "Specific data"
+archetype.prop_name.precondition: "Precondition"
+archetype.prop_name.postcondition: "Postcondition"
+archetype.prop_name.text: "Text"
+archetype.prop_name.url: "URL"
+archetype.prop_name.file: "File"
+archetype.prop_name.created-by: "Authors"
+archetype.prop_name.dependencies: "Dependencies"
+archetype.prop_name.is-appendix: "Appendix"
+archetype.prop_name.is-glossary: "Glossary item"
+archetype.prop_name.address: "Address"
+archetype.prop_name.phone-number: "Phone number"
+archetype.prop_name.fax: "Fax"
+archetype.prop_name.category: "Category"
+archetype.prop_name.organization: "Organization"
+archetype.prop_name.attenders: "Attenders"
+archetype.prop_name.time: "Time"
+archetype.prop_name.place: "Place"
+archetype.prop_name.results: "Results"
+archetype.prop_name.importance: "Importance"
+archetype.prop_name.urgency: "Urgency"
+archetype.prop_name.development-status: "Status"
+archetype.prop_name.stability: "Stability"
+archetype.prop_name.source: "Source"
+archetype.prop_name.works-for: "Works for"
+archetype.prop_name.prepared-by: "Prepared by"
+archetype.prop_name.prepared-for: "Prepared for"
+archetype.prop_name.width: "Width (%)"
+archetype.prop_name.link: "Link"

@@ -147,7 +147,9 @@ class PropertyInputFactory:
         """
         # Create the label
         label = QLabel()
-        name = Translator().text(f"archetype.prop_name.{property.name}")
+        name = Translator().text(
+            f"archetype.prop_name.{property.name}", alternative_text=property.name
+        )
         label.setWordWrap(True)
 
         # Check if the property is required

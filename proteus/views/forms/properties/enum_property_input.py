@@ -70,10 +70,10 @@ class EnumPropertyInput(PropertyInput):
         Checks if the current data in valid. If the data is not valid it
         may indicate that the combobox was not initialized correctly.
         """
-        
+
         if self.get_value() is None:
             return "property_input.validator.error.required"
-        
+
         return None
 
     # ----------------------------------------------------------------------
@@ -92,7 +92,12 @@ class EnumPropertyInput(PropertyInput):
         choices = property.get_choices_as_set()
         # Add choices translated
         for choice in choices:
-            input.addItem(Translator().text(choice), choice)
+            input.addItem(
+                Translator().text(
+                    f"archetype.enum_choices.{choice}", alternative_text=choice
+                ),
+                choice,
+            )
         # Set current choice
         input.setCurrentText(Translator().text(property.value))
         return input

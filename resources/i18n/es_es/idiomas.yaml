@@ -6,7 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-settings:
-  language:
-    es_es: "Español (España)"
-    en_us: "Inglés (Estados Unidos)"
+
+settings.language.es_es: "Español (España)"
+settings.language.en_us: "Inglés (Estados Unidos)"

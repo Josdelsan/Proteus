@@ -15,12 +15,6 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import (
-    QCheckBox,
-)
-from PyQt6.QtCore import (
-    Qt,
-)
 
 # --------------------------------------------------------------------------
 # Project specific imports
