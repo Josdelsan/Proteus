@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
     id="use-case-step"
-    classes="software-requirement use-case-step"
+    classes="use-case-step"
     acceptedChildren=":Proteus-none"
     acceptedParents="use-case"
 >

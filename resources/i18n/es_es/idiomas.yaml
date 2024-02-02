@@ -1,0 +1,12 @@
+# ==========================================================================
+# File: idiomas.yaml
+# Description: Traducciones de los idiomas disponibles en la aplicación
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+settings:
+  language:
+    es_es: "Español (España)"
+    en_us: "Inglés (Estados Unidos)"

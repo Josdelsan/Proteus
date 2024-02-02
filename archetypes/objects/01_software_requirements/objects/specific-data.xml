@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
     id="specific-data"
-    classes="software-requirement information-requirement specific-data"
+    classes="specific-data"
     acceptedChildren=":Proteus-none"
     acceptedParents="information-requirement"
 >

@@ -194,7 +194,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         # Build the tab code name
         # NOTE: The tab code name is used to access the tab name internationalization
-        tab_code_name: str = f"document_render.view.{xslt_name}"
+        tab_code_name: str = f"xslt_templates.{xslt_name}"
 
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,

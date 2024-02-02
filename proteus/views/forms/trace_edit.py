@@ -19,10 +19,11 @@ from typing import List
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtWidgets import (
     QWidget,
     QPushButton,
+    QToolButton,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
@@ -30,13 +31,21 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QSizePolicy,
+    QMenu,
+    QLineEdit,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag, PROTEUS_NAME, PROTEUS_CODE
+from proteus.model import (
+    ProteusID,
+    ProteusClassTag,
+    PROTEUS_NAME,
+    PROTEUS_CODE,
+    PROTEUS_ANY,
+)
 from proteus.model.object import Object
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
@@ -120,7 +129,9 @@ class TraceEdit(QWidget):
         # Create a QListWidget
         self.list_widget = QListWidget(self)
         self.list_widget.setMovement(QListWidget.Movement.Static)
-        self.list_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.list_widget.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
+        )
 
         # Reimplement sizeHint to set a minimun height of 80px
         # NOTE: Recomended in https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qwidget.html
@@ -135,7 +146,9 @@ class TraceEdit(QWidget):
 
         self.remove_button = QPushButton()
         self.remove_button.setEnabled(False)
-        remove_icon_path: Path = Config().get_icon(ProteusIconType.App, "remove_trace_icon")
+        remove_icon_path: Path = Config().get_icon(
+            ProteusIconType.App, "remove_trace_icon"
+        )
         remove_button_icon = QIcon()
         remove_button_icon.addFile(remove_icon_path.as_posix())
         self.remove_button.setIcon(remove_button_icon)
@@ -298,7 +311,6 @@ class TraceEditDialog(QDialog):
 
     TODO: Hide the object itself from the list of available objects and
     allow the user to select it by clicking on a checkbox.
-    TODO: Add a search bar to filter objects by name.
     """
 
     # ----------------------------------------------------------------------
@@ -341,12 +353,20 @@ class TraceEditDialog(QDialog):
 
         # Initialize widgets
         self.list_widget: QListWidget = None
+        self.button_box: QDialogButtonBox = None
+        self.name_filter_widget: QLineEdit = None
 
         # Initialize variables
         self.selected_object: ProteusID = None
+        self.selected_classes_filter: set[ProteusClassTag] = set()
+        self.name_filter: str = ""
 
         # Create component
         self.create_component()
+
+    # ======================================================================
+    # Dialog methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -359,6 +379,10 @@ class TraceEditDialog(QDialog):
         """
         Creates the dialog component.
         """
+        # -----------------------
+        # Dialog general config
+        # -----------------------
+
         # Set dialog title
         title: str = Translator().text("trace_edit_dialog.title")
         self.setWindowTitle(title)
@@ -367,7 +391,11 @@ class TraceEditDialog(QDialog):
         proteus_icon: Path = Config().get_icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
-        # Create a QListWidget
+        # -----------------------
+        # List widget setup
+        # -----------------------
+
+        # Create QListWidget to display selectable objects
         self.list_widget = QListWidget(self)
         self.list_widget.setMovement(QListWidget.Movement.Static)
         self.list_widget.setMinimumHeight(100)
@@ -377,7 +405,8 @@ class TraceEditDialog(QDialog):
             classes=self.accepted_classes
         )
 
-        # Populate the QListWidget
+        # Populate the QListWidget and store found object classes
+        classes_set = set()
         object: Object
         for object in objects:
             # Skip objects that are already traced
@@ -391,17 +420,75 @@ class TraceEditDialog(QDialog):
             # Add item to the QListWidget
             self.list_widget.addItem(object_item)
 
+            # Add object classes to the set
+            classes_set.update(object.classes)
+
+        # -----------------------
+        # Class filter
+        # -----------------------
+
+        # Create a class list ordered alphabetically and insert :Proteus-any first
+        classes_list: List[ProteusClassTag] = list(classes_set)
+        classes_list.sort()
+        classes_list.insert(0, PROTEUS_ANY)
+
+        # Create toolbutton with dropdown menu (class filter)
+        class_selector_button: QToolButton = QToolButton()
+        class_selector_button.setMinimumWidth(80)
+        class_selector_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        class_selector_button.setText(
+            Translator().text("trace_edit_dialog.class_selector_button.text")
+        )
+
+
+        # Create dropdown menu
+        class_selector_menu: QMenu = QMenu()
+        class_selector_button.setMenu(class_selector_menu)
+        for _class in classes_list:
+            # Create action
+            action: QAction = QAction(Translator().text(f"archetype.class.{_class}"), self)
+            action.setCheckable(True)
+            action.setChecked(True)
+
+            # Add action to the menu and list of selected classes
+            class_selector_menu.addAction(action)
+            self.selected_classes_filter.add(_class)
+
+            # Call update filter variable method when action is triggered
+            action.triggered.connect(
+                lambda checked, _class=_class: self.update_class_filter(_class, checked)
+            )
+
+        # -----------------------
+        # Name filter
+        # -----------------------
+            
+        self.name_filter_widget = QLineEdit()
+        self.name_filter_widget.setPlaceholderText(
+            Translator().text("trace_edit_dialog.name_filter_widget.placeholder_text")
+        )
+        self.name_filter_widget.textChanged.connect(
+            self.update_on_name_filter_change
+        )
+
+        # -----------------------
+        # Buttonbox and layout
+        # -----------------------
+
         # Create accept and reject buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save
             | QDialogButtonBox.StandardButton.Cancel
         )
 
-        # Disable accept button (until an item is selected)
-        self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+        # Filter layout
+        filter_layout = QHBoxLayout()
+        filter_layout.addWidget(class_selector_button)
+        filter_layout.addWidget(self.name_filter_widget)
 
         # Create a layout for the QListWidget
         main_layout = QVBoxLayout()
+        main_layout.addLayout(filter_layout)
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(self.button_box)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -413,6 +500,101 @@ class TraceEditDialog(QDialog):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
+        # Set none as selected object at the beginning
+        self.list_widget.setCurrentItem(None)
+
+    # ======================================================================
+    # Dialog slots methods (connected to the component signals and helpers)
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_class_filter
+    # Description: Updates the class filter variable.
+    # Date       : 01/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_class_filter(self, _class: ProteusClassTag, checked: bool) -> None:
+        """
+        Updates the class filter variable.
+        """
+        # Update the class filter variable
+        if checked:
+            self.selected_classes_filter.add(_class)
+        else:
+            self.selected_classes_filter.remove(_class)
+
+        # Update the QListWidget items
+        self.update_list_widget()
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_name_filter_change
+    # Description: Updates the name filter variable.
+    # Date       : 01/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_name_filter_change(self, text: str) -> None:
+        """
+        Updates the name filter variable.
+        """
+        # Update the name filter variable
+        self.name_filter = text
+
+        # Update the QListWidget items
+        self.update_list_widget()
+
+    # ----------------------------------------------------------------------
+    # Method     : update_list_widget
+    # Description: Updates the QListWidget items.
+    # Date       : 01/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_list_widget(self) -> None:
+        """
+        Updates the QListWidget items.
+        """
+        # Unselect the current item
+        self.list_widget.setCurrentItem(None)
+
+        # Iterate over the QListWidget items and hide the ones
+        # that do not match the class filter
+        for i in range(self.list_widget.count()):
+            # Get the item
+            item: QListWidgetItem = self.list_widget.item(i)
+
+            # Get the object
+            object: Object = self.controller.get_element(
+                element_id=item.data(Qt.ItemDataRole.UserRole)
+            )
+
+            # Get list widget item text lowercased
+            object_name: str = item.text().lower()
+
+            # Check if the object matches the name filter
+            if self.name_filter.lower() in object_name:
+                # Check if the object matches the class filter
+                # Condition 1: :Proteus-any is selected
+                if PROTEUS_ANY in self.selected_classes_filter:
+                    item.setHidden(False)
+                    continue
+                # Condition 2: One of the object classes is selected
+                elif any(
+                    object_class in self.selected_classes_filter
+                    for object_class in object.classes
+                ):
+                    item.setHidden(False)
+                    continue
+                # Condition 3: None of the conditions above
+                else:
+                    item.setHidden(True)
+                    continue
+            # No need to check the class filter if the name filter does not match
+            else:
+                item.setHidden(True)
+                continue
+
     # ----------------------------------------------------------------------
     # Method     : enable_accept_button
     # Description: Enables the accept button.
@@ -420,11 +602,17 @@ class TraceEditDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def enable_accept_button(self) -> None:
+    def enable_accept_button(self, index) -> None:
         """
-        Enables the accept button.
+        Enables the accept button when an item is selected. If the item is
+        deselected, the accept button is disabled.
         """
-        self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
+        if index is None:
+            self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(
+                False
+            )
+        else:
+            self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
 
     # ----------------------------------------------------------------------
     # Method     : accept
@@ -460,6 +648,10 @@ class TraceEditDialog(QDialog):
         # Reject the dialog
         super().reject()
 
+    # ======================================================================
+    # Dialog static methods (create and show the form window)
+    # ======================================================================
+
     # ----------------------------------------------------------------------
     # Method     : create_dialog
     # Description: Creates and executes the dialog.
@@ -472,7 +664,7 @@ class TraceEditDialog(QDialog):
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
         targets: List[ProteusID] = [],
-    ) -> List[ProteusID]:
+    ) -> ProteusID:
         """
         Creates and executes the dialog.
         """

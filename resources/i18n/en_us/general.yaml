@@ -1,0 +1,47 @@
+# ==========================================================================
+# File: general.yaml
+# Description: General translations that do not fit into components or
+#              dialogs translations files.
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+
+# ---------------------------------------------------------------------------
+# Property input
+# ---------------------------------------------------------------------------
+
+# Tooltips
+property_input.required_tooltip: "This property is required."
+property_input.inmutable_checkbox_tooltip: "This property is marked as inmutable, uncheck it to modify it at your own risk."
+
+# Validators
+property_input.validator.error.required: "This field is required"
+markdown_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+url_property_input.validator.error.cdata: "URL cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+string_property_input.validator.error.cdata: "Text cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+file_property_input.validator.error.cdata: "File name cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+code_property_input.validator.error.cdata: "Code cannot contain CDATA delimiters '<![CDATA[' or ']]>'"
+float_property_input.validator.error: "This field must be a float number"
+integer_property_input.validator.error: "This field must be an integer number"
+code_property_input.validator.error.prefix: "The prefix cannot be an empty string"
+code_property_input.validator.error.number_type: "The number must be a positive integer"
+code_property_input.validator.error.number_value: "The number must be greater than 0"
+
+# Warning dialog
+property_input.inmutable_property_warning.title: "Warning, inmutable property"
+property_input.inmutable_property_warning.text: "This property is marked as inmutable, modify it at your own risk."
+
+# ---------------------------------------------------------------------------
+# Markdown edit
+# ---------------------------------------------------------------------------
+markdown_edit.preview: "Show preview"
+markdown_edit.edit: "Edit text"
+
+# ---------------------------------------------------------------------------
+# App critical error
+# ---------------------------------------------------------------------------
+app.critical_error.title: "PROTEUS has encountered a critical error"
+app.critical_error.text: "The application will be closed due to a critical error. For more information, check the log file: "
+

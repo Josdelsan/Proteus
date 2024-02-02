@@ -99,7 +99,7 @@ class NewViewDialog(QDialog, ProteusComponent):
 
         # Add the view names to the combo box
         for view in xls_templates:
-            view_translation: str = self._translator.text(f"document_render.view.{view}")
+            view_translation: str = self._translator.text(f"xslt_templates.{view}")
             view_combo.addItem(view_translation, view)
 
         # Create view message label

@@ -147,14 +147,12 @@ class PropertyInputFactory:
         """
         # Create the label
         label = QLabel()
-        name = Translator().text(property.name)
+        name = Translator().text(f"archetype.prop_name.{property.name}")
         label.setWordWrap(True)
 
         # Check if the property is required
         if isinstance(property, Property):
             if property.required:
-                # Get the translation
-                name = Translator().text(property.name)
 
                 # Add the * to the name
                 name = f"{name}*"

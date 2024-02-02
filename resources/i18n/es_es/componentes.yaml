@@ -1,0 +1,96 @@
+# ==========================================================================
+# File: componentes.yaml
+# Description: Traducciones de los componentes de la aplicación Proteus
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+#---------------------------------------------------------------------------
+# MainMenu component
+#---------------------------------------------------------------------------
+# Menu tabs
+main_menu.tab.home.name: "Inicio"
+main_menu.tab.general.name: "General"
+main_menu.tab.software_requirements.name: "Requisitos del software"
+
+# Fixed button groups
+main_menu.button_group.project: "Proyecto"
+main_menu.button_group.document: "Documento"
+main_menu.button_group.action: "Acción"
+main_menu.button_group.application: "Aplicación"
+
+# Archetype button groups
+main_menu.button_group.archetypes.general: "Arquetipo General"
+main_menu.button_group.archetypes.software_requirements: "Arquetipo de Requisito de Software"
+
+# Fixed buttons
+new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"
+new_project_button.tooltip: "Crear nuevo proyecto\nCtrl+N"
+new_project_button.text: "Nuevo"
+
+open_project_button.statustip: "Abrir proyecto existente desde una plantilla de proyecto. Atajo: Ctrl+O"
+open_project_button.tooltip: "Abrir proyecto existente\nCtrl+O"
+open_project_button.text: "Abrir"
+
+save_project_button.statustip: "Guardar todos los cambios del proyecto. Las acciones guardadas no se pueden deshacer. Atajo: Ctrl+S"
+save_project_button.tooltip: "Guardar proyecto\nCtrl+S"
+save_project_button.text: "Guardar"
+
+undo_button.statustip: "Deshacer última acción. Atajo: Ctrl+Z"
+undo_button.tooltip: "Deshacer última acción\nCtrl+Z"
+undo_button.text: "Deshacer"
+
+redo_button.statustip: "Rehacer última acción. Atajo: Ctrl+Y"
+redo_button.tooltip: "Rehacer última acción\nCtrl+Y"
+redo_button.text: "Rehacer"
+
+project_properties_button.statustip: "Mostrar propiedades del proyecto. Atajo: Ctrl+P"
+project_properties_button.tooltip: "Propiedades del proyecto\nCtrl+P"
+project_properties_button.text: "Editar"
+
+add_document_button.statustip: "Agregar documento al proyecto. Atajo: Ctrl+D"
+add_document_button.tooltip: "Agregar documento\nCtrl+D"
+add_document_button.text: "Agregar"
+
+delete_document_button.statustip: "Eliminar documento del proyecto."
+delete_document_button.tooltip: "Eliminar documento actual"
+delete_document_button.text: "Eliminar"
+
+export_button.statustip: "Exportar documento actual a un archivo pdf."
+export_button.tooltip: "Exportar documento actual a un archivo pdf"
+export_button.text: "Exportar"
+
+settings_button.statustip: "Editar configuración de la aplicación"
+settings_button.tooltip: "Editar configuración de la aplicación"
+settings_button.text: "Configuración"
+
+information_button.statustip: "Información sobre la aplicación PROTEUS"
+information_button.tooltip: "Información sobre la aplicación PROTEUS"
+information_button.text: "Acerca de"
+
+# ---------------------------------------------------------------------------
+# Main window
+# ---------------------------------------------------------------------------
+main_window.title: "Aplicación Proteus"
+main_window.exit_dialog.title: "Salir de Proteus sin guardar"
+main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
+main_window.statusbar.text.selected_object: "Objeto seleccionado id [{}] nombre [{}] | Arquetipos aceptados por el objeto {}"
+
+# ---------------------------------------------------------------------------
+# Document render
+# ---------------------------------------------------------------------------
+document_render.external_link: "Enlace externo"
+document_render.external_link.text: "¿Desea abrir el enlace externo al documento en su navegador web? {}"
+
+# ---------------------------------------------------------------------------
+# Document tree
+# ---------------------------------------------------------------------------
+document_tree.menu.action.edit: "Editar"
+document_tree.menu.action.delete: "Eliminar"
+document_tree.menu.action.clone: "Clonar"
+document_tree.menu.action.move_up: "Mover arriba"
+document_tree.menu.action.move_down: "Mover abajo"
+document_tree.menu.action.add_archetype: "Añade {}"
+document_tree.drop_action.message_box.error.title: "Error al mover el objeto"
+document_tree.drop_action.message_box.error.text: "No se pudo mover el objeto a la posición deseada, compruebe que el objeto es acceptado por el objeto destino."

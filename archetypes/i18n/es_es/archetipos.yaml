@@ -1,0 +1,112 @@
+# ==========================================================================
+# File: archetipos.yaml
+# Description: Traducciones de los arquetipos del repositorio
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+archetype:
+  # -----------------------------------------------------------------------
+  # Clases
+  # -----------------------------------------------------------------------
+  class:
+    use-case-step: "Paso de caso de uso"
+    specific-data: "Datos específicos"
+    paragraph: "Párrafo"
+    section: "Sección"
+    actor: "Actor"
+    graphic-file: "Archivo gráfico"
+    use-case: "Caso de uso"
+    external-resource: "Recurso externo"
+    information-requirement: "Información"
+    functional-requirement: "Funcional"
+    non-functional-requirement: "No funcional"
+    constraint: "Restricción"
+    objective: "Objetivo"
+    organization: "Organización"
+    stakeholder: "Parte interesada"
+    meeting: "Reunión"
+    archetype-link: "Enlace simbólico"
+  
+  # -----------------------------------------------------------------------
+  # Categorías
+  # -----------------------------------------------------------------------
+  category:
+    general: "General"
+    details: "Detalles"
+    detail: "Detalle"
+    comments: "Comentarios"
+    conditions: "Condiciones"
+    priority: "Prioridad"
+    description: "Descripción"
+    dependencies: "Dependencias"
+  
+  # -----------------------------------------------------------------------
+  # Opciones de enumerados
+  # -----------------------------------------------------------------------
+  enum_choices:
+    nd: "No definido"
+    developer: "Desarrollador"
+    user: "Usuario"
+    customer: "Cliente"
+    vital: "Vital"
+    important: "Importante"
+    immediately: "Inmediatamente"
+    pressure: "Presión"
+    developing: "Desarrollando"
+    pending: "Pendiente"
+    high: "Alta"
+    medium: "Media"
+    low: "Baja"
+
+  
+  # -----------------------------------------------------------------------
+  # Mensajes de ayuda
+  # -----------------------------------------------------------------------
+  tooltip:
+    is-appendix: "Indica si es un apéndice."
+    is-glossary: "Indica si es un elemento de glosario."
+    file-info: "Seleccione un archivo gráfico de su sistema para copiarlo en la carpeta de recursos 'assets' del proyecto."
+    width-info: "Porcentaje del ancho de la página que ocupará el recurso."
+
+  # -----------------------------------------------------------------------
+  # Nombre de propiedades
+  # -----------------------------------------------------------------------
+  prop_name:
+    name:  "Nombre"
+    version: "Versión"
+    role: "Rol"
+    date: "Fecha"
+    author: "Autor"
+    comments: "Comentarios"
+    description: "Descripción"
+    specificdata: "Datos específicos"
+    precondition: "Precondición"
+    postcondition: "Postcondición"
+    text: "Texto"
+    url: "URL"
+    file: "Archivo"
+    created-by: "Autores"
+    dependencies: "Dependencias"
+    is-appendix: "Apéndice"
+    is-glossary: "Obj glosario"
+    address: "Dirección"
+    phone-number: "Teléfono"
+    fax: "Fax"
+    category: "Categoría"
+    organization: "Organización"
+    attenders: "Asistentes"
+    time: "Hora"
+    place: "Lugar"
+    results: "Resultados"
+    importance: "Importancia"
+    urgency: "Urgencia"
+    development-status: "Estado"
+    stability: "Estabilidad"
+    source: "Fuente"
+    works-for: "Trabaja para"
+    prepared-by: "Preparado por"
+    prepared-for: "Preparado para"
+    width: "Ancho (%)"
+    link: "Enlace"

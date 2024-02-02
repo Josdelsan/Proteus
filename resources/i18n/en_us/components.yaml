@@ -1,0 +1,96 @@
+# ==========================================================================
+# File: components.yaml
+# Description: Proteus application components related translations
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+#---------------------------------------------------------------------------
+# MainMenu component
+#---------------------------------------------------------------------------
+# Menu tabs
+main_menu.tab.home.name: "Home"
+main_menu.tab.general.name: "General"
+main_menu.tab.software_requirements.name: "Software requirements"
+
+# Fixed button groups
+main_menu.button_group.project: "Project"
+main_menu.button_group.document: "Document"
+main_menu.button_group.action: "Action"
+main_menu.button_group.application: "Application"
+
+# Archetype button groups
+main_menu.button_group.archetypes.general: "General Arquetype"
+main_menu.button_group.archetypes.software_requirements: "Software Requirement Arquetype"
+
+# Fixed buttons
+new_project_button.statustip: "Create new project from a project template. Shortcut: Ctrl+N"
+new_project_button.tooltip: "Create new project\nCtrl+N"
+new_project_button.text: "New"
+
+open_project_button.statustip: "Open existing project from a project template. Shortcut: Ctrl+O"
+open_project_button.tooltip: "Open existing project\nCtrl+O"
+open_project_button.text: "Open"
+
+save_project_button.statustip: "Save all project changes. Saved actions cannot be reverted. Shortcut: Ctrl+S"
+save_project_button.tooltip: "Save project\nCtrl+S"
+save_project_button.text: "Save"
+
+undo_button.statustip: "Undo last action. Shortcut: Ctrl+Z"
+undo_button.tooltip: "Undo last action\nCtrl+Z"
+undo_button.text: "Undo"
+
+redo_button.statustip: "Redo last action. Shortcut: Ctrl+Y"
+redo_button.tooltip: "Redo last action\nCtrl+Y"
+redo_button.text: "Redo"
+
+project_properties_button.statustip: "Show project properties. Shortcut: Ctrl+P"
+project_properties_button.tooltip: "Project properties\nCtrl+P"
+project_properties_button.text: "Edit"
+
+add_document_button.statustip: "Add document to the project. Shortcut: Ctrl+D"
+add_document_button.tooltip: "Add document\nCtrl+D"
+add_document_button.text: "Add"
+
+delete_document_button.statustip: "Delete document from project."
+delete_document_button.tooltip: "Delete current document"
+delete_document_button.text: "Delete"
+
+export_button.statustip: "Export current document to pdf file."
+export_button.tooltip: "Export current document to pdf file"
+export_button.text: "Export"
+
+settings_button.statustip: "Edit application settings"
+settings_button.tooltip: "Edit application settings"
+settings_button.text: "Settings"
+
+information_button.statustip: "Information about the PROTEUS application"
+information_button.tooltip: "Information about the PROTEUS application"
+information_button.text: "About"
+
+# ---------------------------------------------------------------------------
+# Main window
+# ---------------------------------------------------------------------------
+main_window.title: "Proteus application"
+main_window.exit_dialog.title: "Exit Proteus without saving"
+main_window.exit_dialog.text: "Do you want to save changes before exiting Proteus?"
+main_window.statusbar.text.selected_object: "Current selected object id [{}] name [{}] | Accepted archetypes by the object {}"
+
+# ---------------------------------------------------------------------------
+# Document render
+# ---------------------------------------------------------------------------
+document_render.external_link: "Open external link"
+document_render.external_link.text: "An external link has been clicked. Do you want to open it in your browser? {}"
+
+# ---------------------------------------------------------------------------
+# Document tree
+# ---------------------------------------------------------------------------
+document_tree.menu.action.edit: "Edit"
+document_tree.menu.action.delete: "Delete"
+document_tree.menu.action.clone: "Clone"
+document_tree.menu.action.move_up: "Move up"
+document_tree.menu.action.move_down: "Move down"
+document_tree.menu.action.add_archetype: "Add {}"
+document_tree.drop_action.message_box.error.title: "Error moving object"
+document_tree.drop_action.message_box.error.text: "The object cannot be moved to the selected position, check that the object is accepted by the target object."

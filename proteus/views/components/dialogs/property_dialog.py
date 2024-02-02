@@ -182,7 +182,7 @@ class PropertyDialog(QDialog, ProteusComponent):
         prop: Property = None
         for prop in properties_form_dict.values():
             # Get the category for the property (or trace)
-            category: str = self._translator.text(prop.category)
+            category: str = self._translator.text(f"archetype.category.{prop.category}")
 
             # Create a QWidget for the category if it doesn't exist
             if category not in category_widgets:

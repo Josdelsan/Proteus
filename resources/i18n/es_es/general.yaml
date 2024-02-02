@@ -1,0 +1,47 @@
+# ==========================================================================
+# File: general.yaml
+# Description: General translations that do not fit into components or
+#              dialogs translations files.
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+
+# ---------------------------------------------------------------------------
+# Property input
+# ---------------------------------------------------------------------------
+
+# Tooltips
+property_input.required_tooltip: "Este campo es obligatorio."
+property_input.inmutable_checkbox_tooltip: "Esta propiedad está definida como inmutable, desmarque la casilla para modificarla bajo su propio riesgo."
+
+# Validators
+property_input.validator.error.required: "Este campo no puede estar vacío"
+markdown_property_input.validator.error.cdata: "El texto no puede contener delimitadores de secciones CDATA '<![CDATA[' o ']]>'"
+url_property_input.validator.error.cdata: "La URL no puede contener delimitadores de secciones CDATA '<![CDATA[' o ']]>'"
+string_property_input.validator.error.cdata: "El texto no puede contener delimitadores de secciones CDATA '<![CDATA[' o ']]>'"
+file_property_input.validator.error.cdata: "El nombre del archivo no puede contener delimitadores de secciones CDATA '<![CDATA[' o ']]>'"
+code_property_input.validator.error.cdata: "El código no puede contener delimitadores de secciones CDATA '<![CDATA[' o ']]>'"
+float_property_input.validator.error: "Este campo debe ser un número decimal"
+integer_property_input.validator.error: "Este campo debe ser un número entero"
+code_property_input.validator.error.prefix: "El prefijo no puede estar vacío"
+code_property_input.validator.error.number_type: "El número debe ser un número entero positivo"
+code_property_input.validator.error.number_value: "El número debe ser mayor que 0"
+
+# Warning dialog
+property_input.inmutable_property_warning.title: "Advertencia, propiedad inmutable"
+property_input.inmutable_property_warning.text: "Esta propiedad ha sido definida como inmutable, modificarla puede causar errores en la aplicación. Actúe bajo su propio riesgo."
+
+# ---------------------------------------------------------------------------
+# Markdown edit
+# ---------------------------------------------------------------------------
+markdown_edit.preview: "Previsualizar"
+markdown_edit.edit: "Editar texto"
+
+# ---------------------------------------------------------------------------
+# App critical error
+# ---------------------------------------------------------------------------
+app.critical_error.title: "PROTEUS ha encontrado un error crítico"
+app.critical_error.text: "La aplicación se cerrará debido a un error crítico. Para más información, consulte el archivo de registro de la aplicación: "
+

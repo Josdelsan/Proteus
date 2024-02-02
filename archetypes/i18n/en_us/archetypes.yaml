@@ -1,0 +1,111 @@
+# ==========================================================================
+# File: archetypes.yaml
+# Description: Default repository archetypes translations
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+archetype:
+  # -----------------------------------------------------------------------
+  # Archetype classes
+  # -----------------------------------------------------------------------
+  class:
+    use-case-step: "Use case step"
+    specific-data: "Specific data"
+    paragraph: "Paragraph"
+    section: "Section"
+    graphic-file: "Graphic file"
+    external-resource: "Ext. resource"
+    use-case: "Use case"
+    actor: "System actor"
+    information-requirement: "Information"
+    functional-requirement: "Functional"
+    non-functional-requirement: "Non-functional"
+    constraint: "Constraint"
+    objective: "Objective"
+    organization: "Organization"
+    stakeholder: "Stakeholder"
+    meeting: "Meeting"
+    archetype-link: "Symbolic link"
+  
+  # -----------------------------------------------------------------------
+  # Archetype categories
+  # -----------------------------------------------------------------------
+  category:
+    general: "General"
+    details: "Details"
+    detail: "Detail"
+    comments: "Comments"
+    conditions: "Conditions"
+    priority: "Priority"
+    description: "Description"
+    dependencies: "Dependencies"
+  
+  # -----------------------------------------------------------------------
+  # Archetypes enum choices
+  # -----------------------------------------------------------------------
+  enum_choices:
+    nd: "Not defined"
+    developer: "Developer"
+    user: "User"
+    customer: "Customer"
+    vital: "Vital"
+    important: "Important"
+    immediately: "Immediately"
+    pressure: "Pressure"
+    developing: "Developing"
+    pending: "Pending"
+    high: "High"
+    medium: "Medium"
+    low: "Low"
+  
+  # -----------------------------------------------------------------------
+  # Archetype tooltips
+  # -----------------------------------------------------------------------
+  tooltip:
+    is-appendix: "Check if it is an appendix."
+    is-glossary: "Check if it is a glossary item."
+    file-info: "Select a graphic file from your local system to copy it to the assets folder."
+    width-info: "Percentage of the page width that the image will occupy."
+  
+  # -----------------------------------------------------------------------
+  # Archetype property names
+  # -----------------------------------------------------------------------
+  prop_name:
+    name: "Name"
+    version: "Version"
+    role: "Role"
+    date: "Date"
+    author: "Author"
+    comments: "Comments"
+    description: "Description"
+    specificdata: "Specific data"
+    precondition: "Precondition"
+    postcondition: "Postcondition"
+    text: "Text"
+    url: "URL"
+    file: "File"
+    created-by: "Authors"
+    dependencies: "Dependencies"
+    is-appendix: "Appendix"
+    is-glossary: "Glossary item"
+    address: "Address"
+    phone-number: "Phone number"
+    fax: "Fax"
+    category: "Category"
+    organization: "Organization"
+    attenders: "Attenders"
+    time: "Time"
+    place: "Place"
+    results: "Results"
+    importance: "Importance"
+    urgency: "Urgency"
+    development-status: "Status"
+    stability: "Stability"
+    source: "Source"
+    works-for: "Works for"
+    prepared-by: "Prepared by"
+    prepared-for: "Prepared for"
+    width: "Width (%)"
+    link: "Link"

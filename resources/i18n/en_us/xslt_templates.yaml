@@ -1,0 +1,15 @@
+# ==========================================================================
+# File: xslt_templates.yaml
+# Description: Proteus application xslt template names translations
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+# NOTE: If you want to add a custom translation for a xslt template name, you must
+# introduce a new entry. The key must be the xslt template name lowercase and the
+# value must be the xslt template name (in English for this file).
+
+xslt_templates:
+  default: "Main"
+  figures: "Project figures"

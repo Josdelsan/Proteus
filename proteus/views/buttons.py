@@ -442,7 +442,7 @@ class ArchetypeMenuButton(QToolButton):
         self.setIconSize(QSize(32, 32))
 
         # Set tooltip
-        name_code = f"archetype_menu_button.{object_class}"
+        name_code = f"archetype.class.{object_class}"
         self.setToolTip(Translator().text(f"{name_code}"))
 
         # Set text

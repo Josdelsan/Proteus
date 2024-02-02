@@ -63,9 +63,7 @@ class ContextMenu(QMenu, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, tree_widget: QTreeWidget, *args, **kwargs
-    ) -> None:
+    def __init__(self, tree_widget: QTreeWidget, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component. Store the tree widget and initialize all the action
@@ -134,9 +132,7 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        edit_icon_path = (
-            self._config.get_icon(ProteusIconType.App, "context-menu-edit")
-        )
+        edit_icon_path = self._config.get_icon(ProteusIconType.App, "context-menu-edit")
         edit_icon = QIcon(edit_icon_path.as_posix())
         self.action_edit_object.setIcon(edit_icon)
 
@@ -149,8 +145,8 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        delete_icon_path = (
-            self._config.get_icon(ProteusIconType.App, "context-menu-delete")
+        delete_icon_path = self._config.get_icon(
+            ProteusIconType.App, "context-menu-delete"
         )
         delete_icon = QIcon(delete_icon_path.as_posix())
         self.action_delete_object.setIcon(delete_icon)
@@ -162,8 +158,8 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_clone_object.triggered.connect(
             lambda: self._controller.clone_object(selected_item_id)
         )
-        clone_icon_path = (
-            self._config.get_icon(ProteusIconType.App, "context-menu-clone")
+        clone_icon_path = self._config.get_icon(
+            ProteusIconType.App, "context-menu-clone"
         )
         clone_icon = QIcon(clone_icon_path.as_posix())
         self.action_clone_object.setIcon(clone_icon)
@@ -177,8 +173,8 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index - 1, parent_id
             )
         )
-        move_up_icon_path = (
-            self._config.get_icon(ProteusIconType.App, "context-menu-up")
+        move_up_icon_path = self._config.get_icon(
+            ProteusIconType.App, "context-menu-up"
         )
         move_up_icon = QIcon(move_up_icon_path.as_posix())
         self.action_move_up_object.setIcon(move_up_icon)
@@ -192,8 +188,8 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index + 2, parent_id
             )
         )
-        move_down_icon_path = (
-            self._config.get_icon(ProteusIconType.App, "context-menu-down")
+        move_down_icon_path = self._config.get_icon(
+            ProteusIconType.App, "context-menu-down"
         )
         move_down_icon = QIcon(move_down_icon_path.as_posix())
         self.action_move_down_object.setIcon(move_down_icon)
@@ -326,9 +322,12 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
             self._config.get_icon(ProteusIconType.Archetype, self.class_name).as_posix()
         )
         self.setIcon(icon)
+        translated_class_name: str = self._translator.text(
+            f"archetype.class.{self.class_name}"
+        )
         self.setTitle(
             self._translator.text(
-                "document_tree.menu.action.add_archetype", self.class_name
+                "document_tree.menu.action.add_archetype", translated_class_name
             )
         )
 

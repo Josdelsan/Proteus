@@ -123,7 +123,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
 
         # Set property tooltip ---------------------------
         if self.property.tooltip and self.property.tooltip != "":
-            self.setToolTip(self._translator.text(self.property.tooltip))
+            self.setToolTip(self._translator.text(f"archetype.tooltip.{self.property.tooltip}"))
 
         # Input layout -----------------------------------
         # Input layout is an horizontal layout that contains the input

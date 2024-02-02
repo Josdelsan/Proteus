@@ -162,9 +162,8 @@ class SettingsDialog(QDialog, ProteusComponent):
         # Language layout
         language_layout: QVBoxLayout = QVBoxLayout()
 
-        # Get available languages from i18n directory
-        i18n_dir: Path = self._config.i18n_directory
-        languages: List[str] = [lang.stem for lang in i18n_dir.glob("*.yaml")]
+        # Get available languages from translator instance
+        languages: List[str] = self._translator.available_languages
 
         # Create a combo box with the available views
         lang_label: QLabel = QLabel(
@@ -173,7 +172,9 @@ class SettingsDialog(QDialog, ProteusComponent):
         self.language_combo: QComboBox = QComboBox()
 
         for lang in languages:
-            self.language_combo.addItem(self._translator.text(lang), lang)
+            self.language_combo.addItem(
+                self._translator.text(f"settings.language.{lang}"), lang
+            )
 
         # Set the current language
         current_lang: str = self._config.current_config_file_user_settings.get(
