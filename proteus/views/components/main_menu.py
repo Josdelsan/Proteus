@@ -350,15 +350,10 @@ class MainMenu(QDockWidget, ProteusComponent):
             buttons_list.append(archetype_button)
 
         # Create text code for button group and bar names
-        # NOTE: This is part of the internationalization system. The text
-        #       code is used to retrieve the text from the translation files.
-        #       This has to be dynamic because archetype tabs are created
-        #       dynamically.
-        tab_name_code: str = f"main_menu.tab.{type_name}.name"
-        group_name_code: str = f"main_menu.button_group.archetypes.{type_name}"
+        tab_name_code: str = f"archetype.category.{type_name}"
 
         # Create the archetype button group
-        archetype_menu: QWidget = buttons.button_group(group_name_code, buttons_list)
+        archetype_menu: QWidget = buttons.button_group(tab_name_code, buttons_list)
         tab_layout.addWidget(archetype_menu)
 
         # Spacer to justify content left

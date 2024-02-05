@@ -205,6 +205,8 @@ class Translator:
         it exists. If there is no default language or current language is not
         found, it returns None.
 
+        :param language_config_file: Path to the language configuration file.
+
         :return: Path to the translations directory/file or None if not found any.
         """
         # Check if the language configuration file exists
@@ -222,7 +224,7 @@ class Translator:
         # Iterate over the language tags
         for language in languages_root:
             # If the key if the current language
-            if language.get("key") == self.current_language:
+            if language.get("key").lower() == self.current_language.lower():
                 log.debug(
                     f"Configuration for language '{self.current_language}' found in file '{language_config_file}'"
                 )
@@ -307,7 +309,7 @@ class Translator:
     def text(self, key: str, *args, alternative_text: str = None) -> str:
         """
         Returns the translation found for the given key. If no translation is
-        found, it returns the key without the contexts found in the key.
+        found, it returns the key or the alternative text if provided.
 
         If there are arguments, they are formatted in the translation.
         Key is processed to lowercase and replace spaces with underscores.
@@ -315,6 +317,10 @@ class Translator:
         :param key: Key to find the translation.
         :param args: Arguments to format the translation.
         :param alternative_text: Text to return if no translation is found.
+
+        :return: Translation for the given key or the key itself if not found.
+                    If alternative_text is provided and no translation is found,
+                    it returns the alternative text.
         """
         # Check type of key
         assert isinstance(key, str), f"Language code key must be string type '{key}'"

@@ -22,8 +22,8 @@ archetype.copy-of: "Copy of"
 # -----------------------------------------------------------------------
 # Archetype categories
 # -----------------------------------------------------------------------
-archetype.category.general: "General"
-archetype.category.dependencies: "Dependencies"
+archetype.prop_category.general: "General"
+archetype.prop_category.dependencies: "Dependencies"
 
 
 # -----------------------------------------------------------------------

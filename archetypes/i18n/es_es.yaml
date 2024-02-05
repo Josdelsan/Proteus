@@ -8,6 +8,13 @@
 
 
 # -----------------------------------------------------------------------
+# Categorías de arquetipos (pestaña)
+# -----------------------------------------------------------------------
+
+archetype.category.general: "General"
+archetype.category.software_requirements: "Requisitos del software"
+
+# -----------------------------------------------------------------------
 # Clases
 # -----------------------------------------------------------------------
 archetype.class.use-case-step: "Paso de caso de uso"
@@ -29,16 +36,16 @@ archetype.class.meeting: "Reunión"
 archetype.class.archetype-link: "Enlace simbólico"
   
 # -----------------------------------------------------------------------
-# Categorías
+# Categorías de propiedades
 # -----------------------------------------------------------------------
-archetype.category.general: "General"
-archetype.category.details: "Detalles"
-archetype.category.detail: "Detalle"
-archetype.category.comments: "Comentarios"
-archetype.category.conditions: "Condiciones"
-archetype.category.priority: "Prioridad"
-archetype.category.description: "Descripción"
-archetype.category.dependencies: "Dependencias"
+archetype.prop_category.general: "General"
+archetype.prop_category.details: "Detalles"
+archetype.prop_category.detail: "Detalle"
+archetype.prop_category.comments: "Comentarios"
+archetype.prop_category.conditions: "Condiciones"
+archetype.prop_category.priority: "Prioridad"
+archetype.prop_category.description: "Descripción"
+archetype.prop_category.dependencies: "Dependencias"
   
 # -----------------------------------------------------------------------
 # Opciones de enumerados

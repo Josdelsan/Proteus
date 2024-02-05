@@ -11,18 +11,12 @@
 #---------------------------------------------------------------------------
 # Menu tabs
 main_menu.tab.home.name: "Inicio"
-main_menu.tab.general.name: "General"
-main_menu.tab.software_requirements.name: "Requisitos del software"
 
 # Fixed button groups
 main_menu.button_group.project: "Proyecto"
 main_menu.button_group.document: "Documento"
 main_menu.button_group.action: "Acción"
 main_menu.button_group.application: "Aplicación"
-
-# Archetype button groups
-main_menu.button_group.archetypes.general: "Arquetipo General"
-main_menu.button_group.archetypes.software_requirements: "Arquetipo de Requisito de Software"
 
 # Fixed buttons
 new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"

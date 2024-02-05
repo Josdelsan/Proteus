@@ -6,6 +6,12 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
+# -----------------------------------------------------------------------
+# Archetype categories (tab)
+# -----------------------------------------------------------------------
+
+archetype.category.general: "General"
+archetype.category.software_requirements: "Software requirements"
 
 # -----------------------------------------------------------------------
 # Archetype classes
@@ -29,16 +35,16 @@ archetype.class.meeting: "Meeting"
 archetype.class.archetype-link: "Symbolic link"
   
 # -----------------------------------------------------------------------
-# Archetype categories
+# Archetype properties categories
 # -----------------------------------------------------------------------
-archetype.category.general: "General"
-archetype.category.details: "Details"
-archetype.category.detail: "Detail"
-archetype.category.comments: "Comments"
-archetype.category.conditions: "Conditions"
-archetype.category.priority: "Priority"
-archetype.category.description: "Description"
-archetype.category.dependencies: "Dependencies"
+archetype.prop_category.general: "General"
+archetype.prop_category.details: "Details"
+archetype.prop_category.detail: "Detail"
+archetype.prop_category.comments: "Comments"
+archetype.prop_category.conditions: "Conditions"
+archetype.prop_category.priority: "Priority"
+archetype.prop_category.description: "Description"
+archetype.prop_category.dependencies: "Dependencies"
   
 # -----------------------------------------------------------------------
 # Archetypes enum choices
