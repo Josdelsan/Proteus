@@ -27,6 +27,8 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QFileDialog,
     QMessageBox,
+    QSizePolicy,
+    QFrame,
 )
 
 # --------------------------------------------------------------------------
@@ -138,9 +140,12 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ------------------
         # Component settings
         # ------------------
-        # Remove the tittle bar and set fixed height to prevent resizing
+        # Remove title bar and dock widget features
         self.setTitleBarWidget(QWidget())
-        self.setFixedHeight(125)
+        self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+
+        # Set the menu to minimum size and disable vertical resizing
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
 
         # --------------------
         # Create the component
@@ -149,9 +154,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.add_main_tab(self._translator.text("main_menu.tab.home.name"))
 
         # Get the object archetypes
-        object_archetypes_dict: Dict[
-            str, Dict[str, List[Object]]
-        ] = self._controller.get_first_level_object_archetypes()
+        object_archetypes_dict: Dict[str, Dict[str, List[Object]]] = (
+            self._controller.get_first_level_object_archetypes()
+        )
         # Create a tab for each type of object archetypes
         for type_name in object_archetypes_dict.keys():
             self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
@@ -178,6 +183,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the tab widget with a horizontal layout
         main_tab: QWidget = QWidget()
         tab_layout: QHBoxLayout = QHBoxLayout()
+        main_tab.setObjectName("main_tab")
 
         # ---------
         # Project menu
@@ -218,6 +224,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             ],
         )
         tab_layout.addWidget(project_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # Document menu
@@ -248,6 +255,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             ],
         )
         tab_layout.addWidget(document_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # Action menu
@@ -266,6 +274,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             [self.undo_button, self.redo_button],
         )
         tab_layout.addWidget(action_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # aplication
@@ -320,6 +329,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the tab widget with a horizontal layout
         tab_widget: QWidget = QWidget()
         tab_layout: QHBoxLayout = QHBoxLayout()
+        tab_widget.setObjectName("archetype_tab")
 
         # Create a list to store archetype buttons to create the group
         buttons_list: List[ArchetypeMenuButton] = []
@@ -353,7 +363,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_name_code: str = f"archetype.category.{type_name}"
 
         # Create the archetype button group
-        archetype_menu: QWidget = buttons.button_group(tab_name_code, buttons_list)
+        archetype_menu: QWidget = buttons.button_group(
+            tab_name_code, buttons_list, hide_section_name=True
+        )
         tab_layout.addWidget(archetype_menu)
 
         # Spacer to justify content left
@@ -415,7 +427,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_required_save_action
     # Description: Update the state of save button when a save action is
@@ -432,7 +443,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.save_button.setEnabled(unsaved_changes)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
     # Description: Update the state of save button when a project is saved.
@@ -447,7 +457,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         Triggered by: SaveProjectEvent
         """
         self.save_button.setEnabled(False)
-
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -494,7 +503,6 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Enable or disable the archetype button
                 archetype_button.setEnabled(enable)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
     # Description: Enable the project properties and add document buttons
@@ -512,7 +520,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
-
 
     # ----------------------------------------------------------------------
     # Method     : update_on_current_document_changed
@@ -541,7 +548,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         if document_id == self._state_manager.get_current_document():
             current_object_id = self._state_manager.get_current_object()
             self.update_on_select_object(current_object_id)
-
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -630,7 +636,6 @@ class MainMenu(QDockWidget, ProteusComponent):
                 error_dialog.setInformativeText(informative_text)
                 error_dialog.exec()
 
-
     # ----------------------------------------------------------------------
     # Method     : save_project
     # Description: Manage the save project action, save the current project.
@@ -647,7 +652,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Write the state to a file
         project_path: str = self._controller.get_current_project().path
         write_state_to_file(Path(project_path).parent, self._state_manager)
-
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document
@@ -676,3 +680,23 @@ class MainMenu(QDockWidget, ProteusComponent):
             is_document=True,
             controller=self._controller,
         )
+
+
+    # ==========================================================================
+    # Overriden methods
+    # ==========================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : resizeEvent
+    # Description: Set the fixed height of the component.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def resizeEvent(self, event):
+        """
+        Overriden in order to prevent resizing the component vertically.
+        """
+        # Set the fixed height
+        self.setFixedHeight(event.size().height())
+        return super().resizeEvent(event)

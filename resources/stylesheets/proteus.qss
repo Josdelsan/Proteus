@@ -1,19 +1,54 @@
+/* ========================================================================= */
+/* File: proteus.qss                                                         */
+/* Description: Proteus main theme stylesheet.                               */
+/* Date: 05/02/2024                                                          */
+/* Version: 1.0                                                              */
+/* Author: José María Delgado Sánchez                                        */
+/* ========================================================================= */
+
+/* Background color: #f9f9f9 */
+/* Background not selected 'white': #f4f4f4 */
+/* Border 'white' color: #e1e1e1 */
+/* Border dark color: slategray */
+
+/* ========================================================================= */
+/* General styles                                                            */
+/* ========================================================================= */
+
 /*Error label displayed in forms =========================================== */
 QLabel#error_label{
     color: red;
     font: bold;
 }
 
-QTreeWidget {
-    border: 0px;
+/* Remove outline dotted border */
+QAbstractItemView {
+    outline: 0;
 }
 
-QSplitter::handle {
-    width: 4px;
-    background-color: #666666;
+/* QListWidget ------------------------------------------------------------- */
+
+QListWidget {
+    border: 1px solid gainsboro;
+    border-radius: 1px;
 }
 
-/* QTreeView Tree lines ==================================================== */
+/* QTreeView/QListWidget items --------------------------------------------- */
+QTreeView::item, QListWidget::item {
+    padding: 0.1em;
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background-color: azure;
+}
+
+QTreeView::item:selected, QListWidget::item:selected {
+    background-color: lightcyan;
+    color: black;
+}
+
+
+/* QTreeView Tree lines ---------------------------------------------------- */
 QTreeView::branch:has-siblings:!adjoins-item {
     border-image: url(resources:stylesheets/treelines/vline.png) 0;
 }
@@ -37,3 +72,238 @@ QTreeView::branch:open:has-children:has-siblings  {
         border-image: none;
         image: url(resources:stylesheets/treelines/branch-open.png);
 }
+
+/* QComboBox --------------------------------------------------------------- */
+
+QComboBox {
+    padding: 0.15em;
+    min-width: 4em;
+}
+
+QComboBox:hover {
+    background-color: azure;
+    border: 1px solid skyblue;
+}
+
+QComboBox:disabled {
+    background-color: #f3f3f3;
+    border: 1px solid #e1e1e1;
+}
+
+/* QComboBox AbstractItemView ---------------------------------------------- */
+
+QComboBox QAbstractItemView {
+    border: 1px solid skyblue;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+}
+
+QComboBox QAbstractItemView::item {
+    padding: 0.1em;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: azure;
+    color: black;
+}
+
+
+/* QComboBox::down-arrow --------------------------------------------------- */
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+
+    border: 1px solid gainsboro;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+    padding: 0.15em;
+}
+
+QComboBox::down-arrow {
+    image: url(resources:stylesheets/treelines/expand-arrow.png);
+    width: 0.8em;
+    height: 0.8em;
+}
+
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+    image: url(resources:stylesheets/treelines/expand-arrow-reverse.png);
+    width: 0.8em;
+    height: 0.8em;
+}
+
+/* Tabs style -------------------------------------------------------------- */
+QTabBar::tab {
+    background-color: #f9f9f9;
+    min-width: 3em;
+    padding: 0.2em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-top: 1px solid #e1e1e1;
+    border-left: 1px solid #e1e1e1;
+    border-right: 1px solid #e1e1e1;
+}
+
+QTabBar::tab:selected {
+    
+}
+
+QTabBar::tab:hover:!selected {
+    margin-top: 0px;
+    background-color: azure;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 0.2em;
+    background-color: #ececec;
+}
+
+/* QToolButton | QPushButton ----------------------------------------------- */
+
+/* Button box groups (save, accept, etc) */
+QDialogButtonBox QPushButton {
+    min-width: 4em;
+    padding: 0.15em;
+}
+
+QPushButton {
+    padding: 0.1em;
+}
+
+QToolButton, QPushButton {
+    /* background */
+    background-color: white;
+
+    /* border */
+    border: 1px solid gainsboro;
+    border-radius: 3px;
+
+    /* margin */
+    margin: 1px;
+}
+
+QToolButton:hover, QPushButton:hover {
+    background-color: azure;
+    border: 1px solid skyblue;
+}
+
+QToolButton:pressed, QPushButton:pressed {
+    background-color: lightcyan;
+}
+
+QToolButton:disabled, QPushButton:disabled {
+    background-color: #f3f3f3;
+    border: 1px solid #e1e1e1;
+}
+
+
+/* QCheckbox --------------------------------------------------------------- */
+
+QCheckBox {
+    padding: 0.15em;
+}
+
+QCheckBox:hover {
+    background-color: azure;
+    border: 1px solid skyblue;
+    border-radius: 3px;
+}
+
+QCheckBox:pressed {
+    background-color: lightcyan;
+}
+
+
+
+/* ========================================================================= */
+/* DocumentTree component                                                    */
+/* ========================================================================= */
+/* QTreeWidget subclass */
+#DocumentTree {
+    border: 0px;
+}
+
+/* ========================================================================= */
+/* ProjectContainer component                                                */
+/* ========================================================================= */
+/* QWidget subclass */
+
+#ProjectContainer QSplitter::handle {
+    width: 2px;
+    background-color: slategray;
+}
+
+
+
+/* ========================================================================= */
+/* MainMenu component                                                        */
+/* ========================================================================= */
+/* QDockWidget subclass */
+
+/* Menu bottom border */
+#MainMenu QTabWidget::pane {
+    border-bottom: 1px solid slategray;
+}
+
+/* Separator length adjustment */
+#MainMenu QFrame#v-separator {
+    padding-bottom: -0.20em;
+    padding-top: -0.20em;
+}
+
+/* Main menu background colors */
+#MainMenu QWidget#main_tab {
+    background-color: #f9f9f9;
+}
+
+#MainMenu QWidget#archetype_tab {
+    background-color: #f9f9f9;
+}
+
+
+/* Main menu QToolButton (app main fixed buttons open, edit, etc) ---------- */
+#MainMenu QToolButton {
+    margin: 0.08em;
+    padding: 0.15em;
+    padding-right: 0.2em;
+    padding-left: 0.2em;
+}
+
+/* Archetype menu buttons -------------------------------------------------- */
+#archetype_menu_button {
+    margin-right: 1em;
+    padding: 1em;
+    min-width: 4em;
+}
+
+
+/* menu button arrow */
+#archetype_menu_button::menu-button {
+    width: 0.4em;
+    padding: 0.3em; /* Affects arrow size */
+
+    border: 1px solid gainsboro;
+    border-left: 0px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+#archetype_menu_button::menu-button:hover {
+    border: 1px solid skyblue;
+    border-left: 0px;
+}
+
+#archetype_menu_button::menu-button:pressed {
+}
+
+#archetype_menu_button::menu-button:disabled {
+    border: 1px solid #e1e1e1;
+    border-left: 0px;
+}
+
+
+
+
+

@@ -85,6 +85,9 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         and raises exceptions if needed. Some parameters will be initialized
         if they are not provided.
 
+        Sets the QObject name to the class name in order to be able to
+        modify the component style in the stylesheets.
+
         When Controller is not provided, it will be searched in the parent
         component. When other parameters are not provided, they will be
         called with the default constructor to access the singleton instance.
@@ -96,6 +99,9 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         :param state_manager: State manager instance.
         """
         super(ProteusComponent, self).__init__(parent, *args, **kwargs)
+
+        # Set the QObject name to the class name
+        self.setObjectName(self.__class__.__name__)
 
         # Controller --------------
 
