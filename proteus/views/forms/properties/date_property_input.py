@@ -81,5 +81,6 @@ class DatePropertyInput(PropertyInput):
         Creates the input widget based on QDateEdit.
         """
         input: QDateEdit = QDateEdit()
+        input.setCalendarPopup(True)
         input.setDate(property.value)
         return input
