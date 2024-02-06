@@ -50,7 +50,7 @@ from proteus.model.object import Object
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
+from proteus.views.forms.check_combo_box import CheckComboBox
 from proteus.utils import ProteusIconType
 from proteus.utils.config import Config
 from proteus.utils.translator import Translator
@@ -355,11 +355,10 @@ class TraceEditDialog(QDialog):
         self.list_widget: QListWidget = None
         self.button_box: QDialogButtonBox = None
         self.name_filter_widget: QLineEdit = None
+        self.class_selector_combo: CheckComboBox = None
 
         # Initialize variables
         self.selected_object: ProteusID = None
-        self.selected_classes_filter: set[ProteusClassTag] = set()
-        self.name_filter: str = ""
 
         # Create component
         self.create_component()
@@ -432,34 +431,23 @@ class TraceEditDialog(QDialog):
         classes_list.sort()
         classes_list.insert(0, PROTEUS_ANY)
 
-        # Create toolbutton with dropdown menu (class filter)
-        class_selector_button: QToolButton = QToolButton()
-        class_selector_button.setMinimumWidth(80)
-        class_selector_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        class_selector_button.setText(
-            Translator().text("trace_edit_dialog.class_selector_button.text")
-        )
+        # Create combocheckbox filter
+        self.class_selector_combo: CheckComboBox = CheckComboBox()
 
-        # Create dropdown menu
-        class_selector_menu: QMenu = QMenu()
-        class_selector_button.setMenu(class_selector_menu)
         for _class in classes_list:
-            # Create action
-            action: QAction = QAction(
-                Translator().text(f"archetype.class.{_class}", alternative_text=_class),
-                self,
+            class_name_tr = Translator().text(
+                f"archetype.class.{_class}", alternative_text=_class
             )
-            action.setCheckable(True)
-            action.setChecked(True)
 
-            # Add action to the menu and list of selected classes
-            class_selector_menu.addAction(action)
-            self.selected_classes_filter.add(_class)
+            # Class icon
+            class_icon_path = Config().get_icon(ProteusIconType.Archetype, _class)
+            class_icon = QIcon(class_icon_path.as_posix())
 
-            # Call update filter variable method when action is triggered
-            action.triggered.connect(
-                lambda checked, _class=_class: self.update_class_filter(_class, checked)
-            )
+            # Add item
+            self.class_selector_combo.addItem(class_name_tr, _class, True, class_icon)
+
+        # Connect activated signal
+        self.class_selector_combo.activated.connect(self.update_list_widget)
 
         # -----------------------
         # Name filter
@@ -469,7 +457,9 @@ class TraceEditDialog(QDialog):
         self.name_filter_widget.setPlaceholderText(
             Translator().text("trace_edit_dialog.name_filter_widget.placeholder_text")
         )
-        self.name_filter_widget.textChanged.connect(self.update_on_name_filter_change)
+
+        # Connect textChanged signal
+        self.name_filter_widget.textChanged.connect(self.update_list_widget)
 
         # -----------------------
         # Buttonbox and layout
@@ -483,7 +473,7 @@ class TraceEditDialog(QDialog):
 
         # Filter layout
         filter_layout = QHBoxLayout()
-        filter_layout.addWidget(class_selector_button)
+        filter_layout.addWidget(self.class_selector_combo)
         filter_layout.addWidget(self.name_filter_widget)
 
         # Create a layout for the QListWidget
@@ -508,43 +498,6 @@ class TraceEditDialog(QDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : update_class_filter
-    # Description: Updates the class filter variable.
-    # Date       : 01/02/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_class_filter(self, _class: ProteusClassTag, checked: bool) -> None:
-        """
-        Updates the class filter variable.
-        """
-        # Update the class filter variable
-        if checked:
-            self.selected_classes_filter.add(_class)
-        else:
-            self.selected_classes_filter.remove(_class)
-
-        # Update the QListWidget items
-        self.update_list_widget()
-
-    # ----------------------------------------------------------------------
-    # Method     : update_on_name_filter_change
-    # Description: Updates the name filter variable.
-    # Date       : 01/02/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_on_name_filter_change(self, text: str) -> None:
-        """
-        Updates the name filter variable.
-        """
-        # Update the name filter variable
-        self.name_filter = text
-
-        # Update the QListWidget items
-        self.update_list_widget()
-
-    # ----------------------------------------------------------------------
     # Method     : update_list_widget
     # Description: Updates the QListWidget items.
     # Date       : 01/02/2024
@@ -564,25 +517,28 @@ class TraceEditDialog(QDialog):
             # Get the item
             item: QListWidgetItem = self.list_widget.item(i)
 
-            # Get the object
+            # Get the object to compare classes
             object: Object = self.controller.get_element(
                 element_id=item.data(Qt.ItemDataRole.UserRole)
             )
 
-            # Get list widget item text lowercased
+            # Get list widget item text lowercased to compare with the name filter
             object_name: str = item.text().lower()
 
+            # Selected classes in the class filter and the name filter
+            selected_classes = self.class_selector_combo.checkedItemsData()
+            name_filter_text = self.name_filter_widget.text().lower()
+
             # Check if the object matches the name filter
-            if self.name_filter.lower() in object_name:
+            if name_filter_text in object_name:
                 # Check if the object matches the class filter
                 # Condition 1: :Proteus-any is selected
-                if PROTEUS_ANY in self.selected_classes_filter:
+                if PROTEUS_ANY in selected_classes:
                     item.setHidden(False)
                     continue
                 # Condition 2: One of the object classes is selected
                 elif any(
-                    object_class in self.selected_classes_filter
-                    for object_class in object.classes
+                    object_class in selected_classes for object_class in object.classes
                 ):
                     item.setHidden(False)
                     continue

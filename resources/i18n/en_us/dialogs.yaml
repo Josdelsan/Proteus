@@ -101,7 +101,6 @@ information_dialog.terms_of_use.text: "This software do not collect any personal
 # Trace edit dialog
 # ---------------------------------------------------------------------------
 trace_edit_dialog.title: "Select an element to trace"
-trace_edit_dialog.class_selector_button.text: "Class filter"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
 
 # ---------------------------------------------------------------------------

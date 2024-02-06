@@ -435,14 +435,14 @@ class ArchetypeMenuButton(QToolButton):
         self.setIconSize(QSize(32, 32))
 
         # Set tooltip
-        name_code = f"archetype.class.{object_class}"
-        self.setToolTip(
-            Translator().text(f"{name_code}", alternative_text=object_class)
+        translated_name = Translator().text(
+            f"archetype.class.{object_class}", alternative_text=object_class
         )
+        self.setToolTip(translated_name)
 
         # Set text
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.setText(Translator().text(name_code))
+        self.setText(translated_name)
 
         # Set enabled initial value
         self.setEnabled(False)

@@ -472,6 +472,25 @@ class Controller:
         return self._project_service.get_project_structure()
 
     # ----------------------------------------------------------------------
+    # Method     : get_project_available_classes
+    # Description: Get the available classes in the current project.
+    # Date       : 06/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_project_available_classes(
+        self, include_subclasses: bool = False
+    ) -> Set[ProteusClassTag]:
+        """
+        Get the available classes in the current project.
+
+        :param include_subclasses: If True, it includes the subclasses of the
+                                   classes in the result.
+        """
+        log.info("Getting available classes of current project")
+        return self._project_service.get_project_available_classes(include_subclasses)
+
+    # ----------------------------------------------------------------------
     # Method     : get_objects
     # Description: Get the objects of the current project.
     # Date       : 25/10/2023
@@ -527,7 +546,9 @@ class Controller:
         """
         # If the project service is not initialized return False
         if self._project_service is None:
-            log.debug("Cannot check unsaved changes. Project service is not initialized")
+            log.debug(
+                "Cannot check unsaved changes. Project service is not initialized"
+            )
             return False
 
         log.info("Checking if current project has unsaved changes")

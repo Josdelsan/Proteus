@@ -67,6 +67,7 @@ ProteusID = NewType('ProteusID', str)
 # Some predefined class tags
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
 PROTEUS_ANY      = ProteusClassTag(':Proteus-any')
+PROTEUS_NONE     = ProteusClassTag(':Proteus-none')
 PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
 
 # Some predefined attribute names

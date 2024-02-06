@@ -28,11 +28,13 @@ from proteus.utils.config import Config
 from proteus.model import (
     ProteusID,
     ID_ATTRIBUTE,
-    CLASSES_ATTRIBUTE,
     CHILD_TAG,
     DOCUMENT_TAG,
     ProteusClassTag,
     PROTEUS_ANY,
+    PROTEUS_NONE,
+    PROTEUS_ALL,
+    PROTEUS_DOCUMENT,
     PROTEUS_NAME,
 )
 from proteus.model.project import Project
@@ -559,6 +561,45 @@ class ProjectService:
         :rtype: List[Object]
         """
         return self.project.get_descendants()
+
+    # ----------------------------------------------------------------------
+    # Method     : get_project_available_classes
+    # Description: Returns the available classes in the project.
+    # Date       : 06/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_project_available_classes(
+        self, include_subclasses: bool = False
+    ) -> Set[ProteusClassTag]:
+        """
+        Get all the available classes currently in the project. If include_subclasses
+        is True, also include all the subclasses of the available.
+
+        :param include_subclasses: Include subclasses of the available classes.
+        """
+        # Initialize an empty set for the classes
+        classes: Set[ProteusClassTag] = set()
+
+        # Iterate over all objects in the project
+        for object in self.project_index.values():
+            # Skip project and dead objects
+            if object.state == ProteusState.DEAD or object.id == self.project.id:
+                continue
+
+            # Add object classes or main class to the set
+            if include_subclasses:
+                classes.update(object.classes)
+            else:
+                classes.add(object.classes[-1])
+
+        # Remove special Proteus classes from the set if any
+        classes.discard(PROTEUS_ANY)
+        classes.discard(PROTEUS_NONE)
+        classes.discard(PROTEUS_ALL)
+        classes.discard(PROTEUS_DOCUMENT)
+
+        return sorted(classes)
 
     # ----------------------------------------------------------------------
     # Method     : get_objects

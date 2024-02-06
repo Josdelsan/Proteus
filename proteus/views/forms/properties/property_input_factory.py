@@ -67,6 +67,9 @@ from proteus.views.forms.properties.enum_property_input import EnumPropertyInput
 from proteus.views.forms.properties.file_property_input import FilePropertyInput
 from proteus.views.forms.properties.url_property_input import UrlPropertyInput
 from proteus.views.forms.properties.code_property_input import CodePropertyInput
+from proteus.views.forms.properties.class_list_property_input import (
+    ClassListPropertyInput,
+)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -100,6 +103,7 @@ class PropertyInputFactory:
         FileProperty: FilePropertyInput,
         UrlProperty: UrlPropertyInput,
         CodeProperty: CodePropertyInput,
+        ClassListProperty: ClassListPropertyInput,
     }
 
     # ----------------------------------------------------------------------
