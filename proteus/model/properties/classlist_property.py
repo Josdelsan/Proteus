@@ -64,12 +64,17 @@ class ClassListProperty(Property):
 
         # TODO: how can we check whether class names are valid at this moment?
 
+
+        # Check if the value is a string
+        if isinstance(self.value, str):
+            object.__setattr__(self, "value", self.value.split())
+
         # Check if the value is a list
         if not isinstance(self.value, list):
             log.warning(
                 f"ClassListProperty: {self.name} value is not a list but '{type(self.value)}', setting it to an empty list"
             )
-            self.__setattr__("value", list())
+            object.__setattr__(self, "value", list())
 
         # Check values are not repeated
         value_set = set(self.value)
@@ -78,7 +83,7 @@ class ClassListProperty(Property):
                 f"ClassListProperty: {self.name} contains repeated values, setting it to a list with unique values. \
                 This may affect the original order of the list. Original value: {self.value}, new value: {value_set}"
             )
-            self.__setattr__("value", list(value_set))
+            object.__setattr__(self, "value", list(value_set))
 
     def generate_xml_value(self, property_element: ET._Element) -> str | ET.CDATA:
         """
