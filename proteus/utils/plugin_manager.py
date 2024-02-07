@@ -13,7 +13,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 import logging
-import threading
 import importlib
 import pkgutil
 from typing import Callable, Dict, Union, List
@@ -25,6 +24,8 @@ from typing import Callable, Dict, Union, List
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
+
+from proteus.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class PluginInterface:
         """
 
 
-class PluginManager:
+class PluginManager(metaclass=SingletonMeta):
     """
     Manage PROTEUS plugins. A plugin is a module that can be loaded at runtime
     and register XSLT functions and QWebChannel classes for use in the templates.
@@ -60,26 +61,6 @@ class PluginManager:
     to access controller functionality.
     """
 
-    # Singleton instance
-    __instance = None
-    __lock = threading.Lock()  # Ensure thread safety
-
-    # --------------------------------------------------------------------------
-    # Method: __new__
-    # Description: Singleton constructor for PluginManager class.
-    # Date: 03/01/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs):
-        """
-        It creates a singleton instance for PluginManager class.
-        """
-        if not cls.__instance:
-            log.info("Creating PluginManager instance")
-            cls.__instance = super(PluginManager, cls).__new__(cls)
-            cls.__instance._initialized = False
-        return cls.__instance
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -92,12 +73,6 @@ class PluginManager:
         """
         It initializes the PluginManager class.
         """
-        # Check if the instance has been initialized
-        with self.__class__.__lock:
-            if self._initialized:
-                return
-            self._initialized = True
-
         # --------------------------------
         # Initialize the plugin registries
         # --------------------------------

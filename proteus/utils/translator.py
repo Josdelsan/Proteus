@@ -14,7 +14,6 @@ from typing import Dict, List
 from pathlib import Path
 import yaml
 import logging
-import threading
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -26,7 +25,7 @@ from lxml import etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -45,7 +44,7 @@ LANGUAGE_CONFIG_FILE = "languages.xml"
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class Translator:
+class Translator(metaclass=SingletonMeta):
     """
     Manage the language translations for PROTEUS application. It stores the
     current language translations. It can be only one instance of this class.
@@ -56,27 +55,6 @@ class Translator:
     are yaml files.
     """
 
-    # Singleton instance
-    __instance = None
-    __lock = threading.Lock()  # Ensure thread safety
-
-    # --------------------------------------------------------------------------
-    # Method: __new__
-    # Description: Singleton constructor for Translator class.
-    # Date: 26/06/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs):
-        """
-        It creates a singleton instance for Translator class.
-        """
-        if not cls.__instance:
-            log.info("Creating Translator instance")
-            cls.__instance = super(Translator, cls).__new__(cls)
-            cls.__instance._initialized = False
-        return cls.__instance
-
     # --------------------------------------------------------------------------
     # Method: __init__
     # Description: Constructor for Translator class.
@@ -86,44 +64,18 @@ class Translator:
     # --------------------------------------------------------------------------
     def __init__(self):
         """
-        It initializes the Translator class. It loads the translations for the
-        current language.
+        Initializes the Translator class.
         """
-        # Check if the instance has been initialized
-        with self.__class__.__lock:
-            if self._initialized:
-                return
-            self._initialized = True
-
         # Proteus configuration
-        self.config: Config = Config()
-        self.current_language: str = self.config.language
+        self.current_language: str = None
+        self.i18n_directory: Path = None
+        self.archetypes_directory: Path = None
 
         # Properties
         self._available_languages = None
 
         # Translations variable
         self._translations: Dict[str, str] = {}
-
-        # Load system translations ------------------------------
-        system_lang_file: Path = self.config.i18n_directory / LANGUAGE_CONFIG_FILE
-        system_translations_directory: Path = self._read_config_file(system_lang_file)
-
-        assert (
-            system_translations_directory is not None
-        ), f"There was an error reading the language configuration file: {system_lang_file}. Could not find a valid language directory."
-
-        self._load_translations(system_translations_directory)
-
-        # Load archetype repository translations ----------------
-        archetype_lang_file: Path = (
-            self.config.archetypes_directory / 'i18n' / LANGUAGE_CONFIG_FILE
-        )
-        archetype_translations_directory: Path = self._read_config_file(
-            archetype_lang_file
-        )
-        if archetype_translations_directory is not None:
-            self._load_translations(archetype_translations_directory)
 
     # ==========================================================================
     # Properties
@@ -148,12 +100,20 @@ class Translator:
         :return: List of available languages for the application. Empty list if
                     no languages are found.
         """
+        # Check if the language configuration is set
+        assert (
+            self.current_language is not None
+            and self.i18n_directory is not None
+            and self.archetypes_directory is not None
+        ), "Language configuration must be set before loading the translations."
+
+        # If the available languages are already loaded, return them
         if self._available_languages:
             return self._available_languages
         else:
             # Build the path to the language configuration file
             language_config_file: Path = (
-                self.config.i18n_directory / LANGUAGE_CONFIG_FILE
+                self.i18n_directory / LANGUAGE_CONFIG_FILE
             )
 
             # Read the language configuration file
@@ -174,7 +134,7 @@ class Translator:
                 # Check if the language path exists
                 if language_directory is not None:
                     language_directory_path: Path = (
-                        self.config.i18n_directory / language_directory
+                        self.i18n_directory / language_directory
                     )
                     if language_directory_path.exists():
                         available_languages.append(language_code)
@@ -266,9 +226,7 @@ class Translator:
 
         :param translations_path: Path to the translations directory or file.
         """
-        log.info(
-            f"Loading translations from: {translations_path.as_posix()}"
-        )
+        log.info(f"Loading translations from: {translations_path.as_posix()}")
 
         # Check if the translations_path is a directory or a file
         if translations_path.is_dir():
@@ -294,10 +252,97 @@ class Translator:
                 # Update the translations dictionary
                 self._translations.update(translations)
 
-
     # ==========================================================================
     # Public methods
     # ==========================================================================
+
+    # --------------------------------------------------------------------------
+    # Method: set_language
+    # Description: Set the current language configuration for the application.
+    # Date: 07/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def set_language(self, language: str) -> None:
+        """
+        Set the current language configuration for the application.
+        """
+        self.current_language = language
+
+    # --------------------------------------------------------------------------
+    # Method: set_i18n_directory
+    # Description: Set the i18n directory for the application.
+    # Date: 07/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def set_i18n_directory(self, i18n_directory: Path) -> None:
+        """
+        Set the i18n directory for the application.
+        """
+        self.i18n_directory = i18n_directory
+
+    # --------------------------------------------------------------------------
+    # Method: set_archetypes_directory
+    # Description: Set the archetypes directory for the application.
+    # Date: 07/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def set_archetypes_directory(self, archetypes_directory: Path) -> None:
+        """
+        Set the archetypes directory for the application.
+        """
+        self.archetypes_directory = archetypes_directory
+
+    # --------------------------------------------------------------------------
+    # Method: load_system_translations
+    # Description: Load the system translations for the current language.
+    # Date: 07/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def load_system_translations(self) -> None:
+        """
+        Load the system translations for the current language based on the
+        configuration previously set.
+
+        It reads the language configuration file and loads the translations
+        for the current language. It also loads the translations for the
+        archetypes repository.
+
+        If the current language is not found, it tries to load the default
+        language if it exists. If the default language is not found, it raises
+        an exception. Exception is never raised for archetypes translations.
+
+        Language configuration must be set before calling this method.
+        """
+        # Check if the language configuration is set
+        assert (
+            self.current_language is not None
+            and self.i18n_directory is not None
+            and self.archetypes_directory is not None
+        ), "Language configuration must be set before loading the translations."
+
+        # Load system translations ---------------------------
+        system_lang_file: Path = self.i18n_directory / LANGUAGE_CONFIG_FILE
+        system_translations_directory: Path = self._read_config_file(system_lang_file)
+
+        assert (
+            system_translations_directory is not None
+        ), f"There was an error reading the language configuration file: {system_lang_file}. Could not find a valid language directory."
+
+        self._load_translations(system_translations_directory)
+
+        # Load archetype repository translations ----------------
+        archetype_lang_file: Path = (
+            self.archetypes_directory / "i18n" / LANGUAGE_CONFIG_FILE
+        )
+        archetype_translations_directory: Path = self._read_config_file(
+            archetype_lang_file
+        )
+        if archetype_translations_directory is not None:
+            self._load_translations(archetype_translations_directory)
 
     # --------------------------------------------------------------------------
     # Method: text
@@ -306,6 +351,11 @@ class Translator:
     # Version: 0.2
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
+    # TODO: this method follows a EAFP philosophy since most of the strings
+    # in the app will have translations. For really (really) big archetype
+    # repositories that are not translated, this might cause a performance
+    # issue on app startup. Also tests may be affected by this.
+    # Consider implement a LBYL flag/mode for testing purposes.
     def text(self, key: str, *args, alternative_text: str = None) -> str:
         """
         Returns the translation found for the given key. If no translation is
@@ -338,10 +388,12 @@ class Translator:
                 translation = alternative_text
             else:
                 translation = key
-            log.warning(f"Text not found for code '{text_code}' in '{self.current_language}' file.")
+            log.warning(
+                f"Text not found for code '{text_code}' in '{self.current_language}' file."
+            )
 
         # Check if there are arguments to format the translation
         if args:
             translation = translation.format(*args)
-        
+
         return translation
