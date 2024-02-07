@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_document.xsl                           -->
+<!-- File    : PROTEUS_section.xsl                            -->
 <!-- Content : PROTEUS XSLT for subjects at US - section      -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->

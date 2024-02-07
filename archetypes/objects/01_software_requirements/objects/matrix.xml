@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object
+    id="matrix"
+    classes="traceability-matrix"
+    acceptedChildren=":Proteus-none"
+    acceptedParents=":Proteus-any"
+>
+    <properties>
+      <stringProperty name=":Proteus-name" category="general">Matrix</stringProperty>
+      <dateProperty name=":Proteus-date">2000-12-31</dateProperty>
+      <classListProperty name="row-classes">
+        <class><![CDATA[objective]]></class>
+        <class><![CDATA[constrain]]></class>
+      </classListProperty>
+      <classListProperty name="col-classes">
+        <class><![CDATA[actor]]></class>
+      </classListProperty>
+    </properties>
+
+    <children>
+    </children>
+
+    <traces>
+    </traces>
+
+</object>
