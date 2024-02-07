@@ -71,8 +71,9 @@ from proteus.views.forms.properties.class_list_property_input import (
     ClassListPropertyInput,
 )
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -151,9 +152,7 @@ class PropertyInputFactory:
         """
         # Create the label
         label = QLabel()
-        name = Translator().text(
-            f"archetype.prop_name.{property.name}", alternative_text=property.name
-        )
+        name = _(f"archetype.prop_name.{property.name}", alternative_text=property.name)
         label.setWordWrap(True)
 
         # Check if the property is required
@@ -169,7 +168,7 @@ class PropertyInputFactory:
                 label.setFont(font)
 
                 # Set the tooltip
-                label.setToolTip(Translator().text("property_input.required_tooltip"))
+                label.setToolTip(_("property_input.required_tooltip"))
 
         # Set the label text
         label.setText(name)

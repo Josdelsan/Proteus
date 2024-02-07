@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import QDialogButtonBox
 # --------------------------------------------------------------------------
 
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.utils.translator import Translator
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.tests.end2end.fixtures import app, get_dialog
@@ -183,7 +184,7 @@ def test_create_project_negative(app, project_path, project_name, expected_error
     main_window: MainWindow = app
 
     # Translator instace to translate error messages
-    translator = main_window._translator
+    translator = Translator()
 
     # --------------------------------------------
     # Act

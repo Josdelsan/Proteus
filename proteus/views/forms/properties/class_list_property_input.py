@@ -30,6 +30,9 @@ from proteus.utils.translator import Translator
 from proteus.utils.config import Config
 from proteus.utils import ProteusIconType
 
+# Module configuration
+_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: ClassListPropertyInput
@@ -107,7 +110,7 @@ class ClassListPropertyInput(PropertyInput):
             class_icon = QIcon(class_icon_path.as_posix())
 
             # Class name translation
-            class_name_translated = Translator().text(
+            class_name_translated = _(
                 f"archetype.class.{project_available_class}",
                 alternative_text=project_available_class,
             )

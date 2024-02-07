@@ -27,6 +27,9 @@ from proteus.utils.translator import Translator
 from proteus.model.properties.enum_property import EnumProperty
 from proteus.views.forms.properties.property_input import PropertyInput
 
+# Module configuration
+_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: EnumPropertyInput
@@ -93,11 +96,9 @@ class EnumPropertyInput(PropertyInput):
         # Add choices translated
         for choice in choices:
             input.addItem(
-                Translator().text(
-                    f"archetype.enum_choices.{choice}", alternative_text=choice
-                ),
+                _(f"archetype.enum_choices.{choice}", alternative_text=choice),
                 choice,
             )
         # Set current choice
-        input.setCurrentText(Translator().text(property.value))
+        input.setCurrentText(_(property.value))
         return input

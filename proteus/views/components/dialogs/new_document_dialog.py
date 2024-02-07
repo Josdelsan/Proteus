@@ -36,7 +36,11 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
+
+# Module configuration
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -85,7 +89,7 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         self.setLayout(layout)
 
         # Set the window title
-        self.setWindowTitle(self._translator.text("new_document_dialog.title"))
+        self.setWindowTitle(_("new_document_dialog.title"))
 
         # Set window icon
         proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
@@ -99,9 +103,7 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         # Get document archetypes
         document_archetypes: List[Object] = self._controller.get_document_archetypes()
         # Create a combo box with the document archetypes
-        archetype_label: QLabel = QLabel(
-            self._translator.text("new_document_dialog.combobox.label")
-        )
+        archetype_label: QLabel = QLabel(_("new_document_dialog.combobox.label"))
         archetype_combo: QComboBox = QComboBox()
 
         archetype: Object = None
@@ -110,7 +112,7 @@ class NewDocumentDialog(QDialog, ProteusComponent):
 
         # Show the archetype description
         description_label: QLabel = QLabel(
-            self._translator.text("new_document_dialog.archetype.description")
+            _("new_document_dialog.archetype.description")
         )
         description_output: QLabel = QLabel()
         description_output.setWordWrap(True)
@@ -137,7 +139,6 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         layout.addWidget(self.error_label)
 
         layout.addWidget(self.button_box)
-
 
         # ---------------------------------------------
         # Actions
@@ -174,7 +175,7 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         """
         if self._archetype_id is None:
             self.error_label.setText(
-                self._translator.text("new_document_dialog.error.no_archetype_selected")
+                _("new_document_dialog.error.no_archetype_selected")
             )
             return
 

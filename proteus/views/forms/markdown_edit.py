@@ -33,6 +33,9 @@ from PyQt6.QtWidgets import (
 
 from proteus.utils.translator import Translator
 
+# Module configuration
+_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: MarkdownEdit
@@ -69,9 +72,6 @@ class MarkdownEdit(QWidget):
         self.display_box: QTextEdit = None
         self.mode_button: QPushButton = None
 
-        # Translator
-        self._translator = Translator()
-
         # Create input widget
         self.create_input()
 
@@ -106,7 +106,7 @@ class MarkdownEdit(QWidget):
 
         # Mode button ------------------------------------------------------
         self.mode_button = QPushButton()
-        self.mode_button.setText(self._translator.text("markdown_edit.preview"))
+        self.mode_button.setText(_("markdown_edit.preview"))
         self.mode_button.clicked.connect(self.on_mode_button_clicked)
 
         # Layout setup -----------------------------------------------------
@@ -177,7 +177,7 @@ class MarkdownEdit(QWidget):
         if self.display_box.isVisible():
             self.display_box.setVisible(False)
             self.input_box.setVisible(True)
-            self.mode_button.setText(self._translator.text("markdown_edit.preview"))
+            self.mode_button.setText(_("markdown_edit.preview"))
         # Enter preview mode
         else:
             text = self.input_box.toPlainText()
@@ -194,4 +194,4 @@ class MarkdownEdit(QWidget):
             self.display_box.setHtml(converted_text)
             self.display_box.setVisible(True)
             self.input_box.setVisible(False)
-            self.mode_button.setText(self._translator.text("markdown_edit.edit"))
+            self.mode_button.setText(_("markdown_edit.edit"))

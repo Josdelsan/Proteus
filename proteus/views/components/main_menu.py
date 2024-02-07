@@ -49,6 +49,7 @@ from proteus.views.components.archetypes_menu_dropdown import (
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
 from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
+from proteus.utils.translator import Translator
 from proteus.utils.events import (
     SelectObjectEvent,
     OpenProjectEvent,
@@ -58,8 +59,9 @@ from proteus.utils.events import (
     StackChangedEvent,
 )
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -146,12 +148,12 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab(self._translator.text("main_menu.tab.home.name"))
+        self.add_main_tab(_("main_menu.tab.home.name"))
 
         # Get the object archetypes
-        object_archetypes_dict: Dict[
-            str, Dict[str, List[Object]]
-        ] = self._controller.get_first_level_object_archetypes()
+        object_archetypes_dict: Dict[str, Dict[str, List[Object]]] = (
+            self._controller.get_first_level_object_archetypes()
+        )
         # Create a tab for each type of object archetypes
         for type_name in object_archetypes_dict.keys():
             self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
@@ -361,7 +363,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, self._translator.text(tab_name_code))
+        self.tab_widget.addTab(tab_widget, _(tab_name_code))
 
     # ---------------------------------------------------------------------
     # Method     : subscribe
@@ -415,7 +417,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.undo_button.setEnabled(can_undo)
         self.redo_button.setEnabled(can_redo)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_required_save_action
     # Description: Update the state of save button when a save action is
@@ -432,7 +433,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.save_button.setEnabled(unsaved_changes)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
     # Description: Update the state of save button when a project is saved.
@@ -447,7 +447,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         Triggered by: SaveProjectEvent
         """
         self.save_button.setEnabled(False)
-
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -494,7 +493,6 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Enable or disable the archetype button
                 archetype_button.setEnabled(enable)
 
-
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project
     # Description: Enable the project properties and add document buttons
@@ -512,7 +510,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
-
 
     # ----------------------------------------------------------------------
     # Method     : update_on_current_document_changed
@@ -542,7 +539,6 @@ class MainMenu(QDockWidget, ProteusComponent):
             current_object_id = self._state_manager.get_current_object()
             self.update_on_select_object(current_object_id)
 
-
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
@@ -564,7 +560,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         # Open the file dialog
         directory_path: str = QFileDialog.getExistingDirectory(
-            None, self._translator.text("main_menu.open_project.caption"), ""
+            None, _("main_menu.open_project.caption"), ""
         )
 
         # If a directory was selected, check if there is already a project
@@ -588,11 +584,9 @@ class MainMenu(QDockWidget, ProteusComponent):
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
                 confirmation_dialog.setWindowTitle(
-                    self._translator.text("main_menu.open_project.save.title")
+                    _("main_menu.open_project.save.title")
                 )
-                confirmation_dialog.setText(
-                    self._translator.text("main_menu.open_project.save.text")
-                )
+                confirmation_dialog.setText(_("main_menu.open_project.save.text"))
                 confirmation_dialog.setStandardButtons(
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
@@ -615,12 +609,8 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Show an error message dialog
                 error_dialog = QMessageBox()
                 error_dialog.setIcon(QMessageBox.Icon.Critical)
-                error_dialog.setWindowTitle(
-                    self._translator.text("main_menu.open_project.error.title")
-                )
-                error_dialog.setText(
-                    self._translator.text("main_menu.open_project.error.text")
-                )
+                error_dialog.setWindowTitle(_("main_menu.open_project.error.title"))
+                error_dialog.setText(_("main_menu.open_project.error.text"))
 
                 informative_text: str = str(e)
 
@@ -629,7 +619,6 @@ class MainMenu(QDockWidget, ProteusComponent):
 
                 error_dialog.setInformativeText(informative_text)
                 error_dialog.exec()
-
 
     # ----------------------------------------------------------------------
     # Method     : save_project
@@ -647,7 +636,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Write the state to a file
         project_path: str = self._controller.get_current_project().path
         write_state_to_file(Path(project_path).parent, self._state_manager)
-
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document

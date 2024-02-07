@@ -19,11 +19,10 @@ from typing import List
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QPushButton,
-    QToolButton,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
@@ -31,7 +30,6 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QSizePolicy,
-    QMenu,
     QLineEdit,
 )
 
@@ -55,8 +53,9 @@ from proteus.utils import ProteusIconType
 from proteus.utils.config import Config
 from proteus.utils.translator import Translator
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -383,7 +382,7 @@ class TraceEditDialog(QDialog):
         # -----------------------
 
         # Set dialog title
-        title: str = Translator().text("trace_edit_dialog.title")
+        title: str = _("trace_edit_dialog.title")
         self.setWindowTitle(title)
 
         # Set window icon
@@ -435,9 +434,7 @@ class TraceEditDialog(QDialog):
         self.class_selector_combo: CheckComboBox = CheckComboBox()
 
         for _class in classes_list:
-            class_name_tr = Translator().text(
-                f"archetype.class.{_class}", alternative_text=_class
-            )
+            class_name_tr = _(f"archetype.class.{_class}", alternative_text=_class)
 
             # Class icon
             class_icon_path = Config().get_icon(ProteusIconType.Archetype, _class)
@@ -455,7 +452,7 @@ class TraceEditDialog(QDialog):
 
         self.name_filter_widget = QLineEdit()
         self.name_filter_widget.setPlaceholderText(
-            Translator().text("trace_edit_dialog.name_filter_widget.placeholder_text")
+            _("trace_edit_dialog.name_filter_widget.placeholder_text")
         )
 
         # Connect textChanged signal

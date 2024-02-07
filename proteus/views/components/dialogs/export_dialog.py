@@ -36,8 +36,12 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
+
+# Module configuration
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -93,7 +97,7 @@ class ExportDialog(QDialog, ProteusComponent):
 
         # Windows general settings ---------------------------------
         # Set the dialog title and width
-        self.setWindowTitle(self._translator.text("export_dialog.title"))
+        self.setWindowTitle(_("export_dialog.title"))
         self.sizeHint = lambda: QSize(400, 0)
 
         # Set window icon
@@ -101,19 +105,18 @@ class ExportDialog(QDialog, ProteusComponent):
         self.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
         # Expand policy
-        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
-
+        self.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
+        )
 
         # Export format selector ---------------------------------
-        export_format_label = QLabel(
-            self._translator.text("export_dialog.export_format.label")
-        )
+        export_format_label = QLabel(_("export_dialog.export_format.label"))
         self.export_format_selector = QComboBox()
         self.export_format_selector.addItem(
-            self._translator.text("export_dialog.export_format.pdf"), ExportFormat.PDF
+            _("export_dialog.export_format.pdf"), ExportFormat.PDF
         )
         self.export_format_selector.addItem(
-            self._translator.text("export_dialog.export_format.html"), ExportFormat.HTML
+            _("export_dialog.export_format.html"), ExportFormat.HTML
         )
         self.export_format_selector.currentIndexChanged.connect(
             self.update_export_strategy
@@ -124,9 +127,7 @@ class ExportDialog(QDialog, ProteusComponent):
         self.export_widget_holder.setContentsMargins(0, 0, 0, 0)
 
         # Accept and cancel buttons ---------------------------------
-        self.export_button = QPushButton(
-            self._translator.text("export_dialog.export_button.text")
-        )
+        self.export_button = QPushButton(_("export_dialog.export_button.text"))
         self.export_button.setEnabled(False)
         self.export_button.clicked.connect(self.export_button_clicked)
 
@@ -231,15 +232,15 @@ class ExportDialog(QDialog, ProteusComponent):
         if success:
             QMessageBox.information(
                 self,
-                self._translator.text("export_dialog.finished.dialog.title"),
-                self._translator.text("export_dialog.finished.dialog.text", filePath),
+                _("export_dialog.finished.dialog.title"),
+                _("export_dialog.finished.dialog.text", filePath),
             )
             self.close()
         else:
             QMessageBox.critical(
                 self,
-                self._translator.text("export_dialog.finished.dialog.error.title"),
-                self._translator.text("export_dialog.finished.dialog.error.text"),
+                _("export_dialog.finished.dialog.error.title"),
+                _("export_dialog.finished.dialog.error.text"),
             )
             self.close()
 

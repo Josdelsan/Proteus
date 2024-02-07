@@ -52,8 +52,9 @@ from proteus.utils.events import (
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -174,9 +175,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         # Create document page using subclass
         # NOTE: This subclass is needed for external links handling
-        document_page: DocumentPage = DocumentPage(
-            parent=browser, translator=self._translator
-        )
+        document_page: DocumentPage = DocumentPage(parent=browser)
         browser.setPage(document_page)
 
         # QWebChannel setup for plugins
@@ -199,9 +198,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
-        self.addTab(
-            browser, self._translator.text(tab_code_name, alternative_text=xslt_name)
-        )
+        self.addTab(browser, _(tab_code_name, alternative_text=xslt_name))
 
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser
@@ -511,20 +508,6 @@ class DocumentPage(QWebEnginePage):
     """
 
     # ----------------------------------------------------------------------
-    # Method     : __init__
-    # Description: Initialize the class.
-    # Date       : 30/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __init__(self, parent, translator: Translator, *args, **kwargs) -> None:
-        """
-        Initialize the class.
-        """
-        super().__init__(parent, *args, **kwargs)
-        self.translator: Translator = translator
-
-    # ----------------------------------------------------------------------
     # Method     : acceptNavigationRequest
     # Description: Override the acceptNavigationRequest method to avoid
     #              opening external links in the browser.
@@ -551,10 +534,8 @@ class DocumentPage(QWebEnginePage):
             # default browser
             reply: QMessageBox.StandardButton = QMessageBox.question(
                 None,
-                self.translator.text("document_render.external_link"),
-                self.translator.text(
-                    "document_render.external_link.text", url.toString()
-                ),
+                _("document_render.external_link"),
+                _("document_render.external_link.text", url.toString()),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )

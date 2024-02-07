@@ -34,7 +34,11 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
+
+# Module configuration
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -80,7 +84,7 @@ class NewViewDialog(QDialog, ProteusComponent):
         self.setLayout(layout)
 
         # Set the dialog title and width
-        self.setWindowTitle(self._translator.text("new_view_dialog.title"))
+        self.setWindowTitle(_("new_view_dialog.title"))
         self.sizeHint = lambda: QSize(300, 0)
 
         # Set window icon
@@ -91,20 +95,16 @@ class NewViewDialog(QDialog, ProteusComponent):
         xls_templates: List[str] = self._controller.get_available_xslt()
 
         # Create a combo box with the available views
-        view_label: QLabel = QLabel(
-            self._translator.text("new_view_dialog.combobox.label")
-        )
+        view_label: QLabel = QLabel(_("new_view_dialog.combobox.label"))
         view_combo: QComboBox = QComboBox()
 
         # Add the view names to the combo box
         for view in xls_templates:
-            view_translation: str = self._translator.text(
-                f"xslt_templates.{view}", alternative_text=view
-            )
+            view_translation: str = _(f"xslt_templates.{view}", alternative_text=view)
             view_combo.addItem(view_translation, view)
 
         # Create view message label
-        info_label: QLabel = QLabel(self._translator.text("new_view_dialog.info_text"))
+        info_label: QLabel = QLabel(_("new_view_dialog.info_text"))
         info_label.setWordWrap(True)
 
         # Create Save and Cancel buttons
@@ -149,15 +149,11 @@ class NewViewDialog(QDialog, ProteusComponent):
         selected xslt template.
         """
         if combo_text is None:
-            self.error_label.setText(
-                self._translator.text("new_view_dialog.error.no_view_selected")
-            )
+            self.error_label.setText(_("new_view_dialog.error.no_view_selected"))
             return
 
         if combo_text in self._controller.get_project_templates():
-            self.error_label.setText(
-                self._translator.text("new_view_dialog.error.duplicated_view")
-            )
+            self.error_label.setText(_("new_view_dialog.error.duplicated_view"))
             return
 
         # Add the new template to the project and call the event

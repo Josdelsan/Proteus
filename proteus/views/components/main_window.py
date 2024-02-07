@@ -29,14 +29,16 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
 from proteus.utils.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
 from proteus.utils.state_restorer import write_state_to_file
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -90,7 +92,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         Create the main window for the PROTEUS application.
         """
         # Set the window title
-        self.setWindowTitle(self._translator.text("main_window.title"))
+        self.setWindowTitle(_("main_window.title"))
 
         # Set the window icon
         proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
@@ -163,7 +165,7 @@ class MainWindow(QMainWindow, ProteusComponent):
 
         project = self._controller.get_current_project()
         self.setWindowTitle(
-            f"{self._translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
+            f"{_('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
         )
 
     # ----------------------------------------------------------------------
@@ -207,7 +209,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         object_name = selected_object.get_property(PROTEUS_NAME).value
 
         # Message to show in the status bar
-        message: str = self._translator.text(
+        message: str = _(
             "main_window.statusbar.text.selected_object",
             selected_object_id,
             object_name,
@@ -242,7 +244,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         # Check if element id is project id
         if object_id == project.id:
             self.setWindowTitle(
-                f"{self._translator.text('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
+                f"{_('main_window.title')} - {project.get_property(PROTEUS_NAME).value}"
             )
 
     # ======================================================================
@@ -305,12 +307,8 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-            confirmation_dialog.setWindowTitle(
-                self._translator.text("main_window.exit_dialog.title")
-            )
-            confirmation_dialog.setText(
-                self._translator.text("main_window.exit_dialog.text")
-            )
+            confirmation_dialog.setWindowTitle(_("main_window.exit_dialog.title"))
+            confirmation_dialog.setText(_("main_window.exit_dialog.text"))
             confirmation_dialog.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
