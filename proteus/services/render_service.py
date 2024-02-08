@@ -126,7 +126,7 @@ class RenderService:
 
             # NOTE: Comment this line to make XSLT debugging easier
             # Store the transformation object for future use
-            # self._transformations[xslt_name] = transform
+            self._transformations[xslt_name] = transform
 
         return transform
 

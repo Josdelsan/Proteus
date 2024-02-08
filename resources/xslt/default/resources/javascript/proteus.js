@@ -18,6 +18,7 @@ const PROTEUS_XSLT_LOG_PREFIX = `${PROTEUS_XSLT_NAME}:${PROTEUS_XSLT_VERSION} - 
 var proteusBasics = null;
 var documentInteractions = null;
 
+
 // -----------------------------------------------------------------------
 // Custom log function
 // -----------------------------------------------------------------------
@@ -41,7 +42,7 @@ function loadWebChannel() {
             // Scroll to the current object as soon as the QWebChannel is loaded
             // This improves user experience when the document has a lot of
             // resources (images, stylesheets, etc.)
-            proteusBasics.get_current_object_id( function (oid) {
+            proteusBasics.get_current_object_id(function (oid) {
                 onTreeObjectSelected(oid);
             });
 
@@ -172,6 +173,60 @@ function removeIdsInsideSymbolicLink() {
     });
 }
 
+// -----------------------------------------------------------------------
+// Function    : traceabilityMatrixButtonsSetup
+// Description : Setup the buttons of the traceability matrix.
+// Date        : 08/02/2024
+// Version     : 0.1
+// Author      : José María Delgado Sánchez
+// -----------------------------------------------------------------------
+function traceabilityMatrixButtonsSetup() {
+    const reduce_font_buttons = document.querySelectorAll('button.reduce_font');
+    const increase_font_buttons = document.querySelectorAll('button.increase_font');
+
+    log('Setting up traceability matrix buttons')
+
+    // Subscribe buttons to reduce and increase font size
+    reduce_font_buttons.forEach(button => {
+        button.addEventListener('click', function (event) {
+            const parent_table = button.closest('table.traceability_matrix');
+            update_font_size(parent_table, -1);
+            event.stopPropagation();
+        });
+
+        // Prevent double click event triggering
+        button.addEventListener('dblclick', function (event) {
+            event.stopPropagation();
+        });
+    }
+    );
+
+    // Subscribe buttons to reduce and increase font size
+    increase_font_buttons.forEach(button => {
+        button.addEventListener('click', function (event) {
+            const parent_table = button.closest('table.traceability_matrix');
+            update_font_size(parent_table, 1);
+            event.stopPropagation();
+        });
+
+        // Prevent double click event triggering
+        button.addEventListener('dblclick', function (event) {
+            event.stopPropagation();
+        });
+    }
+    );
+}
+
+// Helper function to update the font size of the traceability matrix
+function update_font_size(parent_table, size) {
+    var matrix_columns = parent_table.querySelectorAll("th.matrix_column");
+    var font_size = parseInt(getComputedStyle(matrix_columns[0]).fontSize, 10);
+
+    matrix_columns.forEach(column => {
+        column.style.fontSize = font_size + size + "px";
+    });
+}
+
 
 // =========================================================================
 // Execute code on DOMContentLoaded event
@@ -185,11 +240,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Suscribe all the elements with data-proteus-id to the necessary events
     suscribeProteusId();
+    
+    // Setup the buttons of the traceability matrix
+    traceabilityMatrixButtonsSetup();
 });
 
 // =========================================================================
 // Execute code on load event
 // =========================================================================
 window.onload = function () {
-    
+
 };

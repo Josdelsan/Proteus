@@ -33,6 +33,7 @@ archetype.class.organization: "Organization"
 archetype.class.stakeholder: "Stakeholder"
 archetype.class.meeting: "Meeting"
 archetype.class.archetype-link: "Symbolic link"
+archetype.class.traceability-matrix: "Traceability matrix"
   
 # -----------------------------------------------------------------------
 # Archetype properties categories
@@ -110,3 +111,5 @@ archetype.prop_name.prepared-by: "Prepared by"
 archetype.prop_name.prepared-for: "Prepared for"
 archetype.prop_name.width: "Width (%)"
 archetype.prop_name.link: "Link"
+archetype.prop_name.col-classes: "Columns of the matrix"
+archetype.prop_name.row-classes: "Rows of the matrix"
