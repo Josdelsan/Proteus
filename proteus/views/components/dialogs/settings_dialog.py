@@ -5,7 +5,6 @@
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
-# TODO:
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -38,6 +37,7 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.utils.config import SETTING_LANGUAGE, SETTING_ARCHETYPE_REPOSITORY
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.components.abstract_component import ProteusComponent
@@ -106,8 +106,8 @@ class SettingsDialog(QDialog, ProteusComponent):
         self.setWindowTitle(_("settings_dialog.title"))
 
         # Set window icon
-        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        self.setWindowIcon(proteus_icon)
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(

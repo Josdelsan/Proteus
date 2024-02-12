@@ -31,6 +31,7 @@ from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
 from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.events import (
     AddDocumentEvent,
     ModifyObjectEvent,
@@ -155,8 +156,8 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
-        icon_path: Path = self._config.get_icon(ProteusIconType.Document, document_acronym)
-        self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+        icon = DynamicIcons().icon(ProteusIconType.Document, document_acronym)
+        self.setTabIcon(tab_index, icon)
         self.setIconSize(QSize(32, 32))
 
         # Drop configuration to allow objects moves between tabs
@@ -297,8 +298,8 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
-            icon_path: Path = self._config.get_icon(ProteusIconType.Document, document_acronym)
-            self.setTabIcon(tab_index, QIcon(icon_path.as_posix()))
+            icon = DynamicIcons().icon(ProteusIconType.Document, document_acronym)
+            self.setTabIcon(tab_index, icon)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_current_document_changed

@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 
@@ -88,8 +89,8 @@ class NewViewDialog(QDialog, ProteusComponent):
         self.sizeHint = lambda: QSize(300, 0)
 
         # Set window icon
-        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        self.setWindowIcon(proteus_icon)
 
         # Get available xls templates to create a new view
         xls_templates: List[str] = self._controller.get_available_xslt()

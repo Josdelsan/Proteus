@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 
@@ -60,9 +61,7 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(
-        self, archetype_list: List[Object], *args, **kwargs
-    ) -> None:
+    def __init__(self, archetype_list: List[Object], *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
@@ -102,9 +101,8 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
                 # Name translation might not be needed for archetypes
                 archetype.get_property(PROTEUS_NAME).value,
             )
-            icon: QIcon = QIcon(
-                self._config.get_icon(ProteusIconType.Archetype, arch_class).as_posix()
-            )
+            icon: QIcon = DynamicIcons().icon(ProteusIconType.Archetype, arch_class)
+
             clone_action.setIcon(icon)
             clone_action.triggered.connect(
                 lambda checked, arg=archetype.id: self._controller.create_object(

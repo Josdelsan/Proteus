@@ -37,11 +37,13 @@ from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 
 # Module configuration
 _ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: DeleteDialog
@@ -66,11 +68,7 @@ class DeleteDialog(QDialog, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def __init__(
-        self,
-        element_id: ProteusID = None,
-        is_document: bool = False,
-        *args,
-        **kwargs
+        self, element_id: ProteusID = None, is_document: bool = False, *args, **kwargs
     ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
@@ -86,7 +84,6 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         # Create the component
         self.create_component()
-        
 
     # ----------------------------------------------------------------------
     # Method     : create_component
@@ -108,7 +105,6 @@ class DeleteDialog(QDialog, ProteusComponent):
         )
         self.setWindowIcon(warning_icon)
 
-
         # Get object name
         object: Object = self._controller.get_element(self.element_id)
         object_name: str = object.get_property(PROTEUS_NAME).value
@@ -121,17 +117,15 @@ class DeleteDialog(QDialog, ProteusComponent):
         # Show all the object traces dependencies, it is shown in a QTreeWidget.
         # Each object pointed by another object is shown as a parent item and
         # its dependencies are shown as children items.
-        traces_dependencies: Dict[
-            ProteusID, set
-        ] = self._controller.get_traces_dependencies(self.element_id)
+        traces_dependencies: Dict[ProteusID, set] = (
+            self._controller.get_traces_dependencies(self.element_id)
+        )
 
         # Skipped if the object has no traces dependencies
         if traces_dependencies:
-        
+
             # Explanation message
-            message_traces: str = _(
-                "delete_dialog.traces_explanation"
-            )
+            message_traces: str = _("delete_dialog.traces_explanation")
             message_traces_label: QLabel = QLabel(message_traces)
             message_traces_label.setWordWrap(True)
             message_traces_label.setStyleSheet("font-weight: bold; background: #eee;")
@@ -170,7 +164,6 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         layout.addWidget(self.button_box)
 
-
     def create_tree_item(
         self, object_id: ProteusID, parent: Union[QTreeWidget, QTreeWidgetItem]
     ) -> QTreeWidgetItem:
@@ -194,8 +187,8 @@ class DeleteDialog(QDialog, ProteusComponent):
 
         # Set icon
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = self._config.get_icon(ProteusIconType.Archetype, object_class)
-        item.setIcon(0, QIcon(icon_path.as_posix()))
+        icon = DynamicIcons().icon(ProteusIconType.Archetype, object_class)
+        item.setIcon(0, icon)
         return item
 
     # ======================================================================

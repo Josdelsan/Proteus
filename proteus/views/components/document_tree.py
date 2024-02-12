@@ -19,7 +19,7 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QPoint, pyqtSlot
+from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import (
     QDropEvent,
     QIcon,
@@ -49,6 +49,7 @@ from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
@@ -280,8 +281,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Set the icon based on the object last class
         object_class: ProteusClassTag = object.classes[-1]
-        icon_path: Path = self._config.get_icon(ProteusIconType.Archetype, object_class)
-        tree_item.setIcon(0, QIcon(icon_path.as_posix()))
+        icon = DynamicIcons().icon(ProteusIconType.Archetype, object_class)
+        tree_item.setIcon(0, icon)
 
         # Set the item data to store the object id
         tree_item.setData(1, Qt.ItemDataRole.UserRole, object.id)

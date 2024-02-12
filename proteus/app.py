@@ -28,17 +28,18 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus import PROTEUS_LOGGING_DIR, parser
+from proteus import PROTEUS_LOGGING_DIR
 from proteus.utils.config import Config
 from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
 
 # Module configuration
-log = logging.getLogger(__name__) # Logger
-_ = Translator().text # Translator
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
@@ -50,7 +51,7 @@ _ = Translator().text # Translator
 
 
 class ProteusApplication:
-    def __init__(self):
+    def __init__(self, project_path: Path = None):
         """
         It initializes the PROTEUS application.
         """
@@ -58,6 +59,7 @@ class ProteusApplication:
         self.config: Config = Config()
         self.plugin_manager: PluginManager = PluginManager()
         self.translator: Translator = Translator()
+        self.dynamic_icons: DynamicIcons = DynamicIcons()
 
         # Request interceptor
         self.request_interceptor: WebEngineUrlRequestInterceptor = (
@@ -67,6 +69,9 @@ class ProteusApplication:
         # PyQt6 application and main window
         self.app: QApplication = None
         self.main_window: MainWindow = None
+
+        # Optional params
+        self.project_path = project_path
 
     def run(self) -> int:
         """
@@ -82,19 +87,56 @@ class ProteusApplication:
         log.info(f"{self.config.icons_directory = }")
         log.info(f"{self.config.archetypes_directory = }")
 
+        # Create the application instance and set the excepthook
+        # to handle uncaught exceptions in every thread.
+        sys.excepthook = self.excepthook
+        self.app = QApplication(sys.argv)
+
+        # Initial configuration
+        self.initial_configuration()
+
+        # Create the main window
+        controller = Controller()
+        self.main_window = MainWindow(parent=None, controller=controller)
+        self.main_window.show()
+
+        # Plugin dependencies check and load plugin components
+        self.check_plugins_dependencies()
+        self.load_plugin_components()
+
+        if self.project_path:
+            controller.load_project(self.project_path.as_posix())
+
+        # Execute the application
+        sys.exit(self.app.exec())
+
+    # --------------------------------------------------------------------------
+    # Method: initial_configuration
+    # Description: Initial configuration of the application.
+    # Date: 12/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def initial_configuration(self) -> None:
+        """
+        Initial configuration that must be done before the app start.
+
+        It handles initialization of translator, dynamic icons, plugins,
+        request interceptor and stylesheet
+        """
         # Set translator configuration and load translations
         self.translator.set_language(self.config.language)
         self.translator.set_i18n_directory(self.config.i18n_directory)
         self.translator.set_archetypes_directory(self.config.archetypes_directory)
         self.translator.load_system_translations()
 
+        # Set dynamic icons configuration and load icons
+        self.dynamic_icons.set_icons_directory(self.config.icons_directory)
+        self.dynamic_icons.set_archetypes_directory(self.config.archetypes_directory)
+        self.dynamic_icons.load_system_icons()
+
         # Load plugins
         self.plugin_manager.load_plugins()
-
-        # Create the application instance and set the excepthook
-        # to handle uncaught exceptions in every thread.
-        sys.excepthook = self.excepthook
-        self.app = QApplication(sys.argv)
 
         # Setup the request interceptor
         profile = QWebEngineProfile.defaultProfile()
@@ -108,22 +150,6 @@ class ProteusApplication:
             _stylesheet = f.read()
             self.app.setStyleSheet(_stylesheet)
             del _stylesheet
-
-        # Create the main window
-        controller = Controller()
-        self.main_window = MainWindow(parent=None, controller=controller)
-        self.main_window.show()
-
-        # Plugin dependencies check and load plugin components
-        self.check_plugins_dependencies()
-        self.load_plugin_components()
-
-        args = parser.parse_args()
-        if args.project:
-            controller.load_project(args.project)
-
-        # Execute the application
-        sys.exit(self.app.exec())
 
     # --------------------------------------------------------------------------
     # Method: check_plugins_dependencies

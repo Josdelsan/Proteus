@@ -31,6 +31,7 @@ from proteus.utils import ProteusIconType
 from proteus.model import ASSETS_REPOSITORY
 from proteus.utils.config import Config
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 
 # Module configuration
 _ = Translator().text
@@ -93,12 +94,9 @@ class AssetEdit(QWidget):
         self.input.setDisabled(True)
 
         # Browse button
-        browse_icon_path: Path = Config().get_icon(
+        browse_button_icon: Path = DynamicIcons().icon(
             ProteusIconType.App, "browse_asset_icon"
         )
-        browse_button_icon = QIcon()
-        browse_button_icon.addFile(browse_icon_path.as_posix())
-
         self.browse_button = QPushButton()
         self.browse_button.setIcon(browse_button_icon)
 

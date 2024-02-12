@@ -35,7 +35,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
 from proteus.utils.state_manager import StateManager
 from proteus.controller.command_stack import Controller
@@ -169,12 +169,9 @@ class ExportPDF(ExportStrategy):
         self._input.setDisabled(True)
 
         # Browse button
-        browse_icon_path: Path = Config().get_icon(
+        browse_button_icon = DynamicIcons().icon(
             ProteusIconType.App, "browse_file_icon"
         )
-        browse_button_icon = QIcon()
-        browse_button_icon.addFile(browse_icon_path.as_posix())
-
         self._browse_button = QPushButton()
         self._browse_button.setIcon(browse_button_icon)
 

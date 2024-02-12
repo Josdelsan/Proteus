@@ -41,5 +41,5 @@ PROTEUS_MAX_LOG_FILES  = 7
 # --------------------------------------------------------------------------
 import argparse
 parser = argparse.ArgumentParser("Proteus")
-parser.add_argument("-project", "-p", help="Open the project in the given path.")
+parser.add_argument("-p", "--project-path", help="Open the project located in the given path.")
 
