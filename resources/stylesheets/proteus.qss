@@ -6,11 +6,6 @@
 /* Author: José María Delgado Sánchez                                        */
 /* ========================================================================= */
 
-/* Background color: #f9f9f9 */
-/* Background not selected 'white': #f4f4f4 */
-/* Border 'white' color: #e1e1e1 */
-/* Border dark color: slategray */
-
 /* ========================================================================= */
 /* General styles                                                            */
 /* ========================================================================= */
@@ -26,12 +21,65 @@ QAbstractItemView {
     outline: 0;
 }
 
+QAbstractItemView::item:selected {
+    outline: 0;
+}
+
+
+
 /* QListWidget ------------------------------------------------------------- */
 
 QListWidget {
     border: 1px solid gainsboro;
     border-radius: 1px;
 }
+
+/* QCalendarWidget --------------------------------------------------------- */
+QCalendarWidget QToolButton {
+    font: bold;
+  	color: white;
+    background-color: transparent;
+
+    padding-right: 0.7em;
+
+    border-color: transparent;
+    border-radius: 0;
+}
+
+QCalendarWidget QToolButton::menu-indicator {
+    subcontrol-origin: right;
+    subcontrol-position: right center;
+}
+
+QCalendarWidget QToolButton::hover {
+    background-color: #004589;
+    border-color: #004589;
+    border-radius: 0;
+}
+
+QCalendarWidget QToolButton:pressed {
+    background-color: #89c4ff;
+}
+
+QCalendarWidget QAbstractItemView::item:selected {
+    background-color: #0080ff;
+}
+
+/* These are internal PyQt widget names, this is a workaround to modify
+QCalendarWidget style since it was affected by other app general styles */
+QCalendarWidget #qt_calendar_navigationbar {
+    background-color: #0080ff;
+}
+
+QCalendarWidget #qt_calendar_prevmonth {
+    padding: 0.15em;
+    qproperty-icon: url(resources:icons/calendar/prev-month.png);
+}
+QCalendarWidget #qt_calendar_nextmonth {
+    padding: 0.15em;
+    qproperty-icon: url(resources:icons/calendar/next-month.png);
+}
+
 
 /* QTreeView/QListWidget items --------------------------------------------- */
 QTreeView::item, QListWidget::item {
@@ -151,7 +199,7 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:hover:!selected {
-    margin-top: 0px;
+    margin-top: 0;
     background-color: azure;
 }
 
@@ -216,13 +264,12 @@ QCheckBox:pressed {
 }
 
 
-
 /* ========================================================================= */
 /* DocumentTree component                                                    */
 /* ========================================================================= */
 /* QTreeWidget subclass */
 #DocumentTree {
-    border: 0px;
+    border: 0;
 }
 
 /* ========================================================================= */
@@ -285,14 +332,14 @@ QCheckBox:pressed {
     padding: 0.3em; /* Affects arrow size */
 
     border: 1px solid gainsboro;
-    border-left: 0px;
+    border-left: 0;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
 }
 
 #archetype_menu_button::menu-button:hover {
     border: 1px solid skyblue;
-    border-left: 0px;
+    border-left: 0;
 }
 
 #archetype_menu_button::menu-button:pressed {
@@ -300,7 +347,7 @@ QCheckBox:pressed {
 
 #archetype_menu_button::menu-button:disabled {
     border: 1px solid #e1e1e1;
-    border-left: 0px;
+    border-left: 0;
 }
 
 
