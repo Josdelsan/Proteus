@@ -12,7 +12,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from functools import reduce
 import logging
 
 # --------------------------------------------------------------------------
@@ -25,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
+from proteus.model import ProteusClassTag
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -128,18 +127,11 @@ class PropertyFactory:
         # Get value (checked in property constructors)
         if property_class is ClassListProperty:
             # We need to collect the list of class names,
-            # put them toghether in a space-separated string
-            # and use it as property value. In order to do so, we use
-            # reduce (from functools) and a lambda expression.
+            # put them toghether in a list of ProteusClassTag objects
             if element.findall(CLASS_TAG):
-                class_names = map(lambda e: e.text, element.findall(CLASS_TAG))
-                value = (
-                    reduce(lambda c1, c2: c1 + " " + c2, class_names)
-                    if class_names
-                    else str()
-                )
+                value = [ProteusClassTag(e.text) for e in element.findall(CLASS_TAG)]
             else:
-                value = str()
+                value = list()
         elif property_class is CodeProperty:
             # We need to collect its prefix, number and suffix
             prefix = element.find(PREFIX_TAG).text

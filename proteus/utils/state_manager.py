@@ -14,7 +14,6 @@
 
 from typing import Dict, Union
 import logging
-import threading
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,6 +24,7 @@ import threading
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.utils.abstract_meta import SingletonMeta
 from proteus.utils.events import (
     SelectObjectEvent,
     CurrentDocumentChangedEvent,
@@ -42,32 +42,11 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class StateManager:
+class StateManager(metaclass=SingletonMeta):
     """
     State manager for the PROTEUS application. It stores the current
     selected document and the selected object for each document tree.
     """
-
-    # Singleton instance
-    __instance = None
-    __lock = threading.Lock()  # Ensure thread safety
-
-    # --------------------------------------------------------------------------
-    # Method: __new__
-    # Description: Singleton constructor for StateManager class.
-    # Date: 15/11/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs):
-        """
-        It creates a singleton instance for StateManager class.
-        """
-        if not cls.__instance:
-            log.info("Creating StateManager instance")
-            cls.__instance = super(StateManager, cls).__new__(cls)
-            cls.__instance._initialized = False
-        return cls.__instance
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -80,11 +59,6 @@ class StateManager:
         """
         It initializes the StateManager class.
         """
-        # Check if the instance has been initialized
-        with self.__class__.__lock:
-            if self._initialized:
-                return
-            self._initialized = True
 
         # Instance variables
         self.current_document: ProteusID = None

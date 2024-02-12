@@ -35,22 +35,22 @@ import proteus.tests.fixtures as fixtures
 
 @pytest.mark.parametrize('name',         [str(), 'test name'     ])
 @pytest.mark.parametrize('category',     [str(), 'test category' ])
-@pytest.mark.parametrize('value, expected_value, expected_value_as_list',
+@pytest.mark.parametrize('value, expected_value',
     [
-        (str(),     str(),     []                  ),
-        ('A',       'A',       ['A']               ), 
-        ('A B C D', 'A B C D', ['A', 'B', 'C', 'D'])
+        (str(),     []                  ),
+        ('A',       ['A']               ), 
+        ('A B C D', ['A', 'B', 'C', 'D'])
     ]
 )
-@pytest.mark.parametrize('new_value, new_expected_value, new_expected_value_as_list',
+@pytest.mark.parametrize('new_value, new_expected_value',
     [
-        ('X Y Z', 'X Y Z', ['X', 'Y', 'Z']),
-        ('B',     'B',     ['B']          ),
-        (str(),   str(),   []             )
+        ('X Y Z', ['X', 'Y', 'Z']),
+        ('B',     ['B']          ),
+        (str(),   []             )
     ]
 )
 
-def test_classlist_properties(name, category, value, expected_value, expected_value_as_list, new_value, new_expected_value, new_expected_value_as_list):
+def test_classlist_properties(name, category, value, expected_value, new_value, new_expected_value):
     """
     It tests creation, cloning, and evolution (cloning with a new value) 
     of classlist properties.
@@ -65,12 +65,11 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     assert(property.name     == name                          )
     assert(property.category == category                      )
     assert(property.value    == expected_value                )
-    assert(property.get_class_list() == expected_value_as_list)
     
     #We get the values parsed as <class>value</class><class>value</class>...
     expected_values_parsed = ""
-    for class_value in expected_value_as_list:
-        expected_values_parsed += "<" + child_property_tag + ">" + class_value + "</" + child_property_tag + ">"
+    for class_value in expected_value:
+        expected_values_parsed += "<" + child_property_tag + "><![CDATA[" + class_value + "]]></" + child_property_tag + ">"
     
     assert(
         ET.tostring(property.generate_xml()).decode() ==
@@ -84,7 +83,6 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     assert(cloned_property.name     == property.name    )
     assert(cloned_property.category == property.category)
     assert(cloned_property.value    == property.value   )
-    assert(cloned_property.get_class_list() == property.get_class_list() )
 
     # Clone the property changing value
     evolved_property = property.clone(new_value)
@@ -93,12 +91,11 @@ def test_classlist_properties(name, category, value, expected_value, expected_va
     assert(evolved_property.name     == property.name     )
     assert(evolved_property.category == property.category )
     assert(evolved_property.value    == new_expected_value  )    
-    assert(evolved_property.get_class_list() == new_expected_value_as_list)
 
     #We get the values parsed as <class>value</class><class>value</class>...
     new_expected_values_parsed = ""
-    for class_value in new_expected_value_as_list:
-        new_expected_values_parsed += "<" + child_property_tag + ">" + class_value + "</" + child_property_tag + ">"
+    for class_value in new_expected_value:
+        new_expected_values_parsed += "<" + child_property_tag + "><![CDATA[" + class_value + "]]></" + child_property_tag + ">"
 
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==

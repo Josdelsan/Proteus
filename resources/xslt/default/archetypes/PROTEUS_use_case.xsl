@@ -104,10 +104,10 @@
     <!-- Use case step template                         -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='software-requirement use-case use-case-step']">
+    <xsl:template match="object[@classes='use-case-step']">
         <xsl:variable name="label_number">
             <xsl:number from="object[@classes='software-requirement use-case']"
-                count="object[@classes='software-requirement use-case use-case-step']"
+                count="object[@classes='use-case-step']"
                 level="any" format="1" />
         </xsl:variable>        
 

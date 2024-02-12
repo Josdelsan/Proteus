@@ -98,27 +98,27 @@ QTreeView::item:selected, QListWidget::item:selected {
 
 /* QTreeView Tree lines ---------------------------------------------------- */
 QTreeView::branch:has-siblings:!adjoins-item {
-    border-image: url(resources:stylesheets/treelines/vline.png) 0;
+    border-image: url(resources:icons/treelines/vline.png) 0;
 }
 
 QTreeView::branch:has-siblings:adjoins-item {
-    border-image: url(resources:stylesheets/treelines/branch-more.png) 0;
+    border-image: url(resources:icons/treelines/branch-more.png) 0;
 }
 
 QTreeView::branch:!has-children:!has-siblings:adjoins-item {
-    border-image: url(resources:stylesheets/treelines/branch-end.png) 0;
+    border-image: url(resources:icons/treelines/branch-end.png) 0;
 }
 
 QTreeView::branch:has-children:!has-siblings:closed,
 QTreeView::branch:closed:has-children:has-siblings {
         border-image: none;
-        image: url(resources:stylesheets/treelines/branch-closed.png);
+        image: url(resources:icons/treelines/branch-closed.png);
 }
 
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings  {
         border-image: none;
-        image: url(resources:stylesheets/treelines/branch-open.png);
+        image: url(resources:icons/treelines/branch-open.png);
 }
 
 /* QComboBox --------------------------------------------------------------- */
@@ -168,13 +168,13 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-    image: url(resources:stylesheets/treelines/expand-arrow.png);
+    image: url(resources:icons/treelines/expand-arrow.png);
     width: 0.8em;
     height: 0.8em;
 }
 
 QComboBox::down-arrow:on { /* shift the arrow when popup is open */
-    image: url(resources:stylesheets/treelines/expand-arrow-reverse.png);
+    image: url(resources:icons/treelines/expand-arrow-reverse.png);
     width: 0.8em;
     height: 0.8em;
 }
@@ -349,8 +349,6 @@ QCheckBox:pressed {
     border: 1px solid #e1e1e1;
     border-left: 0;
 }
-
-
 
 
 

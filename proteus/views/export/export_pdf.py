@@ -42,6 +42,9 @@ from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.views.export.export_strategy import ExportStrategy
 
+# Module configuration
+_ = Translator().text  # Translator
+
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
@@ -166,7 +169,9 @@ class ExportPDF(ExportStrategy):
         self._input.setDisabled(True)
 
         # Browse button
-        browse_icon_path: Path = Config().get_icon(ProteusIconType.App, "browse_file_icon")
+        browse_icon_path: Path = Config().get_icon(
+            ProteusIconType.App, "browse_file_icon"
+        )
         browse_button_icon = QIcon()
         browse_button_icon.addFile(browse_icon_path.as_posix())
 
@@ -175,9 +180,7 @@ class ExportPDF(ExportStrategy):
 
         # Information label
         info_label = QLabel()
-        info_label.setText(
-            Translator().text("export_dialog.export_pdf.filename.label")
-        )
+        info_label.setText(_("export_dialog.export_pdf.filename.label"))
 
         # Error label
         self._error_label = QLabel()
@@ -269,9 +272,7 @@ class ExportPDF(ExportStrategy):
         invalid_chars: str = '<>:"/\\|?*'
         if any(char in invalid_chars for char in path.name):
             self._error_label.setText(
-                Translator().text(
-                    "export_dialog.export_pdf.filename.error.invalid_chars"
-                )
+                _("export_dialog.export_pdf.filename.error.invalid_chars")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -280,7 +281,7 @@ class ExportPDF(ExportStrategy):
         # Check if file name is empty
         if path.name == "" or path.name == f".{FILE_EXTENSION_PDF}":
             self._error_label.setText(
-                Translator().text("export_dialog.export_pdf.filename.error.empty")
+                _("export_dialog.export_pdf.filename.error.empty")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -289,9 +290,7 @@ class ExportPDF(ExportStrategy):
         # Check if the folder exists
         if not path.parent.exists():
             self._error_label.setText(
-                Translator().text(
-                    "export_dialog.export_pdf.filename.error.folder_not_found"
-                )
+                _("export_dialog.export_pdf.filename.error.folder_not_found")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)

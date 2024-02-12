@@ -36,10 +36,13 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 
+# Module configuration
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: ContextMenu
@@ -125,7 +128,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create the edit action --------------------------------------------
         self.action_edit_object: QAction = QAction(
-            self._translator.text("document_tree.menu.action.edit"), self
+            _("document_tree.menu.action.edit"), self
         )
         self.action_edit_object.triggered.connect(
             lambda: PropertyDialog.create_dialog(
@@ -138,7 +141,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create the delete action ------------------------------------------
         self.action_delete_object: QAction = QAction(
-            self._translator.text("document_tree.menu.action.delete"), self
+            _("document_tree.menu.action.delete"), self
         )
         self.action_delete_object.triggered.connect(
             lambda: DeleteDialog.create_dialog(
@@ -153,7 +156,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create clone action -----------------------------------------------
         self.action_clone_object: QAction = QAction(
-            self._translator.text("document_tree.menu.action.clone"), self
+            _("document_tree.menu.action.clone"), self
         )
         self.action_clone_object.triggered.connect(
             lambda: self._controller.clone_object(selected_item_id)
@@ -166,7 +169,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create move up action ---------------------------------------------
         self.action_move_up_object: QAction = QAction(
-            self._translator.text("document_tree.menu.action.move_up"), self
+            _("document_tree.menu.action.move_up"), self
         )
         self.action_move_up_object.triggered.connect(
             lambda: self._controller.change_object_position(
@@ -181,7 +184,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create move down action -------------------------------------------
         self.action_move_down_object: QAction = QAction(
-            self._translator.text("document_tree.menu.action.move_down"), self
+            _("document_tree.menu.action.move_down"), self
         )
         self.action_move_down_object.triggered.connect(
             lambda: self._controller.change_object_position(
@@ -322,11 +325,11 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
             self._config.get_icon(ProteusIconType.Archetype, self.class_name).as_posix()
         )
         self.setIcon(icon)
-        translated_class_name: str = self._translator.text(
+        translated_class_name: str = _(
             f"archetype.class.{self.class_name}", alternative_text=self.class_name
         )
         self.setTitle(
-            self._translator.text(
+            _(
                 "document_tree.menu.action.add_archetype", translated_class_name
             )
         )
@@ -334,7 +337,7 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
         # Create the actions
         for archetype in self.archetype_list:
             action: QAction = QAction(
-                self._translator.text(archetype.get_property(PROTEUS_NAME).value), self
+                _(archetype.get_property(PROTEUS_NAME).value), self
             )
             icon: QIcon = QIcon(
                 self._config.get_icon(

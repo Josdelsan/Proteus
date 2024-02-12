@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-import threading
+from threading import Lock
 import logging
 from typing import Callable
 from abc import ABC, abstractmethod
@@ -40,6 +40,11 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
+# TODO: In order to keep things simple, This class singleton implementation
+# is in the class itself and do not use utils.abstract_meta.SingletonMeta
+# This would require to mix SingletonMeta and AbstractObjectMeta, which is
+# may lead to unexpected behavior. Consider if it is necessary to refactor
+# this class.
 class ProteusEvent(QObject, ABC, metaclass=AbstractObjectMeta):
     """
     Abstract class for the events in the PROTEUS application. It defines the
@@ -61,7 +66,7 @@ class ProteusEvent(QObject, ABC, metaclass=AbstractObjectMeta):
 
     # Singleton instance
     __instance = None
-    __lock = threading.Lock()  # Lock for thread safety
+    __lock = Lock()  # Lock for thread safety
 
     # --------------------------------------------------------------------------
     # Method: __new__

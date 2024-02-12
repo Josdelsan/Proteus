@@ -37,31 +37,13 @@ from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
+from proteus.utils.abstract_meta import AbstractObjectMeta
 from proteus.utils.translator import Translator
 from proteus.utils.config import Config, ProteusIconType
 
-# logging configuration
-log = logging.getLogger(__name__)
-
-
-# --------------------------------------------------------------------------
-# Class: AbstractWidgetMeta
-# Description: Metaclass for PropertyInput class
-# Date: 12/12/2023
-# Version: 0.1
-# Author: José María Delgado Sánchez
-# --------------------------------------------------------------------------
-# NOTE: Workaround to allow multiple inheritance from QObject and ABC
-# https://stackoverflow.com/questions/28720217/multiple-inheritance-metaclass-conflict
-# https://code.activestate.com/recipes/204197-solving-the-metaclass-conflict/
-class AbstractWidgetMeta(type(QWidget), type(ABC)):
-    """
-    Metaclass for PropertyInput class. It defines the metaclass for
-    PropertyInput class. It is used to create an abstract class that
-    inherits from QWidget and ABC.
-    """
-
-    pass
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -72,7 +54,7 @@ class AbstractWidgetMeta(type(QWidget), type(ABC)):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
+class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
     """
     Property input widget that wraps a property input widget. Adds a label
     to display errors and a checkbox to edit the inmutable property if the
@@ -87,8 +69,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         # Initialize controller
         self.controller: Controller = controller
 
-        # Translator and config variables
-        self._translator: Translator = Translator()
+        # Config variable
         self._config: Config = Config()
 
         # Initialize input widget by calling the abstract method
@@ -124,7 +105,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         # Set property tooltip ---------------------------
         if self.property.tooltip and self.property.tooltip != "":
             self.setToolTip(
-                self._translator.text(
+                _(
                     f"archetype.tooltip.{self.property.tooltip}",
                     alternative_text=self.property.tooltip,
                 )
@@ -140,9 +121,6 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         self.inmutable_checkbox: QCheckBox = self.create_inmutable_checkbox()
         if self.inmutable_checkbox:
             horizontal_layout.addWidget(self.inmutable_checkbox)
-
-        # Required input setup
-        self.setup_required_input()
 
         # Vertical main layout ---------------------------
         vertical_layout = QVBoxLayout()
@@ -184,7 +162,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
 
                 # Set the checkbox tooltip
                 inmutable_checkbox.setToolTip(
-                    self._translator.text("property_input.inmutable_checkbox_tooltip")
+                    _("property_input.inmutable_checkbox_tooltip")
                 )
 
                 # Disable the input widget
@@ -192,24 +170,6 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
 
                 return inmutable_checkbox
         return None
-
-    # ----------------------------------------------------------------------
-    # Method     : setup_required_input
-    # Description: Modify the input widget if the property is required.
-    # Date       : 31/01/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def setup_required_input(self) -> None:
-        """
-        Modify the input widget if the property is required to highlight
-        the input widget.
-        """
-        # Check if property is Property class and required is True
-        if isinstance(self.property, Property):
-            required: bool = self.property.required
-            if required:
-                self.input.setStyleSheet("border: 1px solid; border-radius: 3px;")
 
     # ======================================================================
     # Public methods
@@ -229,7 +189,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         """
         error: str = self.validate()
         if error:
-            error_msg: str = self._translator.text(error)
+            error_msg: str = _(error)
             self.error_label.setText(error_msg)
             self.error_label.show()
             return True
@@ -328,8 +288,6 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractWidgetMeta):
         if not checked:
             QMessageBox.warning(
                 self,
-                self._translator.text(
-                    "property_input.inmutable_property_warning.title"
-                ),
-                self._translator.text("property_input.inmutable_property_warning.text"),
+                _("property_input.inmutable_property_warning.title"),
+                _("property_input.inmutable_property_warning.text"),
             )

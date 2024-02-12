@@ -77,8 +77,9 @@ class Project(AbstractObject):
 # Type for Class tags in Proteus
 ProteusClassTag = NewType("ProteusClassTag", str)
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: Object
@@ -517,7 +518,9 @@ class Object(AbstractObject):
         codes_map: Dict[str, ProteusCode] = self._calculate_biggest_code(project)
 
         # Clone the object
-        cloned_object: Object = self._clone_object(parent, project, ids_map, codes_map, position)
+        cloned_object: Object = self._clone_object(
+            parent, project, ids_map, codes_map, position
+        )
 
         # Recalculate traces
         self._recalculate_traces(cloned_object, ids_map, project)
@@ -694,8 +697,7 @@ class Object(AbstractObject):
                 new_object.set_property(new_code_property)
             # For existing objects in the project, add the word Copy of in the name
             elif property.name == PROTEUS_NAME and not is_archetype:
-                copy_of_str = Translator().text(COPY_OF)
-                new_name_property = property.clone(f"{copy_of_str} {property.value}")
+                new_name_property = property.clone(f"{_(COPY_OF)} {property.value}")
                 new_object.set_property(new_name_property)
 
         # -------------------------------------------------------
@@ -779,7 +781,10 @@ class Object(AbstractObject):
         :return: Dictionary with the biggest ProteusCode instances for each prefix.
         :rtype: Dict[str, ProteusCode]
         """
-        def _calculate_biggest_code_private(element: Union[Project, Object], code_map: Dict[str, ProteusCode]) -> Dict[str, ProteusCode]:
+
+        def _calculate_biggest_code_private(
+            element: Union[Project, Object], code_map: Dict[str, ProteusCode]
+        ) -> Dict[str, ProteusCode]:
             # Iterate over children
             for child in element.get_descendants():
                 if child.state != ProteusState.DEAD:
@@ -804,7 +809,7 @@ class Object(AbstractObject):
         # Call the private function
         code_map = dict()
         code_map = _calculate_biggest_code_private(project, code_map)
-        
+
         return code_map
 
     # ----------------------------------------------------------------------

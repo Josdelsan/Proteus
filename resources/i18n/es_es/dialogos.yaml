@@ -101,7 +101,6 @@ information_dialog.terms_of_use.text: "Este software no recopila ninguna informa
 # Trace edit dialog
 # ---------------------------------------------------------------------------
 trace_edit_dialog.title: "Selecciona un elemento a trazar"
-trace_edit_dialog.class_selector_button.text: "Filtrar clases"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
 
 # ---------------------------------------------------------------------------

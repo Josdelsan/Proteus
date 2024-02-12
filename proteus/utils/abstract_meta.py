@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: abstract_meta.py
-# Description: Helper module for creating abstract classes from PyQt6 classes
+# Description: Helper module for creating meta classes for Proteus classes
 # Date: 31/12/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from abc import ABC
+from threading import Lock, Thread
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -40,3 +41,36 @@ class AbstractObjectMeta(type(QObject), type(ABC)):
     """
 
     pass
+
+
+# --------------------------------------------------------------------------
+# Class: SingletonMeta
+# Description: Metaclass for Singleton classes
+# Date: 07/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+# TODO: Consider if a naive implementation is enough.
+class SingletonMeta(type):
+    """
+    Metaclass for Singleton classes. It is used to create a singleton class.
+
+    Thread-safe implementation. Do not instantiate a singleton class inside
+    the __init__ method of another singleton class. It will cause a deadlock.
+    """
+
+    _instances = {}         # Instances
+    _lock: Lock = Lock()    # Ensure thread safety
+
+
+    def __call__(cls, *args, **kwargs):
+        """
+        Accessed when the class is called, creates a new instance if it does not
+        exist.
+        """
+
+        with cls._lock:
+            if cls not in cls._instances:
+                instance = super().__call__(*args, **kwargs)
+                cls._instances[cls] = instance
+        return cls._instances[cls]

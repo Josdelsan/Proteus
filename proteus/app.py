@@ -28,7 +28,7 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus import PROTEUS_LOGGING_DIR
+from proteus import PROTEUS_LOGGING_DIR, parser
 from proteus.utils.config import Config
 from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.translator import Translator
@@ -36,8 +36,9 @@ from proteus.utils.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__) # Logger
+_ = Translator().text # Translator
 
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
@@ -53,11 +54,17 @@ class ProteusApplication:
         """
         It initializes the PROTEUS application.
         """
+        # General configuration
         self.config: Config = Config()
         self.plugin_manager: PluginManager = PluginManager()
+        self.translator: Translator = Translator()
+
+        # Request interceptor
         self.request_interceptor: WebEngineUrlRequestInterceptor = (
             WebEngineUrlRequestInterceptor()
         )
+
+        # PyQt6 application and main window
         self.app: QApplication = None
         self.main_window: MainWindow = None
 
@@ -66,6 +73,7 @@ class ProteusApplication:
         PROTEUS application main method.
         """
 
+        # Log initial information
         log.info(f"Current working directory: {Path.cwd()}")
         log.info(f"Home directory: {Path.home()}")
         log.info(f"{Path(__file__) = }")
@@ -74,10 +82,17 @@ class ProteusApplication:
         log.info(f"{self.config.icons_directory = }")
         log.info(f"{self.config.archetypes_directory = }")
 
+        # Set translator configuration and load translations
+        self.translator.set_language(self.config.language)
+        self.translator.set_i18n_directory(self.config.i18n_directory)
+        self.translator.set_archetypes_directory(self.config.archetypes_directory)
+        self.translator.load_system_translations()
+
         # Load plugins
         self.plugin_manager.load_plugins()
 
-        # Create the application instance
+        # Create the application instance and set the excepthook
+        # to handle uncaught exceptions in every thread.
         sys.excepthook = self.excepthook
         self.app = QApplication(sys.argv)
 
@@ -92,16 +107,20 @@ class ProteusApplication:
         ) as f:
             _stylesheet = f.read()
             self.app.setStyleSheet(_stylesheet)
+            del _stylesheet
 
         # Create the main window
-        self.main_window = MainWindow(parent=None, controller=Controller())
+        controller = Controller()
+        self.main_window = MainWindow(parent=None, controller=controller)
         self.main_window.show()
 
-        # Check plugins dependencies
+        # Plugin dependencies check and load plugin components
         self.check_plugins_dependencies()
-
-        # Load proteus components from plugins
         self.load_plugin_components()
+
+        args = parser.parse_args()
+        if args.project:
+            controller.load_project(args.project)
 
         # Execute the application
         sys.exit(self.app.exec())
@@ -167,8 +186,8 @@ class ProteusApplication:
         # Show the exception and its traceback in a message box
         error_dialog = QMessageBox()
         error_dialog.setIcon(QMessageBox.Icon.Critical)
-        error_dialog.setWindowTitle(Translator().text("app.critical_error.title"))
-        error_dialog.setText(Translator().text("app.critical_error.text"))
+        error_dialog.setWindowTitle(_("app.critical_error.title"))
+        error_dialog.setText(_("app.critical_error.text"))
         error_dialog.setInformativeText(tb)
         error_dialog.exec()
 

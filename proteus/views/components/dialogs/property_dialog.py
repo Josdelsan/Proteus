@@ -39,12 +39,16 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
 )
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
+
+# Module configuration
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -182,8 +186,9 @@ class PropertyDialog(QDialog, ProteusComponent):
         prop: Property = None
         for prop in properties_form_dict.values():
             # Get the category for the property (or trace)
-            category: str = self._translator.text(
-                f"archetype.prop_category.{prop.category}", alternative_text=prop.category
+            category: str = _(
+                f"archetype.prop_category.{prop.category}",
+                alternative_text=prop.category,
             )
 
             # Create a QWidget for the category if it doesn't exist

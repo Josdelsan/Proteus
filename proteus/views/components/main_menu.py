@@ -51,6 +51,7 @@ from proteus.views.components.archetypes_menu_dropdown import (
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
 from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
+from proteus.utils.translator import Translator
 from proteus.utils.events import (
     SelectObjectEvent,
     OpenProjectEvent,
@@ -60,8 +61,9 @@ from proteus.utils.events import (
     StackChangedEvent,
 )
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -151,7 +153,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the component
         # --------------------
         # Add the main tab
-        self.add_main_tab(self._translator.text("main_menu.tab.home.name"))
+        self.add_main_tab(_("main_menu.tab.home.name"))
 
         # Get the object archetypes
         object_archetypes_dict: Dict[str, Dict[str, List[Object]]] = (
@@ -373,7 +375,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, self._translator.text(tab_name_code))
+        self.tab_widget.addTab(tab_widget, _(tab_name_code))
 
     # ---------------------------------------------------------------------
     # Method     : subscribe
@@ -570,7 +572,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         # Open the file dialog
         directory_path: str = QFileDialog.getExistingDirectory(
-            None, self._translator.text("main_menu.open_project.caption"), ""
+            None, _("main_menu.open_project.caption"), ""
         )
 
         # If a directory was selected, check if there is already a project
@@ -594,11 +596,9 @@ class MainMenu(QDockWidget, ProteusComponent):
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
                 confirmation_dialog.setWindowTitle(
-                    self._translator.text("main_menu.open_project.save.title")
+                    _("main_menu.open_project.save.title")
                 )
-                confirmation_dialog.setText(
-                    self._translator.text("main_menu.open_project.save.text")
-                )
+                confirmation_dialog.setText(_("main_menu.open_project.save.text"))
                 confirmation_dialog.setStandardButtons(
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
@@ -621,12 +621,8 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Show an error message dialog
                 error_dialog = QMessageBox()
                 error_dialog.setIcon(QMessageBox.Icon.Critical)
-                error_dialog.setWindowTitle(
-                    self._translator.text("main_menu.open_project.error.title")
-                )
-                error_dialog.setText(
-                    self._translator.text("main_menu.open_project.error.text")
-                )
+                error_dialog.setWindowTitle(_("main_menu.open_project.error.title"))
+                error_dialog.setText(_("main_menu.open_project.error.text"))
 
                 informative_text: str = str(e)
 

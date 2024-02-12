@@ -67,9 +67,13 @@ from proteus.views.forms.properties.enum_property_input import EnumPropertyInput
 from proteus.views.forms.properties.file_property_input import FilePropertyInput
 from proteus.views.forms.properties.url_property_input import UrlPropertyInput
 from proteus.views.forms.properties.code_property_input import CodePropertyInput
+from proteus.views.forms.properties.class_list_property_input import (
+    ClassListPropertyInput,
+)
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -100,6 +104,7 @@ class PropertyInputFactory:
         FileProperty: FilePropertyInput,
         UrlProperty: UrlPropertyInput,
         CodeProperty: CodePropertyInput,
+        ClassListProperty: ClassListPropertyInput,
     }
 
     # ----------------------------------------------------------------------
@@ -147,9 +152,7 @@ class PropertyInputFactory:
         """
         # Create the label
         label = QLabel()
-        name = Translator().text(
-            f"archetype.prop_name.{property.name}", alternative_text=property.name
-        )
+        name = _(f"archetype.prop_name.{property.name}", alternative_text=property.name)
         label.setWordWrap(True)
 
         # Check if the property is required
@@ -165,7 +168,7 @@ class PropertyInputFactory:
                 label.setFont(font)
 
                 # Set the tooltip
-                label.setToolTip(Translator().text("property_input.required_tooltip"))
+                label.setToolTip(_("property_input.required_tooltip"))
 
         # Set the label text
         label.setText(name)

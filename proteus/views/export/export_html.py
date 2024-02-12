@@ -40,8 +40,9 @@ from proteus.views.export.export_strategy import ExportStrategy
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms import validators
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__) # Logger
+_ = Translator().text # Translator
 
 # --------------------------------------------------------------------------
 # Constants
@@ -202,12 +203,12 @@ class ExportHTML(ExportStrategy):
         # Information labels
         path_info_label = QLabel()
         path_info_label.setText(
-            Translator().text("export_dialog.export_html.filepath.label")
+            _("export_dialog.export_html.filepath.label")
         )
 
         folder_name_info_label = QLabel()
         folder_name_info_label.setText(
-            Translator().text("export_dialog.export_html.folder_name.label")
+            _("export_dialog.export_html.folder_name.label")
         )
 
         # Error label
@@ -260,7 +261,7 @@ class ExportHTML(ExportStrategy):
         # Check if the path is empty
         if path_text == "":
             self._error_label.setText(
-                Translator().text("export_dialog.export_html.error.empty")
+                _("export_dialog.export_html.error.empty")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -269,7 +270,7 @@ class ExportHTML(ExportStrategy):
         # Check if the path exists
         if not path.exists():
             self._error_label.setText(
-                Translator().text("export_dialog.export_html.error.not_found")
+                _("export_dialog.export_html.error.not_found")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -278,7 +279,7 @@ class ExportHTML(ExportStrategy):
         # Check if the path is a directory
         if not path.is_dir():
             self._error_label.setText(
-                Translator().text("export_dialog.export_html.error.not_directory")
+                _("export_dialog.export_html.error.not_directory")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -287,7 +288,7 @@ class ExportHTML(ExportStrategy):
         # Check if folder name is valid
         if not validators.is_valid_folder_name(folder_name) or folder_name == "":
             self._error_label.setText(
-                Translator().text("export_dialog.export_html.error.invalid_folder_name")
+                _("export_dialog.export_html.error.invalid_folder_name")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)
@@ -296,7 +297,7 @@ class ExportHTML(ExportStrategy):
         # Check if the folder already exists
         if (path / folder_name).exists():
             self._error_label.setText(
-                Translator().text("export_dialog.export_html.error.folder_exists")
+                _("export_dialog.export_html.error.folder_exists")
             )
             self._error_label.setHidden(False)
             self.readyToExportSignal.emit(False)

@@ -32,6 +32,9 @@ from proteus.model import ASSETS_REPOSITORY
 from proteus.utils.config import Config
 from proteus.utils.translator import Translator
 
+# Module configuration
+_ = Translator().text
+
 
 # --------------------------------------------------------------------------
 # Class: AssetEdit
@@ -90,7 +93,9 @@ class AssetEdit(QWidget):
         self.input.setDisabled(True)
 
         # Browse button
-        browse_icon_path: Path = Config().get_icon(ProteusIconType.App, "browse_asset_icon")
+        browse_icon_path: Path = Config().get_icon(
+            ProteusIconType.App, "browse_asset_icon"
+        )
         browse_button_icon = QIcon()
         browse_button_icon.addFile(browse_icon_path.as_posix())
 
@@ -198,10 +203,8 @@ class AssetEdit(QWidget):
                     # Ask the user if he wants to overwrite the file
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
-                    msg_box.setWindowTitle(
-                        Translator().text("asset_edit.warning.title")
-                    )
-                    msg_box.setText(Translator().text("asset_edit.warning.text"))
+                    msg_box.setWindowTitle(_("asset_edit.warning.title"))
+                    msg_box.setText(_("asset_edit.warning.text"))
                     msg_box.setStandardButtons(
                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                     )

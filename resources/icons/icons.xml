@@ -14,23 +14,24 @@
         <icon key="remove_trace_icon" file="minus-button.svg"/>
         <icon key="inmutable-property-edit-enabled" file="lock-open.png"/>
         <icon key="inmutable-property-edit-disabled" file="lock-close.png"/>
-        <icon key="context-menu-edit" file="edit-button.png"/>
-        <icon key="context-menu-delete" file="delete-object-button.png"/>
-        <icon key="context-menu-clone" file="clone-object-button.png"/>
-        <icon key="context-menu-up" file="up-arrow.png"/>
-        <icon key="context-menu-down" file="down-arrow.png"/>
+
+        <icon key="context-menu-edit" file="context_menu/edit-properties-button.png"/>
+        <icon key="context-menu-delete" file="context_menu/delete-object-button.png"/>
+        <icon key="context-menu-clone" file="context_menu/clone-object-button.png"/>
+        <icon key="context-menu-up" file="context_menu/move-up-arrow.png"/>
+        <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>
     </type>
     <type name="main_menu" default="default-archetype.png">
-        <icon key="new-project" file="new-project-button.png" />
-        <icon key="open-project" file="open-project-button.png" />
-        <icon key="delete-file" file="delete-file-button.png" />
-        <icon key="new-file" file="new-file-button.png" />
-        <icon key="edit" file="edit-button.png" />
-        <icon key="save" file="save-button.png" />
-        <icon key="export" file="export-button.png" />
-        <icon key="settings" file="settings-button.png" />
-        <icon key="redo" file="redo.png" />
-        <icon key="undo" file="undo.png" />
-        <icon key="info" file="info-button.png" />
+        <icon key="new-project" file="main_menu/new-project-button.png" />
+        <icon key="open-project" file="main_menu/open-project-button.png" />
+        <icon key="delete-file" file="main_menu/delete-file-button.png" />
+        <icon key="new-file" file="main_menu/new-file-button.png" />
+        <icon key="edit" file="main_menu/edit-button.png" />
+        <icon key="save" file="main_menu/save-button.png" />
+        <icon key="export" file="main_menu/export-button.png" />
+        <icon key="settings" file="main_menu/settings-button.png" />
+        <icon key="redo" file="main_menu/redo.png" />
+        <icon key="undo" file="main_menu/undo.png" />
+        <icon key="info" file="main_menu/info-button.png" />
     </type>
 </icons>

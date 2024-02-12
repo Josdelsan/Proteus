@@ -34,6 +34,9 @@ from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 
+# Module configuration
+_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: InformationDialog
@@ -64,7 +67,6 @@ class InformationDialog(QDialog, ProteusComponent):
         the component. Store the page object and the controller instance.
         """
         super(InformationDialog, self).__init__(*args, **kwargs)
-        self.translator = Translator()
         self.create_component()
 
     # ----------------------------------------------------------------------
@@ -79,7 +81,7 @@ class InformationDialog(QDialog, ProteusComponent):
         Create the component.
         """
         # Set the dialog title
-        self.setWindowTitle(self.translator.text("information_dialog.title"))
+        self.setWindowTitle(_("information_dialog.title"))
 
         # Set window icon
         proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
@@ -94,21 +96,17 @@ class InformationDialog(QDialog, ProteusComponent):
         app_version.setContentsMargins(0, 0, 0, 20)
 
         # App description
-        app_description = QLabel(
-            self.translator.text("information_dialog.description.text")
-        )
+        app_description = QLabel(_("information_dialog.description.text"))
         app_description.setWordWrap(True)
         app_description.setContentsMargins(0, 0, 0, 20)
 
         # License
-        license = QLabel(self.translator.text("information_dialog.license.text"))
+        license = QLabel(_("information_dialog.license.text"))
         license.setWordWrap(True)
         license.setContentsMargins(0, 0, 0, 20)
 
         # Terms of use and privacy policy
-        terms_of_use = QLabel(
-            self.translator.text("information_dialog.terms_of_use.text")
-        )
+        terms_of_use = QLabel(_("information_dialog.terms_of_use.text"))
         terms_of_use.setWordWrap(True)
         terms_of_use.setContentsMargins(0, 0, 0, 20)
 

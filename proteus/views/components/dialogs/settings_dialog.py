@@ -38,12 +38,14 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.utils.config import SETTING_LANGUAGE, SETTING_ARCHETYPE_REPOSITORY
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.components.abstract_component import ProteusComponent
 
 
-# logging configuration
+# Module configuration
 log = logging.getLogger(__name__)
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -101,7 +103,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         # Component general setup
         # -------------------------------------------
         # Set the dialog title
-        self.setWindowTitle(self._translator.text("settings_dialog.title"))
+        self.setWindowTitle(_("settings_dialog.title"))
 
         # Set window icon
         proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
@@ -118,9 +120,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         self.button_box.rejected.connect(self.cancel_button_clicked)
 
         # Setting message label
-        setting_info_label: QLabel = QLabel(
-            self._translator.text("settings_dialog.info.label")
-        )
+        setting_info_label: QLabel = QLabel(_("settings_dialog.info.label"))
         setting_info_label.setStyleSheet("font-weight: bold")
 
         # -------------------------------------------
@@ -163,19 +163,15 @@ class SettingsDialog(QDialog, ProteusComponent):
         language_layout: QVBoxLayout = QVBoxLayout()
 
         # Get available languages from translator instance
-        languages: List[str] = self._translator.available_languages
+        languages: List[str] = Translator().available_languages
 
         # Create a combo box with the available views
-        lang_label: QLabel = QLabel(
-            self._translator.text("settings_dialog.language.label")
-        )
+        lang_label: QLabel = QLabel(_("settings_dialog.language.label"))
         self.language_combo: QComboBox = QComboBox()
 
         for lang in languages:
             self.language_combo.addItem(
-                self._translator.text(
-                    f"settings.language.{lang}", alternative_text=lang
-                ),
+                _(f"settings.language.{lang}", alternative_text=lang),
                 lang,
             )
 
@@ -221,12 +217,12 @@ class SettingsDialog(QDialog, ProteusComponent):
 
         # Default repository label
         default_repository_label: QLabel = QLabel(
-            self._translator.text("settings_dialog.default_repository.label")
+            _("settings_dialog.default_repository.label")
         )
 
         # Default repository checkbox
         self.default_repository_checkbox: QCheckBox = QCheckBox(
-            self._translator.text("settings_dialog.default_repository.checkbox")
+            _("settings_dialog.default_repository.checkbox")
         )
         using_default_repository: bool
         current_repository: str = self._config.current_config_file_user_settings.get(
@@ -297,7 +293,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         language: str = self.language_combo.currentData()
         if language is None or language == "":
             self.error_language_label.setText(
-                self._translator.text("settings_dialog.error.invalid_language")
+                _("settings_dialog.error.invalid_language")
             )
             self.error_language_label.setHidden(False)
             return False
@@ -330,7 +326,7 @@ class SettingsDialog(QDialog, ProteusComponent):
             # Check if the path is empty
             if repository_path == "":
                 self.error_default_repository_label.setText(
-                    self._translator.text("settings_dialog.error.repository.empty_path")
+                    _("settings_dialog.error.repository.empty_path")
                 )
                 self.error_default_repository_label.setHidden(False)
                 return False
@@ -339,9 +335,7 @@ class SettingsDialog(QDialog, ProteusComponent):
             _repo_path: Path = Path(repository_path)
             if not _repo_path.exists():
                 self.error_default_repository_label.setText(
-                    self._translator.text(
-                        "settings_dialog.error.repository.invalid_path"
-                    )
+                    _("settings_dialog.error.repository.invalid_path")
                 )
                 self.error_default_repository_label.setHidden(False)
                 return False
@@ -354,9 +348,7 @@ class SettingsDialog(QDialog, ProteusComponent):
             except Exception as e:
                 log.error(f"Error loading custom archetypes from repository: {e}")
                 self.error_default_repository_label.setText(
-                    self._translator.text(
-                        "settings_dialog.error.repository.invalid_repository"
-                    )
+                    _("settings_dialog.error.repository.invalid_repository")
                 )
                 self.error_default_repository_label.setHidden(False)
                 return False

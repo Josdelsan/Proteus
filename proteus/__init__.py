@@ -36,4 +36,10 @@ PROTEUS_LOGGING_FORMAT = str('%(name)s:%(filename)s [%(levelname)s] -> %(message
 PROTEUS_LOGGING_DIR    = PROTEUS_APP_PATH / '.proteus'
 PROTEUS_MAX_LOG_FILES  = 7
 
+# --------------------------------------------------------------------------
+# Argument parser
+# --------------------------------------------------------------------------
+import argparse
+parser = argparse.ArgumentParser("Proteus")
+parser.add_argument("-project", "-p", help="Open the project in the given path.")
 

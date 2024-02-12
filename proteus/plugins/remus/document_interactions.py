@@ -26,14 +26,16 @@ from PyQt6.QtGui import QIcon
 # --------------------------------------------------------------------------
 
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
@@ -48,7 +50,7 @@ class DocumentInteractions(ProteusComponent):
     Document interactions class for the REMUS plugin. Implements slots that
     are used by the document html view to handle user interactions.
     """
-    
+
     @pyqtSlot(str)
     def open_properties_dialog(self, id: str) -> None:
         """
@@ -134,17 +136,15 @@ class DocumentInteractions(ProteusComponent):
             message_box = QMessageBox()
 
             # Set icon
-            proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
+            proteus_icon: Path = self._config.get_icon(
+                ProteusIconType.App, "proteus_icon"
+            )
             message_box.setWindowIcon(QIcon(proteus_icon.as_posix()))
 
             # Set title and text
-            message_box.setWindowTitle(
-                self._translator.text("document.navigation.request.title")
-            )
+            message_box.setWindowTitle(self.__("document.navigation.request.title"))
             message_box.setText(
-                self._translator.text(
-                    "document.navigation.request.text", object_name, document_name
-                )
+                self.__("document.navigation.request.text", object_name, document_name)
             )
 
             # Set buttons
@@ -160,9 +160,10 @@ class DocumentInteractions(ProteusComponent):
                 # Then set the current document, this will avoid update_on_select_object to
                 # be called twice, also avoid update_on_select_object triggering before
                 # new document is completely loaded
-                self._state_manager.set_current_object(object_id, object_document, False)
+                self._state_manager.set_current_object(
+                    object_id, object_document, False
+                )
                 self._state_manager.set_current_document(object_document)
             # If the user clicks no, do nothing
             else:
                 return
-

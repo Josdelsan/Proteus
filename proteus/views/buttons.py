@@ -37,6 +37,8 @@ from proteus.utils import ProteusIconType
 from proteus.model import ProteusClassTag
 from proteus.utils.translator import Translator
 
+# Module configuration
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Functions
@@ -59,12 +61,12 @@ def new_project_button(parent: QWidget) -> QToolButton:
     new_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    new_button.setToolTip(Translator().text("new_project_button.tooltip"))
-    new_button.setStatusTip(Translator().text("new_project_button.statustip"))
+    new_button.setToolTip(_("new_project_button.tooltip"))
+    new_button.setStatusTip(_("new_project_button.statustip"))
 
     # Set text
     new_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    new_button.setText(Translator().text("new_project_button.text"))
+    new_button.setText(_("new_project_button.text"))
 
     # Set shortcut
     new_button.setShortcut("Ctrl+N")
@@ -88,12 +90,12 @@ def open_project_button(parent: QWidget) -> QToolButton:
     open_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    open_button.setToolTip(Translator().text("open_project_button.tooltip"))
-    open_button.setStatusTip(Translator().text("open_project_button.statustip"))
+    open_button.setToolTip(_("open_project_button.tooltip"))
+    open_button.setStatusTip(_("open_project_button.statustip"))
 
     # Set text
     open_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    open_button.setText(Translator().text("open_project_button.text"))
+    open_button.setText(_("open_project_button.text"))
 
     # Set shortcut
     open_button.setShortcut("Ctrl+O")
@@ -117,12 +119,12 @@ def save_project_button(parent: QWidget) -> QToolButton:
     save_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    save_button.setToolTip(Translator().text("save_project_button.tooltip"))
-    save_button.setStatusTip(Translator().text("save_project_button.statustip"))
+    save_button.setToolTip(_("save_project_button.tooltip"))
+    save_button.setStatusTip(_("save_project_button.statustip"))
 
     # Set text
     save_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    save_button.setText(Translator().text("save_project_button.text"))
+    save_button.setText(_("save_project_button.text"))
 
     # Set shortcut
     save_button.setShortcut("Ctrl+S")
@@ -149,12 +151,12 @@ def undo_button(parent: QWidget) -> QToolButton:
     undo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    undo_button.setToolTip(Translator().text("undo_button.tooltip"))
-    undo_button.setStatusTip(Translator().text("undo_button.statustip"))
+    undo_button.setToolTip(_("undo_button.tooltip"))
+    undo_button.setStatusTip(_("undo_button.statustip"))
 
     # Set text
     undo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    undo_button.setText(Translator().text("undo_button.text"))
+    undo_button.setText(_("undo_button.text"))
 
     # Set shortcut
     undo_button.setShortcut("Ctrl+Z")
@@ -181,12 +183,12 @@ def redo_button(parent: QWidget) -> QToolButton:
     redo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    redo_button.setToolTip(Translator().text("redo_button.tooltip"))
-    redo_button.setStatusTip(Translator().text("redo_button.statustip"))
+    redo_button.setToolTip(_("redo_button.tooltip"))
+    redo_button.setStatusTip(_("redo_button.statustip"))
 
     # Set text
     redo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    redo_button.setText(Translator().text("redo_button.text"))
+    redo_button.setText(_("redo_button.text"))
 
     # Set shortcut
     redo_button.setShortcut("Ctrl+Y")
@@ -213,14 +215,12 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     properties_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    properties_button.setToolTip(Translator().text("project_properties_button.tooltip"))
-    properties_button.setStatusTip(
-        Translator().text("project_properties_button.statustip")
-    )
+    properties_button.setToolTip(_("project_properties_button.tooltip"))
+    properties_button.setStatusTip(_("project_properties_button.statustip"))
 
     # Set text
     properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    properties_button.setText(Translator().text("project_properties_button.text"))
+    properties_button.setText(_("project_properties_button.text"))
 
     # Set shorcut
     properties_button.setShortcut("Ctrl+P")
@@ -247,12 +247,12 @@ def add_document_button(parent: QWidget) -> QToolButton:
     add_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    add_button.setToolTip(Translator().text("add_document_button.tooltip"))
-    add_button.setStatusTip(Translator().text("add_document_button.statustip"))
+    add_button.setToolTip(_("add_document_button.tooltip"))
+    add_button.setStatusTip(_("add_document_button.statustip"))
 
     # Set text
     add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    add_button.setText(Translator().text("add_document_button.text"))
+    add_button.setText(_("add_document_button.text"))
 
     # Set shorcut
     add_button.setShortcut("Ctrl+D")
@@ -279,12 +279,12 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     delete_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    delete_button.setToolTip(Translator().text("delete_document_button.tooltip"))
-    delete_button.setStatusTip(Translator().text("delete_document_button.statustip"))
+    delete_button.setToolTip(_("delete_document_button.tooltip"))
+    delete_button.setStatusTip(_("delete_document_button.statustip"))
 
     # Set text
     delete_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    delete_button.setText(Translator().text("delete_document_button.text"))
+    delete_button.setText(_("delete_document_button.text"))
 
     # Set enabled initial value
     delete_button.setEnabled(False)
@@ -308,12 +308,12 @@ def settings_button(parent: QWidget) -> QToolButton:
     settings_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    settings_button.setToolTip(Translator().text("settings_button.tooltip"))
-    settings_button.setStatusTip(Translator().text("settings_button.statustip"))
+    settings_button.setToolTip(_("settings_button.tooltip"))
+    settings_button.setStatusTip(_("settings_button.statustip"))
 
     # Set text
     settings_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    settings_button.setText(Translator().text("settings_button.text"))
+    settings_button.setText(_("settings_button.text"))
 
     return settings_button
 
@@ -334,12 +334,12 @@ def export_button(parent: QWidget) -> QToolButton:
     export_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    export_button.setToolTip(Translator().text("export_button.tooltip"))
-    export_button.setStatusTip(Translator().text("export_button.statustip"))
+    export_button.setToolTip(_("export_button.tooltip"))
+    export_button.setStatusTip(_("export_button.statustip"))
 
     # Set text
     export_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    export_button.setText(Translator().text("export_button.text"))
+    export_button.setText(_("export_button.text"))
 
     # Set initial disabled value
     export_button.setEnabled(False)
@@ -363,17 +363,19 @@ def info_button(parent: QWidget) -> QToolButton:
     info_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
-    info_button.setToolTip(Translator().text("information_button.tooltip"))
-    info_button.setStatusTip(Translator().text("information_button.statustip"))
+    info_button.setToolTip(_("information_button.tooltip"))
+    info_button.setStatusTip(_("information_button.statustip"))
 
     # Set text
     info_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    info_button.setText(Translator().text("information_button.text"))
+    info_button.setText(_("information_button.text"))
 
     return info_button
 
 
-def button_group(section_name_code: str, buttons: List[QToolButton], hide_section_name: bool = False) -> QWidget:
+def button_group(
+    section_name_code: str, buttons: List[QToolButton], hide_section_name: bool = False
+) -> QWidget:
     # Create the main widget
     widget = QWidget()
     widget.setContentsMargins(0, 0, 5, 0)
@@ -387,7 +389,7 @@ def button_group(section_name_code: str, buttons: List[QToolButton], hide_sectio
 
     if not hide_section_name:
         # Add a centered label with the text "section" in the third row of the layout
-        section_label = QLabel(Translator().text(section_name_code))
+        section_label = QLabel(_(section_name_code))
         section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(section_label, 1, 0, 1, len(buttons))
 
@@ -396,6 +398,7 @@ def button_group(section_name_code: str, buttons: List[QToolButton], hide_sectio
     layout.setSpacing(0)
 
     return widget
+
 
 def get_separator(vertical: bool = False) -> QFrame:
     """
@@ -413,6 +416,7 @@ def get_separator(vertical: bool = False) -> QFrame:
         separator.setObjectName("h-separator")
     separator.setFrameShadow(QFrame.Shadow.Sunken)
     return separator
+
 
 # --------------------------------------------------------------------------
 # Classes
@@ -447,14 +451,14 @@ class ArchetypeMenuButton(QToolButton):
         self.setIconSize(QSize(32, 32))
 
         # Set tooltip
-        name_code = f"archetype.class.{object_class}"
-        self.setToolTip(
-            Translator().text(f"{name_code}", alternative_text=object_class)
+        translated_name = _(
+            f"archetype.class.{object_class}", alternative_text=object_class
         )
+        self.setToolTip(translated_name)
 
         # Set text
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.setText(Translator().text(name_code))
+        self.setText(translated_name)
 
         # Set enabled initial value
         self.setEnabled(False)

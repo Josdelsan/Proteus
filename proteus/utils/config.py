@@ -23,7 +23,6 @@ from pathlib import Path
 from configparser import ConfigParser
 import shutil
 import logging
-import threading
 from logging.handlers import TimedRotatingFileHandler
 
 # --------------------------------------------------------------------------
@@ -38,6 +37,7 @@ from PyQt6 import QtCore
 # --------------------------------------------------------------------------
 
 import proteus
+from proteus.utils.abstract_meta import SingletonMeta
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.utils import (
     ProteusIconType,
@@ -91,30 +91,12 @@ I18N_DIRECTORY: str = "i18n_directory"
 # --------------------------------------------------------------------------
 
 
-class Config:
-    # Singleton instance
-    _instance = None
-    __lock = threading.Lock()  # Ensure thread safety
-
-    def __new__(cls, *args, **kwargs):
-        """
-        It creates a singleton instance for Config class.
-        """
-        if not cls._instance:
-            cls._instance = super(Config, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+class Config(metaclass=SingletonMeta):
 
     def __init__(self):
         """
         It initializes the config paths for PROTEUS application.
         """
-        # Check if the instance has been initialized
-        with self.__class__.__lock:
-            if self._initialized:
-                return
-            self._initialized = True
-
         # Logger configuration
         self._logger_configuration()
 
@@ -181,20 +163,19 @@ class Config:
         # the application is restarted. This is required because the config
         # setting dialog do not access the config file directly but this class
         # instance to check settings values. This class cannot modify most of
-        # its variables during runtime because it will 
+        # its variables during runtime because it will
         self.current_config_file_user_settings: Dict[str, str] = {}
         self.current_config_file_user_settings[SETTING_LANGUAGE] = self.language
-        self.current_config_file_user_settings[
-            SETTING_ARCHETYPE_REPOSITORY
-        ] = archetype_repository
-        
+        self.current_config_file_user_settings[SETTING_ARCHETYPE_REPOSITORY] = (
+            archetype_repository
+        )
 
         # Icons dictionary -------------------------------------------------
         # NOTE: Use get_icon method to access icons to ensure default icon is
         # used if icon is not found.
-        self._icons_dictionary: Dict[
-            str, Dict[str, Path]
-        ] = self._create_icons_dictionary()
+        self._icons_dictionary: Dict[str, Dict[str, Path]] = (
+            self._create_icons_dictionary()
+        )
 
         # XSL template routes ----------------------------------------------
         self.xslt_routes: Dict[str, Path] = {}

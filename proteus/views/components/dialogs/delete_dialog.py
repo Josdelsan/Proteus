@@ -36,9 +36,12 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 
+# Module configuration
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: DeleteDialog
@@ -97,7 +100,7 @@ class DeleteDialog(QDialog, ProteusComponent):
         self.setLayout(layout)
 
         # Set the dialog title
-        self.setWindowTitle(self._translator.text("delete_dialog.title"))
+        self.setWindowTitle(_("delete_dialog.title"))
 
         # Set warning system icon
         warning_icon: QIcon = self.style().standardIcon(
@@ -111,7 +114,7 @@ class DeleteDialog(QDialog, ProteusComponent):
         object_name: str = object.get_property(PROTEUS_NAME).value
 
         # Create confirmation message
-        message: str = self._translator.text("delete_dialog.message", object_name)
+        message: str = _("delete_dialog.message", object_name)
         message_label: QLabel = QLabel(message)
         layout.addWidget(message_label)
 
@@ -126,7 +129,7 @@ class DeleteDialog(QDialog, ProteusComponent):
         if traces_dependencies:
         
             # Explanation message
-            message_traces: str = self._translator.text(
+            message_traces: str = _(
                 "delete_dialog.traces_explanation"
             )
             message_traces_label: QLabel = QLabel(message_traces)
@@ -141,7 +144,7 @@ class DeleteDialog(QDialog, ProteusComponent):
             )
 
             # Set header label
-            header_message: str = self._translator.text("delete_dialog.tree.header")
+            header_message: str = _("delete_dialog.tree.header")
             tree.setHeaderLabel(header_message)
             # Disable selection
             tree.setSelectionMode(QTreeWidget.SelectionMode.NoSelection)

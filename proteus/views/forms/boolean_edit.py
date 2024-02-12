@@ -31,6 +31,9 @@ from PyQt6.QtWidgets import (
 
 from proteus.utils.translator import Translator
 
+# Module configuration
+_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: BooleanEdit
@@ -68,9 +71,6 @@ class BooleanEdit(QWidget):
         # Initialize variables
         self.tooltip_str: str = tooltip
 
-        # Translator
-        self._translator = Translator()
-
         # Create input widget
         self.create_input()
 
@@ -87,10 +87,12 @@ class BooleanEdit(QWidget):
         """
 
         # Widgets creation --------------------------------------------------
-        self.checkbox = QCheckBox(self._translator.text(
+        self.checkbox = QCheckBox(
+            _(
                 f"archetype.tooltip.{self.tooltip_str}",
                 alternative_text=self.tooltip_str,
-            ))
+            )
+        )
 
         # Layout setup -----------------------------------------------------
         layout = QHBoxLayout()

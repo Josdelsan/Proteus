@@ -48,6 +48,7 @@ from proteus.model.abstract_object import ProteusState
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
 from proteus.utils import ProteusIconType
+from proteus.utils.translator import Translator
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
@@ -60,8 +61,9 @@ from proteus.utils.events import (
 )
 
 
-# logging configuration
-log = logging.getLogger(__name__)
+# Module configuration
+log = logging.getLogger(__name__)  # Logger
+_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Global variables and constants
@@ -654,12 +656,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                 # Show a message box to the user
                 QMessageBox.warning(
                     self,
-                    self._translator.text(
-                        "document_tree.drop_action.message_box.error.title"
-                    ),
-                    self._translator.text(
-                        "document_tree.drop_action.message_box.error.text"
-                    ),
+                    _("document_tree.drop_action.message_box.error.title"),
+                    _("document_tree.drop_action.message_box.error.text"),
                 )
 
     # ----------------------------------------------------------------------

@@ -139,19 +139,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         ), f"Config instance is required to create a ProteusComponent, current value type: {type(config)}"
         self._config: Config = config
 
-        # Translator -------------
-        if translator is None:
-            translator = Translator()
-        else:
-            log.debug(
-                f"Custom Translator instance provided for ProteusComponent {self.__class__.__name__}"
-            )
-
-        assert isinstance(
-            translator, Translator
-        ), f"Translator instance is required to create a ProteusComponent, current value type: {type(translator)}"
-        self._translator: Translator = translator
-
         # State manager ----------
         if state_manager is None:
             state_manager = StateManager()
