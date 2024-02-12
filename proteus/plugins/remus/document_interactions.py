@@ -143,9 +143,9 @@ class DocumentInteractions(ProteusComponent):
             message_box.setWindowIcon(proteus_icon)
 
             # Set title and text
-            message_box.setWindowTitle(self.__("document.navigation.request.title"))
+            message_box.setWindowTitle(_("document.navigation.request.title"))
             message_box.setText(
-                self.__("document.navigation.request.text", object_name, document_name)
+                _("document.navigation.request.text", object_name, document_name)
             )
 
             # Set buttons

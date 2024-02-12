@@ -41,6 +41,7 @@ from proteus.views.components.main_window import MainWindow
 log = logging.getLogger(__name__)  # Logger
 _ = Translator().text  # Translator
 
+
 # --------------------------------------------------------------------------
 # Class: ProteusApplication
 # Description: Class for the PROTEUS application

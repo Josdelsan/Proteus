@@ -44,7 +44,6 @@ from proteus.controller.command_stack import Controller
 # Module configuration
 _ = Translator().text  # Translator
 
-
 # --------------------------------------------------------------------------
 # Class: DeleteDialog
 # Description: PyQT6 delete dialog component for the PROTEUS application

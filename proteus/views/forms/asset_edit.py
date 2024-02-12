@@ -36,6 +36,9 @@ from proteus.utils.dynamic_icons import DynamicIcons
 # Module configuration
 _ = Translator().text
 
+# Module configuration
+_ = Translator().text
+
 
 # --------------------------------------------------------------------------
 # Class: AssetEdit

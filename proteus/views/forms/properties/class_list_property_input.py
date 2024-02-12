@@ -27,7 +27,6 @@ from proteus.controller.command_stack import Controller
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.check_combo_box import CheckComboBox
 from proteus.utils.translator import Translator
-from proteus.utils.config import Config
 from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
 

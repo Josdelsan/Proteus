@@ -43,7 +43,6 @@ from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 # Module configuration
 _ = Translator().text  # Translator
 
-
 # --------------------------------------------------------------------------
 # Class: ContextMenu
 # Description: Class for the PROTEUS application context menu.
