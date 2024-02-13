@@ -33,6 +33,8 @@ from proteus.utils.config import Config
 from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.translator import Translator
 from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.utils.state_manager import StateManager
+from proteus.utils.state_restorer import read_state_from_file
 from proteus.utils.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
@@ -107,6 +109,7 @@ class ProteusApplication:
 
         if self.project_path:
             controller.load_project(self.project_path.as_posix())
+            read_state_from_file(self.project_path, controller, StateManager())
 
         # Execute the application
         sys.exit(self.app.exec())

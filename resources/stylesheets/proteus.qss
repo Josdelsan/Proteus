@@ -320,35 +320,34 @@ QCheckBox:pressed {
 
 /* Archetype menu buttons -------------------------------------------------- */
 #archetype_menu_button {
-    margin-right: 1em;
-    padding: 1em;
+    margin-right: 0.5em;
+    margin-left: 0.5em;
     min-width: 4em;
 }
 
-
 /* menu button arrow */
 #archetype_menu_button::menu-button {
-    width: 0.4em;
-    padding: 0.3em; /* Affects arrow size */
+    subcontrol-origin: padding;
+    subcontrol-position: right;
+    /* left: 0.2em; */
 
-    border: 1px solid gainsboro;
-    border-left: 0;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border: 0;
+    /* border-left: 1px solid gainsboro; */
+}
+
+#archetype_menu_button::menu-arrow {
+    width: 1em;
+    height: 1em;
 }
 
 #archetype_menu_button::menu-button:hover {
-    border: 1px solid skyblue;
-    border-left: 0;
+    /* border-left: 1px dashed skyblue; */
 }
 
 #archetype_menu_button::menu-button:pressed {
 }
 
 #archetype_menu_button::menu-button:disabled {
-    border: 1px solid #e1e1e1;
-    border-left: 0;
+    /* border-left: 1px dashed #e1e1e1; */
 }
-
-
 
