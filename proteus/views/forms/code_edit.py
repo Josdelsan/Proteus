@@ -10,10 +10,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Tuple
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtCore import (
     Qt,
     QSize,
@@ -86,19 +89,24 @@ class CodeEdit(QWidget):
         self.suffix_input = QLineEdit()
 
         # Set QLineEdit alignments
-        self.prefix_input.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.prefix_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.number_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
- 
-        # Reimplement sizeHint to set a minimun width of 35px
-        # NOTE: Recomended in https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwidgets/qwidget.html
-        self.prefix_input.sizeHint = lambda: QSize(35, 0)
-        self.number_input.sizeHint = lambda: QSize(15, 0)
-        self.suffix_input.sizeHint = lambda: QSize(35, 0)
+        self.suffix_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        # Initial fixed width
+        self.prefix_input.setFixedWidth(30)
+        self.number_input.setFixedWidth(30)
+        self.suffix_input.setFixedWidth(30)
+ 
         # Set size policy
-        self.prefix_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.number_input.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-        self.suffix_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.prefix_input.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.number_input.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.suffix_input.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+
+        # Connect textChanged signal to update_input_width method
+        self.prefix_input.textChanged.connect(lambda text: self.update_input_width(text, self.prefix_input))
+        self.number_input.textChanged.connect(lambda text: self.update_input_width(text, self.number_input))
+        self.suffix_input.textChanged.connect(lambda text: self.update_input_width(text, self.suffix_input))
 
         # Layout setup -----------------------------------------------------
         layout = QHBoxLayout()
@@ -120,7 +128,7 @@ class CodeEdit(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def code(self) -> (str, str, str):
+    def code(self) -> Tuple[str, str, str]:
         """
         Returns the prefix, number and suffix of the code.
         """
@@ -163,3 +171,20 @@ class CodeEdit(QWidget):
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================
+        
+    # ----------------------------------------------------------------------
+    # Method     : update_input_width
+    # Description: Updates the input width.
+    # Date       : 13/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_input_width(self, text: str, input: QLineEdit) -> None:
+        """
+        Updates the input width depending on the current text to adjust the
+        size of the input widget.
+        """
+        font_metrics = QFontMetrics(input.font())
+        text_width = int(font_metrics.averageCharWidth() * 1.5) * len(text)
+        text_width = max(text_width, 30)
+        input.setFixedWidth(text_width)

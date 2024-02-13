@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QMessageBox,
+    QSizePolicy,
 )
 
 # --------------------------------------------------------------------------
@@ -123,6 +124,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
         self.inmutable_checkbox: QCheckBox = self.create_inmutable_checkbox()
         if self.inmutable_checkbox:
             horizontal_layout.addWidget(self.inmutable_checkbox)
+            horizontal_layout.setAlignment(self.inmutable_checkbox, Qt.AlignmentFlag.AlignTop)
 
         # Vertical main layout ---------------------------
         vertical_layout = QVBoxLayout()
@@ -152,6 +154,9 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 # Create the inmutable checkbox
                 inmutable_checkbox: QCheckBox = QCheckBox()
                 inmutable_checkbox.setChecked(True)
+                inmutable_checkbox.setSizePolicy(
+                    QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+                )
                 inmutable_checkbox.stateChanged.connect(self._update_enabled)
 
                 # Set the icon

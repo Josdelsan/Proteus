@@ -10,6 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import logging
 from typing import Union, List, Dict, Any
 
 # --------------------------------------------------------------------------
@@ -27,6 +28,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QDialog,
+    QGroupBox,
 )
 
 # --------------------------------------------------------------------------
@@ -37,7 +39,7 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.trace import Trace
-from proteus.model.properties import Property
+from proteus.model.properties import Property, MarkdownProperty
 from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
@@ -50,6 +52,7 @@ from proteus.controller.command_stack import Controller
 
 # Module configuration
 _ = Translator().text  # Translator
+log = logging.getLogger(__name__)  # Logger
 
 
 # --------------------------------------------------------------------------
@@ -128,96 +131,82 @@ class PropertyDialog(QDialog, ProteusComponent):
 
         Creation is dinamic, depending on the properties and traces of the element.
         """
+
+        # Retrieve properties and traces --------------------------------
+
         self.object: Union[Project, Object] = self._controller.get_element(
             self.element_id
         )
 
-        # Set Dialog sizeHint
-        self.sizeHint = lambda: QSize(500, 300)
-
-        # Check if the object is a project to set the flag
-        # This is used to avoid handling traces in the project form
-        if isinstance(self.object, Project):
-            self.project_dialog = True
-
         # Get the object's properties dictionary
-        properties_form_dict: Dict[str, Union[Property, Trace]] = (
+        properties_dict: Dict[str, Union[Property, Trace]] = (
             self.object.properties.copy()
         )
 
-        # If the object is Object class, include traces in the properties
-        if not self.project_dialog:
+        main_obj_class: str
+        try:
             # Merge object's traces with properties dict
-            properties_form_dict.update(self.object.traces)
+            properties_dict.update(self.object.traces)
 
-            # Object icon
-            dialog_icon: QIcon = DynamicIcons().icon(
-                ProteusIconType.Archetype, self.object.classes[-1]
-            )
-        else:
-            # Proteus icon
-            dialog_icon: QIcon = DynamicIcons().icon(
-                ProteusIconType.App, "proteus_icon"
-            )
-        # Set the dialog icon
-        self.setWindowIcon(dialog_icon)
+            # Get the main object class to set the icon
+            main_obj_class = self.object.classes[-1]
 
-        # Set the window name
+        # Project will raise an AttributeError
+        except AttributeError:
+            log.debug("Project properties form.")
+
+            main_obj_class = "proteus_icon"
+            # Check if the object is a project to set the flag
+            # This is used to avoid handling traces in the project form
+            self.project_dialog = True
+
+        # Dialog settings (icon is set later) ---------------------------
+        self.sizeHint = lambda: QSize(500, 300)
+
         window_name: str = self.object.get_property(PROTEUS_NAME).value
         self.setWindowTitle(window_name)
 
-        # Create layout to hold tabbed widgets and buttons
-        window_layout: QHBoxLayout = QHBoxLayout(self)
+        dialog_icon: QIcon = DynamicIcons().icon(ProteusIconType.App, main_obj_class)
+        self.setWindowIcon(dialog_icon)
 
-        # Create buttons layout
-        buttons_layout: QVBoxLayout = QVBoxLayout()
+        # Properties and traces layout ----------------------------------
+
+        # Create a dictionary to hold category widgets
+        category_widgets: Dict[str, QWidget] = self.create_category_widgets(
+            properties_dict
+        )
+
+        # Iterate over the properties and create widgets for each category
+        prop: Property = None
+        for prop in properties_dict.values():
+
+            # Get the category widget
+            category_widget: QWidget = category_widgets[prop.category]
+
+            # Add a row to the category widget with the property input widget and label
+            self.add_row_to_category_widget(category_widget, prop)
+
+        # Tabs layout ---------------------------------------------------
 
         # Create the form vertical layout and the tab widget
         # to organize the properties by category
         tabbed_layout: QVBoxLayout = QVBoxLayout()
         tab_widget: QTabWidget = QTabWidget()
 
-        # Create a dictionary to hold category widgets
-        category_widgets: Dict[str, QWidget] = {}
-
-        # Iterate over the properties and create widgets for each category
-        prop: Property = None
-        for prop in properties_form_dict.values():
-            # Get the category for the property (or trace)
-            category: str = _(
-                f"archetype.prop_category.{prop.category}",
-                alternative_text=prop.category,
-            )
-
-            # Create a QWidget for the category if it doesn't exist
-            if category not in category_widgets:
-                category_widget: QWidget = QWidget()
-                category_layout: QFormLayout = QFormLayout(category_widget)
-                category_layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.DontWrapRows)
-                category_widgets[category] = category_widget
-            else:
-                category_widget: QWidget = category_widgets[category]
-                category_layout: QFormLayout = category_widget.layout()
-
-            # Create the property input widget and label
-            input_field_widget: PropertyInput = PropertyInputFactory.create(
-                prop, controller=self._controller
-            )
-            input_label: QLabel = PropertyInputFactory.generate_label(prop)
-            category_layout.addRow(input_label, input_field_widget)
-
-            # Add the input field widget to the input widgets dictionary
-            # NOTE: This is used to retrieve the values of the widgets that changed
-            self.input_widgets[prop.name] = input_field_widget
-
         # Add the category widgets as tabs in the tab widget
-        category: str = None
-        category_widget: QWidget = None
         for category, category_widget in category_widgets.items():
-            tab_widget.addTab(category_widget, category)
+            translated_category: str = _(
+                f"archetype.prop_category.{category}",
+                alternative_text=category,
+            )
+            tab_widget.addTab(category_widget, translated_category)
 
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)
+
+        # Buttons and logo layout ---------------------------------------
+
+        buttons_layout: QVBoxLayout = QVBoxLayout()
 
         # Create Save and Cancel buttons
         self.button_box: QDialogButtonBox = QDialogButtonBox(
@@ -229,18 +218,83 @@ class PropertyDialog(QDialog, ProteusComponent):
         self.button_box.rejected.connect(self.cancel_button_clicked)
         buttons_layout.addWidget(self.button_box)
 
-        # Add US logo to the buttons layour and push it to the bottom
+        # Add US logo to the buttons layout and push it to the bottom
         us_logo: QIcon = DynamicIcons().icon(ProteusIconType.App, "US-digital")
         us_logo_label: QLabel = QLabel()
         us_logo_label.setPixmap(us_logo.pixmap(80, 80))
         buttons_layout.addStretch(1)
         buttons_layout.addWidget(us_logo_label)
 
+        # Main layout ---------------------------------------------------
+
+        # Create layout to hold tabbed widgets and buttons
+        window_layout: QHBoxLayout = QHBoxLayout(self)
+
         # Add the layouts to the main layout
         window_layout.addLayout(tabbed_layout)
         window_layout.addLayout(buttons_layout)
 
         self.setLayout(window_layout)
+
+    # ======================================================================
+    # Helper private methods
+    # ======================================================================
+
+    def create_category_widgets(
+        self, properties_dict: Dict[str, Union[Property, Trace]]
+    ) -> Dict[str, QWidget]:
+        """
+        Create the category widgets tabs for the properties and traces available
+        categories.
+        """
+        # Create a dictionary to hold category widgets
+        category_widgets: Dict[str, QWidget] = {}
+
+        # Iterate over the properties and create widgets for each category
+        prop: Property | Trace = None
+        for prop in properties_dict.values():
+
+            # Create a QWidget for the category if it doesn't exist
+            if prop.category not in category_widgets:
+                category_widget: QWidget = QWidget()
+                category_layout: QFormLayout = QFormLayout(category_widget)
+                category_layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
+                category_widgets[prop.category] = category_widget
+
+        return category_widgets
+
+    def add_row_to_category_widget(
+            self, category_widget: QWidget, prop: Union[Property, Trace]
+    ) -> None:
+        """
+        Add a row to the category widget with the property input widget and label.
+        """
+        # Create the property input widget and label
+        input_field_widget: PropertyInput = PropertyInputFactory.create(
+            prop, controller=self._controller
+        )
+        input_label: QLabel = PropertyInputFactory.generate_label(prop)
+
+        # Get the category layout
+        category_layout: QFormLayout = category_widget.layout()
+
+        # Traces and MarkdownProperty are wrapped in a group box
+        if isinstance(prop, (Trace, MarkdownProperty)):
+            group_box: QGroupBox = QGroupBox()
+            group_box.setTitle(input_label.text())
+            group_box_layout: QVBoxLayout = QVBoxLayout()
+            group_box_layout.addWidget(input_field_widget)
+            group_box_layout.setContentsMargins(0, 0, 0, 0)
+            group_box.setLayout(group_box_layout)
+
+            category_layout.addRow(group_box)
+        else:
+            # Add the input field widget and label to the category layout
+            category_layout.addRow(input_label, input_field_widget)
+
+        # Add the input field widget to the input widgets dictionary
+        # NOTE: This is used to retrieve the values of the widgets that changed
+        self.input_widgets[prop.name] = input_field_widget
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
