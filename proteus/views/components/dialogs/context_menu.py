@@ -20,10 +20,8 @@ from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QMenu,
-    QApplication,
     QTreeWidget,
     QTreeWidgetItem,
-    QStyle,
 )
 
 
@@ -37,6 +35,7 @@ from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
@@ -135,8 +134,7 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        edit_icon_path = self._config.get_icon(ProteusIconType.App, "context-menu-edit")
-        edit_icon = QIcon(edit_icon_path.as_posix())
+        edit_icon = DynamicIcons().icon(ProteusIconType.App, "context-menu-edit")
         self.action_edit_object.setIcon(edit_icon)
 
         # Create the delete action ------------------------------------------
@@ -148,10 +146,7 @@ class ContextMenu(QMenu, ProteusComponent):
                 element_id=selected_item_id, controller=self._controller
             )
         )
-        delete_icon_path = self._config.get_icon(
-            ProteusIconType.App, "context-menu-delete"
-        )
-        delete_icon = QIcon(delete_icon_path.as_posix())
+        delete_icon = DynamicIcons().icon(ProteusIconType.App, "context-menu-delete")
         self.action_delete_object.setIcon(delete_icon)
 
         # Create clone action -----------------------------------------------
@@ -161,10 +156,7 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_clone_object.triggered.connect(
             lambda: self._controller.clone_object(selected_item_id)
         )
-        clone_icon_path = self._config.get_icon(
-            ProteusIconType.App, "context-menu-clone"
-        )
-        clone_icon = QIcon(clone_icon_path.as_posix())
+        clone_icon = DynamicIcons().icon(ProteusIconType.App, "context-menu-clone")
         self.action_clone_object.setIcon(clone_icon)
 
         # Create move up action ---------------------------------------------
@@ -176,10 +168,7 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index - 1, parent_id
             )
         )
-        move_up_icon_path = self._config.get_icon(
-            ProteusIconType.App, "context-menu-up"
-        )
-        move_up_icon = QIcon(move_up_icon_path.as_posix())
+        move_up_icon = DynamicIcons().icon(ProteusIconType.App, "context-menu-up")
         self.action_move_up_object.setIcon(move_up_icon)
 
         # Create move down action -------------------------------------------
@@ -191,10 +180,7 @@ class ContextMenu(QMenu, ProteusComponent):
                 selected_item_id, position_index + 2, parent_id
             )
         )
-        move_down_icon_path = self._config.get_icon(
-            ProteusIconType.App, "context-menu-down"
-        )
-        move_down_icon = QIcon(move_down_icon_path.as_posix())
+        move_down_icon = DynamicIcons().icon(ProteusIconType.App, "context-menu-down")
         self.action_move_down_object.setIcon(move_down_icon)
 
         # Disable the move up action if the selected item is the first
@@ -321,17 +307,14 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
         """
         Create the component.
         """
-        icon: QIcon = QIcon(
-            self._config.get_icon(ProteusIconType.Archetype, self.class_name).as_posix()
-        )
+        icon = DynamicIcons().icon(ProteusIconType.Archetype, self.class_name)
+
         self.setIcon(icon)
         translated_class_name: str = _(
             f"archetype.class.{self.class_name}", alternative_text=self.class_name
         )
         self.setTitle(
-            _(
-                "document_tree.menu.action.add_archetype", translated_class_name
-            )
+            _("document_tree.menu.action.add_archetype", translated_class_name)
         )
 
         # Create the actions
@@ -339,11 +322,7 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
             action: QAction = QAction(
                 _(archetype.get_property(PROTEUS_NAME).value), self
             )
-            icon: QIcon = QIcon(
-                self._config.get_icon(
-                    ProteusIconType.Archetype, archetype.classes[-1]
-                ).as_posix()
-            )
+            icon = DynamicIcons().icon(ProteusIconType.Archetype, archetype.classes[-1])
             action.setIcon(icon)
             action.triggered.connect(
                 lambda: self._controller.create_object(archetype.id, self.parent_id)

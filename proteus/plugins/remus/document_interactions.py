@@ -27,6 +27,7 @@ from PyQt6.QtGui import QIcon
 
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -136,10 +137,10 @@ class DocumentInteractions(ProteusComponent):
             message_box = QMessageBox()
 
             # Set icon
-            proteus_icon: Path = self._config.get_icon(
+            proteus_icon: Path = DynamicIcons().icon(
                 ProteusIconType.App, "proteus_icon"
             )
-            message_box.setWindowIcon(QIcon(proteus_icon.as_posix()))
+            message_box.setWindowIcon(proteus_icon)
 
             # Set title and text
             message_box.setWindowTitle(_("document.navigation.request.title"))

@@ -87,23 +87,16 @@ class BooleanEdit(QWidget):
         """
 
         # Widgets creation --------------------------------------------------
-        self.checkbox = QCheckBox()
-        self.label = QLabel()
-        self.label.setText(
+        self.checkbox = QCheckBox(
             _(
                 f"archetype.tooltip.{self.tooltip_str}",
                 alternative_text=self.tooltip_str,
             )
         )
-        self.label.setWordWrap(True)
-        self.label.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
 
         # Layout setup -----------------------------------------------------
         layout = QHBoxLayout()
         layout.addWidget(self.checkbox)
-        layout.addWidget(self.label)
 
         # Set alignment for the layout
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)

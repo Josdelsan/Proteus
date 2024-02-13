@@ -30,6 +30,7 @@ from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
@@ -95,8 +96,8 @@ class MainWindow(QMainWindow, ProteusComponent):
         self.setWindowTitle(_("main_window.title"))
 
         # Set the window icon
-        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        self.setWindowIcon(proteus_icon)
 
         # Set the window size
         self.resize(1200, 800)

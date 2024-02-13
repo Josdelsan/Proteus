@@ -27,6 +27,8 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QFileDialog,
     QMessageBox,
+    QSizePolicy,
+    QFrame,
 )
 
 # --------------------------------------------------------------------------
@@ -140,9 +142,12 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ------------------
         # Component settings
         # ------------------
-        # Remove the tittle bar and set fixed height to prevent resizing
+        # Remove title bar and dock widget features
         self.setTitleBarWidget(QWidget())
-        self.setFixedHeight(125)
+        self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+
+        # Set the menu to minimum size and disable vertical resizing
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
 
         # --------------------
         # Create the component
@@ -180,6 +185,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the tab widget with a horizontal layout
         main_tab: QWidget = QWidget()
         tab_layout: QHBoxLayout = QHBoxLayout()
+        main_tab.setObjectName("main_tab")
 
         # ---------
         # Project menu
@@ -220,6 +226,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             ],
         )
         tab_layout.addWidget(project_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # Document menu
@@ -250,6 +257,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             ],
         )
         tab_layout.addWidget(document_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # Action menu
@@ -268,6 +276,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             [self.undo_button, self.redo_button],
         )
         tab_layout.addWidget(action_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
         # aplication
@@ -322,6 +331,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Create the tab widget with a horizontal layout
         tab_widget: QWidget = QWidget()
         tab_layout: QHBoxLayout = QHBoxLayout()
+        tab_widget.setObjectName("archetype_tab")
 
         # Create a list to store archetype buttons to create the group
         buttons_list: List[ArchetypeMenuButton] = []
@@ -355,7 +365,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_name_code: str = f"archetype.category.{type_name}"
 
         # Create the archetype button group
-        archetype_menu: QWidget = buttons.button_group(tab_name_code, buttons_list)
+        archetype_menu: QWidget = buttons.button_group(
+            tab_name_code, buttons_list, hide_section_name=True
+        )
         tab_layout.addWidget(archetype_menu)
 
         # Spacer to justify content left
@@ -664,3 +676,23 @@ class MainMenu(QDockWidget, ProteusComponent):
             is_document=True,
             controller=self._controller,
         )
+
+
+    # ==========================================================================
+    # Overriden methods
+    # ==========================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : resizeEvent
+    # Description: Set the fixed height of the component.
+    # Date       : 01/06/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def resizeEvent(self, event):
+        """
+        Overriden in order to prevent resizing the component vertically.
+        """
+        # Set the fixed height
+        self.setFixedHeight(event.size().height())
+        return super().resizeEvent(event)

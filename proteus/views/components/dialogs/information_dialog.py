@@ -32,6 +32,7 @@ from proteus import PROTEUS_VERSION
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
 
 # Module configuration
@@ -84,8 +85,8 @@ class InformationDialog(QDialog, ProteusComponent):
         self.setWindowTitle(_("information_dialog.title"))
 
         # Set window icon
-        proteus_icon: Path = self._config.get_icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(QIcon(proteus_icon.as_posix()))
+        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        self.setWindowIcon(proteus_icon)
 
         # App name and version
         app_name = QLabel("PROTEUS")

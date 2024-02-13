@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QMessageBox,
+    QSizePolicy,
 )
 
 # --------------------------------------------------------------------------
@@ -39,7 +40,9 @@ from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
 from proteus.utils.abstract_meta import AbstractObjectMeta
 from proteus.utils.translator import Translator
-from proteus.utils.config import Config, ProteusIconType
+from proteus.utils.config import Config
+from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -121,9 +124,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
         self.inmutable_checkbox: QCheckBox = self.create_inmutable_checkbox()
         if self.inmutable_checkbox:
             horizontal_layout.addWidget(self.inmutable_checkbox)
-
-        # Required input setup
-        self.setup_required_input()
+            horizontal_layout.setAlignment(self.inmutable_checkbox, Qt.AlignmentFlag.AlignTop)
 
         # Vertical main layout ---------------------------
         vertical_layout = QVBoxLayout()
@@ -153,13 +154,14 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 # Create the inmutable checkbox
                 inmutable_checkbox: QCheckBox = QCheckBox()
                 inmutable_checkbox.setChecked(True)
+                inmutable_checkbox.setSizePolicy(
+                    QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+                )
                 inmutable_checkbox.stateChanged.connect(self._update_enabled)
 
                 # Set the icon
-                icon: QIcon = QIcon(
-                    self._config.get_icon(
-                        ProteusIconType.App, "inmutable-property-edit-disabled"
-                    ).as_posix()
+                icon: QIcon = DynamicIcons().icon(
+                    ProteusIconType.App, "inmutable-property-edit-disabled"
                 )
                 inmutable_checkbox.setIcon(icon)
 
@@ -173,24 +175,6 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
 
                 return inmutable_checkbox
         return None
-
-    # ----------------------------------------------------------------------
-    # Method     : setup_required_input
-    # Description: Modify the input widget if the property is required.
-    # Date       : 31/01/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def setup_required_input(self) -> None:
-        """
-        Modify the input widget if the property is required to highlight
-        the input widget.
-        """
-        # Check if property is Property class and required is True
-        if isinstance(self.property, Property):
-            required: bool = self.property.required
-            if required:
-                self.input.setStyleSheet("border: 1px solid; border-radius: 3px;")
 
     # ======================================================================
     # Public methods
@@ -300,9 +284,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 else "inmutable-property-edit-enabled"
             )
 
-            icon: QIcon = QIcon(
-                self._config.get_icon(ProteusIconType.App, icon_str).as_posix()
-            )
+            icon: QIcon = DynamicIcons().icon(ProteusIconType.App, icon_str)
             self.inmutable_checkbox.setIcon(icon)
 
         # Trigger inmutable property warning

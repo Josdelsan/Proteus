@@ -6,7 +6,6 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-import shutil
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -28,6 +27,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.utils import ProteusIconType
 from proteus.utils.config import Config
+from proteus.utils.dynamic_icons import DynamicIcons
 
 
 # --------------------------------------------------------------------------
@@ -66,7 +66,6 @@ class DirectoryEdit(QWidget):
         # Create input widget
         self.create_input()
 
-
     # ----------------------------------------------------------------------
     # Method     : create_input
     # Description: Creates the input widget.
@@ -83,11 +82,9 @@ class DirectoryEdit(QWidget):
         # Line edit
         self.input = QLineEdit()
         self.input.setDisabled(True)
-        
+
         # Browse button
-        browse_icon_path: Path = Config().get_icon(ProteusIconType.App, "browse_dir_icon")
-        browse_button_icon = QIcon()
-        browse_button_icon.addFile(browse_icon_path.as_posix())
+        browse_button_icon = DynamicIcons().icon(ProteusIconType.App, "browse_dir_icon")
 
         self.browse_button = QPushButton()
         self.browse_button.setIcon(browse_button_icon)
@@ -114,7 +111,7 @@ class DirectoryEdit(QWidget):
         Returns the selected directory.
         """
         return self.input.text()
-    
+
     # ----------------------------------------------------------------------
     # Method     : setDirectory
     # Description: Sets the directory.
@@ -128,7 +125,6 @@ class DirectoryEdit(QWidget):
         """
         self.input.setText(directory)
 
-    
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================
@@ -141,10 +137,10 @@ class DirectoryEdit(QWidget):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def _browse_directory_dialog(self) -> None:
-            """
-            Browse directory dialog.
-            """
-            file_dialog: QFileDialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.FileMode.Directory)
-            path: str = file_dialog.getExistingDirectory()
-            self.input.setText(path)
+        """
+        Browse directory dialog.
+        """
+        file_dialog: QFileDialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+        path: str = file_dialog.getExistingDirectory()
+        self.input.setText(path)

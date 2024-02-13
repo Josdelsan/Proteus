@@ -27,8 +27,8 @@ from proteus.controller.command_stack import Controller
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.check_combo_box import CheckComboBox
 from proteus.utils.translator import Translator
-from proteus.utils.config import Config
 from proteus.utils import ProteusIconType
+from proteus.utils.dynamic_icons import DynamicIcons
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -104,10 +104,9 @@ class ClassListPropertyInput(PropertyInput):
             is_checked = project_available_class in property_classes
 
             # Class icon
-            class_icon_path = Config().get_icon(
+            class_icon = DynamicIcons().icon(
                 ProteusIconType.Archetype, project_available_class
             )
-            class_icon = QIcon(class_icon_path.as_posix())
 
             # Class name translation
             class_name_translated = _(

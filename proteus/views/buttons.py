@@ -32,7 +32,7 @@ from PyQt6.QtCore import Qt, QSize
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils import ProteusIconType
 from proteus.model import ProteusClassTag
 from proteus.utils.translator import Translator
@@ -54,9 +54,7 @@ def new_project_button(parent: QWidget) -> QToolButton:
     new_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "new-project")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "new-project")
     new_button.setIcon(button_icon)
     new_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -83,10 +81,8 @@ def open_project_button(parent: QWidget) -> QToolButton:
     open_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "open-project")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
-    open_button.setIcon(QIcon(button_icon))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "open-project")
+    open_button.setIcon(button_icon)
     open_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
     # Set tooltip
@@ -112,9 +108,7 @@ def save_project_button(parent: QWidget) -> QToolButton:
     save_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "save")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "save")
     save_button.setIcon(button_icon)
     save_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -144,9 +138,7 @@ def undo_button(parent: QWidget) -> QToolButton:
     undo_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "undo")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "undo")
     undo_button.setIcon(button_icon)
     undo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -176,9 +168,7 @@ def redo_button(parent: QWidget) -> QToolButton:
     redo_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "redo")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "redo")
     redo_button.setIcon(button_icon)
     redo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -208,9 +198,7 @@ def project_properties_button(parent: QWidget) -> QToolButton:
     properties_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "edit")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "edit")
     properties_button.setIcon(button_icon)
     properties_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -240,9 +228,7 @@ def add_document_button(parent: QWidget) -> QToolButton:
     add_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "new-file")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "new-file")
     add_button.setIcon(button_icon)
     add_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -272,9 +258,7 @@ def delete_document_button(parent: QWidget) -> QToolButton:
     delete_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "delete-file")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "delete-file")
     delete_button.setIcon(button_icon)
     delete_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -301,9 +285,7 @@ def settings_button(parent: QWidget) -> QToolButton:
     settings_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "settings")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "settings")
     settings_button.setIcon(button_icon)
     settings_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -327,9 +309,7 @@ def export_button(parent: QWidget) -> QToolButton:
     export_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "export")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "export")
     export_button.setIcon(button_icon)
     export_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -356,9 +336,7 @@ def info_button(parent: QWidget) -> QToolButton:
     info_button.setMinimumWidth(55)
 
     # Set file icon
-    icon_path: Path = Config().get_icon(ProteusIconType.MainMenu, "info")
-    button_icon = QIcon()
-    button_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+    button_icon = DynamicIcons().icon(ProteusIconType.MainMenu, "info")
     info_button.setIcon(QIcon(button_icon))
     info_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
@@ -373,7 +351,9 @@ def info_button(parent: QWidget) -> QToolButton:
     return info_button
 
 
-def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
+def button_group(
+    section_name_code: str, buttons: List[QToolButton], hide_section_name: bool = False
+) -> QWidget:
     # Create the main widget
     widget = QWidget()
     widget.setContentsMargins(0, 0, 5, 0)
@@ -385,22 +365,35 @@ def button_group(section_name_code: str, buttons: List[QToolButton]) -> QWidget:
     for column, button in enumerate(buttons):
         layout.addWidget(button, 0, column)
 
-    # Add a separator line in the second row of the layout
-    separator = QFrame()
-    separator.setFrameShape(QFrame.Shape.HLine)
-    separator.setFrameShadow(QFrame.Shadow.Sunken)
-    layout.addWidget(separator, 1, 0, 1, len(buttons))
-
-    # Add a centered label with the text "section" in the third row of the layout
-    section_label = QLabel(_(section_name_code))
-    section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    layout.addWidget(section_label, 2, 0, 1, len(buttons))
+    if not hide_section_name:
+        # Add a centered label with the text "section" in the third row of the layout
+        section_label = QLabel(_(section_name_code))
+        section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(section_label, 1, 0, 1, len(buttons))
 
     # Set layout margins and spacing
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(0)
 
     return widget
+
+
+def get_separator(vertical: bool = False) -> QFrame:
+    """
+    Returns a horizontal or vertical separator.
+
+    :param vertical: If True, the separator will be vertical. If False, the
+                        separator will be horizontal.
+    """
+    separator = QFrame()
+    if vertical:
+        separator.setFrameShape(QFrame.Shape.VLine)
+        separator.setObjectName("v-separator")
+    else:
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setObjectName("h-separator")
+    separator.setFrameShadow(QFrame.Shadow.Sunken)
+    return separator
 
 
 # --------------------------------------------------------------------------
@@ -421,16 +414,14 @@ class ArchetypeMenuButton(QToolButton):
         super().__init__(parent)
 
         # Button settings
-        self.setMinimumWidth(80)
+        self.setObjectName("archetype_menu_button")
+        # self.setMinimumWidth(80)
 
         # Set icon
         archetype_icon = QIcon()
 
-        # Build icon path from object_class or use default icon
-        icon_path: Path = Config().get_icon(ProteusIconType.Archetype, object_class)
-
         # Add icon
-        archetype_icon.addFile(icon_path.as_posix(), QSize(32, 32))
+        archetype_icon = DynamicIcons().icon(ProteusIconType.Archetype, object_class)
         self.setIcon(archetype_icon)
         self.setIconSize(QSize(32, 32))
 

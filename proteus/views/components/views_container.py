@@ -38,6 +38,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.events import (
     ModifyObjectEvent,
@@ -136,10 +137,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             self.add_view(xsl_template)
 
         # Create a button to add new views
-        icon_path: Path = self._config.get_icon(ProteusIconType.App, "add_view_icon")
+        button_icon = DynamicIcons().icon(ProteusIconType.App, "add_view_icon")
         add_view_button: QPushButton = QPushButton()
-        button_icon = QIcon()
-        button_icon.addFile(icon_path.as_posix())
         add_view_button.setIcon(button_icon)
 
         # Connect to new view dialog
