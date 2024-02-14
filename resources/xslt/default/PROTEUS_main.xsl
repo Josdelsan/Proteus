@@ -50,6 +50,7 @@
     <xsl:include href="archetypes/PROTEUS_stakeholder.xsl" />
     <xsl:include href="archetypes/PROTEUS_meeting.xsl" />
     <xsl:include href="archetypes/PROTEUS_archetype_link.xsl" />
+    <xsl:include href="archetypes/PROTEUS_object_type.xsl" />
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

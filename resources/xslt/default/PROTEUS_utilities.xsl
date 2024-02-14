@@ -37,7 +37,17 @@
 
     <xsl:template name="generate_markdown">
         <xsl:param name="content" select="string(.)"/>
-        <xsl:value-of select="proteus-utils:glossary_highlight(proteus-utils:generate_markdown($content))" disable-output-escaping="yes"/>
+        <xsl:param name="glossary-items-highlight" select="true()"/>
+
+        <xsl:choose>
+            <xsl:when test="$glossary-items-highlight">
+                <xsl:value-of select="proteus-utils:glossary_highlight(proteus-utils:generate_markdown($content))" disable-output-escaping="yes"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
+            </xsl:otherwise>
+        </xsl:choose>
+        
     </xsl:template>
 
 
