@@ -217,13 +217,13 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the project menu widget
         project_menu: QWidget = buttons.button_group(
-            "main_menu.button_group.project",
             [
                 self.new_button,
                 self.open_button,
                 self.save_button,
                 self.project_properties_button,
             ],
+            "main_menu.button_group.project",
         )
         tab_layout.addWidget(project_menu)
         tab_layout.addWidget(buttons.get_separator(vertical=True))
@@ -249,12 +249,12 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the document menu widget
         document_menu: QWidget = buttons.button_group(
-            "main_menu.button_group.document",
             [
                 self.add_document_button,
                 self.delete_document_button,
                 self.export_document_button,
             ],
+            "main_menu.button_group.document",
         )
         tab_layout.addWidget(document_menu)
         tab_layout.addWidget(buttons.get_separator(vertical=True))
@@ -272,8 +272,8 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the action menu widget
         action_menu: QWidget = buttons.button_group(
-            "main_menu.button_group.action",
             [self.undo_button, self.redo_button],
+            "main_menu.button_group.action",
         )
         tab_layout.addWidget(action_menu)
         tab_layout.addWidget(buttons.get_separator(vertical=True))
@@ -295,8 +295,8 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the aplication menu widget
         aplication_menu: QWidget = buttons.button_group(
-            "main_menu.button_group.application",
             [self.settings_button, self.information_button],
+            "main_menu.button_group.application",
         )
 
         tab_layout.addWidget(aplication_menu)
@@ -365,9 +365,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_name_code: str = f"archetype.category.{type_name}"
 
         # Create the archetype button group
-        archetype_menu: QWidget = buttons.button_group(
-            tab_name_code, buttons_list, hide_section_name=True
-        )
+        archetype_menu: QWidget = buttons.button_group(buttons_list)
         tab_layout.addWidget(archetype_menu)
 
         # Spacer to justify content left
@@ -375,7 +373,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        self.tab_widget.addTab(tab_widget, _(tab_name_code))
+        self.tab_widget.addTab(tab_widget, _(tab_name_code, alternative_text=type_name))
 
     # ---------------------------------------------------------------------
     # Method     : subscribe
@@ -676,7 +674,6 @@ class MainMenu(QDockWidget, ProteusComponent):
             is_document=True,
             controller=self._controller,
         )
-
 
     # ==========================================================================
     # Overriden methods

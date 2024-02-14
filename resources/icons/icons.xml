@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
     <type name="document" default="default-acronym.png"/>
-    <type name="archetype" default="default-archetype.png"/>
+    <type name="archetype" default="default-archetype.png">
+        <icon key=":Proteus-document" file="archetypes/document.png" />
+    </type>
     <type name="app" default="proteus_logo.png">
         <icon key="proteus_icon" file="proteus_logo.ico" />
         <icon key="proteus_logo" file="proteus_logo.png" />

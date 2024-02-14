@@ -209,12 +209,23 @@ class MainWindow(QMainWindow, ProteusComponent):
         selected_object: Object = self._controller.get_element(selected_object_id)
         object_name = selected_object.get_property(PROTEUS_NAME).value
 
+        translated_object_accepted_children = [
+            _(f"archetype.class.{cls}", alternative_text=cls)
+            for cls in selected_object.acceptedChildren
+        ]
+
+        translated_object_accepted_parents = [
+            _(f"archetype.class.{cls}", alternative_text=cls)
+            for cls in selected_object.acceptedParents
+        ]
+
         # Message to show in the status bar
         message: str = _(
             "main_window.statusbar.text.selected_object",
-            selected_object_id,
             object_name,
-            selected_object.acceptedChildren,
+            selected_object_id,
+            translated_object_accepted_children,
+            translated_object_accepted_parents,
         )
 
         # Update the status bar with the temporary message
