@@ -174,6 +174,7 @@ class DynamicIcons(metaclass=SingletonMeta):
                     log.error(
                         f"Icon file '{file_path}' does not exist. Check {icons_path.as_posix()} file."
                     )
+                    continue
 
                 # Add icon to type dictionary
                 type_dictionary[key] = file_path
