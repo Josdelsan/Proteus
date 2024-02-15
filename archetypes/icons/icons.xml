@@ -19,5 +19,11 @@
         <icon key="non-functional-requirement" file="non-functional-req.png" />
         <icon key="specific-data" file="specific-data.png" />
         <icon key="archetype-link" file="archetype-link.png" />
+        <icon key="object-type" file="object-type.png" />
+        <icon key="object-component" file="object-component.png" />
+        <icon key="object-attribute" file="object-attribute.png" />
+        <icon key="object-invariant" file="object-invariant.png" />
+        <icon key="association-type" file="association-type.png" />
+        <icon key="association-role" file="association-role.png" />
     </type>
 </icons>
