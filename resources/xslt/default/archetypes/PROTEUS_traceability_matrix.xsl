@@ -21,7 +21,7 @@
     >
     
     <xsl:template match="object[@classes='traceability-matrix']">
-        <div id="{@id}" class="traceability_matrix">
+        <div id="{@id}" data-proteus-id="{@id}" class="traceability_matrix">
             
             <!-- Extract row and column classes -->
             <xsl:variable name="col-classes">
