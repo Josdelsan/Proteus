@@ -69,7 +69,7 @@ information_button.text: "Acerca de"
 main_window.title: "Aplicación Proteus"
 main_window.exit_dialog.title: "Salir de Proteus sin guardar"
 main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
-main_window.statusbar.text.selected_object: "Objeto seleccionado id [{}] nombre [{}] | Arquetipos aceptados por el objeto {}"
+main_window.statusbar.text.selected_object: "Objeto seleccionado '{}' con id '{}' || Clases descendientes aceptadas: {} || Clases padre aceptadas:"
 
 # ---------------------------------------------------------------------------
 # Document render

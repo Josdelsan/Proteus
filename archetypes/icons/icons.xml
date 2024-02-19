@@ -2,7 +2,6 @@
 <icons>
     <type name="document"/>
     <type name="archetype">
-        <icon key=":Proteus-document" file="document.png" />
         <icon key="actor" file="actor.png" />
         <icon key="paragraph" file="paragraph.png" />
         <icon key="section" file="section.png" />

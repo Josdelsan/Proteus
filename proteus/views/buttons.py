@@ -352,7 +352,7 @@ def info_button(parent: QWidget) -> QToolButton:
 
 
 def button_group(
-    section_name_code: str, buttons: List[QToolButton], hide_section_name: bool = False
+    buttons: List[QToolButton], section_name_code: str = None
 ) -> QWidget:
     # Create the main widget
     widget = QWidget()
@@ -365,7 +365,7 @@ def button_group(
     for column, button in enumerate(buttons):
         layout.addWidget(button, 0, column)
 
-    if not hide_section_name:
+    if section_name_code is not None:
         # Add a centered label with the text "section" in the third row of the layout
         section_label = QLabel(_(section_name_code))
         section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
