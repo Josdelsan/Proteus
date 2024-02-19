@@ -32,6 +32,7 @@ from proteus.model import (
     TARGET_ATTRIBUTE,
     TOOLTIP_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
+    MAX_TARGETS_NUMBER_ATTRIBUTE,
     TRACE_PROPERTY_TAG,
     TRACE_TYPE_ATTRIBUTE,
     TRACE_TAG,
@@ -43,6 +44,11 @@ from proteus.model import (
 
 # logging configuration
 log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------------
+# Constants
+# --------------------------------------------------------------------------
+NO_TARGETS_LIMIT = -1
 
 # --------------------------------------------------------------------------
 # Class: Trace
@@ -66,6 +72,7 @@ class Trace:
     tooltip: str = str()
     type: str = str(DEFAULT_TRACE_TYPE)
     targets: List[ProteusID] = field(default_factory=list)
+    max_targets_number: int = NO_TARGETS_LIMIT
 
     # --------------------------------------------------------------------------
     # Method: __post_init__
@@ -118,6 +125,25 @@ class Trace:
             # self.targets = list() cannot be used when frozen=True
             object.__setattr__(self, "targets", list())
 
+        # Max targets number validation
+        if not isinstance(self.max_targets_number, int) or self.max_targets_number <= 0:
+            log.warning(
+                f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
+            )
+            # self.max_targets_number = NO_TARGETS_LIMIT cannot be used when frozen=True
+            object.__setattr__(self, "max_targets_number", NO_TARGETS_LIMIT)
+
+        # Ignore targets if max targets number is NO_TARGETS_LIMIT
+        if (
+            self.max_targets_number != NO_TARGETS_LIMIT
+            and len(self.targets) > self.max_targets_number
+        ):
+            log.warning(
+                f"PROTEUS trace '{self.name}' has more targets than the max targets number -> ignoring leftover targets"
+            )
+            # self.targets = self.targets[:self.max_targets_number] cannot be used when frozen=True
+            object.__setattr__(self, "targets", self.targets[: self.max_targets_number])
+
     # --------------------------------------------------------------------------
     # Method: clone
     # Description: It clones the trace with new targets if it is not None.
@@ -152,8 +178,16 @@ class Trace:
         trace_property_element: ET._Element = ET.Element(TRACE_PROPERTY_TAG)
         trace_property_element.set(NAME_ATTRIBUTE, self.name)
         trace_property_element.set(CATEGORY_ATTRIBUTE, self.category)
-        trace_property_element.set(ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets))
+        trace_property_element.set(
+            ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets)
+        )
         trace_property_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
+
+        # Create max targets number attribute if it is not NO_TARGETS_LIMIT
+        if self.max_targets_number != NO_TARGETS_LIMIT:
+            trace_property_element.set(
+                MAX_TARGETS_NUMBER_ATTRIBUTE, str(self.max_targets_number)
+            )
 
         # Create tooltip tag and set its attribute
         if self.tooltip and self.tooltip != "":
@@ -198,6 +232,18 @@ class Trace:
             ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
         ).split()
 
+        # Get max targets number
+        max_number_attribute = trace_property_element.attrib.get(
+            MAX_TARGETS_NUMBER_ATTRIBUTE, NO_TARGETS_LIMIT
+        )
+        try:
+            max_targets_number: int = int(max_number_attribute)
+        except ValueError:
+            log.warning(
+                f"PROTEUS trace '{name}' has a max targets number that is not an integer -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
+            )
+            max_targets_number = NO_TARGETS_LIMIT
+
         # Get tooltip
         tooltip: AnyStr | None = trace_property_element.attrib.get(
             TOOLTIP_ATTRIBUTE, str()
@@ -228,4 +274,5 @@ class Trace:
             acceptedTargets=accepted_targets,
             tooltip=tooltip,
             type=type,
+            max_targets_number=max_targets_number,
         )

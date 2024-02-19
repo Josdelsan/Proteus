@@ -11,17 +11,16 @@
 # --------------------------------------------------------------------------
 
 import logging
-from pathlib import Path
 from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtWidgets import (
     QWidget,
+    QLabel,
     QPushButton,
     QHBoxLayout,
     QListWidget,
@@ -45,6 +44,7 @@ from proteus.model import (
     PROTEUS_ANY,
 )
 from proteus.model.object import Object
+from proteus.model.trace import NO_TARGETS_LIMIT
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
@@ -76,6 +76,8 @@ class TraceEdit(QWidget):
     traces from the user.
     """
 
+    tracesChanged = pyqtSignal()
+
     # ----------------------------------------------------------------------
     # Method     : __init__
     # Description: Object initialization.
@@ -87,6 +89,7 @@ class TraceEdit(QWidget):
         self,
         controller: Controller = None,
         accepted_targets: List[ProteusClassTag] = [],
+        limit: int = NO_TARGETS_LIMIT,
         *args,
         **kwargs,
     ):
@@ -100,9 +103,18 @@ class TraceEdit(QWidget):
             controller, Controller
         ), f"TraceEdit requires a Controller instance to be initialized. Controller argument is type {type(controller)}"
 
+        assert isinstance(
+            accepted_targets, list
+        ), f"TraceEdit requires a list of ProteusClassTag as accepted targets. Accepted targets argument is type {type(accepted_targets)}"
+
+        assert isinstance(
+            limit, int
+        ), f"TraceEdit requires an integer as limit. Limit argument is type {type(limit)}"
+
         # Arguments initialization
         self.controller: Controller = controller
         self.accepted_targets: List[ProteusClassTag] = accepted_targets
+        self.limit: int = limit
 
         # Initialize widgets
         self.list_widget: QListWidget = None
@@ -111,6 +123,9 @@ class TraceEdit(QWidget):
 
         # Create input widget
         self.create_input()
+
+        self.tracesChanged.connect(self.update_add_button)
+        self.tracesChanged.connect(self.update_remove_button)
 
     # ----------------------------------------------------------------------
     # Method     : create_input
@@ -167,7 +182,7 @@ class TraceEdit(QWidget):
         # Connect signals ---------------------------------------------------
         self.add_button.clicked.connect(self.add_trace)
         self.remove_button.clicked.connect(self.remove_trace)
-        self.list_widget.currentItemChanged.connect(self.update_remove_button)
+        self.list_widget.itemClicked.connect(self.update_remove_button)
 
     # ----------------------------------------------------------------------
     # Method     : traces
@@ -215,6 +230,8 @@ class TraceEdit(QWidget):
 
             self.list_widget.addItem(trace_item)
 
+        self.tracesChanged.emit()
+
     # ======================================================================
     # Slots (connected to signals)
     # ======================================================================
@@ -254,6 +271,8 @@ class TraceEdit(QWidget):
 
             # Add item to the QListWidget
             self.list_widget.addItem(trace_item)
+            
+        self.tracesChanged.emit()
 
     # ----------------------------------------------------------------------
     # Method: remove_trace
@@ -273,6 +292,8 @@ class TraceEdit(QWidget):
         # Remove the item
         self.list_widget.takeItem(self.list_widget.row(current_item))
 
+        self.tracesChanged.emit()
+
     # ----------------------------------------------------------------------
     # Method: update_remove_button
     # Description: Updates the remove button status.
@@ -290,6 +311,23 @@ class TraceEdit(QWidget):
         else:
             self.remove_button.setEnabled(False)
 
+    # ----------------------------------------------------------------------
+    # Method: update_add_button
+    # Description: Updates the add button status.
+    # Date: 19/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_add_button(self):
+        """
+        Updates the add button status. Called when a trace is added, removed
+        or the traces are set for the first time.
+        """
+        traces = self.traces()
+        if self.limit > 0 and len(traces) >= self.limit:
+            self.add_button.setEnabled(False)
+        else:
+            self.add_button.setEnabled(True)
 
 # --------------------------------------------------------------------------
 # Class: TraceEditDialog
@@ -347,6 +385,8 @@ class TraceEditDialog(QDialog):
         self.targets: List[ProteusID] = targets
 
         # Initialize widgets
+        self.error_label: QLabel = None
+
         self.list_widget: QListWidget = None
         self.button_box: QDialogButtonBox = None
         self.name_filter_widget: QLineEdit = None
@@ -384,6 +424,14 @@ class TraceEditDialog(QDialog):
         # Set window icon
         proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
+
+        # -----------------------
+        # Error label
+        # -----------------------
+        self.error_label = QLabel()
+        self.error_label.setWordWrap(True)
+        self.error_label.setHidden(True)
+        self.error_label.setObjectName("error_label")
 
         # -----------------------
         # List widget setup
@@ -472,18 +520,33 @@ class TraceEditDialog(QDialog):
         main_layout = QVBoxLayout()
         main_layout.addLayout(filter_layout)
         main_layout.addWidget(self.list_widget)
+        main_layout.addWidget(self.error_label)
         main_layout.addWidget(self.button_box)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.setLayout(main_layout)
+
+        # -----------------------
+        # Final setup
+        # -----------------------
 
         # Connect signals
         self.list_widget.currentItemChanged.connect(self.enable_accept_button)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
-        # Set none as selected object at the beginning
-        self.list_widget.setCurrentItem(None)
+        self.enable_accept_button()
+
+        # If no objects are found perform required actions
+        if self.list_widget.count() == 0:
+            self.list_widget.setDisabled(True)
+
+            classes_translations = [_(f"archetype.class.{_class}") for _class in self.accepted_classes]
+            self.error_label.setText(_("trace_edit_dialog.error_label.no_objects", classes_translations))
+            self.error_label.setHidden(False)
+
+            self.name_filter_widget.setDisabled(True)
+            self.class_selector_combo.setDisabled(True)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)
@@ -550,11 +613,12 @@ class TraceEditDialog(QDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def enable_accept_button(self, index) -> None:
+    def enable_accept_button(self) -> None:
         """
         Enables the accept button when an item is selected. If the item is
         deselected, the accept button is disabled.
         """
+        index: QListWidgetItem = self.list_widget.currentItem()
         if index is None:
             self.button_box.button(QDialogButtonBox.StandardButton.Save).setEnabled(
                 False
@@ -577,6 +641,10 @@ class TraceEditDialog(QDialog):
         """
         # Get the current item
         current_item: QListWidgetItem = self.list_widget.currentItem()
+
+        assert isinstance(
+            current_item, QListWidgetItem
+        ), f"Current item must be a QListWidgetItem, current return type is {type(current_item)}"
 
         # Get the object id
         self.selected_object = current_item.data(Qt.ItemDataRole.UserRole)

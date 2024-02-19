@@ -28,7 +28,7 @@ from proteus.controller.command_stack import Controller
 from proteus.utils.translator import Translator
 
 # Properties imports
-from proteus.model.trace import Trace
+from proteus.model.trace import Trace, NO_TARGETS_LIMIT
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -169,6 +169,9 @@ class PropertyInputFactory:
 
                 # Set the tooltip
                 label.setToolTip(_("property_input.required_tooltip"))
+        elif isinstance(property, Trace):
+            if property.max_targets_number != NO_TARGETS_LIMIT:
+                name = f"{name} (max {property.max_targets_number})"
 
         # Set the label text
         label.setText(name)

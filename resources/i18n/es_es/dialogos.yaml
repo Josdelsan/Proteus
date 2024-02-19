@@ -102,6 +102,7 @@ information_dialog.terms_of_use.text: "Este software no recopila ninguna informa
 # ---------------------------------------------------------------------------
 trace_edit_dialog.title: "Selecciona un elemento a trazar"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
+trace_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

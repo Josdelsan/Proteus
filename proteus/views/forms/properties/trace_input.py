@@ -81,7 +81,7 @@ class TraceInput(PropertyInput):
         Creates the input widget based on PROTEUS TraceEdit.
         """
         input: TraceEdit = TraceEdit(
-            controller=controller, accepted_targets=property.acceptedTargets
+            controller=controller, accepted_targets=property.acceptedTargets, limit=property.max_targets_number
         )
         input.setTraces(property.targets)
         return input
