@@ -18,7 +18,7 @@
 import os
 import pathlib
 import shutil
-from typing import List
+from typing import List, Generator
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -38,6 +38,7 @@ from proteus.model.archetype_manager import ArchetypeManager
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import STRING_PROPERTY_TAG
+from proteus.utils.config import Config
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests import fixtures
 from proteus.tests.fixtures import SampleData
@@ -48,7 +49,7 @@ from proteus.tests.fixtures import SampleData
 
 # NOTE: This is a sample project that is used for testing purposes.
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
-ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "archetypes"
+ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "archetypes/remus"
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -68,12 +69,14 @@ def sample_archetype_project() -> Project:
     """
     Fixture that returns a PROTEUS sample archetype project.
     """
-    project_arquetypes: list(Project) = ArchetypeManager.load_project_archetypes()
+    project_arquetypes: List[Project] = ArchetypeManager.load_project_archetypes(
+        Config().current_archetype_repository
+    )
     return project_arquetypes[0]
 
 
 @pytest.fixture
-def cloned_project(sample_project: Project) -> Project:
+def cloned_project(sample_project: Project) -> Generator[Project, None, None]:
     """
     Fixture that clone a PROTEUS sample project. Then deletes the project.
     """

@@ -161,9 +161,8 @@ QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
 
-    border: 1px solid gainsboro;
-    border-top-right-radius: 1px;
-    border-bottom-right-radius: 1px;
+    border: 0;
+    border-left: 1px solid gainsboro;
     padding: 0.15em;
 }
 

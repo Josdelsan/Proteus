@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
     <type name="document" default="default-acronym.png"/>
+    <type name="repository" default="default-archetype.png"/>
     <type name="archetype" default="default-archetype.png">
         <icon key=":Proteus-document" file="archetypes/document.png" />
     </type>

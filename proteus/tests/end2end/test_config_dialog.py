@@ -28,7 +28,9 @@ from proteus.utils.config import (
     Config,
     SETTINGS,
     SETTING_LANGUAGE,
-    SETTING_ARCHETYPE_REPOSITORY,
+    SETTING_CUSTOM_ARCHETYPE_REPOSITORY,
+    SETTING_DEFAULT_ARCHETYPE_REPOSITORY,
+    SETTING_USING_CUSTOM_REPOSITORY,
 )
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
@@ -109,31 +111,49 @@ def test_config_dialog_open(app, file_settings):
         current_language == file_settings[SETTING_LANGUAGE]
     ), f"Language setting is {current_language} but should be {file_settings[SETTING_LANGUAGE]}"
 
-    # Check archetype repository setting was correctly set in directory edit and checkbox
-    current_archetype_repository = dialog.default_repository_edit.directory()
+    # Check default archetype repository setting was correctly set in directory edit and checkbox
+    current_default_repository = dialog.default_repository_combo.currentData()
 
     assert (
-        current_archetype_repository == file_settings[SETTING_ARCHETYPE_REPOSITORY]
-    ), f"Archetype repository setting is {current_archetype_repository} but should be {file_settings[SETTING_ARCHETYPE_REPOSITORY]}"
+        current_default_repository
+        == file_settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY]
+    ), f"Default repository setting is {current_default_repository} but should be {file_settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY]}"
 
-    # If archetype repository is empty, the checkbox should be checked and the directory edit disabled
-    if (
-        not file_settings[SETTING_ARCHETYPE_REPOSITORY]
-        or file_settings[SETTING_ARCHETYPE_REPOSITORY] == ""
-    ):
+    # Check the using custom repository setting was correctly set in the checkbox (unchecked)
+    current_using_custom_repository = not dialog.default_repository_checkbox.isChecked()
+    using_custom_repository_setting = (
+        file_settings[SETTING_USING_CUSTOM_REPOSITORY] == "True"
+    )
+
+    assert (
+        current_using_custom_repository == using_custom_repository_setting
+    ), f"Using custom repository setting is {current_using_custom_repository} but should be {file_settings[SETTING_USING_CUSTOM_REPOSITORY]}"
+
+    # Check custom archetype repository setting was correctly set in directory edit and checkbox
+    current_archetype_repository = dialog.custom_repository_edit.directory()
+
+    assert (
+        current_archetype_repository
+        == file_settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY]
+    ), f"Archetype repository setting is {current_archetype_repository} but should be {file_settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY]}"
+
+    # Check combo and text edit are enabled/disabled correctly
+    if current_using_custom_repository:
         assert (
-            dialog.default_repository_edit.isEnabled() is False
-        ), "Default repository directory edit should be disabled"
+            dialog.custom_repository_edit.isEnabled() is True
+        ), "Default repository directory edit should be enabled"
+
         assert (
-            dialog.default_repository_checkbox.isChecked() is True
-        ), "Default repository checkbox should be checked"
+            dialog.default_repository_combo.isEnabled() is False
+        ), "Default repository combo should be disabled"
     else:
         assert (
-            dialog.default_repository_edit.isEnabled() is True
-        ), "Default repository directory edit should be enabled"
+            dialog.custom_repository_edit.isEnabled() is False
+        ), "Default repository directory edit should be disabled"
+
         assert (
-            dialog.default_repository_checkbox.isChecked() is False
-        ), "Default repository checkbox should not be checked"
+            dialog.default_repository_combo.isEnabled() is True
+        ), "Default repository combo should be enabled"
 
 
 def test_config_dialog_change_settings(app, file_settings):
@@ -162,7 +182,7 @@ def test_config_dialog_change_settings(app, file_settings):
 
     # Change settings
     new_language = "es_ES"
-    new_archetype_repository = Config().archetypes_directory.as_posix()
+    new_archetype_repository = Config().current_archetype_repository.as_posix()
 
     # Open config dialog
     dialog: SettingsDialog = get_dialog(settings_button.click)
@@ -173,7 +193,7 @@ def test_config_dialog_change_settings(app, file_settings):
 
     # Change archetype repository
     dialog.default_repository_checkbox.setChecked(False)
-    dialog.default_repository_edit.setDirectory(new_archetype_repository)
+    dialog.custom_repository_edit.setDirectory(new_archetype_repository)
 
     # Save settings
     dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
@@ -198,14 +218,14 @@ def test_config_dialog_change_settings(app, file_settings):
     ), f"Language setting is {current_language} but should be {new_language}"
 
     # Check archetype repository setting was correctly set in directory edit and checkbox
-    current_archetype_repository = second_dialog.default_repository_edit.directory()
+    current_archetype_repository = second_dialog.custom_repository_edit.directory()
 
     assert (
         current_archetype_repository == new_archetype_repository
     ), f"Archetype repository setting is {current_archetype_repository} but should be {new_archetype_repository}"
 
     assert (
-        second_dialog.default_repository_edit.isEnabled() is True
+        second_dialog.custom_repository_edit.isEnabled() is True
     ), "Default repository directory edit should be enabled"
 
     assert (
@@ -228,5 +248,5 @@ def test_config_dialog_change_settings(app, file_settings):
 
     # Check archetype repository setting
     assert (
-        settings[SETTING_ARCHETYPE_REPOSITORY] == new_archetype_repository
-    ), f"Archetype repository setting is {settings[SETTING_ARCHETYPE_REPOSITORY]} but should be {new_archetype_repository}"
+        settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] == new_archetype_repository
+    ), f"Archetype repository setting is {settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY]} but should be {new_archetype_repository}"

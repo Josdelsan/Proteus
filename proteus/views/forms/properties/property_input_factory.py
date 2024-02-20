@@ -171,7 +171,8 @@ class PropertyInputFactory:
                 label.setToolTip(_("property_input.required_tooltip"))
         elif isinstance(property, Trace):
             if property.max_targets_number != NO_TARGETS_LIMIT:
-                name = f"{name} (max {property.max_targets_number})"
+                max_label = _("property_input.max_targets_label")
+                name = f"{name} ( {max_label} {property.max_targets_number})"
 
         # Set the label text
         label.setText(name)

@@ -21,6 +21,7 @@ from typing import Union, List, Dict
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
+from proteus.utils.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -79,7 +80,9 @@ class ArchetypeService:
         # Lazy loading of project archetypes
         if self._project_archetypes is None:
             # Load project archetypes using ArchetypeManager
-            self._project_archetypes = ArchetypeManager.load_project_archetypes()
+            self._project_archetypes = ArchetypeManager.load_project_archetypes(
+                archetypes_folder=Config().current_archetype_repository
+            )
 
             # Check that the list of project archetypes is a list
             assert isinstance(
@@ -113,7 +116,9 @@ class ArchetypeService:
         # Lazy loading of document archetypes
         if self._document_archetypes is None:
             # Load document archetypes using the ArchetypeManager
-            self._document_archetypes = ArchetypeManager.load_document_archetypes()
+            self._document_archetypes = ArchetypeManager.load_document_archetypes(
+                archetypes_folder=Config().current_archetype_repository
+            )
 
             # Check that the list of document archetypes is a list
             assert isinstance(
@@ -147,7 +152,9 @@ class ArchetypeService:
         # Lazy loading of object archetypes
         if self._object_archetypes is None:
             # Load object archetypes using the ArchetypeManager
-            self._object_archetypes = ArchetypeManager.load_object_archetypes()
+            self._object_archetypes = ArchetypeManager.load_object_archetypes(
+                archetypes_folder=Config().current_archetype_repository
+            )
 
             # Check that the dict of object archetypes is a dict
             assert isinstance(
@@ -212,9 +219,9 @@ class ArchetypeService:
         Returns the list of first level object archetypes.
         """
         # Copy the dict of object archetypes to pop second level objects
-        archetypes: Dict[
-            str, Dict[str, List[Object]]
-        ] = self.get_object_archetypes().copy()
+        archetypes: Dict[str, Dict[str, List[Object]]] = (
+            self.get_object_archetypes().copy()
+        )
 
         # Iterate over the archetype groups and classes
         for group in archetypes.keys():

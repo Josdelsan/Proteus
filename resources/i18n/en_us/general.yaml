@@ -12,6 +12,8 @@
 # Property input
 # ---------------------------------------------------------------------------
 
+property_input.max_targets_label: "max"
+
 # Tooltips
 property_input.required_tooltip: "This property is required."
 property_input.inmutable_checkbox_tooltip: "This property is marked as inmutable, uncheck it to modify it at your own risk."
