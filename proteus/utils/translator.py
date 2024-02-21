@@ -384,7 +384,7 @@ class Translator(metaclass=SingletonMeta):
             translation = self._translations[text_code]
         except KeyError:
             # If translation not found return the key itself or the alternative text
-            if alternative_text:
+            if alternative_text is not None:
                 translation = alternative_text
             else:
                 translation = key

@@ -23,7 +23,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.trace import Trace
+from proteus.model.trace import Trace, NO_TARGETS_LIMIT
 from proteus.model import (
     TRACE_TAG,
     TRACE_PROPERTY_TAG,
@@ -37,6 +37,8 @@ from proteus.model import (
     TRACE_TYPE_ATTRIBUTE,
     TARGET_ATTRIBUTE,
     PROTEUS_ANY,
+    TOOLTIP_ATTRIBUTE,
+    MAX_TARGETS_NUMBER_ATTRIBUTE,
 )
 
 # --------------------------------------------------------------------------
@@ -55,6 +57,8 @@ def create_trace_element(
     category: str = DEFAULT_TRACE_CATEGORY,
     accepted_targets: str = PROTEUS_ANY,
     trace_type: str = DEFAULT_TRACE_TYPE,
+    tooltip: str = None,
+    max_targets: int = None,
 ) -> ET.Element:
     """
     Create a trace XML element with the given parameters.
@@ -70,6 +74,13 @@ def create_trace_element(
         target_element = ET.SubElement(trace_element, TRACE_TAG)
         target_element.set(TARGET_ATTRIBUTE, dummy_target)
         target_element.set(TRACE_TYPE_ATTRIBUTE, trace_type)
+
+    # Otionally add tooltip and max_targets attributes
+    if max_targets is not None:
+        trace_element.set(MAX_TARGETS_NUMBER_ATTRIBUTE, str(max_targets))
+
+    if tooltip is not None:
+        trace_element.set(TOOLTIP_ATTRIBUTE, tooltip)
 
     return trace_element
 
@@ -107,6 +118,20 @@ def create_trace_element(
         (DUMMY_TARGET_LIST_3, DUMMY_TARGET_LIST_3),
     ],
 )
+@pytest.mark.parametrize(
+    "tooltip, expected_tooltip",
+    [("dummy.tooltip", "dummy.tooltip"), (None, str())],
+)
+@pytest.mark.parametrize(
+    "max_targets_number, expected_max_targets_number",
+    [
+        (5, 5),
+        (None, NO_TARGETS_LIMIT),
+        (0, NO_TARGETS_LIMIT),
+        (-100, NO_TARGETS_LIMIT),
+        ("test", NO_TARGETS_LIMIT),
+    ],
+)
 def test_trace_creation(
     name,
     expected_name,
@@ -118,6 +143,10 @@ def test_trace_creation(
     expected_trace_type,
     dummy_targets,
     expected_targets,
+    tooltip,
+    expected_tooltip,
+    max_targets_number,
+    expected_max_targets_number,
 ):
     """
     Tests trace creation from an XML element.
@@ -125,7 +154,13 @@ def test_trace_creation(
     # Act -----------------------------
     # Create trace from XML element
     trace_element = create_trace_element(
-        dummy_targets, name, category, accepted_targets, trace_type
+        dummy_targets,
+        name,
+        category,
+        accepted_targets,
+        trace_type,
+        tooltip,
+        max_targets_number,
     )
     trace = Trace.create(trace_element)
 
@@ -146,6 +181,12 @@ def test_trace_creation(
     assert (
         trace.targets == expected_targets
     ), f"Trace targets '{trace.targets}' do not match expected targets '{expected_targets}'"
+    assert (
+        trace.tooltip == expected_tooltip
+    ), f"Trace tooltip '{trace.tooltip}' does not match expected tooltip '{expected_tooltip}'"
+    assert (
+        trace.max_targets_number == expected_max_targets_number
+    ), f"Trace max targets number '{trace.max_targets_number}' does not match expected max targets number '{expected_max_targets_number}'"
 
 
 @pytest.mark.parametrize(
@@ -251,3 +292,38 @@ def test_generate_xml(targets):
     assert (
         generated_targets == trace.targets
     ), f"Generated trace targets '{generated_targets}' do not match expected targets '{trace.targets}'"
+
+
+@pytest.mark.parametrize(
+    "max_targets_number",
+    [1, 2, 3, 100],
+)
+def test_generate_xml_max_targets_number(max_targets_number):
+    """
+    Tests XML generation for traces with different max targets numbers.
+    """
+    # Arrange -------------------------
+    dummy_target_list = DUMMY_TARGET_LIST_3
+    # Create trace from XML element
+    trace_element = create_trace_element(
+        dummy_target_list, max_targets=max_targets_number
+    )
+    trace = Trace.create(trace_element)
+
+    # Act -----------------------------
+    # Generate XML element
+    generated_trace_element = trace.generate_xml()
+
+    # Assert --------------------------
+    targets_elements = generated_trace_element.findall(TRACE_TAG)
+
+    # Check max targets number attribute
+    assert (
+        len(targets_elements) <= max_targets_number
+    ), f"Generated trace has {len(targets_elements)} targets, but it should have less or equal to {max_targets_number}"
+
+    for i, target_element in enumerate(targets_elements):
+        assert target_element.get(TARGET_ATTRIBUTE) == dummy_target_list[i], (
+            f"Generated target '{target_element.get(TARGET_ATTRIBUTE)}' does not match expected target '{dummy_target_list[i]}'"
+            f"Generated targets must be '{dummy_target_list[:max_targets_number]}'"
+        )

@@ -42,6 +42,7 @@ from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_manager import ArchetypeManager
+from proteus.utils.config import Config
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures
@@ -78,7 +79,9 @@ def sample_archetype_document() -> Object:
     """
     Fixture that returns a PROTEUS sample archetype document object.
     """
-    archetype_list: list[Object] = ArchetypeManager.load_document_archetypes()
+    archetype_list: list[Object] = ArchetypeManager.load_document_archetypes(
+        Config().current_archetype_repository
+    )
     return archetype_list[0]
 
 
@@ -87,7 +90,9 @@ def sample_archetype_object() -> Object:
     """
     Fixture that returns a PROTEUS sample archetype object object.
     """
-    archetype_type_dict = ArchetypeManager.load_object_archetypes()
+    archetype_type_dict = ArchetypeManager.load_object_archetypes(
+        Config().current_archetype_repository
+    )
     # Known archetype type general (00_general directory)
     archetype_class_dict = archetype_type_dict["general"]
     # Known archetype class (section)
@@ -379,17 +384,35 @@ def test_set_property(sample_object: Object):
 @pytest.mark.parametrize(
     "parent_accepted_children, parent_classes, child_accepted_parents, child_classes, expected_result",
     [
-        (PROTEUS_ANY, "a", PROTEUS_ANY, "a", True), # Accept any
-        ("a", "a", PROTEUS_ANY, "a", True), # Accept only 'a'
-        ("a b", "a", PROTEUS_ANY, "a", True), # Accept 'a' and 'b'
-        ("a b", "a", PROTEUS_ANY, "b", True), # Accept 'a' and 'b', child is 'b'
-        (PROTEUS_ANY, "a", "a", "a", True), # Accept any, child accepts only 'a' parent
-        (PROTEUS_ANY, "a", "a", "a b", True), # Accept any, child accepts only 'a' parent
-        ("a", "a", "a", "a b", True), # Accept only 'a', child is 'a' and 'b'
-        ("a", "a", PROTEUS_ANY, "b", False), # Accept only 'a', child is 'b'
-        ("a", "a", "a", "b", False), # Accept only 'a', child is 'b'
-        (PROTEUS_ANY, "a", "b", "a", False), # Parent accepts child class but child does not accept parent class
-        ("a", "a", "b", "a", False), # Parent accepts child class but child does not accept parent class
+        (PROTEUS_ANY, "a", PROTEUS_ANY, "a", True),  # Accept any
+        ("a", "a", PROTEUS_ANY, "a", True),  # Accept only 'a'
+        ("a b", "a", PROTEUS_ANY, "a", True),  # Accept 'a' and 'b'
+        ("a b", "a", PROTEUS_ANY, "b", True),  # Accept 'a' and 'b', child is 'b'
+        (PROTEUS_ANY, "a", "a", "a", True),  # Accept any, child accepts only 'a' parent
+        (
+            PROTEUS_ANY,
+            "a",
+            "a",
+            "a b",
+            True,
+        ),  # Accept any, child accepts only 'a' parent
+        ("a", "a", "a", "a b", True),  # Accept only 'a', child is 'a' and 'b'
+        ("a", "a", PROTEUS_ANY, "b", False),  # Accept only 'a', child is 'b'
+        ("a", "a", "a", "b", False),  # Accept only 'a', child is 'b'
+        (
+            PROTEUS_ANY,
+            "a",
+            "b",
+            "a",
+            False,
+        ),  # Parent accepts child class but child does not accept parent class
+        (
+            "a",
+            "a",
+            "b",
+            "a",
+            False,
+        ),  # Parent accepts child class but child does not accept parent class
     ],
 )
 def test_accept_descendant(
@@ -412,7 +435,7 @@ def test_accept_descendant(
     """
     # Arrange -------------------
     # Create test objects
-    mock_parent = sample_object # TODO: Find a way to use method on mock object to avoid using sample_object
+    mock_parent = sample_object  # TODO: Find a way to use method on mock object to avoid using sample_object
     mock_child = mocker.MagicMock(spec=Object)
 
     # Create lists of classes and accepted parents

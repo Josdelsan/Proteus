@@ -161,9 +161,8 @@ QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
 
-    border: 1px solid gainsboro;
-    border-top-right-radius: 1px;
-    border-bottom-right-radius: 1px;
+    border: 0;
+    border-left: 1px solid gainsboro;
     padding: 0.15em;
 }
 
@@ -279,6 +278,7 @@ QCheckBox:pressed {
 
 #ProjectContainer QSplitter::handle {
     width: 2px;
+    border: 1px solid slategray;
     background-color: slategray;
 }
 
@@ -322,7 +322,6 @@ QCheckBox:pressed {
 #archetype_menu_button {
     margin-right: 0.5em;
     margin-left: 0.5em;
-    min-width: 4em;
 }
 
 /* menu button arrow */

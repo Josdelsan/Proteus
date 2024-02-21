@@ -16,6 +16,7 @@
 # --------------------------------------------------------------------------
 
 import os
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -43,11 +44,12 @@ from proteus.model.project import Project
 
 def test_project_archetype():
     # Get the number of projects in archetypes projects
-    dir_path = str(Config().archetypes_directory / "projects")
+    current_archetype_repository = Config().current_archetype_repository
+    dir_path = str(current_archetype_repository / "projects")
     number_of_projects : int = len(os.listdir(dir_path))
     
     # Check if load project function return all the projects
-    projects : list[Project] = ArchetypeManager.load_project_archetypes()
+    projects : list[Project] = ArchetypeManager.load_project_archetypes(current_archetype_repository)
     assert len(projects) == number_of_projects, \
         f"Number of archetype projects not match with the number of archetype projects in the directory"
     
@@ -58,11 +60,12 @@ def test_project_archetype():
 
 def test_document_archetype():
     # Get the number of documents in archetypes documents
-    dir_path = str(Config().archetypes_directory / "documents")
+    current_archetype_repository = Config().current_archetype_repository
+    dir_path = str(current_archetype_repository / "documents")
     number_of_documents = len(os.listdir(dir_path))
     
     # Check if load document function return all the documents
-    documents : list[Object] = ArchetypeManager.load_document_archetypes()
+    documents : list[Object] = ArchetypeManager.load_document_archetypes(current_archetype_repository)
     assert len(documents) == number_of_documents, \
         f"Number of archetype documents not match with the number of archetype documents in the directory"
     
@@ -73,11 +76,12 @@ def test_document_archetype():
 
 def test_object_archetype():
     # Get the number of objects arquetypes clases
-    dir_path = str(Config().archetypes_directory / "objects")
+    current_archetype_repository = Config().current_archetype_repository
+    dir_path = str(current_archetype_repository / "objects")
     archetype_groups = os.listdir(dir_path)
     
     # Check if load object function return all the classes
-    objects : dict[str, dict[str, list(Object)]] = ArchetypeManager.load_object_archetypes()
+    objects : dict[str, dict[str, List[Object]]] = ArchetypeManager.load_object_archetypes(current_archetype_repository)
     for archetype_group in archetype_groups:
 
         # Check if the class is in the objects dictionary (parsed to remove order prefix)

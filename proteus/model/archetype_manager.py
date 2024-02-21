@@ -45,7 +45,6 @@ from proteus.model import (
     ID_ATTRIBUTE,
     ProteusClassTag,
 )
-from proteus.utils.config import Config
 from proteus.model.project import Project
 from proteus.model.object import Object
 
@@ -111,7 +110,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_object_archetypes(archetypes_folder: Path = None) -> Dict[str, Dict[str, List[Object]]]:
+    def load_object_archetypes(archetypes_folder: Path) -> Dict[str, Dict[str, List[Object]]]:
         """
         Method that loads the object archetypes from an archetype repository.
         If no archetype repository is provided, it will use the default one.
@@ -123,8 +122,6 @@ class ArchetypeManager:
         """
         log.info("ArchetypeManager - load object archetypes")
         # Build archetypes directory name from archetype type
-        if archetypes_folder is None:
-            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
@@ -219,7 +216,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_document_archetypes(archetypes_folder: Path = None) -> list[Object]:
+    def load_document_archetypes(archetypes_folder: Path) -> list[Object]:
         """
         Method that loads the document archetypes from an archetype repository.
         If no archetype repository is provided, it will use the default one.
@@ -230,8 +227,6 @@ class ArchetypeManager:
         """
         log.info("ArchetypeManager - load document archetypes")
         # Build archetypes directory name from archetype type
-        if archetypes_folder is None:
-            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)
@@ -307,7 +302,7 @@ class ArchetypeManager:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_project_archetypes(archetypes_folder: Path = None) -> list[Project]:
+    def load_project_archetypes(archetypes_folder: Path) -> list[Project]:
         """
         Method that loads the project archetypes in a list from an archetype
         repository. If no archetype repository is provided, it will use the
@@ -319,8 +314,6 @@ class ArchetypeManager:
         """
         log.info("ArchetypeManager - load project archetypes")
         # Build archetypes directory name from archetype type (project)
-        if archetypes_folder is None:
-            archetypes_folder: Path = Config().archetypes_directory
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.PROJECTS)
 
         # Scan all the subdirectories in the archetypes directory (one depth level only)

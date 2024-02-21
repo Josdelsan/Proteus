@@ -11,8 +11,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -23,9 +21,12 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QFrame,
     QGridLayout,
+    QHBoxLayout,
     QLabel,
+    QScrollArea,
+    QSizePolicy,
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QFontMetrics
 from PyQt6.QtCore import Qt, QSize
 
 # --------------------------------------------------------------------------
@@ -350,13 +351,10 @@ def info_button(parent: QWidget) -> QToolButton:
 
     return info_button
 
-
-def button_group(
-    buttons: List[QToolButton], section_name_code: str = None
-) -> QWidget:
+# --------------------------------------------------------------------------
+def button_group(buttons, section_name_code=None):
     # Create the main widget
     widget = QWidget()
-    widget.setContentsMargins(0, 0, 5, 0)
 
     # Create the grid layout
     layout = QGridLayout(widget)
@@ -366,18 +364,56 @@ def button_group(
         layout.addWidget(button, 0, column)
 
     if section_name_code is not None:
-        # Add a centered label with the text "section" in the third row of the layout
+        # Add a centered label with the text "section" in the second row of the layout
         section_label = QLabel(_(section_name_code))
         section_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(section_label, 1, 0, 1, len(buttons))
 
-    # Set layout margins and spacing
+    # Set layout settings
     layout.setContentsMargins(0, 0, 0, 0)
+    layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
     layout.setSpacing(0)
 
     return widget
+    
+# --------------------------------------------------------------------------
+def archetype_button_group(buttons) -> QWidget:
+    # Create the main widget
+    widget = QWidget()
+
+    # Create the grid layout
+    layout = QHBoxLayout(widget)
+
+    # Add the buttons in the first row of the layout
+    for button in buttons:
+        layout.addWidget(button)
+
+    # Set layout settings
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+    layout.setSpacing(0)
+
+    # Create a scroll area and set its widget
+    scroll_area = QScrollArea()
+    scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+    scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    scroll_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+    scroll_area.setWidgetResizable(True)
+    scroll_area.setWidget(widget)
+
+    scroll_area.setStyleSheet("QScrollArea {background-color:transparent;}")
+    scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+    widget.setStyleSheet("background-color:transparent;")
+        
+
+    # Set up the scroll bar
+    scroll_bar = scroll_area.horizontalScrollBar()
+    scroll_bar.setSingleStep(20)  # Adjust as needed
+
+    return scroll_area
 
 
+# --------------------------------------------------------------------------
 def get_separator(vertical: bool = False) -> QFrame:
     """
     Returns a horizontal or vertical separator.
@@ -415,8 +451,7 @@ class ArchetypeMenuButton(QToolButton):
 
         # Button settings
         self.setObjectName("archetype_menu_button")
-        # self.setMinimumWidth(80)
-
+        
         # Set icon
         archetype_icon = QIcon()
 
@@ -437,3 +472,9 @@ class ArchetypeMenuButton(QToolButton):
 
         # Set enabled initial value
         self.setEnabled(False)
+
+        # Set minimum width based on the text
+        font_metrics = QFontMetrics(self.font())
+        text_width = font_metrics.averageCharWidth() * int(len(translated_name) * 1.2)
+        text_width = max(text_width, 80)
+        self.setMinimumWidth(text_width)

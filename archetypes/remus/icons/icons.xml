@@ -25,5 +25,6 @@
         <icon key="object-invariant" file="object-invariant.png" />
         <icon key="association-type" file="association-type.png" />
         <icon key="association-role" file="association-role.png" />
+        <icon key="traceability-matrix" file="traceability-matrix.png" />
     </type>
 </icons>

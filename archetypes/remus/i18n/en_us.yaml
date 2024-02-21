@@ -1,0 +1,115 @@
+# ==========================================================================
+# File: en_us.yaml
+# Description: Default repository archetypes translations
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+# -----------------------------------------------------------------------
+# Archetype categories (tab)
+# -----------------------------------------------------------------------
+
+archetype.category.general: "General"
+archetype.category.software_requirements: "Software requirements"
+
+# -----------------------------------------------------------------------
+# Archetype classes
+# -----------------------------------------------------------------------
+archetype.class.use-case-step: "Use case step"
+archetype.class.specific-data: "Specific data"
+archetype.class.paragraph: "Paragraph"
+archetype.class.section: "Section"
+archetype.class.graphic-file: "Graphic file"
+archetype.class.external-resource: "Ext. resource"
+archetype.class.use-case: "Use case"
+archetype.class.actor: "System actor"
+archetype.class.information-requirement: "Information"
+archetype.class.functional-requirement: "Functional"
+archetype.class.non-functional-requirement: "Non-functional"
+archetype.class.constraint: "Constraint"
+archetype.class.objective: "Objective"
+archetype.class.organization: "Organization"
+archetype.class.stakeholder: "Stakeholder"
+archetype.class.meeting: "Meeting"
+archetype.class.archetype-link: "Symbolic link"
+archetype.class.traceability-matrix: "Traceability matrix"
+  
+# -----------------------------------------------------------------------
+# Archetype properties categories
+# -----------------------------------------------------------------------
+archetype.prop_category.general: "General"
+archetype.prop_category.details: "Details"
+archetype.prop_category.detail: "Detail"
+archetype.prop_category.comments: "Comments"
+archetype.prop_category.conditions: "Conditions"
+archetype.prop_category.priority: "Priority"
+archetype.prop_category.description: "Description"
+archetype.prop_category.dependencies: "Dependencies"
+  
+# -----------------------------------------------------------------------
+# Archetypes enum choices
+# -----------------------------------------------------------------------
+archetype.enum_choices.nd: "Not defined"
+archetype.enum_choices.developer: "Developer"
+archetype.enum_choices.user: "User"
+archetype.enum_choices.customer: "Customer"
+archetype.enum_choices.vital: "Vital"
+archetype.enum_choices.important: "Important"
+archetype.enum_choices.immediately: "Immediately"
+archetype.enum_choices.pressure: "Pressure"
+archetype.enum_choices.developing: "Developing"
+archetype.enum_choices.pending: "Pending"
+archetype.enum_choices.high: "High"
+archetype.enum_choices.medium: "Medium"
+archetype.enum_choices.low: "Low"
+  
+# -----------------------------------------------------------------------
+# Archetype tooltips
+# -----------------------------------------------------------------------
+archetype.tooltip.is-appendix: "Check if it is an appendix."
+archetype.tooltip.is-glossary: "Check if it is a glossary item."
+archetype.tooltip.file-info: "Select a graphic file from your local system to copy it to the assets folder."
+archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
+  
+# -----------------------------------------------------------------------
+# Archetype property names
+# -----------------------------------------------------------------------
+archetype.prop_name.name: "Name"
+archetype.prop_name.version: "Version"
+archetype.prop_name.role: "Role"
+archetype.prop_name.date: "Date"
+archetype.prop_name.author: "Author"
+archetype.prop_name.comments: "Comments"
+archetype.prop_name.description: "Description"
+archetype.prop_name.specificdata: "Specific data"
+archetype.prop_name.precondition: "Precondition"
+archetype.prop_name.postcondition: "Postcondition"
+archetype.prop_name.text: "Text"
+archetype.prop_name.url: "URL"
+archetype.prop_name.file: "File"
+archetype.prop_name.created-by: "Authors"
+archetype.prop_name.dependencies: "Dependencies"
+archetype.prop_name.is-appendix: "Appendix"
+archetype.prop_name.is-glossary: "Glossary item"
+archetype.prop_name.address: "Address"
+archetype.prop_name.phone-number: "Phone number"
+archetype.prop_name.fax: "Fax"
+archetype.prop_name.category: "Category"
+archetype.prop_name.organization: "Organization"
+archetype.prop_name.attenders: "Attenders"
+archetype.prop_name.time: "Time"
+archetype.prop_name.place: "Place"
+archetype.prop_name.results: "Results"
+archetype.prop_name.importance: "Importance"
+archetype.prop_name.urgency: "Urgency"
+archetype.prop_name.development-status: "Status"
+archetype.prop_name.stability: "Stability"
+archetype.prop_name.source: "Source"
+archetype.prop_name.works-for: "Works for"
+archetype.prop_name.prepared-by: "Prepared by"
+archetype.prop_name.prepared-for: "Prepared for"
+archetype.prop_name.width: "Width (%)"
+archetype.prop_name.link: "Link"
+archetype.prop_name.col-classes: "Columns of the matrix"
+archetype.prop_name.row-classes: "Rows of the matrix"

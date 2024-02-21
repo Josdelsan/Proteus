@@ -53,8 +53,9 @@ settings_dialog.title: "Proteus settings"
 settings_dialog.language.label: "Select language:"
 settings_dialog.error.invalid_language: "Please select a valid language"
 
-settings_dialog.default_repository.label: "Archetype repository:"
-settings_dialog.default_repository.checkbox: "Use default repository"
+settings_dialog.default_repository.group: "Archetype repository"
+settings_dialog.default_repository.label: "System archetypes repositories:"
+settings_dialog.default_repository.checkbox: "Uncheck to use a custom archetype repository"
 settings_dialog.error.repository.empty_path: "Please select a valid repository path"
 settings_dialog.error.repository.invalid_path: "The selected path does not exist"
 settings_dialog.error.repository.invalid_repository: "The selected path is not a valid archetype repository, see log file for more information about the error"
@@ -100,8 +101,9 @@ information_dialog.terms_of_use.text: "This software do not collect any personal
 # ---------------------------------------------------------------------------
 # Trace edit dialog
 # ---------------------------------------------------------------------------
-trace_edit_dialog.title: "Select an element to trace"
+trace_edit_dialog.title: "Select an element"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
+trace_edit_dialog.error_label.no_objects: "No elements found, create new elements of one of the following classes: {}"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

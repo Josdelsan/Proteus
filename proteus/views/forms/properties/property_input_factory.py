@@ -18,7 +18,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QLabel
+from PyQt6.QtWidgets import QLabel, QSizePolicy
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -28,7 +28,7 @@ from proteus.controller.command_stack import Controller
 from proteus.utils.translator import Translator
 
 # Properties imports
-from proteus.model.trace import Trace
+from proteus.model.trace import Trace, NO_TARGETS_LIMIT
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -154,6 +154,9 @@ class PropertyInputFactory:
         label = QLabel()
         name = _(f"archetype.prop_name.{property.name}", alternative_text=property.name)
         label.setWordWrap(True)
+        # Size policy expanding is required to center labels vertically in the form layout
+        # https://stackoverflow.com/q/34644808
+        label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         # Check if the property is required
         if isinstance(property, Property):
@@ -169,6 +172,10 @@ class PropertyInputFactory:
 
                 # Set the tooltip
                 label.setToolTip(_("property_input.required_tooltip"))
+        elif isinstance(property, Trace):
+            if property.max_targets_number != NO_TARGETS_LIMIT:
+                max_label = _("property_input.max_targets_label")
+                name = f"{name} ( {max_label} {property.max_targets_number} )"
 
         # Set the label text
         label.setText(name)

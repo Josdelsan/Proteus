@@ -32,4 +32,5 @@ class ProteusIconType(StrEnum):
     App = "app"
     MainMenu = "main_menu"
     Archetype = "archetype"
+    Repository = "repository"
     Document = "document"

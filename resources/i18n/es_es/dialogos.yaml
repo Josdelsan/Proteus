@@ -53,8 +53,9 @@ settings_dialog.title: "Proteus configuración"
 settings_dialog.language.label: "Seleccione un idioma:"
 settings_dialog.error.invalid_language: "Por favor, seleccione un idioma válido"
 
-settings_dialog.default_repository.label: "Repositorio de arquetipos:"
-settings_dialog.default_repository.checkbox: "Usar repositorio por defecto"
+settings_dialog.default_repository.group: "Repositorio de arquetipos"
+settings_dialog.default_repository.label: "Repositorios de arquetipos del sistema:"
+settings_dialog.default_repository.checkbox: "Desmarque para usar un repositorio de arquetipos personalizado"
 settings_dialog.error.repository.empty_path: "Por favor, introduzca una ruta válida"
 settings_dialog.error.repository.invalid_path: "La ruta seleccionada no existe"
 settings_dialog.error.repository.invalid_repository: "La ruta seleccionada no es un repositorio de arquetipos válido, consulte el archivo de registro de la aplicación para más información"
@@ -102,6 +103,7 @@ information_dialog.terms_of_use.text: "Este software no recopila ninguna informa
 # ---------------------------------------------------------------------------
 trace_edit_dialog.title: "Selecciona un elemento a trazar"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
+trace_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

@@ -19,7 +19,7 @@
     <children/>
 
     <traces>
-      <traceProperty name="base-type" category="general" acceptedTargets="object-type" traceType=":Proteus-dependency"/>
+      <traceProperty name="base-type" category="general" acceptedTargets="object-type" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
     </traces>
 
 </object>

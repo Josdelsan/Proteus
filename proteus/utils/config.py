@@ -18,10 +18,11 @@
 
 import os
 import datetime
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from pathlib import Path
 from configparser import ConfigParser
 import shutil
+from dataclasses import dataclass
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -67,7 +68,9 @@ ICONS_FILE: str = "icons.xml"
 # Settings
 SETTINGS: str = "settings"
 SETTING_LANGUAGE: str = "language"
-SETTING_ARCHETYPE_REPOSITORY: str = "archetype_repository"
+SETTING_CUSTOM_ARCHETYPE_REPOSITORY: str = "custom_archetype_repository"
+SETTING_DEFAULT_ARCHETYPE_REPOSITORY: str = "default_archetype_repository"
+SETTING_USING_CUSTOM_REPOSITORY: str = "using_custom_archetype_repository"
 
 # Directories
 DIRECTORIES: str = "directories"
@@ -89,45 +92,134 @@ I18N_DIRECTORY: str = "i18n_directory"
 # --------------------------------------------------------------------------
 
 
+@dataclass
 class Config(metaclass=SingletonMeta):
 
-    def __init__(self):
+    # --------------------------------
+    # Variables
+    # --------------------------------
+
+    # App directories ----------------
+    base_directory: Path = None
+    resources_directory: Path = None
+    archetypes_directory: Path = None
+    icons_directory: Path = None
+    xslt_directory: Path = None
+    i18n_directory: Path = None
+
+    # Archetype repositories ----------
+    archetypes_repositories: Dict[str, Path] = None
+    current_archetype_repository: Path = None
+    using_custom_repository: bool = False
+
+    # XSLT templates ------------------
+    xslt_routes: Dict[str, Path] = None
+    xslt_dependencies: Dict[str, List[str]] = None
+
+    # Language ------------------------
+    language: str = None
+
+    # Other settings ------------------
+    config: ConfigParser = None
+
+    settings: Dict[str, str] = None
+
+    # TODO: This is set in the project service. Current project information
+    # may be stored in a separate class. This is a workarround to access
+    # assets folder.
+    current_project_path: str = None
+
+    # TODO: This is a workaround to preserve user settings changes until
+    # the application is restarted. This is required because the config
+    # setting dialog do not access the config file directly but this class
+    # instance to check settings values.
+    current_config_file_user_settings: Dict[str, str] = None
+
+    def __post_init__(self):
         """
         It initializes the config paths for PROTEUS application.
         """
-        # Logger configuration
-        self._logger_configuration()
+        # NOTE: Methods order is important. They have dependencies between them.
 
         # Application configuration
         self.config: ConfigParser = self._create_config_parser()
 
-        # Application directories ------------------------------------------
-        self.directories = self.config[DIRECTORIES]
-        self.base_directory: Path = (
-            proteus.PROTEUS_APP_PATH / self.directories[BASE_DIRECTORY]
-        )
-        self.resources_directory: Path = (
-            proteus.PROTEUS_APP_PATH / self.directories[RESOURCES_DIRECTORY]
-        )
-        self.archetypes_directory: Path = (
-            proteus.PROTEUS_APP_PATH / self.directories[ARCHETYPES_DIRECTORY]
-        )
-        self.icons_directory: Path = (
-            self.resources_directory / self.directories[ICONS_DIRECTORY]
-        )
-        self.xslt_directory: Path = (
-            self.resources_directory / self.directories[XSLT_DIRECTORY]
-        )
-        self.i18n_directory: Path = (
-            self.resources_directory / self.directories[I18N_DIRECTORY]
+        # Logger configuration
+        self._logger_configuration()
+
+        # Application directories
+        self._setup_directories()
+
+        # Qt search paths
+        self._setup_qt_search_paths()
+
+        # Load system archetypes repositories
+        self.archetypes_repositories: Dict[str, Path] = (
+            self._load_archetypes_repositories()
         )
 
-        # Configure PyQt search paths --------------------------------------
+        # Application settings
+        self._setup_app_settings()
+
+        # XSL template routes
+        self.xslt_routes, self.xslt_dependencies = self._load_xslt_templates()
+
+        # Check application directories
+        self._check_application_directories()
+
+    # ==========================================================================
+    # Private methods
+    # ==========================================================================
+
+    # --------------------------------------------------------------------------
+    # Method: _setup_directories
+    # Description: Private method that sets up the directories for the application.
+    # Date: 20/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _setup_directories(self) -> None:
+        """
+        Private method that sets up the directories for the application.
+        """
+        # Application directories
+        directories = self.config[DIRECTORIES]
+        self.base_directory: Path = (
+            proteus.PROTEUS_APP_PATH / directories[BASE_DIRECTORY]
+        )
+        self.resources_directory: Path = (
+            proteus.PROTEUS_APP_PATH / directories[RESOURCES_DIRECTORY]
+        )
+        self.archetypes_directory: Path = (
+            proteus.PROTEUS_APP_PATH / directories[ARCHETYPES_DIRECTORY]
+        )
+        self.icons_directory: Path = (
+            self.resources_directory / directories[ICONS_DIRECTORY]
+        )
+        self.xslt_directory: Path = (
+            self.resources_directory / directories[XSLT_DIRECTORY]
+        )
+        self.i18n_directory: Path = (
+            self.resources_directory / directories[I18N_DIRECTORY]
+        )
+
+    # --------------------------------------------------------------------------
+    # Method: _setup_qt_search_paths
+    # Description: Private method that sets up the search paths for the application.
+    # Date: 20/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _setup_qt_search_paths(self) -> None:
+        """
+        Private method that sets up the search paths for the application.
+        """
+        # Configure Qt search paths
         QtCore.QDir.addSearchPath(
             RESOURCES_SEARCH_PATH, self.resources_directory.as_posix()
         )  # Used in PyQt stylesheets
 
-        # Configure dummy search paths -------------------------------------
+        # Configure dummy search paths
         # NOTE: This is used by the XSLT templates to access local files
         # This allows to use search path syntax so it can be handled as a
         # request by the request interceptor. It will build the path to the
@@ -135,70 +227,94 @@ class Config(metaclass=SingletonMeta):
         QtCore.QDir.addSearchPath(TEMPLATE_DUMMY_SEARCH_PATH, "")
         QtCore.QDir.addSearchPath(ASSETS_DUMMY_SEARCH_PATH, "")
 
-        # Application settings ---------------------------------------------
+    # --------------------------------------------------------------------------
+    # Method: _setup_app_settings
+    # Description: Private method that sets up the application settings.
+    # Date: 20/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _setup_app_settings(self) -> None:
+        """
+        Private method that sets up the application settings.
+        """
         self.settings = self.config[SETTINGS]
 
-        # Language
+        # Language --------------------------------
         self.language: str = self.settings[SETTING_LANGUAGE]
+        log.info(f"Using language '{self.language}'")
 
-        # Archetype repository
-        self.default_repository: bool = True
-        archetype_repository: str = self.settings[SETTING_ARCHETYPE_REPOSITORY]
-        if archetype_repository != "":
-            archetype_repository_path: Path = (
-                self.base_directory / archetype_repository
-            ).resolve()
-            if archetype_repository_path.exists():
-                self.archetypes_directory = archetype_repository_path
-                self.default_repository = False
-            else:
-                log.warning(
-                    f"Archetype repository '{archetype_repository_path}' does not exist. Using default repository."
-                )
+        # Default Archetype repository -------------
+        default_archetype_repository: str = self.settings[
+            SETTING_DEFAULT_ARCHETYPE_REPOSITORY
+        ]
+        if default_archetype_repository in self.archetypes_repositories:
+            self.current_archetype_repository = self.archetypes_repositories[
+                default_archetype_repository
+            ]
+        else:
+            log.error(
+                f"Default archetype repository '{default_archetype_repository}' does not exist. Using first repository found."
+            )
+            self.current_archetype_repository = list(
+                self.archetypes_repositories.values()
+            )[0]
 
-        # Store settings to keep track of user changes
-        # TODO: This is a workaround to preserve user settings changes until
-        # the application is restarted. This is required because the config
-        # setting dialog do not access the config file directly but this class
-        # instance to check settings values.
+        # Custom Archetype repository --------------
+        is_valid_repository: bool = False
+        custom_archetype_repository: str = self.settings[
+            SETTING_CUSTOM_ARCHETYPE_REPOSITORY
+        ]
+
+        custom_archetype_repository_path: Path = Path(
+            custom_archetype_repository
+        ).resolve()
+        if custom_archetype_repository_path.exists():
+            is_valid_repository = True
+        else:
+            log.warning(
+                f"Custom archetype repository '{custom_archetype_repository}' does not exist. Using default repository."
+            )
+
+        # Using custom Archetype repository ---------
+        using_custom_archetype_repository: str = self.settings[
+            SETTING_USING_CUSTOM_REPOSITORY
+        ]
+
+        self.using_custom_repository = using_custom_archetype_repository == "True"
+
+        if self.using_custom_repository and is_valid_repository:
+            log.info(
+                f"Using custom archetype repository '{custom_archetype_repository}'"
+            )
+            self.current_archetype_repository = custom_archetype_repository_path
+        else:
+            log.info(
+                f"Using default archetype repository '{default_archetype_repository}'"
+            )
+
+
+        # Store settings to keep track of user changes --------------------------------
         self.current_config_file_user_settings: Dict[str, str] = {}
         self.current_config_file_user_settings[SETTING_LANGUAGE] = self.language
-        self.current_config_file_user_settings[SETTING_ARCHETYPE_REPOSITORY] = (
-            archetype_repository
+        self.current_config_file_user_settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY] = (
+            default_archetype_repository
+        )
+        self.current_config_file_user_settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] = (
+            custom_archetype_repository
+        )
+        self.current_config_file_user_settings[SETTING_USING_CUSTOM_REPOSITORY] = (
+            using_custom_archetype_repository
         )
 
-        # XSL template routes ----------------------------------------------
-        self.xslt_routes: Dict[str, Path] = {}
-        self.xslt_dependencies: Dict[str, List[str]] = {}
-        self.xslt_routes, self.xslt_dependencies = self._load_xslt_templates()
-
-        # Current project --------------------------------------------------
-        # TODO: This is set in the project service. Current project information
-        # may be stored in a separate class. This is a workarround to access
-        # assets folder.
-        self.current_project_path: str = None
-
-        # Check application directories
-        self.check_application_directories()
-
-    def save_user_settings(self, settings: Dict[str, str]) -> None:
-        """
-        It saves the user settings in the configuration file. The settings
-        will apply the next time the application is started.
-        """
-        # Update settings
-        for setting in settings:
-            log.info(f"Setting {setting} updated to {settings[setting]}")
-            self.config.set(SETTINGS, setting, settings[setting])
-
-        # Save settings
-        with open(self.config_file_path, "w") as configfile:
-            self.config.write(configfile)
-
-        # Update current config file user settings
-        self.current_config_file_user_settings.update(settings)
-
-    def _load_xslt_templates(self) -> (Dict[str, Path], Dict[str, List[str]]):
+    # --------------------------------------------------------------------------
+    # Method: _load_xslt_templates
+    # Description: Private method that loads XSLT templates from the xslt directory.
+    # Date: 10/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _load_xslt_templates(self) -> Tuple[Dict[str, Path], Dict[str, List[str]]]:
         """
         Private method that creates a dictionary with the XSLT routes.
 
@@ -316,6 +432,46 @@ class Config(metaclass=SingletonMeta):
 
         return xslt_routes, xslt_dependencies
 
+    # --------------------------------------------------------------------------
+    # Method: _load_archetypes_repositories
+    # Description: Private method that loads archetypes repositories from the
+    #              archetypes directory.
+    # Date: 20/02/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _load_archetypes_repositories(self) -> Dict[str, Path]:
+        """
+        Load archetypes repositories from the arhcetypes directory. Returns a dictionary
+        with the repository name (folder name) and the repository path.
+
+        It use ArchetypeManager to check if the repository is valid loading the archetypes
+        from the repository.
+        """
+        # Initialize dictionary
+        archetypes_repositories: Dict[str, Path] = {}
+
+        # Iterate over archetypes directory folders
+        for archetype_folder in self.archetypes_directory.iterdir():
+            # Check if folder is a directory
+            if archetype_folder.is_file():
+                log.warning(
+                    f"Unexpected item in archetypes directory: {archetype_folder}. It will be ignored."
+                )
+                continue
+
+            # Add the repository to the dictionary
+            archetypes_repositories[archetype_folder.name] = archetype_folder
+
+        return archetypes_repositories
+
+    # --------------------------------------------------------------------------
+    # Method: _create_config_parser
+    # Description: Private method that creates configuration parser and loads config file.
+    # Date: 10/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
     def _create_config_parser(self) -> ConfigParser:
         """
         Private method that creates configuration parser and loads config file.
@@ -347,6 +503,13 @@ class Config(metaclass=SingletonMeta):
 
         return config_parser
 
+    # --------------------------------------------------------------------------
+    # Method: _logger_configuration
+    # Description: Private method that configures the logger for the application.
+    # Date: 10/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
     def _logger_configuration(self) -> None:
         # Create a logger
         logger = logging.getLogger(PROTEUS_LOGGER_NAME)
@@ -384,7 +547,8 @@ class Config(metaclass=SingletonMeta):
         for old_log_file in log_files[PROTEUS_MAX_LOG_FILES:]:
             os.remove(old_log_file)
 
-    def check_application_directories(self) -> None:
+    # Initial checks ----------------------------------------------------------
+    def _check_application_directories(self) -> None:
         """
         It checks that essential PROTEUS directories exist.
         """
@@ -412,25 +576,25 @@ class Config(metaclass=SingletonMeta):
         log.info("  Archetypes directory OK")
 
         # Check if projects archetypes exists
-        assert (
-            self.archetypes_directory / "projects"
-        ).is_dir(), f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
+        # assert (
+        #     self.archetypes_directory / "projects"
+        # ).is_dir(), f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
 
-        log.info("  Archetypes projects directory OK")
+        # log.info("  Archetypes projects directory OK")
 
-        # Check if documents archetypes exists
-        assert (
-            self.archetypes_directory / "documents"
-        ).is_dir(), f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
+        # # Check if documents archetypes exists
+        # assert (
+        #     self.archetypes_directory / "documents"
+        # ).is_dir(), f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
 
-        log.info("  Archetypes documents directory OK")
+        # log.info("  Archetypes documents directory OK")
 
-        # Check if objects archetypes exists
-        assert (
-            self.archetypes_directory / "objects"
-        ).is_dir(), f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
+        # # Check if objects archetypes exists
+        # assert (
+        #     self.archetypes_directory / "objects"
+        # ).is_dir(), f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
 
-        log.info("  Archetypes objects directory OK")
+        # log.info("  Archetypes objects directory OK")
 
         # Check if xslt directory exists
         assert (
@@ -455,3 +619,31 @@ class Config(metaclass=SingletonMeta):
             )
 
         log.info("  XSLT templates directories OK")
+
+    # ==========================================================================
+    # Public methods
+    # ==========================================================================
+
+    # --------------------------------------------------------------------------
+    # Method: save_user_settings
+    # Description: It saves the user settings in the configuration file.
+    # Date: 10/10/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def save_user_settings(self, settings: Dict[str, str]) -> None:
+        """
+        It saves the user settings in the configuration file. The settings
+        will apply the next time the application is started.
+        """
+        # Update settings
+        for setting in settings:
+            log.info(f"Setting {setting} updated to {settings[setting]}")
+            self.config.set(SETTINGS, setting, settings[setting])
+
+        # Save settings
+        with open(self.config_file_path, "w") as configfile:
+            self.config.write(configfile)
+
+        # Update current config file user settings
+        self.current_config_file_user_settings.update(settings)

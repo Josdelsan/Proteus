@@ -131,12 +131,12 @@ class ProteusApplication:
         # Set translator configuration and load translations
         self.translator.set_language(self.config.language)
         self.translator.set_i18n_directory(self.config.i18n_directory)
-        self.translator.set_archetypes_directory(self.config.archetypes_directory)
+        self.translator.set_archetypes_directory(self.config.current_archetype_repository)
         self.translator.load_system_translations()
 
         # Set dynamic icons configuration and load icons
         self.dynamic_icons.set_icons_directory(self.config.icons_directory)
-        self.dynamic_icons.set_archetypes_directory(self.config.archetypes_directory)
+        self.dynamic_icons.set_archetypes_directory(self.config.current_archetype_repository)
         self.dynamic_icons.load_system_icons()
 
         # Load plugins

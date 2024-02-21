@@ -85,7 +85,22 @@
             <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
         </span>
 
-        <!-- Supertype TODO -->
+        <!-- Supertype -->
+        <xsl:variable name="supertype-trace" select="traces/traceProperty[@name='supertype']/trace"/>
+        <xsl:if test="$supertype-trace">
+            <span class="keyword {$css_class_declaration}"> specializes </span>
+            <span class="class_name {$css_class_declaration}">
+            <xsl:for-each select="$supertype-trace">
+                <xsl:variable name="targetId" select="@target" />
+                <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
+
+                <a href="#{$targetId}" class="rem_ref">
+                    <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                </a>
+            </xsl:for-each>
+            </span>
+        </xsl:if>
+
 
 
         <!-- Open bracket -->

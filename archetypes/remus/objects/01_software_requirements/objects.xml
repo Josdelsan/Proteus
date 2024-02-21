@@ -9,4 +9,5 @@
     <object id="constraint" />
     <object id="functional-requirement" />
     <object id="non-functional-requirement" />
+    <object id="matrix" />
 </objects>

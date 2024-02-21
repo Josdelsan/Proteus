@@ -254,6 +254,16 @@ span.matrix_caption_label {
   font-weight: bold;
 }
 
+.reduce_font,
+.increase_font {
+  color: lightgray;
+}
+
+.reduce_font:active,
+.increase_font:active {
+    background-color: darkgray;
+}
+
 /* REMUS tables - general styles */
 
 table.remus_table {

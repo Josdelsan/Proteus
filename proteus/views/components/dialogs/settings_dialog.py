@@ -18,7 +18,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
+
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QCheckBox,
     QDialogButtonBox,
+    QGroupBox,
 )
 
 
@@ -34,7 +35,12 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model.archetype_manager import ArchetypeManager
-from proteus.utils.config import SETTING_LANGUAGE, SETTING_ARCHETYPE_REPOSITORY
+from proteus.utils.config import (
+    SETTING_LANGUAGE,
+    SETTING_CUSTOM_ARCHETYPE_REPOSITORY,
+    SETTING_DEFAULT_ARCHETYPE_REPOSITORY,
+    SETTING_USING_CUSTOM_REPOSITORY,
+)
 from proteus.controller.command_stack import Controller
 from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
@@ -81,7 +87,7 @@ class SettingsDialog(QDialog, ProteusComponent):
 
         # Settings edit widgets
         self.language_combo: QComboBox = None
-        self.default_repository_edit: DirectoryEdit = None
+        self.custom_repository_edit: DirectoryEdit = None
         self.default_repository_checkbox: QCheckBox = None
 
         # Error message labels
@@ -131,12 +137,12 @@ class SettingsDialog(QDialog, ProteusComponent):
 
         # Specific settings layouts
         language_layout: QVBoxLayout = self.create_language_layout()
-        default_repository_layout: QVBoxLayout = self.create_default_repository_layout()
+        repository_layout: QVBoxLayout = self.create_repository_layout()
 
         # Add the widgets to the layout
         layout.addWidget(setting_info_label)
         layout.addLayout(language_layout)
-        layout.addLayout(default_repository_layout)
+        layout.addLayout(repository_layout)
         layout.addWidget(self.button_box)
 
     # ======================================================================
@@ -201,52 +207,73 @@ class SettingsDialog(QDialog, ProteusComponent):
         return language_layout
 
     # ---------------------------------------------------------------------
-    # Method     : create_default_repository_layout
-    # Description: Create the default repository layout
+    # Method     : create_repository_layout
+    # Description: Create the repository layout
     # Date       : 25/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
-    def create_default_repository_layout(self) -> QVBoxLayout:
+    def create_repository_layout(self) -> QVBoxLayout:
         """
-        Create the default repository layout that contains the default
-        repository label, checkbox, directory edit and error message label.
+        Create the repository layout that contains the default repository label,
+        combo box, custom repository checkbox, custom repository edit and error
+        message label.
         """
         # Default repository layout
-        default_repository_layout: QVBoxLayout = QVBoxLayout()
+        repository_layout: QVBoxLayout = QVBoxLayout()
 
         # Default repository label
         default_repository_label: QLabel = QLabel(
             _("settings_dialog.default_repository.label")
         )
 
-        # Default repository checkbox
+        # Default repository combo
+        self.default_repository_combo: QComboBox = QComboBox()
+        for repository in self._config.archetypes_repositories.keys():
+            self.default_repository_combo.addItem(
+                _(f"settings.repository.{repository}", alternative_text=repository),
+                repository,
+            )
+            self.default_repository_combo.setItemIcon(
+                self.default_repository_combo.count() - 1,
+                DynamicIcons().icon(ProteusIconType.Repository, repository),
+            )
+
+        current_default_repository: str = (
+            self._config.current_config_file_user_settings.get(
+                SETTING_DEFAULT_ARCHETYPE_REPOSITORY
+            )
+        )
+
+        self.default_repository_combo.setCurrentIndex(
+            self.default_repository_combo.findData(current_default_repository)
+        )
+
+        # Use default repository checkbox
         self.default_repository_checkbox: QCheckBox = QCheckBox(
             _("settings_dialog.default_repository.checkbox")
         )
-        using_default_repository: bool
-        current_repository: str = self._config.current_config_file_user_settings.get(
-            SETTING_ARCHETYPE_REPOSITORY, None
+        current_custom_repository: str = (
+            self._config.current_config_file_user_settings.get(
+                SETTING_CUSTOM_ARCHETYPE_REPOSITORY, None
+            )
         )
 
-        assert (
-            current_repository is not None
-        ), f"Error getting current repository from configuration"
+        using_custom_repository_str: str = (
+            self._config.current_config_file_user_settings.get(
+                SETTING_USING_CUSTOM_REPOSITORY
+            )
+        )
+        using_custom_repository: bool = using_custom_repository_str == "True"
 
-        # If the current repository is the default one, check the checkbox
-        if current_repository == "":
-            using_default_repository = True
-        else:
-            using_default_repository = False
-
-        self.default_repository_checkbox.setChecked(using_default_repository)
+        self.default_repository_checkbox.setChecked(not using_custom_repository)
 
         # Directory edit
-        self.default_repository_edit: DirectoryEdit = DirectoryEdit()
+        self.custom_repository_edit: DirectoryEdit = DirectoryEdit()
         # If it is not using the default repository, set the directory
-        self.default_repository_edit.setEnabled(not using_default_repository)
-        if not using_default_repository:
-            self.default_repository_edit.setDirectory(current_repository)
+        self.custom_repository_edit.setEnabled(using_custom_repository)
+        self.default_repository_combo.setEnabled(not using_custom_repository)
+        self.custom_repository_edit.setDirectory(current_custom_repository)
 
         # Error message label
         self.error_default_repository_label: QLabel = QLabel()
@@ -254,20 +281,33 @@ class SettingsDialog(QDialog, ProteusComponent):
         self.error_default_repository_label.setWordWrap(True)
         self.error_default_repository_label.setHidden(True)
 
-        # Connect checkbox signal to the directory edit setEnabled
+        # Connect checkbox signal to the directory edit and combo setEnabled
         # NOTE: 2 is the state of the checkbox when it is checked
         self.default_repository_checkbox.stateChanged.connect(
-            lambda state: self.default_repository_edit.setEnabled(not state == 2)
+            lambda state: self.custom_repository_edit.setEnabled(not state == 2)
+        )
+        self.default_repository_checkbox.stateChanged.connect(
+            lambda state: self.default_repository_combo.setEnabled(state == 2)
         )
 
         # Add the widgets to the layout
-        default_repository_layout.addWidget(default_repository_label)
-        default_repository_layout.addWidget(self.default_repository_checkbox)
-        default_repository_layout.addWidget(self.default_repository_edit)
-        default_repository_layout.addWidget(self.error_default_repository_label)
-        default_repository_layout.setContentsMargins(0, 0, 0, 0)
+        repository_layout.addWidget(default_repository_label)
+        repository_layout.addWidget(self.default_repository_combo)
+        repository_layout.addWidget(self.default_repository_checkbox)
+        repository_layout.addWidget(self.custom_repository_edit)
+        repository_layout.addWidget(self.error_default_repository_label)
 
-        return default_repository_layout
+        # Group box and wrapper layout
+        default_repository_group: QGroupBox = QGroupBox(
+            _("settings_dialog.default_repository.group")
+        )
+        default_repository_group.setLayout(repository_layout)
+
+        wrapper_layout: QVBoxLayout = QVBoxLayout()
+        wrapper_layout.addWidget(default_repository_group)
+        wrapper_layout.setContentsMargins(0, 0, 0, 0)
+
+        return wrapper_layout
 
     # ======================================================================
     # Validators
@@ -308,7 +348,7 @@ class SettingsDialog(QDialog, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
-    def validate_default_repository(self) -> bool:
+    def validate_repository(self) -> bool:
         """
         Validate if the default repository input is correct. It checks if the
         path exists and if it is a valid repository.
@@ -319,7 +359,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         :return: True if the path is correct, False otherwise
         """
         default_repository: bool = self.default_repository_checkbox.isChecked()
-        repository_path: str = self.default_repository_edit.directory()
+        repository_path: str = self.custom_repository_edit.directory()
 
         # If it is using custom repository, check if it is correct
         if not default_repository:
@@ -377,7 +417,7 @@ class SettingsDialog(QDialog, ProteusComponent):
         # ---------------------
         valid_settings: bool = True
         valid_settings = self.validate_language() and valid_settings
-        valid_settings = self.validate_default_repository() and valid_settings
+        valid_settings = self.validate_repository() and valid_settings
 
         # If there are errors, do not save the settings
         if not valid_settings:
@@ -392,13 +432,17 @@ class SettingsDialog(QDialog, ProteusComponent):
         language: str = self.language_combo.currentData()
         settings[SETTING_LANGUAGE] = language
 
+        # Store using custom repository
+        using_custom_repository: bool = not self.default_repository_checkbox.isChecked()
+        settings[SETTING_USING_CUSTOM_REPOSITORY] = str(using_custom_repository)
+
         # Store default repository
-        default_repository: bool = self.default_repository_checkbox.isChecked()
-        repository_path: str = ""
-        # If it is not using the default repository, store the path
-        if not default_repository:
-            repository_path = self.default_repository_edit.directory()
-        settings[SETTING_ARCHETYPE_REPOSITORY] = str(repository_path)
+        default_repository: str = self.default_repository_combo.currentData()
+        settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY] = default_repository
+
+        # Store custom repository
+        repository_path = self.custom_repository_edit.directory()
+        settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] = str(repository_path)
 
         # ---------------------
         # Save settings
