@@ -259,6 +259,7 @@ class PropertyDialog(QDialog, ProteusComponent):
                 category_widget: QWidget = QWidget()
                 category_layout: QFormLayout = QFormLayout(category_widget)
                 category_layout.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
+                category_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
                 category_widgets[prop.category] = category_widget
 
         return category_widgets

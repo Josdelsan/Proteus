@@ -28,7 +28,6 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QMessageBox,
     QSizePolicy,
-    QFrame,
 )
 
 # --------------------------------------------------------------------------
@@ -365,14 +364,12 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_name_code: str = f"archetype.category.{type_name}"
 
         # Create the archetype button group
-        archetype_menu: QWidget = buttons.button_group(buttons_list)
+        archetype_menu: QWidget = buttons.archetype_button_group(buttons_list)
         tab_layout.addWidget(archetype_menu)
-
-        # Spacer to justify content left
-        tab_layout.addStretch()
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
+        tab_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.tab_widget.addTab(tab_widget, _(tab_name_code, alternative_text=type_name))
 
     # ---------------------------------------------------------------------

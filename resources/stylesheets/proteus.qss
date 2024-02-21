@@ -278,6 +278,7 @@ QCheckBox:pressed {
 
 #ProjectContainer QSplitter::handle {
     width: 2px;
+    border: 1px solid slategray;
     background-color: slategray;
 }
 
@@ -321,7 +322,6 @@ QCheckBox:pressed {
 #archetype_menu_button {
     margin-right: 0.5em;
     margin-left: 0.5em;
-    min-width: 4em;
 }
 
 /* menu button arrow */
