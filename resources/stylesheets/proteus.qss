@@ -318,6 +318,13 @@ QCheckBox:pressed {
     padding-left: 0.2em;
 }
 
+/* Archetypes scroll area */
+#MainMenu QScrollArea {
+    border: 0;
+    background-color: transparent;
+}
+#MainMenu #archetype_button_group { background-color: transparent; }
+
 /* Archetype menu buttons -------------------------------------------------- */
 #archetype_menu_button {
     margin-right: 0.5em;

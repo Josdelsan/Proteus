@@ -380,6 +380,7 @@ def button_group(buttons, section_name_code=None):
 def archetype_button_group(buttons) -> QWidget:
     # Create the main widget
     widget = QWidget()
+    widget.setObjectName("archetype_button_group")
 
     # Create the grid layout
     layout = QHBoxLayout(widget)
@@ -401,14 +402,9 @@ def archetype_button_group(buttons) -> QWidget:
     scroll_area.setWidgetResizable(True)
     scroll_area.setWidget(widget)
 
-    scroll_area.setStyleSheet("QScrollArea {background-color:transparent;}")
-    scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-    widget.setStyleSheet("background-color:transparent;")
-        
-
     # Set up the scroll bar
     scroll_bar = scroll_area.horizontalScrollBar()
-    scroll_bar.setSingleStep(20)  # Adjust as needed
+    scroll_bar.setSingleStep(20)
 
     return scroll_area
 
