@@ -95,6 +95,11 @@ class ProteusApplication:
         sys.excepthook = self.excepthook
         self.app = QApplication(sys.argv)
 
+        # Increase the font size of the application
+        # app_font = self.app.font()
+        # app_font.setPointSize(app_font.pointSize() + 2)
+        # self.app.setFont(app_font)
+
         # Initial configuration
         self.initial_configuration()
 
