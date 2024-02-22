@@ -18,6 +18,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import QLabel, QSizePolicy
 
 # --------------------------------------------------------------------------
@@ -154,9 +155,15 @@ class PropertyInputFactory:
         label = QLabel()
         name = _(f"archetype.prop_name.{property.name}", alternative_text=property.name)
         label.setWordWrap(True)
+
         # Size policy expanding is required to center labels vertically in the form layout
         # https://stackoverflow.com/q/34644808
+        # In order to avoid excessive vertical spacing between property inputs and ensure
+        # consistent resizing behavior, we set the maximum height of the label based on the
+        # font size height.
         label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        font_metrics = QFontMetrics(label.font())
+        label.setMaximumHeight(font_metrics.height())
 
         # Check if the property is required
         if isinstance(property, Property):
