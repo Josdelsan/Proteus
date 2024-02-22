@@ -10,4 +10,10 @@
     <object id="functional-requirement" />
     <object id="non-functional-requirement" />
     <object id="matrix" />
+    <object id="object-type" />
+    <object id="object-component" />
+    <object id="object-attribute" />
+    <object id="object-invariant" />
+    <object id="association-type" />
+    <object id="association-role" />
 </objects>

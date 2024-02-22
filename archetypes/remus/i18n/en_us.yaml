@@ -34,6 +34,12 @@ archetype.class.stakeholder: "Stakeholder"
 archetype.class.meeting: "Meeting"
 archetype.class.archetype-link: "Symbolic link"
 archetype.class.traceability-matrix: "Traceability matrix"
+archetype.class.object-type: "Object"
+archetype.class.association-type: "Association"
+archetype.class.association-role: "Role"
+archetype.class.object-component: "Component"
+archetype.class.object-attribute: "Attribute"
+archetype.class.object-invariant: "Invariant"
   
 # -----------------------------------------------------------------------
 # Archetype properties categories
@@ -63,6 +69,9 @@ archetype.enum_choices.pending: "Pending"
 archetype.enum_choices.high: "High"
 archetype.enum_choices.medium: "Medium"
 archetype.enum_choices.low: "Low"
+archetype.enum_choices.variable: "Variable"
+archetype.enum_choices.constant: "Constant"
+archetype.enum_choices.derived: "Derived"
   
 # -----------------------------------------------------------------------
 # Archetype tooltips
@@ -71,6 +80,8 @@ archetype.tooltip.is-appendix: "Check if it is an appendix."
 archetype.tooltip.is-glossary: "Check if it is a glossary item."
 archetype.tooltip.file-info: "Select a graphic file from your local system to copy it to the assets folder."
 archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
+archetype.tooltip.is-abstract: "This object type is an abstract type."
+archetype.tooltip.is-derived: "This association is a derived association."
   
 # -----------------------------------------------------------------------
 # Archetype property names
@@ -113,3 +124,14 @@ archetype.prop_name.width: "Width (%)"
 archetype.prop_name.link: "Link"
 archetype.prop_name.col-classes: "Columns of the matrix"
 archetype.prop_name.row-classes: "Rows of the matrix"
+archetype.prop_name.is-abstract: "Abstract"
+archetype.prop_name.is-derived: "Derived"
+archetype.prop_name.natural-lang: "Natural language"
+archetype.prop_name.obj-constraint-lang: "Constraint language"
+archetype.prop_name.base-type: "Base type"
+archetype.prop_name.supertype: "Supertype"
+archetype.prop_name.type: "Type"
+archetype.prop_name.multiplicity-lower-bound: "Lower bound"
+archetype.prop_name.multiplicity-upper-bound: "Upper bound"
+archetype.prop_name.kind-of-property: "Kind of property"
+archetype.prop_name.init-value: "Initial value"
