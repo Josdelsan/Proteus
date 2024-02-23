@@ -72,7 +72,7 @@ def test_create_document(app):
     # Add document button click
     add_document_button = main_window.main_menu.add_document_button
     dialog: NewDocumentDialog = get_dialog(add_document_button.click)
-    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.accept_button.click()
 
     # --------------------------------------------
     # Assert

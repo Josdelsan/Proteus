@@ -116,7 +116,7 @@ def test_edit_object(app, object_name, document_name):
     first_dialog.input_widgets[NAME_PROP].input.setText(NEW_NAME)
 
     # Accept dialog
-    first_dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    first_dialog.accept_button.click()
     first_dialog.deleteLater()
     
     # --------------------------------------------

@@ -20,12 +20,10 @@ import logging
 
 
 from PyQt6.QtWidgets import (
-    QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QCheckBox,
-    QDialogButtonBox,
     QGroupBox,
 )
 
@@ -46,7 +44,7 @@ from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
 from proteus.views.forms.directory_edit import DirectoryEdit
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 
 
 # Module configuration
@@ -61,7 +59,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class SettingsDialog(QDialog, ProteusComponent):
+class SettingsDialog(ProteusDialog):
     """
     Settings dialog component class for the PROTEUS application. It provides a
     dialog form to change the application settings.
@@ -81,9 +79,6 @@ class SettingsDialog(QDialog, ProteusComponent):
         the component. Create properties to store the new document data.
         """
         super(SettingsDialog, self).__init__(*args, **kwargs)
-
-        # Button box
-        self.button_box: QDialogButtonBox = None
 
         # Settings edit widgets
         self.language_combo: QComboBox = None
@@ -115,15 +110,10 @@ class SettingsDialog(QDialog, ProteusComponent):
         proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
-        # Create Save and Cancel buttons
-        self.button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-
-        # Connect the buttons to the slots, combo current text is the view name
-        self.button_box.accepted.connect(self.save_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
+        # Connect the buttons to the slots
+        self.accept_button.setText(_("dialog.save_button"))
+        self.accept_button.clicked.connect(self.save_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         # Setting message label
         setting_info_label: QLabel = QLabel(_("settings_dialog.info.label"))
@@ -133,7 +123,6 @@ class SettingsDialog(QDialog, ProteusComponent):
         # Layouts
         # -------------------------------------------
         layout: QVBoxLayout = QVBoxLayout()
-        self.setLayout(layout)
 
         # Specific settings layouts
         language_layout: QVBoxLayout = self.create_language_layout()
@@ -143,7 +132,9 @@ class SettingsDialog(QDialog, ProteusComponent):
         layout.addWidget(setting_info_label)
         layout.addLayout(language_layout)
         layout.addLayout(repository_layout)
-        layout.addWidget(self.button_box)
+        layout.addStretch()
+
+        self.set_content_layout(layout)
 
     # ======================================================================
     # Layouts methods (create the component sub layouts)

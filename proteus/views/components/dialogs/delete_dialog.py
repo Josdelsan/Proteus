@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from pathlib import Path
 from typing import Dict, Union
 
 # --------------------------------------------------------------------------
@@ -19,11 +18,9 @@ from typing import Dict, Union
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
-    QDialog,
     QStyle,
     QLabel,
     QVBoxLayout,
-    QDialogButtonBox,
     QTreeWidget,
     QTreeWidgetItem,
     QSizePolicy,
@@ -38,7 +35,7 @@ from proteus.model.object import Object
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
 from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 from proteus.controller.command_stack import Controller
 
 # Module configuration
@@ -51,7 +48,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DeleteDialog(QDialog, ProteusComponent):
+class DeleteDialog(ProteusDialog):
     """
     Delete dialog component for the PROTEUS application. It provides a
     confirmation dialog to delete an object. It shows the object traces
@@ -93,7 +90,6 @@ class DeleteDialog(QDialog, ProteusComponent):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         layout: QVBoxLayout = QVBoxLayout()
-        self.setLayout(layout)
 
         # Set the dialog title
         self.setWindowTitle(_("delete_dialog.title"))
@@ -127,7 +123,7 @@ class DeleteDialog(QDialog, ProteusComponent):
             message_traces: str = _("delete_dialog.traces_explanation")
             message_traces_label: QLabel = QLabel(message_traces)
             message_traces_label.setWordWrap(True)
-            message_traces_label.setStyleSheet("font-weight: bold; background: #eee;")
+            message_traces_label.setStyleSheet("font-weight: bold;")
             layout.addWidget(message_traces_label)
 
             # Create the tree widget and set expand policy
@@ -152,16 +148,11 @@ class DeleteDialog(QDialog, ProteusComponent):
 
             layout.addWidget(tree)
 
-        # Create the button box -------------------------------------------------
-        self.button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No
-        )
-
         # Connect the button box signals to the slots
-        self.button_box.accepted.connect(self.save_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
+        self.accept_button.clicked.connect(self.save_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
-        layout.addWidget(self.button_box)
+        self.set_content_layout(layout)
 
     def create_tree_item(
         self, object_id: ProteusID, parent: Union[QTreeWidget, QTreeWidgetItem]

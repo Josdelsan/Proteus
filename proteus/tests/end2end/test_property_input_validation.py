@@ -111,7 +111,7 @@ def test_property_input_validation(app, property_name, property_value, expected_
     dialog.input_widgets[property_name].input.setText(property_value)
 
     # Accept dialog
-    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.accept_button.click()
 
     # Store error message
     error_message = dialog.input_widgets[property_name].error_label.text()

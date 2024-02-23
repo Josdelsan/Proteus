@@ -63,7 +63,7 @@ def test_delete_document(app):
     # Dialog handling and delete button click
     delete_document_button = main_window.main_menu.delete_document_button
     dialog: DeleteDialog = get_dialog(delete_document_button.click)
-    dialog.button_box.accepted.emit()
+    dialog.accept_button.clicked.emit()
 
     # --------------------------------------------
     # Assert

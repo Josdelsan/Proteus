@@ -204,11 +204,23 @@ class AssetEdit(QWidget):
                     # Ask the user if he wants to overwrite the file
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
+                    proteus_icon = DynamicIcons().icon(
+                        ProteusIconType.App, "proteus_icon"
+                    )
+                    msg_box.setWindowIcon(proteus_icon)
                     msg_box.setWindowTitle(_("asset_edit.warning.title"))
                     msg_box.setText(_("asset_edit.warning.text"))
                     msg_box.setStandardButtons(
                         QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                     )
+
+                    msg_box.button(QMessageBox.StandardButton.Yes).setText(
+                        _("dialog.yes_button")
+                    )
+                    msg_box.button(QMessageBox.StandardButton.No).setText(
+                        _("dialog.no_button")
+                    )
+
                     msg_box.setDefaultButton(QMessageBox.StandardButton.No)
                     msg_box.exec()
 

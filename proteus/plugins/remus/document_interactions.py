@@ -137,10 +137,11 @@ class DocumentInteractions(ProteusComponent):
             message_box = QMessageBox()
 
             # Set icon
-            proteus_icon: Path = DynamicIcons().icon(
+            proteus_icon = DynamicIcons().icon(
                 ProteusIconType.App, "proteus_icon"
             )
             message_box.setWindowIcon(proteus_icon)
+            message_box.setIcon(QMessageBox.Icon.Question)
 
             # Set title and text
             message_box.setWindowTitle(_("document.navigation.request.title"))
@@ -153,6 +154,13 @@ class DocumentInteractions(ProteusComponent):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             message_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+
+            message_box.button(QMessageBox.StandardButton.Yes).setText(
+                _("dialog.yes_button")
+            )
+            message_box.button(QMessageBox.StandardButton.No).setText(
+                _("dialog.no_button")
+            )
 
             # If the user clicks yes, navigate to the document
             if message_box.exec() == QMessageBox.StandardButton.Yes:

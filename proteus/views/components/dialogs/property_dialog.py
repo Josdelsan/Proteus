@@ -29,6 +29,8 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QDialog,
     QGroupBox,
+    QSizePolicy,
+    QSpacerItem,
 )
 
 # --------------------------------------------------------------------------
@@ -47,7 +49,7 @@ from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
 )
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 from proteus.controller.command_stack import Controller
 
 # Module configuration
@@ -62,7 +64,7 @@ log = logging.getLogger(__name__)  # Logger
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyDialog(QDialog, ProteusComponent):
+class PropertyDialog(ProteusDialog):
     """
     Class for the PROTEUS application properties form component. It is used
     to display the properties an traces of an element in a form. Properties
@@ -186,6 +188,14 @@ class PropertyDialog(QDialog, ProteusComponent):
             # Add a row to the category widget with the property input widget and label
             self.add_row_to_category_widget(category_widget, prop)
 
+        # Insert a QSpacerItem to the end of the each category layout
+        # NOTE: This is a workaround to add an stretch to a QFormLayout
+        # Inspired by: https://stackoverflow.com/a/13847010
+        for category_widget in category_widgets.values():
+            category_layout: QFormLayout = category_widget.layout()
+            category_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
+
+
         # Tabs layout ---------------------------------------------------
 
         # Create the form vertical layout and the tab widget
@@ -204,37 +214,11 @@ class PropertyDialog(QDialog, ProteusComponent):
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)
 
-        # Buttons and logo layout ---------------------------------------
+        self.accept_button.setText(_("dialog.save_button"))
+        self.accept_button.clicked.connect(self.save_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
-        buttons_layout: QVBoxLayout = QVBoxLayout()
-
-        # Create Save and Cancel buttons
-        self.button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        self.button_box.setOrientation(Qt.Orientation.Vertical)
-        self.button_box.accepted.connect(self.save_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
-        buttons_layout.addWidget(self.button_box)
-
-        # Add US logo to the buttons layout and push it to the bottom
-        us_logo: QIcon = DynamicIcons().icon(ProteusIconType.App, "US-digital")
-        us_logo_label: QLabel = QLabel()
-        us_logo_label.setPixmap(us_logo.pixmap(80, 80))
-        buttons_layout.addStretch(1)
-        buttons_layout.addWidget(us_logo_label)
-
-        # Main layout ---------------------------------------------------
-
-        # Create layout to hold tabbed widgets and buttons
-        window_layout: QHBoxLayout = QHBoxLayout(self)
-
-        # Add the layouts to the main layout
-        window_layout.addLayout(tabbed_layout)
-        window_layout.addLayout(buttons_layout)
-
-        self.setLayout(window_layout)
+        self.set_content_layout(tabbed_layout)
 
     # ======================================================================
     # Helper private methods

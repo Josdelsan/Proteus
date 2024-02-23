@@ -531,13 +531,20 @@ class DocumentPage(QWebEnginePage):
         ):
             # Ask the user if he wants to open the link in the system
             # default browser
-            reply: QMessageBox.StandardButton = QMessageBox.question(
-                None,
-                _("document_render.external_link"),
-                _("document_render.external_link.text", url.toString()),
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
+            message_box: QMessageBox = QMessageBox()
+            message_box.setWindowTitle(_("document_render.external_link"))
+            message_box.setText(_("document_render.external_link.text", url.toString()))
+            message_box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
+            message_box.button(QMessageBox.StandardButton.Yes).setText(
+                _("dialog.yes_button")
+            )
+            message_box.button(QMessageBox.StandardButton.No).setText(
+                _("dialog.no_button")
+            )
+            message_box.setIcon(QMessageBox.Icon.Question)
+            reply: QMessageBox.StandardButton = message_box.exec()
 
             # If the user wants to open the link in the system default
             # browser, open it

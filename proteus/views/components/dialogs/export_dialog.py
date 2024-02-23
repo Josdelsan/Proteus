@@ -10,19 +10,15 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
-    QPushButton,
-    QDialog,
     QLabel,
     QMessageBox,
     QComboBox,
@@ -35,10 +31,10 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.views.components.dialogs.dialog import ProteusDialog
 from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.utils import ProteusIconType
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 
 # Module configuration
@@ -52,7 +48,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ExportDialog(QDialog, ProteusComponent):
+class ExportDialog(ProteusDialog):
     """
     Class for the PROTEUS application print to pdf dialog form. It is used
     to display a dialog form with the print to pdf options.
@@ -78,7 +74,6 @@ class ExportDialog(QDialog, ProteusComponent):
 
         # Widgets
         self.export_format_selector: QComboBox = None
-        self.export_button: QPushButton = None  # Accept and cancel buttons
         self.export_widget_holder: QVBoxLayout = None
 
         # Create the component
@@ -100,10 +95,6 @@ class ExportDialog(QDialog, ProteusComponent):
         # Set the dialog title and width
         self.setWindowTitle(_("export_dialog.title"))
         self.sizeHint = lambda: QSize(400, 0)
-
-        # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(proteus_icon)
 
         # Expand policy
         self.setSizePolicy(
@@ -127,20 +118,21 @@ class ExportDialog(QDialog, ProteusComponent):
         self.export_widget_holder = QVBoxLayout()
         self.export_widget_holder.setContentsMargins(0, 0, 0, 0)
 
-        # Accept and cancel buttons ---------------------------------
-        self.export_button = QPushButton(_("export_dialog.export_button.text"))
-        self.export_button.setEnabled(False)
-        self.export_button.clicked.connect(self.export_button_clicked)
+        # Accept button
+        self.accept_button.setText(_("dialog.export_button"))
+        self.accept_button.setEnabled(False)
+        self.accept_button.clicked.connect(self.export_button_clicked)
+
+        self.reject_button.clicked.connect(self.close)
 
         # Main layout setup ---------------------------------
         main_layout = QVBoxLayout()
         main_layout.addWidget(export_format_label)
         main_layout.addWidget(self.export_format_selector)
         main_layout.addLayout(self.export_widget_holder)
-        main_layout.addStretch(1)
-        main_layout.addWidget(self.export_button)
+        main_layout.addStretch()
 
-        self.setLayout(main_layout)
+        self.set_content_layout(main_layout)
 
         # First export strategy setup ---------------------------------
         self.export_format_selector.setCurrentIndex(0)
@@ -169,7 +161,7 @@ class ExportDialog(QDialog, ProteusComponent):
         export_format: str = self.export_format_selector.currentData()
 
         # Update button box
-        self.export_button.setEnabled(False)
+        self.accept_button.setEnabled(False)
 
         # Delete the current export strategy
         # This is neccessary to disconnect the signals
@@ -198,7 +190,7 @@ class ExportDialog(QDialog, ProteusComponent):
         #       resize() method does not work.
 
         # Connect strategy signals
-        self._export_strategy.readyToExportSignal.connect(self.export_button.setEnabled)
+        self._export_strategy.readyToExportSignal.connect(self.accept_button.setEnabled)
         self._export_strategy.exportFinishedSignal.connect(self.export_finished_dialog)
 
     # ----------------------------------------------------------------------
@@ -214,7 +206,7 @@ class ExportDialog(QDialog, ProteusComponent):
         method and disable the button box to avoid multiple exports.
         """
         self._export_strategy.export()
-        self.export_button.setEnabled(False)
+        self.accept_button.setEnabled(False)
 
     # ----------------------------------------------------------------------
     # Method     : print_pdf_finished_dialog
@@ -231,18 +223,40 @@ class ExportDialog(QDialog, ProteusComponent):
         :param success: True if the export was successful, False otherwise.
         """
         if success:
-            QMessageBox.information(
-                self,
-                _("export_dialog.finished.dialog.title"),
-                _("export_dialog.finished.dialog.text", filePath),
+            message_box = QMessageBox()
+            message_box.setText(_("export_dialog.finished.dialog.text", filePath))
+            message_box.setWindowTitle(_("export_dialog.finished.dialog.title"))
+            proteus_icon = DynamicIcons().icon(
+                ProteusIconType.App, "proteus_icon"
             )
+            message_box.setWindowIcon(proteus_icon)
+            message_box.setIcon(QMessageBox.Icon.Information)
+
+            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            message_box.button(QMessageBox.StandardButton.Ok).setText(
+                _("dialog.accept_button")
+            )
+
+            message_box.exec()
+
             self.close()
         else:
-            QMessageBox.critical(
-                self,
-                _("export_dialog.finished.dialog.error.title"),
-                _("export_dialog.finished.dialog.error.text"),
+            message_box = QMessageBox()
+            message_box.setText(_("export_dialog.finished.dialog.error.text"))
+            message_box.setWindowTitle(_("export_dialog.finished.dialog.error.title"))
+            proteus_icon = DynamicIcons().icon(
+                ProteusIconType.App, "proteus_icon"
             )
+            message_box.setWindowIcon(proteus_icon)
+            message_box.setIcon(QMessageBox.Icon.Critical)
+
+            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            message_box.button(QMessageBox.StandardButton.Ok).setText(
+                _("dialog.accept_button")
+            )
+
+            message_box.exec()
+
             self.close()
 
     # ======================================================================

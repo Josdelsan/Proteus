@@ -12,23 +12,18 @@
 
 from typing import List
 import os
-import re
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
-    QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QLineEdit,
     QFrame,
-    QDialogButtonBox,
 )
 
 
@@ -41,10 +36,8 @@ from proteus.model.project import Project
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -57,7 +50,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectDialog(QDialog, ProteusComponent):
+class NewProjectDialog(ProteusDialog):
     """
     New project component class for the PROTEUS application. It provides a
     dialog form to create new projects from project archetypes.
@@ -98,15 +91,10 @@ class NewProjectDialog(QDialog, ProteusComponent):
         Create the component to display the new project dialog form.
         """
         layout: QVBoxLayout = QVBoxLayout()
-        self.setLayout(layout)
 
         # Set the dialog title and sizeHint
         self.setWindowTitle(_("new_project_dialog.title"))
-        self.sizeHint = lambda: QSize(350, 0)
-
-        # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(proteus_icon)
+        self.sizeHint = lambda: QSize(450, 0)
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -138,13 +126,8 @@ class NewProjectDialog(QDialog, ProteusComponent):
         path_label: QLabel = QLabel(_("new_project_dialog.input.path"))
         self.path_input: DirectoryEdit = DirectoryEdit()
 
-        # Create Save and Cancel buttons
-        self.button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        self.button_box.accepted.connect(self.save_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
+        self.accept_button.clicked.connect(self.save_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -162,8 +145,9 @@ class NewProjectDialog(QDialog, ProteusComponent):
         layout.addWidget(path_label)
         layout.addWidget(self.path_input)
         layout.addWidget(self.error_label)
+        layout.addStretch()
 
-        layout.addWidget(self.button_box)
+        self.set_content_layout(layout)
 
         # ---------------------------------------------
         # Actions

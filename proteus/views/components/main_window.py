@@ -319,11 +319,22 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+            proteus_icon = DynamicIcons().icon(
+                ProteusIconType.App, "proteus_icon"
+            )
+            confirmation_dialog.setWindowIcon(proteus_icon)
             confirmation_dialog.setWindowTitle(_("main_window.exit_dialog.title"))
             confirmation_dialog.setText(_("main_window.exit_dialog.text"))
             confirmation_dialog.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
+            confirmation_dialog.button(QMessageBox.StandardButton.Yes).setText(
+            _("dialog.yes_button")
+            )
+            confirmation_dialog.button(QMessageBox.StandardButton.No).setText(
+                _("dialog.no_button")
+            )
+
             confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
             confirmation_dialog.accepted.connect(close_with_saving)
             confirmation_dialog.rejected.connect(close_without_saving)

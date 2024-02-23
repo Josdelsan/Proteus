@@ -84,7 +84,7 @@ def test_edit_project(app):
     first_dialog.input_widgets[DESCRIPTION_PROP].input.setMarkdown(new_description)
 
     # Accept dialog
-    first_dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    first_dialog.accept_button.click()
     first_dialog.deleteLater()
 
 

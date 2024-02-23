@@ -10,16 +10,13 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QVBoxLayout,
-    QDialog,
     QLabel,
 )
 
@@ -30,10 +27,8 @@ from PyQt6.QtWidgets import (
 
 from proteus import PROTEUS_VERSION
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -49,7 +44,7 @@ _ = Translator().text  # Translator
 # NOTE: Due to the simplicity of this component, it is not necessary to
 # inherit from the ProteusComponent class. It will access the translator
 # singleton directly.
-class InformationDialog(QDialog, ProteusComponent):
+class InformationDialog(ProteusDialog):
     """
     Class for the PROTEUS application information dialog.
     """
@@ -83,10 +78,6 @@ class InformationDialog(QDialog, ProteusComponent):
         """
         # Set the dialog title
         self.setWindowTitle(_("information_dialog.title"))
-
-        # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(proteus_icon)
 
         # App name and version
         app_name = QLabel("PROTEUS")
@@ -124,9 +115,17 @@ class InformationDialog(QDialog, ProteusComponent):
         layout.addWidget(license)
         layout.addWidget(terms_of_use)
         layout.addWidget(icons8_attribution)
+        layout.addStretch()
+
+        # Buttons options
+        self.accept_button.clicked.connect(self.accept)
+        self.accept_button.setText(_("dialog.close_button")) # Override text
+        self.reject_button.setHidden(True)
 
         # Set the layout
-        self.setLayout(layout)
+        self.set_content_layout(layout)
+
+        self.setFixedSize(self.sizeHint())
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)

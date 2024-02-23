@@ -94,7 +94,7 @@ def test_edit_document(app):
     dialog.input_widgets[ACRONYM_PROP].input.setText(new_acronym)
 
     # Accept dialog
-    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.accept_button.click()
     dialog.deleteLater()
 
     # --------------------------------------------

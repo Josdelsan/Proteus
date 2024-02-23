@@ -357,3 +357,9 @@ QCheckBox:pressed {
     /* border-left: 1px dashed #e1e1e1; */
 }
 
+/* ========================================================================= */
+/* Dialogs                                                                   */
+/* ========================================================================= */
+#dialog_content_widget { background-color: #f9f9f9; }
+
+#PropertyDialog #dialog_content_widget { background-color: transparent; }

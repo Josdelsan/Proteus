@@ -655,11 +655,19 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                 log.warning(f"{e}")
 
                 # Show a message box to the user
-                QMessageBox.warning(
-                    self,
-                    _("document_tree.drop_action.message_box.error.title"),
-                    _("document_tree.drop_action.message_box.error.text"),
+                message_box = QMessageBox()
+                message_box.setIcon(QMessageBox.Icon.Warning)
+                proteus_icon = DynamicIcons().icon(
+                    ProteusIconType.App, "proteus_icon"
                 )
+                message_box.setWindowIcon(proteus_icon)
+                message_box.setText(_("document_tree.drop_action.message_box.error.text"))
+                message_box.setWindowTitle(_("document_tree.drop_action.message_box.error.title"))
+                message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                message_box.button(QMessageBox.StandardButton.Ok).setText(
+                    _("dialog.accept_button")
+                )
+                message_box.exec()
 
     # ----------------------------------------------------------------------
     # Method     : dragEnterEvent

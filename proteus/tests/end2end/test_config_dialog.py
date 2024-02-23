@@ -196,7 +196,7 @@ def test_config_dialog_change_settings(app, file_settings):
     dialog.custom_repository_edit.setDirectory(new_archetype_repository)
 
     # Save settings
-    dialog.button_box.button(QDialogButtonBox.StandardButton.Save).click()
+    dialog.accept_button.click()
     dialog.deleteLater()
 
     # --------------------------------------------

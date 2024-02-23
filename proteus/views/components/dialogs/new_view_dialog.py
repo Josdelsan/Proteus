@@ -11,20 +11,17 @@
 # --------------------------------------------------------------------------
 
 from typing import List
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
-    QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
-    QDialogButtonBox,
+    QSizePolicy,
 )
 
 
@@ -33,10 +30,8 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -49,7 +44,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewViewDialog(QDialog, ProteusComponent):
+class NewViewDialog(ProteusDialog):
     """
     New view dialog component class for the PROTEUS application. It provides a
     dialog form to create new views from xsl templates.
@@ -82,15 +77,10 @@ class NewViewDialog(QDialog, ProteusComponent):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         layout: QVBoxLayout = QVBoxLayout()
-        self.setLayout(layout)
 
         # Set the dialog title and width
         self.setWindowTitle(_("new_view_dialog.title"))
-        self.sizeHint = lambda: QSize(300, 0)
-
-        # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(proteus_icon)
+        self.sizeHint = lambda: QSize(400, 0)
 
         # Get available xls templates to create a new view
         xls_templates: List[str] = self._controller.get_available_xslt()
@@ -98,6 +88,10 @@ class NewViewDialog(QDialog, ProteusComponent):
         # Create a combo box with the available views
         view_label: QLabel = QLabel(_("new_view_dialog.combobox.label"))
         view_combo: QComboBox = QComboBox()
+        view_combo.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+
 
         # Add the view names to the combo box
         for view in xls_templates:
@@ -108,17 +102,11 @@ class NewViewDialog(QDialog, ProteusComponent):
         info_label: QLabel = QLabel(_("new_view_dialog.info_text"))
         info_label.setWordWrap(True)
 
-        # Create Save and Cancel buttons
-        button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Open
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-
         # Connect the buttons to the slots, combo current text is the view name
-        button_box.accepted.connect(
-            lambda: self.save_button_clicked(view_combo.currentData())
+        self.accept_button.clicked.connect(
+            lambda: self.accept_button_clicked(view_combo.currentData())
         )
-        button_box.rejected.connect(self.cancel_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -130,21 +118,22 @@ class NewViewDialog(QDialog, ProteusComponent):
         layout.addWidget(view_combo)
         layout.addWidget(info_label)
         layout.addWidget(self.error_label)
+        layout.addStretch()
 
-        layout.addWidget(button_box)
+        self.set_content_layout(layout)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : save_button_clicked
+    # Method     : accept_button_clicked
     # Description: Save button clicked event handler
     # Date       : 29/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def save_button_clicked(self, combo_text: str) -> None:
+    def accept_button_clicked(self, combo_text: str) -> None:
         """
         Manage the save button clicked event. It creates a new view from the
         selected xslt template.

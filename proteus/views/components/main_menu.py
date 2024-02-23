@@ -51,6 +51,8 @@ from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
 from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
 from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.utils import ProteusIconType
 from proteus.utils.events import (
     SelectObjectEvent,
     OpenProjectEvent,
@@ -590,6 +592,10 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Show a confirmation dialog
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
+                proteus_icon = DynamicIcons().icon(
+                    ProteusIconType.App, "proteus_icon"
+                )
+                confirmation_dialog.setWindowIcon(proteus_icon)
                 confirmation_dialog.setWindowTitle(
                     _("main_menu.open_project.save.title")
                 )
@@ -597,6 +603,13 @@ class MainMenu(QDockWidget, ProteusComponent):
                 confirmation_dialog.setStandardButtons(
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
+                confirmation_dialog.button(QMessageBox.StandardButton.Yes).setText(
+                _("dialog.yes_button")
+                )
+                confirmation_dialog.button(QMessageBox.StandardButton.No).setText(
+                    _("dialog.no_button")
+                )
+
                 confirmation_dialog.setDefaultButton(QMessageBox.StandardButton.No)
                 # Connect save_project method to the yes button
                 confirmation_dialog.button(

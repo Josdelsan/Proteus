@@ -289,8 +289,13 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
 
         # Trigger inmutable property warning
         if not checked:
-            QMessageBox.warning(
-                self,
-                _("property_input.inmutable_property_warning.title"),
-                _("property_input.inmutable_property_warning.text"),
+            message_box: QMessageBox = QMessageBox()
+            message_box.setIcon(QMessageBox.Icon.Warning)
+            message_box.setText(_("property_input.inmutable_property_warning.text"))
+            message_box.setWindowTitle(_("property_input.inmutable_property_warning.title"))
+            message_box.setWindowIcon(DynamicIcons().icon(ProteusIconType.App, "proteus_icon"))
+            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            message_box.button(QMessageBox.StandardButton.Ok).setText(
+                _("dialog.accept_button")
             )
+            message_box.exec()

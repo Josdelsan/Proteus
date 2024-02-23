@@ -120,7 +120,7 @@ def test_delete_object(app, object_name, document_name):
 
     # Trigger delete action
     delete_dialog: DeleteDialog = get_dialog(context_menu.action_delete_object.trigger)
-    delete_dialog.button_box.accepted.emit()
+    delete_dialog.accept_button.clicked.emit()
 
     # --------------------------------------------
     # Assert

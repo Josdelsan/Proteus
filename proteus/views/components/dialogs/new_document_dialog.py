@@ -11,20 +11,18 @@
 # --------------------------------------------------------------------------
 
 from typing import List
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
-    QDialog,
     QVBoxLayout,
     QLabel,
     QComboBox,
     QFrame,
-    QDialogButtonBox,
+    QSizePolicy,
 )
 
 
@@ -35,10 +33,8 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
-from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.dialog import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -51,7 +47,7 @@ _ = Translator().text  # Translator
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewDocumentDialog(QDialog, ProteusComponent):
+class NewDocumentDialog(ProteusDialog):
     """
     New document component class for the PROTEUS application. It provides a
     dialog form to create new documents from document archetypes.
@@ -87,14 +83,10 @@ class NewDocumentDialog(QDialog, ProteusComponent):
     # ----------------------------------------------------------------------
     def create_component(self) -> None:
         layout: QVBoxLayout = QVBoxLayout()
-        self.setLayout(layout)
 
         # Set the window title
         self.setWindowTitle(_("new_document_dialog.title"))
-
-        # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
-        self.setWindowIcon(proteus_icon)
+        self.sizeHint = lambda: QSize(450, 0)
 
         # Create a separator widget
         separator: QFrame = QFrame()
@@ -106,6 +98,9 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         # Create a combo box with the document archetypes
         archetype_label: QLabel = QLabel(_("new_document_dialog.combobox.label"))
         archetype_combo: QComboBox = QComboBox()
+        archetype_combo.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
 
         archetype: Object = None
         for archetype in document_archetypes:
@@ -118,13 +113,8 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         description_output: QLabel = QLabel()
         description_output.setWordWrap(True)
 
-        # Create Save and Cancel buttons
-        self.button_box: QDialogButtonBox = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-        self.button_box.accepted.connect(self.save_button_clicked)
-        self.button_box.rejected.connect(self.cancel_button_clicked)
+        self.accept_button.clicked.connect(self.save_button_clicked)
+        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -138,8 +128,9 @@ class NewDocumentDialog(QDialog, ProteusComponent):
         layout.addWidget(description_label)
         layout.addWidget(description_output)
         layout.addWidget(self.error_label)
+        layout.addStretch()
 
-        layout.addWidget(self.button_box)
+        self.set_content_layout(layout)
 
         # ---------------------------------------------
         # Actions
@@ -151,7 +142,19 @@ class NewDocumentDialog(QDialog, ProteusComponent):
             if index >= 0:
                 archetype: Object = document_archetypes[index]
                 self._archetype_id = archetype.id
-                description_output.setText(archetype.properties["description"].value)
+
+                description: str = str()
+                description_prop = archetype.get_property("description")
+                if description_prop is not None:
+                    description = description_prop.value
+                
+                if description == "":
+                    description_output.setStyleSheet("color: red")
+                    description_output.setText(_("new_document_dialog.archetype.description.empty"))
+                else:
+                    description_output.setStyleSheet("color: black")
+                    description_output.setText(description)
+
 
         # Update the description when the user selects an archetype
         archetype_combo.currentIndexChanged.connect(update_description)
