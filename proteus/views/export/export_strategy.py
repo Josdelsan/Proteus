@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -46,6 +45,8 @@ class ExportStrategy(QObject, ABC, metaclass=AbstractObjectMeta):
     it sends the path to the exported file and if it was successful.
     - readyToExportSignal: emitted when the export dialog is ready to
     to perform the export.
+    - exportProgressSignal: emitted to update the progress of the export
+    process (progress bar in the export dialog 0-100).
 
     Export strategies use Controller to access the backend information
     directly and perform the necessary operations to export the current
@@ -54,6 +55,7 @@ class ExportStrategy(QObject, ABC, metaclass=AbstractObjectMeta):
 
     exportFinishedSignal = pyqtSignal(str, bool)
     readyToExportSignal = pyqtSignal(bool)
+    exportProgressSignal = pyqtSignal(int)
 
     def __init__(self, controller: Controller) -> None:
         super().__init__()

@@ -122,7 +122,10 @@ class ExportPDF(ExportStrategy):
             html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
             self.page.setContent(html_array, "text/html")
 
+            self.exportProgressSignal.emit(33)
+
         def print_page() -> None:
+            self.exportProgressSignal.emit(65)
             # Define the margin values (in millimeters)
             margins: QMarginsF = QMarginsF(25, 25, 25, 25)
 
@@ -141,6 +144,9 @@ class ExportPDF(ExportStrategy):
         load_page()
         self.page.loadFinished.connect(print_page)
         # Show a dialog when the pdf printing is finished
+        self.page.pdfPrintingFinished.connect(
+            lambda: self.exportProgressSignal.emit(100)
+        )
         self.page.pdfPrintingFinished.connect(
             lambda path, success: self.exportFinishedSignal.emit(path, success)
         )

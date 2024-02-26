@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QComboBox,
     QSizePolicy,
+    QProgressBar,
 )
 
 
@@ -70,6 +71,7 @@ class ExportDialog(ProteusDialog):
         self._export_strategy: ExportStrategy = None
 
         # Widgets
+        self.progress_bar: QProgressBar = None
         self.export_format_selector: QComboBox = None
         self.export_widget_holder: QVBoxLayout = None
 
@@ -98,6 +100,13 @@ class ExportDialog(ProteusDialog):
             QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
 
+        # Progress bar -------------------------------------------
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        # self.progress_bar.setTextVisible(False)
+        self.progress_bar.hide()
+
         # Export format selector ---------------------------------
         export_format_label = QLabel(_("export_dialog.export_format.label"))
         self.export_format_selector = QComboBox()
@@ -124,6 +133,7 @@ class ExportDialog(ProteusDialog):
 
         # Main layout setup ---------------------------------
         main_layout = QVBoxLayout()
+        main_layout.addWidget(self.progress_bar)
         main_layout.addWidget(export_format_label)
         main_layout.addWidget(self.export_format_selector)
         main_layout.addLayout(self.export_widget_holder)
@@ -189,6 +199,7 @@ class ExportDialog(ProteusDialog):
         # Connect strategy signals
         self._export_strategy.readyToExportSignal.connect(self.accept_button.setEnabled)
         self._export_strategy.exportFinishedSignal.connect(self.export_finished_dialog)
+        self._export_strategy.exportProgressSignal.connect(self._progress_changed)
 
     # ----------------------------------------------------------------------
     # Method     : export_button_clicked
@@ -202,6 +213,7 @@ class ExportDialog(ProteusDialog):
         Handle the export button click. Call the export strategy export
         method and disable the button box to avoid multiple exports.
         """
+        self.progress_bar.show()
         self._export_strategy.export()
         self.accept_button.setEnabled(False)
 
@@ -233,6 +245,22 @@ class ExportDialog(ProteusDialog):
             )
 
             self.close()
+
+    # ----------------------------------------------------------------------
+    # Method     : _progress_changed
+    # Description: Handle the export progress signal.
+    # Date       : 26/02/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _progress_changed(self, progress: int) -> None:
+        """
+        Handle the export progress signal.
+
+        :param progress: The export progress in percentage.
+        """
+        progress = min(100, max(0, progress))
+        self.progress_bar.setValue(progress)
 
     # ======================================================================
     # Dialog static methods (create and show the form window)

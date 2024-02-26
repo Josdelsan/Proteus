@@ -123,11 +123,15 @@ class ExportHTML(ExportStrategy):
             export_folder: Path = Path(self._path_input.directory()) / folder_name
             export_folder.mkdir(parents=True)
 
+            self.exportProgressSignal.emit(15)
+
             # ------------------------------------------------------------------
             # Copy the project assets folder to the export folder
             assets_folder: Path = Path(Config().current_project_path) / ASSETS_REPOSITORY
             assets_folder_destination: Path = export_folder / ASSETS_REPOSITORY
             shutil.copytree(assets_folder, assets_folder_destination)
+
+            self.exportProgressSignal.emit(40)
 
             # ------------------------------------------------------------------
             # Copy the current XSLT template folder excluding XSL and XML files
@@ -138,10 +142,14 @@ class ExportHTML(ExportStrategy):
                 ignore=shutil.ignore_patterns("*.xsl", "*.xml"),
             )
 
+            self.exportProgressSignal.emit(65)
+
             # ------------------------------------------------------------------
             # Replace all the 'assets:///' dummy URLs from 'src' attributes with
             # the string './assets/'
             html = html.replace(f"{ASSETS_DUMMY_SEARCH_PATH}:///", "./assets/")
+
+            self.exportProgressSignal.emit(75)
 
             # ------------------------------------------------------------------
             # Replace all the 'templates:///<current_tempalte_name>' dummy URLs
@@ -150,6 +158,8 @@ class ExportHTML(ExportStrategy):
                 f"{TEMPLATE_DUMMY_SEARCH_PATH}:///{current_view}/",
                 "./resources/",
             )
+
+            self.exportProgressSignal.emit(85)
 
             # ------------------------------------------------------------------
             # Write the processed HTML to the export folder
@@ -167,6 +177,7 @@ class ExportHTML(ExportStrategy):
             return
 
         # Emit the exportFinishedSignal
+        self.exportProgressSignal.emit(100)
         self.exportFinishedSignal.emit(export_folder.as_posix(), True)
 
 
