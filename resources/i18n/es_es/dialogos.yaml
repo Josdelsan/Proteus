@@ -82,7 +82,7 @@ export_dialog.export_format.label: "Formato de exportación:"
 export_dialog.finished.dialog.title: "Exportación finalizada"
 export_dialog.finished.dialog.text: "El documento se ha exportado correctamente en la ruta {}"
 export_dialog.finished.dialog.error.title: "Error al exportar"
-export_dialog.finished.dialog.error.text: "No se pudo exportar la vista actual. Para más información, consulte el archivo de registro de la aplicación: {}"
+export_dialog.finished.dialog.error.text: "No se pudo exportar la vista actual. Para más información, consulte el archivo de registro de la aplicación"
 
 # Export PDF
 export_dialog.export_format.pdf: "Archivo PDF"

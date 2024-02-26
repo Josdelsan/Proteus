@@ -44,7 +44,7 @@ from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.translator import Translator
 from proteus.views.forms.directory_edit import DirectoryEdit
-from proteus.views.components.dialogs.dialog import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
 
 # Module configuration

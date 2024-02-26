@@ -20,7 +20,6 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QMessageBox,
     QComboBox,
     QSizePolicy,
 )
@@ -32,9 +31,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.controller.command_stack import Controller
 from proteus.utils.translator import Translator
-from proteus.views.components.dialogs.dialog import ProteusDialog
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils import ProteusIconType
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 
 # Module configuration
@@ -223,39 +220,17 @@ class ExportDialog(ProteusDialog):
         :param success: True if the export was successful, False otherwise.
         """
         if success:
-            message_box = QMessageBox()
-            message_box.setText(_("export_dialog.finished.dialog.text", filePath))
-            message_box.setWindowTitle(_("export_dialog.finished.dialog.title"))
-            proteus_icon = DynamicIcons().icon(
-                ProteusIconType.App, "proteus_icon"
+            MessageBox.information(
+                _("export_dialog.finished.dialog.title"),
+                _("export_dialog.finished.dialog.text", filePath),
             )
-            message_box.setWindowIcon(proteus_icon)
-            message_box.setIcon(QMessageBox.Icon.Information)
-
-            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-            message_box.button(QMessageBox.StandardButton.Ok).setText(
-                _("dialog.accept_button")
-            )
-
-            message_box.exec()
 
             self.close()
         else:
-            message_box = QMessageBox()
-            message_box.setText(_("export_dialog.finished.dialog.error.text"))
-            message_box.setWindowTitle(_("export_dialog.finished.dialog.error.title"))
-            proteus_icon = DynamicIcons().icon(
-                ProteusIconType.App, "proteus_icon"
+            MessageBox.critical(
+                _("export_dialog.finished.dialog.error.title"),
+                _("export_dialog.finished.dialog.error.text"),
             )
-            message_box.setWindowIcon(proteus_icon)
-            message_box.setIcon(QMessageBox.Icon.Critical)
-
-            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-            message_box.button(QMessageBox.StandardButton.Ok).setText(
-                _("dialog.accept_button")
-            )
-
-            message_box.exec()
 
             self.close()
 

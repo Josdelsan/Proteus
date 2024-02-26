@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -26,7 +26,6 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QVBoxLayout,
     QHBoxLayout,
-    QMessageBox,
     QSizePolicy,
 )
 
@@ -43,6 +42,7 @@ from proteus.utils.translator import Translator
 from proteus.utils.config import Config
 from proteus.utils import ProteusIconType
 from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -289,13 +289,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
 
         # Trigger inmutable property warning
         if not checked:
-            message_box: QMessageBox = QMessageBox()
-            message_box.setIcon(QMessageBox.Icon.Warning)
-            message_box.setText(_("property_input.inmutable_property_warning.text"))
-            message_box.setWindowTitle(_("property_input.inmutable_property_warning.title"))
-            message_box.setWindowIcon(DynamicIcons().icon(ProteusIconType.App, "proteus_icon"))
-            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-            message_box.button(QMessageBox.StandardButton.Ok).setText(
-                _("dialog.accept_button")
+            MessageBox.warning(
+                _("property_input.inmutable_property_warning.title"),
+                _("property_input.inmutable_property_warning.text"),
             )
-            message_box.exec()

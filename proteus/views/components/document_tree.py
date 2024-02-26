@@ -13,7 +13,6 @@
 
 import logging
 from typing import Dict, List
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -22,14 +21,12 @@ from pathlib import Path
 from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import (
     QDropEvent,
-    QIcon,
     QDragEnterEvent,
 )
 from PyQt6.QtWidgets import (
     QWidget,
     QTreeWidget,
     QTreeWidgetItem,
-    QMessageBox,
 )
 
 # --------------------------------------------------------------------------
@@ -51,6 +48,7 @@ from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
 from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.utils.events import (
@@ -654,20 +652,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             except AssertionError as e:
                 log.warning(f"{e}")
 
-                # Show a message box to the user
-                message_box = QMessageBox()
-                message_box.setIcon(QMessageBox.Icon.Warning)
-                proteus_icon = DynamicIcons().icon(
-                    ProteusIconType.App, "proteus_icon"
+                MessageBox.warning(
+                    _("document_tree.drop_action.message_box.error.title"),
+                    _("document_tree.drop_action.message_box.error.text"),
                 )
-                message_box.setWindowIcon(proteus_icon)
-                message_box.setText(_("document_tree.drop_action.message_box.error.text"))
-                message_box.setWindowTitle(_("document_tree.drop_action.message_box.error.title"))
-                message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-                message_box.button(QMessageBox.StandardButton.Ok).setText(
-                    _("dialog.accept_button")
-                )
-                message_box.exec()
 
     # ----------------------------------------------------------------------
     # Method     : dragEnterEvent

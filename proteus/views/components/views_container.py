@@ -12,7 +12,6 @@
 
 from typing import Dict
 import logging
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -50,6 +49,7 @@ from proteus.utils.events import (
     CurrentViewChangedEvent,
     SelectObjectEvent,
 )
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 
@@ -531,24 +531,14 @@ class DocumentPage(QWebEnginePage):
         ):
             # Ask the user if he wants to open the link in the system
             # default browser
-            message_box: QMessageBox = QMessageBox()
-            message_box.setWindowTitle(_("document_render.external_link"))
-            message_box.setText(_("document_render.external_link.text", url.toString()))
-            message_box.setStandardButtons(
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            message_box_pressed_button = MessageBox.question(
+                _("document_render.external_link"),
+                _("document_render.external_link.text", url.toString()),
             )
-            message_box.button(QMessageBox.StandardButton.Yes).setText(
-                _("dialog.yes_button")
-            )
-            message_box.button(QMessageBox.StandardButton.No).setText(
-                _("dialog.no_button")
-            )
-            message_box.setIcon(QMessageBox.Icon.Question)
-            reply: QMessageBox.StandardButton = message_box.exec()
 
             # If the user wants to open the link in the system default
             # browser, open it
-            if reply == QMessageBox.StandardButton.Yes:
+            if message_box_pressed_button == QMessageBox.StandardButton.Yes:
                 QDesktopServices.openUrl(url)
                 return False
             else:

@@ -37,7 +37,7 @@ from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
 from proteus.controller.command_stack import Controller
 from proteus.utils.translator import Translator
-from proteus.views.components.dialogs.dialog import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator

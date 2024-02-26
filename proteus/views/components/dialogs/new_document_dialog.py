@@ -34,7 +34,7 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.controller.command_stack import Controller
 from proteus.utils.translator import Translator
-from proteus.views.components.dialogs.dialog import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
 # Module configuration
 _ = Translator().text  # Translator

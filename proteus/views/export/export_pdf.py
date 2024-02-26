@@ -18,7 +18,7 @@ from pathlib import Path
 
 
 from PyQt6.QtWebEngineCore import QWebEnginePage
-from PyQt6.QtGui import QPageLayout, QPageSize, QIcon
+from PyQt6.QtGui import QPageLayout, QPageSize
 from PyQt6.QtCore import QByteArray, QMarginsF
 from PyQt6.QtWidgets import (
     QWidget,

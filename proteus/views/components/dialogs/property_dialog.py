@@ -23,11 +23,8 @@ from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
     QVBoxLayout,
-    QHBoxLayout,
     QTabWidget,
-    QDialogButtonBox,
     QFormLayout,
-    QDialog,
     QGroupBox,
     QSizePolicy,
     QSpacerItem,
@@ -49,7 +46,7 @@ from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
 )
-from proteus.views.components.dialogs.dialog import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
 
 # Module configuration

@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 import logging
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -19,18 +18,16 @@ from pathlib import Path
 
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMessageBox
-from PyQt6.QtGui import QIcon
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 
@@ -134,36 +131,13 @@ class DocumentInteractions(ProteusComponent):
                 .value
             )
 
-            message_box = QMessageBox()
-
-            # Set icon
-            proteus_icon = DynamicIcons().icon(
-                ProteusIconType.App, "proteus_icon"
-            )
-            message_box.setWindowIcon(proteus_icon)
-            message_box.setIcon(QMessageBox.Icon.Question)
-
-            # Set title and text
-            message_box.setWindowTitle(_("document.navigation.request.title"))
-            message_box.setText(
-                _("document.navigation.request.text", object_name, document_name)
-            )
-
-            # Set buttons
-            message_box.setStandardButtons(
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-            message_box.setDefaultButton(QMessageBox.StandardButton.Yes)
-
-            message_box.button(QMessageBox.StandardButton.Yes).setText(
-                _("dialog.yes_button")
-            )
-            message_box.button(QMessageBox.StandardButton.No).setText(
-                _("dialog.no_button")
+            pressed_button = MessageBox.question(
+                _("document.navigation.request.title"),
+                _("document.navigation.request.text", object_name, document_name),
             )
 
             # If the user clicks yes, navigate to the document
-            if message_box.exec() == QMessageBox.StandardButton.Yes:
+            if pressed_button == QMessageBox.StandardButton.Yes:
                 # Set the current object in the other document and do not navigate (will not
                 # navigate because the document is not the current document)
                 # Then set the current document, this will avoid update_on_select_object to

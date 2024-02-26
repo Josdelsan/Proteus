@@ -35,7 +35,7 @@ from proteus.model.object import Object
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
 from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.views.components.dialogs.dialog import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
 
 # Module configuration
