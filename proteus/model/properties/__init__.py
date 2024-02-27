@@ -106,3 +106,4 @@ from proteus.model.properties.enum_property import EnumProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.classlist_property import ClassListProperty
+from proteus.model.properties.code_property import CodeProperty

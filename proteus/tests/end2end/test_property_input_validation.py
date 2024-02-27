@@ -45,49 +45,19 @@ from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 # --------------------------------------------------------------------------
 
 
-# NOTE: PropertyInput would need a set_value() method to be able to
-# test validation of different property types in the same test. This would
-# only be use in testing.
-# TODO: This validation must not be performed as an end2end test. This has to
-# be implement as PropertyInput unit test mocking input widgets if necessary.
+# Property input validation is performed in views tests. This tests goal is to
+# check the error messages are correctly handled and displayed in the UI.
 @pytest.mark.parametrize(
     "property_name, property_value, expected_error",
     [
-        (PROTEUS_NAME, "", "property_input.validator.error.required"),  # stringProperty
-        (PROTEUS_NAME, None, "property_input.validator.error.required"),
         ("string input", "]]>", "string_property_input.validator.error.cdata"),
-        ("string input", "<![CDATA[", "string_property_input.validator.error.cdata"),
-        ("string input", "<![CDATA[dummy cdata]]>", "string_property_input.validator.error.cdata"),
-        ("float input", "", "float_property_input.validator.error"),  # floatProperty
-        ("float input", None, "float_property_input.validator.error"),
-        ("float input", "a", "float_property_input.validator.error"),
-        ("float input", "1.2.3", "float_property_input.validator.error"),
-        ("float input", "1.2a", "float_property_input.validator.error"),
-        ("int input", "", "integer_property_input.validator.error"),  # intProperty
-        ("int input", None, "integer_property_input.validator.error"),
-        ("int input", "a", "integer_property_input.validator.error"),
-        ("int input", "1.2", "integer_property_input.validator.error"),
-        ("int input", "1a", "integer_property_input.validator.error"),
-        ("url input", "]]>", "url_property_input.validator.error.cdata"),  # urlProperty
-        ("url input", "<![CDATA[", "url_property_input.validator.error.cdata"),
-        ("url input", "https://url.url/]]>/", "url_property_input.validator.error.cdata"),
-        
-        # Required validation
         ("required string input", "", "property_input.validator.error.required"),
-        ("required string input", None, "property_input.validator.error.required"),
-        ("required url input", "", "property_input.validator.error.required"),
-        ("required url input", None, "property_input.validator.error.required"),
     ],
 )
 def test_property_input_validation(app, property_name, property_value, expected_error):
     """
-    Test the property input validation in the property dialog.
-    This tests covers PropertyDialog so it is not necessary to test
-    project, document and object dialogs separately.
-
-    This test is parametrized to test different properties types that
-    peform validation. Other property types might not perform validation
-    or use PyQt6 built-in validation for their input widgets.
+    Test property input validation. Check that the error message is correctly
+    displayed in the UI.
     """
     # --------------------------------------------
     # Arrange
@@ -108,14 +78,18 @@ def test_property_input_validation(app, property_name, property_value, expected_
 
     # Change properties
     # NOTE: we can use setText() because we are using QLineEdit
-    dialog.input_widgets[property_name].input.setText(property_value)
+    property_input = dialog.input_widgets[property_name]
+    property_input.input.setText(property_value)
+
+    # Store error label visibility before validation
+    previous_label_hidden_state = property_input.error_label.isHidden()
 
     # Accept dialog
     dialog.accept_button.click()
 
-    # Store error message
+    # Store error message and label visibility after validation
     error_message = dialog.input_widgets[property_name].error_label.text()
-
+    current_label_hidden_state = property_input.error_label.isHidden()
 
     # --------------------------------------------
     # Assert
@@ -128,3 +102,12 @@ def test_property_input_validation(app, property_name, property_value, expected_
     assert (
         Translator().text(expected_error) == error_message
     ), f"Error message is '{error_message}' but should be '{Translator().text(expected_error)}'"
+
+    # Check error label visibility
+    assert (
+        previous_label_hidden_state is True
+    ), "Error label is not hidden before validation"
+
+    assert (
+        current_label_hidden_state is False
+    ), "Error label is hidden after validation"
