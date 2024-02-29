@@ -34,6 +34,10 @@ from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.utils.state_manager import StateManager
+from proteus.utils.config import Config
+from proteus.utils.translator import Translator
+from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.utils.plugin_manager import PluginManager
 from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
@@ -58,6 +62,9 @@ def app(qtbot, mocker):
     # running tests together, otherwise stored information might
     # screw up the tests
     restore_app_singleton_instances()
+
+    # Load translations, icons and plugins
+    load_translations_icons_plugins()
 
     # Call the mock_views_container function to mock the ViewsContainer methods
     mock_views_container(mocker)
@@ -94,6 +101,38 @@ def load_project(
     controller.load_project(f"{project_path}/{project_name}")
 
 
+def load_translations_icons_plugins():
+    """
+    Initializes the translations and icons for the app if they have not
+    been initialized yet.
+
+    This method is not neccessary but helps to improve performance and
+    reduce log messages when running tests.
+
+    NOTE: Singleton classes are not reinstantiated for each test, this
+    allow to load icons and translations reducing computational cost.
+    Before calling load methods we may check if they have been already
+    loaded.
+    """
+    config = Config()
+    translator = Translator()
+    dynamic_icons = DynamicIcons()
+    plugin_manager = PluginManager()
+
+    if translator._translations == {}:
+        translator.set_language(config.language)
+        translator.set_i18n_directory(config.i18n_directory)
+        translator.set_archetypes_directory(config.current_archetype_repository)
+        translator.load_system_translations()
+
+    if dynamic_icons._icons_paths == {}:
+        dynamic_icons.set_icons_directory(config.icons_directory)
+        dynamic_icons.set_archetypes_directory(config.current_archetype_repository)
+        dynamic_icons.load_system_icons()
+
+    if plugin_manager._plugins == {}:
+        plugin_manager.load_plugins()
+
 def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
@@ -101,7 +140,6 @@ def restore_app_singleton_instances():
     StateManager().current_document = None
     StateManager().current_object = {}
     StateManager().current_view = None
-
 
 def mock_views_container(mocker):
     """
