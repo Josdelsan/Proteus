@@ -79,6 +79,9 @@ class DynamicIcons(metaclass=SingletonMeta):
     directory. This allows mantaining default values in the application while
     it is possible to override them in the archetype repository specific
     implementation.
+
+    This class uses memoization to store the icons already instantiated as
+    QIcon objects.
     """
 
     # --------------------------------------------------------------------------
@@ -98,6 +101,11 @@ class DynamicIcons(metaclass=SingletonMeta):
 
         # Icons variable
         self._icons_paths: Dict[ProteusIconType, Dict[str, Path]] = {}
+
+        # Icons memo
+        self._icons_memo: Dict[ProteusIconType, Dict[str, QIcon]] = {}
+        for icon_type in ProteusIconType:
+            self._icons_memo[icon_type] = {}
 
     # ==========================================================================
     # Helper methods
@@ -292,5 +300,11 @@ class DynamicIcons(metaclass=SingletonMeta):
         :param type: Icon type.
         :param key: Icon key.
         """
+        # Check if icon is already in memo
+        if key in self._icons_memo[type]:
+            return self._icons_memo[type][key]
+        
         icon_path = self.icon_path(type, key)
-        return QIcon(icon_path.as_posix()) if icon_path else QIcon()
+        icon = QIcon(icon_path.as_posix()) if icon_path else QIcon()
+        self._icons_memo[type][key] = icon
+        return icon
