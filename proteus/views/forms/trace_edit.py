@@ -30,6 +30,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QSizePolicy,
     QLineEdit,
+    QAbstractItemView,
 )
 
 # --------------------------------------------------------------------------
@@ -142,7 +143,12 @@ class TraceEdit(QWidget):
         # Widgets creation --------------------------------------------------
         # Create a QListWidget
         self.list_widget = QListWidget(self)
+
+        # Allow trace movement using InternalMove and not Movement.Free because
+        # Free duplicates the item when dragging and dropping.
         self.list_widget.setMovement(QListWidget.Movement.Static)
+        self.list_widget.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        
         self.list_widget.setSizePolicy(
             QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )

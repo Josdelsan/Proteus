@@ -15,8 +15,12 @@
 # --------------------------------------------------------------------------
 
 import markdown
+from PyQt6.QtGui import (
+    QWheelEvent,
+)
 from PyQt6.QtCore import (
     QSize,
+    Qt,
 )
 from PyQt6.QtWidgets import (
     QWidget,
@@ -91,18 +95,29 @@ class MarkdownEdit(QWidget):
         self.display_box = QTextEdit()
         self.display_box.setReadOnly(True)
         self.display_box.sizeHint = lambda: QSize(250, 100)
+        self.display_box.wheelEvent = self.wheelEvent
         self.display_box.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
         )
         self.display_box.setVisible(False)
-        # self.display_box.setStyleSheet("background-color: white;")
+        
+        # Modify base font size
+        font = self.display_box.font()
+        font.setPointSize(font.pointSize() + 2)
+        self.display_box.setFont(font)
 
         # Input box --------------------------------------------------------
         self.input_box = QPlainTextEdit()
         self.input_box.sizeHint = lambda: QSize(250, 100)
+        self.input_box.wheelEvent = self.wheelEvent
         self.input_box.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
         )
+
+        # Modify base font size
+        font = self.input_box.font()
+        font.setPointSize(font.pointSize() + 2)
+        self.input_box.setFont(font)
 
         # Mode button ------------------------------------------------------
         self.mode_button = QPushButton()
@@ -195,3 +210,37 @@ class MarkdownEdit(QWidget):
             self.display_box.setVisible(True)
             self.input_box.setVisible(False)
             self.mode_button.setText(_("markdown_edit.edit"))
+
+    # ======================================================================
+    # Private and overriden methods
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : wheelEvent
+    # Description: Overriden method to handle the wheel event.
+    # Date       : 01/03/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        """
+        Handle the wheel event to zoom in and out the text and display boxes
+        when the control key and the mouse wheel are used. Modify the font
+        size of the text at the same time to keep the same size.
+
+        This method overrides the MarkdownEdit.wheelEvent method. It must
+        also override QTextEdit and QPlainTextEdit wheelEvent methods to
+        avoid inconsistencies in font sizes between both widgets due to
+        default keybinding implementation in those widgets.
+        """
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            if event.angleDelta().y() > 0:
+                self.input_box.zoomIn(1)
+                self.display_box.zoomIn(1)
+            else:
+                self.input_box.zoomOut(1)
+                self.display_box.zoomOut(1)
+        else:
+            super().wheelEvent(event)
+
+                
