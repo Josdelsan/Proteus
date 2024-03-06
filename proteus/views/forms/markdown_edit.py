@@ -10,6 +10,9 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from functools import wraps
+from typing import Callable
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -95,12 +98,14 @@ class MarkdownEdit(QWidget):
         self.display_box = QTextEdit()
         self.display_box.setReadOnly(True)
         self.display_box.sizeHint = lambda: QSize(250, 100)
-        self.display_box.wheelEvent = self.wheelEvent
+        self.display_box.wheelEvent = self.wheelEventDecorator(
+            self.display_box.wheelEvent
+        )
         self.display_box.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
         )
         self.display_box.setVisible(False)
-        
+
         # Modify base font size
         font = self.display_box.font()
         font.setPointSize(font.pointSize() + 2)
@@ -109,7 +114,7 @@ class MarkdownEdit(QWidget):
         # Input box --------------------------------------------------------
         self.input_box = QPlainTextEdit()
         self.input_box.sizeHint = lambda: QSize(250, 100)
-        self.input_box.wheelEvent = self.wheelEvent
+        self.input_box.wheelEvent = self.wheelEventDecorator(self.input_box.wheelEvent)
         self.input_box.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding
         )
@@ -140,7 +145,7 @@ class MarkdownEdit(QWidget):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def markdown(self) -> bool:
+    def markdown(self) -> str:
         """
         Returns the text of the input in plain text format.
         """
@@ -216,31 +221,34 @@ class MarkdownEdit(QWidget):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : wheelEvent
-    # Description: Overriden method to handle the wheel event.
+    # Method     : wheelEventDecorator
+    # Description: Decorator to handle the wheel event to zoom in and out
     # Date       : 01/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def wheelEvent(self, event: QWheelEvent) -> None:
+    # TODO: Consider synchronizing scroll events between input and display boxes
+    def wheelEventDecorator(self, wheelEventMethod: Callable) -> None:
         """
-        Handle the wheel event to zoom in and out the text and display boxes
+        Decorate wheel event to zoom in and out the text and display boxes
         when the control key and the mouse wheel are used. Modify the font
         size of the text at the same time to keep the same size.
 
-        This method overrides the MarkdownEdit.wheelEvent method. It must
-        also override QTextEdit and QPlainTextEdit wheelEvent methods to
-        avoid inconsistencies in font sizes between both widgets due to
+        This method decorates QTextEdit and QPlainTextEdit wheelEvent methods
+        to avoid inconsistencies in font sizes between both widgets due to
         default keybinding implementation in those widgets.
         """
-        if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            if event.angleDelta().y() > 0:
-                self.input_box.zoomIn(1)
-                self.display_box.zoomIn(1)
-            else:
-                self.input_box.zoomOut(1)
-                self.display_box.zoomOut(1)
-        else:
-            super().wheelEvent(event)
 
-                
+        @wraps(wheelEventMethod)
+        def wrapper(e: QWheelEvent) -> None:
+            if e.modifiers() == Qt.KeyboardModifier.ControlModifier:
+                if e.angleDelta().y() > 0:
+                    self.input_box.zoomIn(1)
+                    self.display_box.zoomIn(1)
+                else:
+                    self.input_box.zoomOut(1)
+                    self.display_box.zoomOut(1)
+            else:
+                wheelEventMethod(e)
+
+        return wrapper
