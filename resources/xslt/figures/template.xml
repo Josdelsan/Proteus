@@ -2,6 +2,6 @@
 <template name="figures">
     <entryPoints default="FIGURES_main.xsl"/>
     <dependencies>
-        <pluginDependency name="proteus_xslt_basics"/>
+        <pluginDependency name="basics"/>
     </dependencies>
 </template>

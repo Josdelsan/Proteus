@@ -6,6 +6,6 @@
     </entryPoints>
     <dependencies>
         <pluginDependency name="remus"/>
-        <pluginDependency name="proteus_xslt_basics"/>
+        <pluginDependency name="basics"/>
     </dependencies>
 </template>

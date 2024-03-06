@@ -1,10 +1,12 @@
 # ==========================================================================
-# Plugin: proteus_xslt_basics
+# File: proteus_xslt_basics.py
 # Description: PROTEUS plugin that provides basic XSLT functions for use in
 #              templates. Some of these functions are:
 #              - generate_markdown: Generate markdown from a list of etree.Element
 #              - image_to_base64: Creates the base64 representation of an image.
 #              - current_document: Returns the current selected document.
+#              ProteusBasicMethods class provides a method to access the current
+#              selected object in the current document from the QWebChannel.
 # Date: 03/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -32,7 +34,6 @@ from PyQt6.QtCore import QByteArray, QBuffer, QIODevice, pyqtSlot
 
 from proteus.utils.config import Config
 from proteus.utils.state_manager import StateManager
-from proteus.utils.events import SelectObjectEvent
 from proteus.model import ASSETS_REPOSITORY
 from proteus.views.components.abstract_component import ProteusComponent
 
@@ -50,6 +51,8 @@ def generate_markdown(context, markdown_element: List[ET._Element]) -> str:
     """
     Generate markdown from a list of etree.Element. Markdown is generated
     from the text of the elements in the list.
+
+    NOTE: Output HTML is not wrapped in <p>.
     """
     markdown_text = ""
     for element in markdown_element:
@@ -135,14 +138,3 @@ class ProteusBasicMethods(ProteusComponent):
         """
         return self._state_manager.get_current_object()
     
-
-
-# ==========================================================================
-# Plugin registration method
-# ==========================================================================
-def register(register_xslt_function, register_qwebchannel_class, _):
-    register_xslt_function("generate_markdown", generate_markdown)
-    register_xslt_function("image_to_base64", image_to_base64)
-    register_xslt_function("current_document", current_document)
-
-    register_qwebchannel_class("proteusBasics", ProteusBasicMethods)
