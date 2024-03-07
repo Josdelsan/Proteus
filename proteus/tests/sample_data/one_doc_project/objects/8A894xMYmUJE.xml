@@ -10,7 +10,7 @@
   <children/>
   <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
-    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource" traceType=":Proteus-dependency">
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency">
       <trace target="3H4yFe9KfHQL" traceType=":Proteus-dependency"/>
     </traceProperty>
   </traces>

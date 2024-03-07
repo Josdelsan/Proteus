@@ -12,6 +12,6 @@
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author">
       <trace target="3apVcQXCBCqW" traceType=":Proteus-author"/>
     </traceProperty>
-    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource" traceType=":Proteus-dependency"/>
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency"/>
   </traces>
 </object>

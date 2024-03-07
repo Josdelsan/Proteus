@@ -42,8 +42,8 @@ from proteus.utils.events import (
 # logging configuration
 log = logging.getLogger(__name__)
 
-PARAGRAPH_CLASS = "paragraph"
-GLOSSARY_PROPERTY = "is-glossary"
+GLOSSARY_CLASS = "glossary-item"
+GLOSSARY_DESCRIPTION = "description"
 
 
 # ==========================================================================
@@ -257,28 +257,15 @@ class GlossaryHandler(ProteusComponent):
     def _is_glossary_item(self, object: Object) -> bool:
         """
         Check if the object is a glossary item. It checks if the object
-        is a paragraph and if it has the is-glossary property set to True.
-
-        Property is-glossary must be a BooleanProperty.
+        is a 'glossary-item' class.
 
         :param object: Object to check
         """
-        # Check if the object is a paragraph
-        if PARAGRAPH_CLASS not in object.classes:
+        # Check if the object is a glossary item class
+        if GLOSSARY_CLASS in object.classes:
+            return True
+        else:
             return False
-
-        # Get is-glossary property
-        glossary_property: BooleanProperty = object.get_property(GLOSSARY_PROPERTY)
-
-        # Check if the property is correct
-        if not isinstance(glossary_property, BooleanProperty):
-            return False
-
-        # Check if the property is True
-        if not glossary_property.value:
-            return False
-
-        return True
 
     # --------------------------------------------------------------------------
     # Method: _add_glossary_item
@@ -310,7 +297,12 @@ class GlossaryHandler(ProteusComponent):
         # https://stackoverflow.com/a/9662410
         # Current solution to get rid of Markdown using markdown module:
         # https://stackoverflow.com/a/54923798
-        _description: str = object.get_property("text").value
+        _description_prop = object.get_property(GLOSSARY_DESCRIPTION)
+
+        if _description_prop is None:
+            _description = ""
+        else:
+            _description = _description_prop.value
 
         self.markdown_instance.stripTopLevelTags = False
         description = self.markdown_instance.convert(_description)
@@ -449,11 +441,11 @@ class GlossaryHandler(ProteusComponent):
                 description_html = ""
                 for index, description in enumerate(descriptions):
                     # Insert space between descriptions if there are more than one
-                    if index > 0:
+                    if description_html != "" and index > 0:
                         description_html += "<hr></hr>"
 
-                    # Add the description with a link to the item
-                    description_html += f"{description}"
+                    if description != "":
+                        description_html += f"{description}"
 
                 return f'<a href="#{item_id}" onclick="selectAndNavigate(`{item_id}`, event)" title="{escape(description_html)}">{match_text}</a>'
 

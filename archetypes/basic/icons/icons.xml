@@ -3,6 +3,7 @@
     <type name="document"/>
     <type name="archetype">
         <icon key="paragraph" file="paragraph.png" />
+        <icon key="glossary-item" file="glossary-item.png" />
         <icon key="section" file="section.png" />
         <icon key="external-resource" file="external-resource.png" />
         <icon key="graphic-file" file="graphic-file.png" />

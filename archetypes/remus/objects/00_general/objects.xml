@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects>
+    <object id="empty-section" />
+    <object id="empty-appendix" />
     <object id="empty-paragraph" />
     <object id="lorem-paragraph" />
     <object id="glossary-item" />
-    <object id="empty-section" />
-    <object id="empty-appendix" />
-    <object id="external-resource" />
     <object id="graphic-file" />
+    <object id="external-resource" />
     <object id="organization" />
     <object id="stakeholder" />
     <object id="meeting" />

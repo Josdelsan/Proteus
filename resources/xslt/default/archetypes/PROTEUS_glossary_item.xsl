@@ -24,23 +24,29 @@
     <!-- paragraph template                                          -->
     <!-- =========================================================== -->
 
-    <xsl:template match="object[@classes='paragraph']">
+    <xsl:template match="object[@classes='glossary-item']">
+  
         <div id="{@id}"  data-proteus-id="{@id}">
-            <xsl:variable name="content" select="properties/markdownProperty[@name='text']"/>
-            <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
+            <p>
+                <strong>
+                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
+                    <xsl:text>: </xsl:text>
+                </strong>
 
-            <xsl:choose>
-                <xsl:when test="not($nonempty_content)">
-                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
-                </xsl:when>
-                <xsl:otherwise>
-                    <p>
+                <xsl:variable name="description" select="properties/markdownProperty[@name='description']"/>
+                <xsl:variable name="nonempty_content" select="string-length(normalize-space($description)) > 0"/>
+
+                <xsl:choose>
+                    <xsl:when test="not($nonempty_content)">
+                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                    </xsl:when>
+                    <xsl:otherwise>
                         <xsl:call-template name="generate_markdown">
-                            <xsl:with-param name="content" select="$content"/>
+                            <xsl:with-param name="content" select="$description"/>
                         </xsl:call-template>
-                    </p>
-                </xsl:otherwise>
-            </xsl:choose>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </p>
         </div>
     </xsl:template>
 

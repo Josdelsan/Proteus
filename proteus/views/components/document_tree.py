@@ -565,6 +565,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # item.
         source: QTreeWidget = event.source()
 
+        # Prevent drop non qt objects
+        if source is None:
+            return
+
         # Get dropped element_id
         dropped_item = source.currentItem()
         dropped_element_id: ProteusID = dropped_item.data(1, Qt.ItemDataRole.UserRole)
@@ -674,6 +678,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         super().dragEnterEvent(event)
         # Get the object that performs the drag
         source: QTreeWidget = event.source()
+
+        # Prevent drag non qt objects
+        if source is None:
+            return
+
         source_item: QTreeWidgetItem = source.currentItem()
         source_item_id: ProteusID = source_item.data(1, Qt.ItemDataRole.UserRole)
 

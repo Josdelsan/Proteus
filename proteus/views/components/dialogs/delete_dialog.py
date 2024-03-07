@@ -108,6 +108,7 @@ class DeleteDialog(ProteusDialog):
         message: str = _("delete_dialog.message", object_name)
         message_label: QLabel = QLabel(message)
         layout.addWidget(message_label)
+        layout.addStretch()
 
         # Show all the object traces dependencies, it is shown in a QTreeWidget.
         # Each object pointed by another object is shown as a parent item and

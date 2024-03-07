@@ -143,18 +143,21 @@ class PropertyDialog(ProteusDialog):
         )
 
         main_obj_class: str
+        icon_type: ProteusIconType
         try:
             # Merge object's traces with properties dict
             properties_dict.update(self.object.traces)
 
             # Get the main object class to set the icon
             main_obj_class = self.object.classes[-1]
+            icon_type = ProteusIconType.Archetype
 
         # Project will raise an AttributeError
         except AttributeError:
             log.debug("Project properties form.")
 
             main_obj_class = "proteus_icon"
+            icon_type = ProteusIconType.App
             # Check if the object is a project to set the flag
             # This is used to avoid handling traces in the project form
             self.project_dialog = True
@@ -165,7 +168,7 @@ class PropertyDialog(ProteusDialog):
         window_name: str = self.object.get_property(PROTEUS_NAME).value
         self.setWindowTitle(window_name)
 
-        dialog_icon: QIcon = DynamicIcons().icon(ProteusIconType.App, main_obj_class)
+        dialog_icon: QIcon = DynamicIcons().icon(icon_type, main_obj_class)
         self.setWindowIcon(dialog_icon)
 
         # Properties and traces layout ----------------------------------
