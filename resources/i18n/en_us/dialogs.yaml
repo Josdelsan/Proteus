@@ -55,7 +55,8 @@ new_project_dialog.error.folder_already_exists: "The folder already exists, sele
 # ---------------------------------------------------------------------------
 new_view_dialog.title: "Add new view"
 new_view_dialog.combobox.label: "Select view:"
-new_view_dialog.info_text: "If you want to create a new view, contact with the administrator."
+new_view_dialog.description_label: "View description:"
+new_view_dialog.no_description: "No description available"
 new_view_dialog.error.no_view_selected: "Please select a valid view"
 new_view_dialog.error.duplicated_view: "The view already exists"
 

@@ -21,7 +21,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QComboBox,
-    QFrame,
     QSizePolicy,
 )
 
@@ -68,8 +67,10 @@ class NewDocumentDialog(ProteusDialog):
         """
         super(NewDocumentDialog, self).__init__(*args, **kwargs)
 
-        # Properties for creating a new document
-        self._archetype_id: ProteusID = None
+        # Variables to store the component widgets
+        self.archetype_combo: QComboBox = None
+        self.description_content_label: QLabel = None
+        self.error_label: QLabel = None
 
         # Create the component
         self.create_component()
@@ -88,33 +89,30 @@ class NewDocumentDialog(ProteusDialog):
         self.setWindowTitle(_("new_document_dialog.title"))
         self.sizeHint = lambda: QSize(450, 0)
 
-        # Create a separator widget
-        separator: QFrame = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Shadow.Sunken)
-
         # Get document archetypes
         document_archetypes: List[Object] = self._controller.get_document_archetypes()
         # Create a combo box with the document archetypes
         archetype_label: QLabel = QLabel(_("new_document_dialog.combobox.label"))
-        archetype_combo: QComboBox = QComboBox()
-        archetype_combo.setSizePolicy(
+        self.archetype_combo: QComboBox = QComboBox()
+        self.archetype_combo.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
 
         archetype: Object = None
         for archetype in document_archetypes:
-            archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
+            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value, archetype.id)
 
         # Show the archetype description
-        description_label: QLabel = QLabel(
+        description_placeholder_label: QLabel = QLabel(
             _("new_document_dialog.archetype.description")
         )
-        description_output: QLabel = QLabel()
-        description_output.setWordWrap(True)
+        self.description_content_label: QLabel = QLabel()
+        self.description_content_label.setWordWrap(True)
 
         self.accept_button.clicked.connect(self.save_button_clicked)
         self.reject_button.clicked.connect(self.cancel_button_clicked)
+        self.archetype_combo.currentIndexChanged.connect(self.update_description)
+        self.update_description() # First call
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -123,47 +121,45 @@ class NewDocumentDialog(ProteusDialog):
 
         # Add the widgets to the layout
         layout.addWidget(archetype_label)
-        layout.addWidget(archetype_combo)
-        layout.addWidget(separator)
-        layout.addWidget(description_label)
-        layout.addWidget(description_output)
+        layout.addWidget(self.archetype_combo)
+        layout.addWidget(description_placeholder_label)
+        layout.addWidget(self.description_content_label)
         layout.addWidget(self.error_label)
         layout.addStretch()
 
         self.set_content_layout(layout)
 
-        # ---------------------------------------------
-        # Actions
-        # ---------------------------------------------
-
-        # Update the description when the user selects an archetype
-        def update_description():
-            index = archetype_combo.currentIndex()
-            if index >= 0:
-                archetype: Object = document_archetypes[index]
-                self._archetype_id = archetype.id
-
-                description: str = str()
-                description_prop = archetype.get_property("description")
-                if description_prop is not None:
-                    description = description_prop.value
-                
-                if description == "":
-                    description_output.setStyleSheet("color: red")
-                    description_output.setText(_("new_document_dialog.archetype.description.empty"))
-                else:
-                    description_output.setStyleSheet("color: black")
-                    description_output.setText(description)
-
-
-        # Update the description when the user selects an archetype
-        archetype_combo.currentIndexChanged.connect(update_description)
-        # Update the description for the first archetype
-        update_description()
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
+        
+    # ----------------------------------------------------------------------
+    # Method     : update_description
+    # Description: Update the description label with the selected archetype
+    # Date       : 28/05/2023
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_description(self):
+        """
+        Update the description label with the selected archetype description.
+        """
+        archetype_id: ProteusID = self.archetype_combo.currentData()
+        if archetype_id:
+            archetype: Object = self._controller.get_archetype_by_id(archetype_id)  
+
+            description: str = str()
+            description_prop = archetype.get_property("description")
+            if description_prop is not None:
+                description = description_prop.value
+            
+            if description == "":
+                self.description_content_label.setStyleSheet("color: red")
+                self.description_content_label.setText(_("new_document_dialog.archetype.description.empty"))
+            else:
+                self.description_content_label.setStyleSheet("color: black")
+                self.description_content_label.setText(description)
 
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
@@ -177,14 +173,15 @@ class NewDocumentDialog(ProteusDialog):
         Manage the save button clicked event. It creates a new document from
         the selected archetype.
         """
-        if self._archetype_id is None:
+        archetype_id: ProteusID = self.archetype_combo.currentData()
+        if archetype_id is None:
             self.error_label.setText(
                 _("new_document_dialog.error.no_archetype_selected")
             )
             return
 
         # Create the document
-        self._controller.create_document(self._archetype_id)
+        self._controller.create_document(archetype_id)
 
         # Close the form window
         self.close()

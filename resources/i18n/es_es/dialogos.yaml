@@ -54,7 +54,8 @@ new_project_dialog.error.folder_already_exists: "Ya existe una carpeta con ese n
 # ---------------------------------------------------------------------------
 new_view_dialog.title: "Nueva vista"
 new_view_dialog.combobox.label: "Seleccione una vista:"
-new_view_dialog.info_text: "Si desea añadir una nueva vista, por favor contacte con el administrador del sistema."
+new_view_dialog.description_label: "Descripción de la vista:"
+new_view_dialog.no_description: "No hay descripción disponible"
 new_view_dialog.error.no_view_selected: "Debe seleccionar una vista"
 new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
 

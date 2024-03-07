@@ -9,3 +9,6 @@
 
 xslt_templates.default: "Main"
 xslt_templates.figures: "Project figures"
+
+xslt_templates.description.default: "REMUS styled view. Renders each document separately using REMUS stylesheets."
+xslt_templates.description.figures: "Shows all the figures in the project grouped by document."

@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QComboBox,
     QSizePolicy,
+    QFrame,
 )
 
 
@@ -65,6 +66,11 @@ class NewViewDialog(ProteusDialog):
         """
         super(NewViewDialog, self).__init__(*args, **kwargs)
 
+        # Variables to store the component widgets
+        self.view_combo: QComboBox = None
+        self.error_label: QLabel = None
+        self.description_content_label: QLabel = None
+
         # Create the component
         self.create_component()
 
@@ -87,26 +93,32 @@ class NewViewDialog(ProteusDialog):
 
         # Create a combo box with the available views
         view_label: QLabel = QLabel(_("new_view_dialog.combobox.label"))
-        view_combo: QComboBox = QComboBox()
-        view_combo.setSizePolicy(
+        self.view_combo: QComboBox = QComboBox()
+        self.view_combo.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
-
 
         # Add the view names to the combo box
         for view in xls_templates:
             view_translation: str = _(f"xslt_templates.{view}", alternative_text=view)
-            view_combo.addItem(view_translation, view)
+            self.view_combo.addItem(view_translation, view)
 
-        # Create view message label
-        info_label: QLabel = QLabel(_("new_view_dialog.info_text"))
-        info_label.setWordWrap(True)
+        # Create description labels
+        description_placeholder_label: QLabel = QLabel(
+            _("new_view_dialog.description_label")
+        )
+        description_placeholder_label.setWordWrap(True)
 
-        # Connect the buttons to the slots, combo current text is the view name
+        self.description_content_label: QLabel = QLabel()
+        self.description_content_label.setWordWrap(True)
+
+        # Connect the buttons to the slots, combo current data is the view name
         self.accept_button.clicked.connect(
-            lambda: self.accept_button_clicked(view_combo.currentData())
+            lambda: self.accept_button_clicked(self.view_combo.currentData())
         )
         self.reject_button.clicked.connect(self.cancel_button_clicked)
+        self.view_combo.currentIndexChanged.connect(self.update_description)
+        self.update_description() # First call
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -115,8 +127,9 @@ class NewViewDialog(ProteusDialog):
 
         # Add the widgets to the layout
         layout.addWidget(view_label)
-        layout.addWidget(view_combo)
-        layout.addWidget(info_label)
+        layout.addWidget(self.view_combo)
+        layout.addWidget(description_placeholder_label)
+        layout.addWidget(self.description_content_label)
         layout.addWidget(self.error_label)
         layout.addStretch()
 
@@ -125,6 +138,31 @@ class NewViewDialog(ProteusDialog):
     # ======================================================================
     # Dialog slots methods (connected to the component signals)
     # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_description
+    # Description: Update the description label with the selected view description
+    # Date       : 07/03/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_description(self) -> None:
+        """
+        Update the description label with the selected view description.
+        """
+        view_name: str = self.view_combo.currentData()
+        if view_name:
+            description: str = _(
+                f"xslt_templates.description.{view_name}", alternative_text=""
+            )
+            if description == "":
+                self.description_content_label.setStyleSheet("color: red")
+                self.description_content_label.setText(
+                    _("new_document_dialog.archetype.description.empty")
+                )
+            else:
+                self.description_content_label.setStyleSheet("color: black")
+                self.description_content_label.setText(description)
 
     # ----------------------------------------------------------------------
     # Method     : accept_button_clicked

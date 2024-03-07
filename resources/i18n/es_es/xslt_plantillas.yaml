@@ -10,3 +10,6 @@
 
 xslt_templates.default: "Principal"
 xslt_templates.figures: "Figuras del proyecto"
+
+xslt_templates.description.default: "Vista con estilos REMUS. Renderiza cada documento por separado usando las hojas de estilo REMUS."
+xslt_templates.description.figures: "Muestra todas las figuras del proyecto agrupadas por documento."
