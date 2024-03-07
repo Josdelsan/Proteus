@@ -58,7 +58,7 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"     select="$proteus:lang_role"/>
                     <xsl:with-param name="content"   select="properties/stringProperty[@name='role']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
                 <!-- Category -->

@@ -51,21 +51,21 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"   select="$proteus:lang_place"/>
                     <xsl:with-param name="content" select="properties/stringProperty[@name='place']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
                 <!-- Attenders -->
                 <xsl:call-template name="generate_trace_row">
                     <xsl:with-param name="label"   select="$proteus:lang_attenders"/>
                     <xsl:with-param name="content" select="traces/traceProperty[@name='attenders']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
                 <!-- Results -->
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"   select="$proteus:lang_results"/>
                     <xsl:with-param name="content" select="properties/markdownProperty[@name='results']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
                 <!-- Comments -->

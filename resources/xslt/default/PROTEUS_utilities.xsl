@@ -37,7 +37,17 @@
 
     <xsl:template name="generate_markdown">
         <xsl:param name="content" select="string(.)"/>
-        <xsl:value-of select="proteus-utils:glossary_highlight(proteus-utils:generate_markdown($content))" disable-output-escaping="yes"/>
+        <xsl:param name="glossary-items-highlight" select="true()"/>
+
+        <xsl:choose>
+            <xsl:when test="$glossary-items-highlight">
+                <xsl:value-of select="proteus-utils:glossary_highlight(proteus-utils:generate_markdown($content))" disable-output-escaping="yes"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
+            </xsl:otherwise>
+        </xsl:choose>
+        
     </xsl:template>
 
 
@@ -105,6 +115,7 @@
 
     <xsl:template name="generate_header">
         <xsl:param name="class" />
+        <xsl:param name="name"  select="properties/stringProperty[@name=':Proteus-name']"/>
         <xsl:param name="icon"  select="concat($class,'.png')"/>
         <xsl:param name="postfix"/>
         <xsl:param name="label"/>
@@ -118,7 +129,7 @@
                     <xsl:value-of select="$label"/>
                 </th>
                 <th class="name_column" colspan="{$span}">
-                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
+                    <xsl:value-of select="$name"/>
                     <xsl:if test="$postfix"><xsl:text> </xsl:text><xsl:value-of select="$postfix"/></xsl:if>
                 </th>
             </tr>
@@ -131,6 +142,7 @@
 
     <xsl:template name="generate_software_requirement_expanded_header">
         <xsl:param name="class" select="default"/>
+        <xsl:param name="name"  select="properties/stringProperty[@name=':Proteus-name']"/>
         <xsl:param name="postfix"/>
         <xsl:param name="span"  select="1"/>
 
@@ -142,6 +154,7 @@
 
         <xsl:call-template name="generate_header">
             <xsl:with-param name="class"   select="$class"/>
+            <xsl:with-param name="name"    select="$name"/>
             <xsl:with-param name="label"   select="$label"/>
             <xsl:with-param name="postfix" select="$postfix"/>
             <xsl:with-param name="span"    select="$span"/>

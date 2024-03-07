@@ -42,7 +42,7 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"     select="$proteus:lang_description"/>
                     <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                     <xsl:with-param name="span" select="$span" />
                 </xsl:call-template>
 
@@ -50,7 +50,7 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label" select="$proteus:lang_precondition" />
                     <xsl:with-param name="content" select="properties/markdownProperty[@name='precondition']" />
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                     <xsl:with-param name="span" select="$span" />
                 </xsl:call-template>
 
@@ -79,7 +79,7 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label" select="$proteus:lang_postcondition" />
                     <xsl:with-param name="content" select="properties/markdownProperty[@name='postcondition']" />
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                     <xsl:with-param name="span" select="$span" />
                 </xsl:call-template>
 

@@ -182,7 +182,7 @@ class PropertyInputFactory:
         elif isinstance(property, Trace):
             if property.max_targets_number != NO_TARGETS_LIMIT:
                 max_label = _("property_input.max_targets_label")
-                name = f"{name} ( {max_label} {property.max_targets_number})"
+                name = f"{name} ( {max_label} {property.max_targets_number} )"
 
         # Set the label text
         label.setText(name)

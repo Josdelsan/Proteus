@@ -39,7 +39,7 @@
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"     select="$proteus:lang_description"/>
                     <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
-                    <xsl:with-param name="mandatory" select="'true'"/>
+                    <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
                 <!-- Priority rows -->

@@ -35,6 +35,12 @@ archetype.class.stakeholder: "Parte interesada"
 archetype.class.meeting: "Reunión"
 archetype.class.archetype-link: "Enlace simbólico"
 archetype.class.traceability-matrix: "Matriz de rastreabilidad"
+archetype.class.object-type: "Objecto"
+archetype.class.association-type: "Asociación"
+archetype.class.association-role: "Rol"
+archetype.class.object-component: "Componente"
+archetype.class.object-attribute: "Atributo"
+archetype.class.object-invariant: "Invariante"
   
 # -----------------------------------------------------------------------
 # Categorías de propiedades
@@ -64,6 +70,9 @@ archetype.enum_choices.pending: "Pendiente"
 archetype.enum_choices.high: "Alta"
 archetype.enum_choices.medium: "Media"
 archetype.enum_choices.low: "Baja"
+archetype.enum_choices.variable: "Variable"
+archetype.enum_choices.constant: "Constante"
+archetype.enum_choices.derived: "Derivado"
 
   
 # -----------------------------------------------------------------------
@@ -73,6 +82,8 @@ archetype.tooltip.is-appendix: "Indica si es un apéndice."
 archetype.tooltip.is-glossary: "Indica si es un elemento de glosario."
 archetype.tooltip.file-info: "Seleccione un archivo gráfico de su sistema para copiarlo en la carpeta de recursos 'assets' del proyecto."
 archetype.tooltip.width-info: "Porcentaje del ancho de la página que ocupará el recurso."
+archetype.tooltip.is-abstract: "Este objecto es de tipo abstracto."
+archetype.tooltip.is-derived: "Esta asociación es una asociación derivada."
 
 # -----------------------------------------------------------------------
 # Nombre de propiedades
@@ -115,3 +126,14 @@ archetype.prop_name.width: "Ancho (%)"
 archetype.prop_name.link: "Enlace"
 archetype.prop_name.col-classes: "Columnas de la matriz"
 archetype.prop_name.row-classes: "Filas de la matriz"
+archetype.prop_name.is-abstract: "Abstracta"
+archetype.prop_name.is-derived: "Derivada"
+archetype.prop_name.natural-lang: "Lenguaje natural"
+archetype.prop_name.obj-constraint-lang: "Lenguaje de restricción"
+archetype.prop_name.base-type: "Tipo base"
+archetype.prop_name.supertype: "Supertipo"
+archetype.prop_name.type: "Tipo"
+archetype.prop_name.multiplicity-lower-bound: "Límite inferior"
+archetype.prop_name.multiplicity-upper-bound: "Límite superior"
+archetype.prop_name.kind-of-property: "Tipo de propiedad"
+archetype.prop_name.init-value: "Valor inicial"
