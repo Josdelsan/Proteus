@@ -29,7 +29,11 @@ from PyQt6.QtGui import QImage
 from PyQt6.QtCore import QByteArray, QBuffer, QIODevice, pyqtSlot
 
 # --------------------------------------------------------------------------
-# Project specific imports (starting from root)
+# Plugins imports
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Proteus imports
 # --------------------------------------------------------------------------
 
 from proteus.utils.config import Config

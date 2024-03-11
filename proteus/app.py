@@ -89,6 +89,7 @@ class ProteusApplication:
         log.info(f"{self.config.resources_directory = }")
         log.info(f"{self.config.icons_directory = }")
         log.info(f"{self.config.archetypes_directory = }")
+        log.info(f"{self.config.plugins_directory = }")
 
         # Create the application instance and set the excepthook
         # to handle uncaught exceptions in every thread.
@@ -145,7 +146,7 @@ class ProteusApplication:
         self.dynamic_icons.load_system_icons()
 
         # Load plugins
-        self.plugin_manager.load_plugins()
+        self.plugin_manager.load_plugins(self.config.plugins_directory)
 
         # Setup the request interceptor
         profile = QWebEngineProfile.defaultProfile()

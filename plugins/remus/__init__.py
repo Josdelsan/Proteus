@@ -16,9 +16,9 @@
 # Possible solutions:
 # - Force view reload after opening the project.
 
-from .document_interactions import DocumentInteractions
-from .glossary_handler import GlossaryHandler
-from .traceability_matrix_helper import TraceabilityMatrixHelper
+from remus.document_interactions import DocumentInteractions
+from remus.glossary_handler import GlossaryHandler
+from remus.traceability_matrix_helper import TraceabilityMatrixHelper
 
 def register(register_xslt_function, register_qwebchannel_class, register_proteus_component):
 

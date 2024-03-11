@@ -19,10 +19,14 @@ import pytest
 from lxml import etree as ET
 
 # --------------------------------------------------------------------------
-# Project specific imports (starting from root)
+# Plugin imports
 # --------------------------------------------------------------------------
 
-from .proteus_xslt_basics import generate_markdown
+from basics.proteus_xslt_basics import generate_markdown
+
+# --------------------------------------------------------------------------
+# Proteus imports
+# --------------------------------------------------------------------------
 
 # ==========================================================================
 # Tests

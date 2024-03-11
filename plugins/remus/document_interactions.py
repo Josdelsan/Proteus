@@ -20,7 +20,11 @@ from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMessageBox
 
 # --------------------------------------------------------------------------
-# Project specific imports
+# Plugin imports
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Proteus imports
 # --------------------------------------------------------------------------
 
 from proteus.utils.translator import Translator

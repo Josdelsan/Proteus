@@ -12,10 +12,13 @@
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
+
+import sys
 import logging
 import importlib
 import pkgutil
 from typing import Callable, Dict, Union, List
+from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third party imports
@@ -29,8 +32,6 @@ from proteus.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)
-
-PLUGINS_PACKAGE = "proteus.plugins"
 
 
 class PluginInterface:
@@ -60,7 +61,6 @@ class PluginManager(metaclass=SingletonMeta):
     ProteusComponents can also be registered with no specific use case if needed
     to access controller functionality.
     """
-
 
     # --------------------------------------------------------------------------
     # Method: __init__
@@ -104,9 +104,9 @@ class PluginManager(metaclass=SingletonMeta):
         """
         log.info(f"Importing plugin '{module_name}'")
         try:
-            return importlib.import_module(f"{PLUGINS_PACKAGE}.{module_name}")
-        except ModuleNotFoundError:
-            log.warning(f"Module '{module_name}' not found")
+            return importlib.import_module(module_name)
+        except ModuleNotFoundError as e:
+            log.warning(f"Module '{module_name}' not found: {e}")
             return None
 
     # --------------------------------------------------------------------------
@@ -206,29 +206,40 @@ class PluginManager(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def load_plugins(self) -> None:
+    def load_plugins(self, plugins_directory: Path) -> None:
         """
-        Load the plugins from the plugins directory. Iterate over the modules
+        Load the plugins from a plugins directory. Iterate over the modules
         in the plugins directory and try to import them. If the module is
         successfully imported, it will call the register function of the module
         to register the XSLT functions and QWebChannel classes.
         """
-        log.info(f"Loading PROTEUS plugins from plugins package '{PLUGINS_PACKAGE}'")
+        log.info(
+            f"Loading PROTEUS plugins from plugins directory '{plugins_directory.as_posix()}'"
+        )
 
         # Import the package
-        try:
-            plugins_package = importlib.import_module(PLUGINS_PACKAGE)
-        except ModuleNotFoundError:
-            log.error(f"Plugins package '{PLUGINS_PACKAGE}' not found")
+        if not plugins_directory.exists():
+            log.error(
+                f"Plugins directory '{plugins_directory.as_posix()}' does not exist"
+            )
             return
 
-        # Get the plugin modules from the package
+        # Include in sys.path the plugins directory
+        # NOTE: This is neccessary in order to import modules outside in directories outside
+        # the root package and use application modules in those plugins.
+        sys.path.append(plugins_directory.as_posix())
+
+        # Get the plugin modules from the directory
         plugins_modules = [
             module_name
-            for _, module_name, _ in pkgutil.iter_modules(plugins_package.__path__)
+            for _, module_name, _ in pkgutil.iter_modules(
+                [plugins_directory.as_posix()]
+            )
         ]
         if plugins_modules is None:
-            log.error(f"No modules found in plugins package '{PLUGINS_PACKAGE}'")
+            log.error(
+                f"No modules found in plugins directory '{plugins_directory.as_posix()}'"
+            )
             return
         else:
             log.info(f"Plugins found in plugins package: {plugins_modules}")

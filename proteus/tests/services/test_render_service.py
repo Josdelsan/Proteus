@@ -21,6 +21,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.utils.config import Config
 from proteus.services.render_service import RenderService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
@@ -108,7 +109,7 @@ def test_render(
     # Arrange -------------------------
 
     # TODO: Consider if it is worth to mock plugin_manager functions.
-    render_service.plugin_manager.load_plugins()
+    render_service.plugin_manager.load_plugins(Config().plugins_directory)
     render_service._namespace_configuration()
 
     # Mock StataManager get_current_document method

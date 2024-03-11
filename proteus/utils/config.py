@@ -78,6 +78,7 @@ DIRECTORIES: str = "directories"
 BASE_DIRECTORY: str = "base_directory"
 ARCHETYPES_DIRECTORY: str = "archetypes_directory"
 RESOURCES_DIRECTORY: str = "resources_directory"
+PLUGINS_DIRECTORY: str = "plugins_directory"
 ICONS_DIRECTORY: str = "icons_directory"
 XSLT_DIRECTORY: str = "xslt_directory"
 I18N_DIRECTORY: str = "i18n_directory"
@@ -104,6 +105,7 @@ class Config(metaclass=SingletonMeta):
     base_directory: Path = None
     resources_directory: Path = None
     archetypes_directory: Path = None
+    plugins_directory: Path = None
     icons_directory: Path = None
     xslt_directory: Path = None
     i18n_directory: Path = None
@@ -194,6 +196,9 @@ class Config(metaclass=SingletonMeta):
         )
         self.archetypes_directory: Path = (
             proteus.PROTEUS_APP_PATH / directories[ARCHETYPES_DIRECTORY]
+        )
+        self.plugins_directory: Path = (
+            proteus.PROTEUS_APP_PATH / directories[PLUGINS_DIRECTORY]
         )
         self.icons_directory: Path = (
             self.resources_directory / directories[ICONS_DIRECTORY]

@@ -7,8 +7,8 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-from .proteus_xslt_basics import generate_markdown, image_to_base64, current_document
-from .proteus_xslt_basics import ProteusBasicMethods
+from basics.proteus_xslt_basics import generate_markdown, image_to_base64, current_document
+from basics.proteus_xslt_basics import ProteusBasicMethods
 
 
 def register(register_xslt_function, register_qwebchannel_class, _):

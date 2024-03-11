@@ -24,13 +24,16 @@ import markdown
 from trieregex import TrieRegEx as TRE
 
 # --------------------------------------------------------------------------
-# Project specific imports
+# Plugin imports
+# --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Proteus imports
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import BooleanProperty
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.utils.events import (
     OpenProjectEvent,
@@ -38,6 +41,7 @@ from proteus.utils.events import (
     DeleteObjectEvent,
     ModifyObjectEvent,
 )
+
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -376,11 +380,12 @@ class GlossaryHandler(ProteusComponent):
             # Order the items by length so items that contain other items are processed first
             glossary_items = sorted(glossary_items, key=len, reverse=True)
 
-            tre = TRE(*glossary_items)
+            # Create the TrieRegEx object
+            trie = TRE(*glossary_items)
 
             # Create the pattern
             GlossaryHandler.pattern = re.compile(
-                rf"\b(?<!-){tre.regex()}(?!-)\b", re.IGNORECASE
+                rf"\b(?<!-){trie.regex()}(?!-)\b", re.IGNORECASE
             )
         except Exception as e:
             log.error(
