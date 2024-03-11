@@ -64,6 +64,8 @@ new_view_dialog.error.duplicated_view: "The view already exists"
 # Settings dialog
 # ---------------------------------------------------------------------------
 settings_dialog.title: "Proteus settings"
+
+settings_dialog.language.group: "Language"
 settings_dialog.language.label: "Select language:"
 settings_dialog.error.invalid_language: "Please select a valid language"
 
@@ -73,6 +75,9 @@ settings_dialog.default_repository.checkbox: "Uncheck to use a custom archetype 
 settings_dialog.error.repository.empty_path: "Please select a valid repository path"
 settings_dialog.error.repository.invalid_path: "The selected path does not exist"
 settings_dialog.error.repository.invalid_repository: "The selected path is not a valid archetype repository, see log file for more information about the error"
+
+settings_dialog.default_view.group: "Views"
+settings_dialog.default_view.label: "Default view:"
 
 settings_dialog.info.label: "The changes will be applied when you restart the application"
 

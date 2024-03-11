@@ -37,6 +37,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID
 from proteus.utils import ProteusIconType
 from proteus.utils.translator import Translator
+from proteus.utils.config import Config
 from proteus.utils.dynamic_icons import DynamicIcons
 from proteus.utils.plugin_manager import PluginManager
 from proteus.utils.events import (
@@ -133,6 +134,13 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         self.setTabsClosable(True)
 
         xsl_templates: list[str] = self._controller.get_project_templates()
+        # Move the current default view to the first position so it is the
+        # first tab to be displayed
+        current_default_view: str = Config().xslt_default_view
+        if current_default_view in xsl_templates:
+            xsl_templates.remove(current_default_view)
+            xsl_templates.insert(0, current_default_view)
+
         for xsl_template in xsl_templates:
             self.add_view(xsl_template)
 

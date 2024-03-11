@@ -127,7 +127,7 @@
     <xsl:template name="create-traceability-matrix-header">
         <xsl:param name="col-items"/>
         <th class="matrix_oid">
-            <img src="templates:///default/resources/images/traceabilityMatrix.png"/>
+            <img src="templates:///remus/resources/images/traceabilityMatrix.png"/>
             <xsl:text> </xsl:text>
             <span class="matriz_oid"><xsl:value-of select="properties/codeProperty[@name=':Proteus-code']"/></span>
             <br></br>
@@ -165,7 +165,7 @@
                 <xsl:choose>
                     <xsl:when test="$has-dependency = 'True'">
                         <xsl:attribute name="class">trace</xsl:attribute>
-                        <img class="trace" src="templates:///default/resources/images/traceabilityMatrixArrow.png"/>
+                        <img class="trace" src="templates:///remus/resources/images/traceabilityMatrixArrow.png"/>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:text>-</xsl:text>

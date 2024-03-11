@@ -17,6 +17,6 @@
     <document id="722GfFiezi5F"/>
   </documents>
   <xsl-templates>
-    <xsl-template name="default"/>
+    <xsl-template name="remus"/>
   </xsl-templates>
 </project>

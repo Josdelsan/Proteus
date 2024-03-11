@@ -23,6 +23,6 @@
     <document id="4PDqmhx9rXqS"/>
   </documents>
   <xsl-templates>
-    <xsl-template name="default"/>
+    <xsl-template name="remus"/>
   </xsl-templates>
 </project>

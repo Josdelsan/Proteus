@@ -34,7 +34,9 @@ from PyQt6.QtWidgets import (
 
 from proteus.model.archetype_manager import ArchetypeManager
 from proteus.utils.config import (
+    Config,
     SETTING_LANGUAGE,
+    SETTING_DEFAULT_VIEW,
     SETTING_CUSTOM_ARCHETYPE_REPOSITORY,
     SETTING_DEFAULT_ARCHETYPE_REPOSITORY,
     SETTING_USING_CUSTOM_REPOSITORY,
@@ -124,14 +126,16 @@ class SettingsDialog(ProteusDialog):
         # -------------------------------------------
         layout: QVBoxLayout = QVBoxLayout()
 
-        # Specific settings layouts
-        language_layout: QVBoxLayout = self.create_language_layout()
-        repository_layout: QVBoxLayout = self.create_repository_layout()
+        # Specific settings group boxes
+        language_box: QGroupBox = self.create_language_box()
+        repository_box: QGroupBox = self.create_repository_box()
+        view_box: QGroupBox = self.create_view_box()
 
         # Add the widgets to the layout
         layout.addWidget(setting_info_label)
-        layout.addLayout(language_layout)
-        layout.addLayout(repository_layout)
+        layout.addWidget(language_box)
+        layout.addWidget(repository_box)
+        layout.addWidget(view_box)
         layout.addStretch()
 
         self.set_content_layout(layout)
@@ -141,15 +145,15 @@ class SettingsDialog(ProteusDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : create_language_layout
-    # Description: Create the language layout
+    # Method     : create_language_box
+    # Description: Create the language group box
     # Date       : 25/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def create_language_layout(self) -> QVBoxLayout:
+    def create_language_box(self) -> QGroupBox:
         """
-        Create the language layout that contains the language label, combo
+        Create the language group box that contains the language label, combo
         box and error message label.
 
         It iterates over the i18n directory to get the available languages
@@ -173,7 +177,7 @@ class SettingsDialog(ProteusDialog):
             )
 
         # Set the current language
-        current_lang: str = self._config.current_config_file_user_settings.get(
+        current_lang: str = Config().current_config_file_user_settings.get(
             SETTING_LANGUAGE, None
         )
         assert (
@@ -193,20 +197,25 @@ class SettingsDialog(ProteusDialog):
         language_layout.addWidget(lang_label)
         language_layout.addWidget(self.language_combo)
         language_layout.addWidget(self.error_language_label)
-        language_layout.setContentsMargins(0, 0, 0, 0)
 
-        return language_layout
+        # Group box
+        language_group: QGroupBox = QGroupBox(
+            _("settings_dialog.language.group")
+        )
+        language_group.setLayout(language_layout)
+
+        return language_group
 
     # ---------------------------------------------------------------------
-    # Method     : create_repository_layout
-    # Description: Create the repository layout
+    # Method     : create_repository_box
+    # Description: Create the repository group box
     # Date       : 25/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
-    def create_repository_layout(self) -> QVBoxLayout:
+    def create_repository_box(self) -> QGroupBox:
         """
-        Create the repository layout that contains the default repository label,
+        Create the repository group box that contains the default repository label,
         combo box, custom repository checkbox, custom repository edit and error
         message label.
         """
@@ -220,7 +229,7 @@ class SettingsDialog(ProteusDialog):
 
         # Default repository combo
         self.default_repository_combo: QComboBox = QComboBox()
-        for repository in self._config.archetypes_repositories.keys():
+        for repository in Config().archetypes_repositories.keys():
             self.default_repository_combo.addItem(
                 _(f"settings.repository.{repository}", alternative_text=repository),
                 repository,
@@ -231,7 +240,7 @@ class SettingsDialog(ProteusDialog):
             )
 
         current_default_repository: str = (
-            self._config.current_config_file_user_settings.get(
+            Config().current_config_file_user_settings.get(
                 SETTING_DEFAULT_ARCHETYPE_REPOSITORY
             )
         )
@@ -245,13 +254,13 @@ class SettingsDialog(ProteusDialog):
             _("settings_dialog.default_repository.checkbox")
         )
         current_custom_repository: str = (
-            self._config.current_config_file_user_settings.get(
+            Config().current_config_file_user_settings.get(
                 SETTING_CUSTOM_ARCHETYPE_REPOSITORY, None
             )
         )
 
         using_custom_repository_str: str = (
-            self._config.current_config_file_user_settings.get(
+            Config().current_config_file_user_settings.get(
                 SETTING_USING_CUSTOM_REPOSITORY
             )
         )
@@ -288,17 +297,55 @@ class SettingsDialog(ProteusDialog):
         repository_layout.addWidget(self.custom_repository_edit)
         repository_layout.addWidget(self.error_default_repository_label)
 
-        # Group box and wrapper layout
+        # Group box
         default_repository_group: QGroupBox = QGroupBox(
             _("settings_dialog.default_repository.group")
         )
         default_repository_group.setLayout(repository_layout)
 
-        wrapper_layout: QVBoxLayout = QVBoxLayout()
-        wrapper_layout.addWidget(default_repository_group)
-        wrapper_layout.setContentsMargins(0, 0, 0, 0)
+        return default_repository_group
 
-        return wrapper_layout
+    # ---------------------------------------------------------------------
+    # Method     : create_view_box
+    # Description: Create the view group box
+    # Date       : 25/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def create_view_box(self) -> QGroupBox:
+        """
+        Create the view group box that contains the default view label and combo box.
+        """
+        # View layout
+        view_layout: QVBoxLayout = QVBoxLayout()
+
+        # Default view label
+        default_view_label: QLabel = QLabel(_("settings_dialog.default_view.label"))
+
+        # Default view combo
+        self.default_view_combo: QComboBox = QComboBox()
+        for view_name in self._controller.get_available_xslt():
+            self.default_view_combo.addItem(
+                _(f"xslt_templates.{view_name}", alternative_text=view_name),
+                view_name,
+            )
+
+        # Set the current view
+        current_default_view: str = Config().xslt_default_view
+        index: int = self.default_view_combo.findData(current_default_view)
+        self.default_view_combo.setCurrentIndex(index)
+
+        # Add the widgets to the layout
+        view_layout.addWidget(default_view_label)
+        view_layout.addWidget(self.default_view_combo)
+
+        # Group box
+        default_view_group: QGroupBox = QGroupBox(
+            _("settings_dialog.default_view.group")
+        )
+        default_view_group.setLayout(view_layout)
+
+        return default_view_group
 
     # ======================================================================
     # Validators
@@ -423,6 +470,10 @@ class SettingsDialog(ProteusDialog):
         language: str = self.language_combo.currentData()
         settings[SETTING_LANGUAGE] = language
 
+        # Store default view
+        default_view: str = self.default_view_combo.currentData()
+        settings[SETTING_DEFAULT_VIEW] = default_view
+
         # Store using custom repository
         using_custom_repository: bool = not self.default_repository_checkbox.isChecked()
         settings[SETTING_USING_CUSTOM_REPOSITORY] = str(using_custom_repository)
@@ -438,7 +489,7 @@ class SettingsDialog(ProteusDialog):
         # ---------------------
         # Save settings
         # ---------------------
-        self._config.save_user_settings(settings)
+        Config().save_user_settings(settings)
 
         # Close the form window
         self.close()

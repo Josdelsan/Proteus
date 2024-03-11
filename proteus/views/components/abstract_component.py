@@ -73,8 +73,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         self,
         parent: QWidget | None = None,
         controller: Controller = None,
-        config: Config = None,
-        translator: Translator = None,
         state_manager: StateManager = None,
         *args,
         **kwargs,
@@ -125,19 +123,6 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
             controller, Controller
         ), f"Controller instance is required to create a ProteusComponent, current value type: {type(controller)}"
         self._controller: Controller = controller
-
-        # Config ------------------
-        if config is None:
-            config = Config()
-        else:
-            log.debug(
-                f"Custom Config instance provided for ProteusComponent {self.__class__.__name__}"
-            )
-
-        assert isinstance(
-            config, Config
-        ), f"Config instance is required to create a ProteusComponent, current value type: {type(config)}"
-        self._config: Config = config
 
         # State manager ----------
         if state_manager is None:

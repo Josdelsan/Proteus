@@ -304,6 +304,10 @@ class Project(AbstractObject):
                     f"XSL template '{xsl_template_name}' is not in the system installation and will be ignored. It will not be saved later if the project is modified."
                 )
 
+        # Include the default template if it is not in the list
+        if Config().xslt_default_view not in xsl_templates:
+            xsl_templates.insert(0, Config().xslt_default_view)
+
         # Return XSL templates
         return xsl_templates
 

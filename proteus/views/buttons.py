@@ -472,6 +472,6 @@ class ArchetypeMenuButton(QToolButton):
         # Set minimum width based on the text
         font_metrics = QFontMetrics(self.font())
         text_width = font_metrics.averageCharWidth() * len(translated_name) + 20
-        text_width = max(text_width, 80) # Minimum width
+        text_width = max(text_width, 90) # Minimum width
         text_width = int(text_width*0.9) if text_width > 160 else text_width # Scale adjustment
         self.setMinimumWidth(text_width)

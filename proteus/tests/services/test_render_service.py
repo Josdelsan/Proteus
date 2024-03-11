@@ -10,8 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict
-
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
@@ -23,12 +21,6 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID
-from proteus.model.project import Project
-from proteus.model.object import Object
-from proteus.model.properties import Property, PropertyFactory
-from proteus.services.project_service import ProjectService
-from proteus.utils.plugin_manager import PluginManager
 from proteus.services.render_service import RenderService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
@@ -36,7 +28,7 @@ from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 # Fixtures
 # --------------------------------------------------------------------------
 
-DEFAULT_TEMPLATE = "default"
+DEFAULT_TEMPLATE = "remus"
 
 
 @pytest.fixture()

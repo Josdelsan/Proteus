@@ -72,9 +72,6 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
         # Initialize controller
         self.controller: Controller = controller
 
-        # Config variable
-        self._config: Config = Config()
-
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller)
         self.property: Property | Trace = property

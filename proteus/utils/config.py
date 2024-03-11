@@ -68,6 +68,7 @@ ICONS_FILE: str = "icons.xml"
 # Settings
 SETTINGS: str = "settings"
 SETTING_LANGUAGE: str = "language"
+SETTING_DEFAULT_VIEW: str = "default_view"
 SETTING_CUSTOM_ARCHETYPE_REPOSITORY: str = "custom_archetype_repository"
 SETTING_DEFAULT_ARCHETYPE_REPOSITORY: str = "default_archetype_repository"
 SETTING_USING_CUSTOM_REPOSITORY: str = "using_custom_archetype_repository"
@@ -115,6 +116,7 @@ class Config(metaclass=SingletonMeta):
     # XSLT templates ------------------
     xslt_routes: Dict[str, Path] = None
     xslt_dependencies: Dict[str, List[str]] = None
+    xslt_default_view: str = None
 
     # Language ------------------------
     language: str = None
@@ -158,11 +160,11 @@ class Config(metaclass=SingletonMeta):
             self._load_archetypes_repositories()
         )
 
-        # Application settings
-        self._setup_app_settings()
-
         # XSL template routes
         self.xslt_routes, self.xslt_dependencies = self._load_xslt_templates()
+
+        # Application settings
+        self._setup_app_settings()
 
         # Check application directories
         self._check_application_directories()
@@ -243,6 +245,16 @@ class Config(metaclass=SingletonMeta):
         # Language --------------------------------
         self.language: str = self.settings[SETTING_LANGUAGE]
         log.info(f"Using language '{self.language}'")
+
+        # Default view -----------------------------
+        self.xslt_default_view: str = self.settings[SETTING_DEFAULT_VIEW]
+
+        # Check if default view exists
+        if self.xslt_default_view not in self.xslt_routes:
+            log.error(
+                f"Default view '{self.xslt_default_view}' does not exist. Using first view found."
+            )
+            self.xslt_default_view = list(self.xslt_routes.keys())[0]
 
         # Default Archetype repository -------------
         default_archetype_repository: str = self.settings[
@@ -575,40 +587,12 @@ class Config(metaclass=SingletonMeta):
 
         log.info("  Archetypes directory OK")
 
-        # Check if projects archetypes exists
-        # assert (
-        #     self.archetypes_directory / "projects"
-        # ).is_dir(), f"PROTEUS archetypes projects directory '{self.archetypes_directory / 'projects'}' does not exist!"
-
-        # log.info("  Archetypes projects directory OK")
-
-        # # Check if documents archetypes exists
-        # assert (
-        #     self.archetypes_directory / "documents"
-        # ).is_dir(), f"PROTEUS archetypes document directory '{self.archetypes_directory / 'documents'}' does not exist!"
-
-        # log.info("  Archetypes documents directory OK")
-
-        # # Check if objects archetypes exists
-        # assert (
-        #     self.archetypes_directory / "objects"
-        # ).is_dir(), f"PROTEUS archetypes objects directory '{self.archetypes_directory / 'objects'}' does not exist!"
-
-        # log.info("  Archetypes objects directory OK")
-
         # Check if xslt directory exists
         assert (
             self.xslt_directory.is_dir()
         ), f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
 
         log.info("  XSLT directory OK")
-
-        # Check if default xsl templates exists in xslt dictionary
-        assert (
-            "default" in self.xslt_routes
-        ), f"PROTEUS xslt default template does not exist!"
-
-        log.info("  XSLT default template OK")
 
         # Check xsl templates loaded
         for template in self.xslt_routes:

@@ -21,7 +21,7 @@
 >
 
     <!-- Base URL for icons -->
-    <xsl:variable name="base_url_icons">templates:///default/resources/images/</xsl:variable>
+    <xsl:variable name="base_url_icons">templates:///remus/resources/images/</xsl:variable>
 
     <!-- ============================================= -->
     <!-- pagebreak template                            -->

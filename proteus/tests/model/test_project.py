@@ -437,7 +437,7 @@ def test_load_xsl_templates(sample_project: Project):
     Test Project load_xsl_templates method
     """
     # Expected xsl templates
-    expected_xsl_templates = ["default"]
+    expected_xsl_templates = ["remus"]
 
     # Parse and load XML into memory
     root: ET.Element = ET.parse(sample_project.path).getroot()
