@@ -74,6 +74,8 @@ class ExportHTML(ExportStrategy):
     def __init__(self, controller: Controller) -> None:
         super().__init__(controller)
 
+        self._controller = controller
+
         self._export_widget: QWidget = None
         self._path_input: DirectoryEdit = None
         self._folder_name_input: QLineEdit = None
@@ -135,9 +137,10 @@ class ExportHTML(ExportStrategy):
 
             # ------------------------------------------------------------------
             # Copy the current XSLT template folder excluding XSL and XML files
-            template_path: Path = Config().xslt_routes[current_view].parent
+            template = self._controller.get_template_by_name(current_view)
+
             shutil.copytree(
-                template_path,
+                template.path,
                 export_folder / "resources",
                 ignore=shutil.ignore_patterns("*.xsl", "*.xml"),
             )

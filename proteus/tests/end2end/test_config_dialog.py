@@ -78,13 +78,6 @@ def test_config_dialog_open(app, file_settings):
     # --------------------------------------------
     main_window: MainWindow = app
 
-    # Setup translator to allow access to available languages
-    translator = Translator()
-    config = Config()
-    translator.set_language(config.language)
-    translator.set_i18n_directory(config.i18n_directory)
-    translator.set_archetypes_directory(config.archetypes_directory)
-
     # Get config button
     settings_button = main_window.main_menu.settings_button
 

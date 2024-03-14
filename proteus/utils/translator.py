@@ -68,8 +68,7 @@ class Translator(metaclass=SingletonMeta):
         """
         # Proteus configuration
         self.current_language: str = None
-        self.i18n_directory: Path = None
-        self.archetypes_directory: Path = None
+        self.proteus_i18n_directory: Path = None
 
         # Properties
         self._available_languages = None
@@ -103,8 +102,7 @@ class Translator(metaclass=SingletonMeta):
         # Check if the language configuration is set
         assert (
             self.current_language is not None
-            and self.i18n_directory is not None
-            and self.archetypes_directory is not None
+            and self.proteus_i18n_directory is not None
         ), "Language configuration must be set before loading the translations."
 
         # If the available languages are already loaded, return them
@@ -113,7 +111,7 @@ class Translator(metaclass=SingletonMeta):
         else:
             # Build the path to the language configuration file
             language_config_file: Path = (
-                self.i18n_directory / LANGUAGE_CONFIG_FILE
+                self.proteus_i18n_directory / LANGUAGE_CONFIG_FILE
             )
 
             # Read the language configuration file
@@ -134,7 +132,7 @@ class Translator(metaclass=SingletonMeta):
                 # Check if the language path exists
                 if language_directory is not None:
                     language_directory_path: Path = (
-                        self.i18n_directory / language_directory
+                        self.proteus_i18n_directory / language_directory
                     )
                     if language_directory_path.exists():
                         available_languages.append(language_code)
@@ -270,79 +268,69 @@ class Translator(metaclass=SingletonMeta):
         self.current_language = language
 
     # --------------------------------------------------------------------------
-    # Method: set_i18n_directory
-    # Description: Set the i18n directory for the application.
+    # Method: set_proteus_i18n_directory
+    # Description: Set the proteus i18n directory for the application.
     # Date: 07/02/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def set_i18n_directory(self, i18n_directory: Path) -> None:
+    def set_proteus_i18n_directory(self, i18n_directory: Path) -> None:
         """
-        Set the i18n directory for the application.
+        Set the proteus i18n directory for the application.
         """
-        self.i18n_directory = i18n_directory
+        self.proteus_i18n_directory = i18n_directory
 
     # --------------------------------------------------------------------------
-    # Method: set_archetypes_directory
-    # Description: Set the archetypes directory for the application.
+    # Method: load_translations
+    # Description: Load the translations for the current language.
     # Date: 07/02/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def set_archetypes_directory(self, archetypes_directory: Path) -> None:
+    def load_translations(self, translations_directory: Path) -> bool:
         """
-        Set the archetypes directory for the application.
-        """
-        self.archetypes_directory = archetypes_directory
-
-    # --------------------------------------------------------------------------
-    # Method: load_system_translations
-    # Description: Load the system translations for the current language.
-    # Date: 07/02/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def load_system_translations(self) -> None:
-        """
-        Load the system translations for the current language based on the
-        configuration previously set.
+        Load the translations for the current language based on the
+        configuration previously set. Translations are loaded from the
+        translations directory provided.
 
         It reads the language configuration file and loads the translations
-        for the current language. It also loads the translations for the
-        archetypes repository.
-
-        If the current language is not found, it tries to load the default
-        language if it exists. If the default language is not found, it raises
-        an exception. Exception is never raised for archetypes translations.
+        for the current language. If the current language is not found, it
+        tries to load the default language if it exists.
 
         Language configuration must be set before calling this method.
+
+        :param translations_directory: Path to the translations directory.
+
+        :return: True if translations are loaded successfully, False otherwise.
         """
         # Check if the language configuration is set
         assert (
             self.current_language is not None
-            and self.i18n_directory is not None
-            and self.archetypes_directory is not None
+            and self.proteus_i18n_directory is not None
         ), "Language configuration must be set before loading the translations."
 
-        # Load system translations ---------------------------
-        system_lang_file: Path = self.i18n_directory / LANGUAGE_CONFIG_FILE
-        system_translations_directory: Path = self._read_config_file(system_lang_file)
-
-        assert (
-            system_translations_directory is not None
-        ), f"There was an error reading the language configuration file: {system_lang_file}. Could not find a valid language directory."
-
-        self._load_translations(system_translations_directory)
-
+        
         # Load archetype repository translations ----------------
-        archetype_lang_file: Path = (
-            self.archetypes_directory / "i18n" / LANGUAGE_CONFIG_FILE
+        lang_file: Path = (
+            translations_directory / LANGUAGE_CONFIG_FILE
         )
-        archetype_translations_directory: Path = self._read_config_file(
-            archetype_lang_file
+        _translations_directory: Path = self._read_config_file(
+            lang_file
         )
-        if archetype_translations_directory is not None:
-            self._load_translations(archetype_translations_directory)
+        if _translations_directory is not None:
+            try:
+                self._load_translations(_translations_directory)
+                return True
+            except Exception as e:
+                log.error(
+                    f"Error loading translations for language '{self.current_language}' in '{lang_file.as_posix()}' file: {e}"
+                )
+                return False
+        else:
+            log.warning(
+                f"Language directory not found for language '{self.current_language}' in '{lang_file}' file."
+            )
+            return False
 
     # --------------------------------------------------------------------------
     # Method: text

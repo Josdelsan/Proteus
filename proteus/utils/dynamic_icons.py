@@ -95,10 +95,6 @@ class DynamicIcons(metaclass=SingletonMeta):
         """
         Initializes the DynamicIcons class.
         """
-        # Proteus configuration
-        self.icons_directory: Path = None
-        self.archetypes_directory: Path = None
-
         # Icons variable
         self._icons_paths: Dict[ProteusIconType, Dict[str, Path]] = {}
 
@@ -198,56 +194,33 @@ class DynamicIcons(metaclass=SingletonMeta):
     # ==========================================================================
 
     # --------------------------------------------------------------------------
-    # Method: set_icons_directory
-    # Description: Set the i18n directory for the application.
-    # Date: 12/02/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def set_icons_directory(self, icons_directory: Path) -> None:
-        """
-        Set the icons directory for the application.
-        """
-        self.icons_directory = icons_directory
-
-    # --------------------------------------------------------------------------
-    # Method: set_archetypes_directory
-    # Description: Set the archetypes directory for the application.
-    # Date: 12/02/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def set_archetypes_directory(self, archetypes_directory: Path) -> None:
-        """
-        Set the archetypes directory for the application.
-        """
-        self.archetypes_directory = archetypes_directory
-
-    # --------------------------------------------------------------------------
-    # Method: load_system_icons
+    # Method: load_icons
     # Description: Load the system icons
     # Date: 12/02/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def load_system_icons(self) -> None:
+    def load_icons(self, icons_directory: Path, archetype_repository: bool = False) -> bool:
         """
-        Loads the system icons from the icons directory and the archetypes icons
-        from the archetypes directory.
+        Loads the icons from the given directory. Returns True if the icons
+        were loaded successfully, False otherwise.
+
+        :param icons_directory: Path to the icons directory.
+        :param archetype_repository: True if the icons are being loaded from the archetype repository, False otherwise.
+
+        :return: True if the icons were loaded successfully, False otherwise.
         """
-        assert (
-            self.icons_directory is not None and self.archetypes_directory is not None
-        ), "Icons and archetypes directories must be set before loading icons."
 
-        # Load system icons
-        self._load_icons(self.icons_directory)
-
-        # Load archetypes icons
-        archetype_icons_path: Path = self.archetypes_directory / "icons"
-
-        # Archetype repository may not have custom icons
-        if archetype_icons_path.exists():
-            self._load_icons(archetype_icons_path, archetype_repo_mode=True)
+        if icons_directory.exists() and icons_directory.is_dir():
+            try:
+                self._load_icons(icons_directory, archetype_repository)
+                return True
+            except Exception as e:
+                log.error(f"Error loading icons: {e}")
+                return False
+        else:
+            log.error(f"Icons directory '{icons_directory}' does not exist.")
+            return False
 
     # --------------------------------------------------------------------------
     # Method: icon_path

@@ -41,14 +41,6 @@ import proteus
 from proteus.utils.abstract_meta import SingletonMeta
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.utils import (
-    ENTRY_POINTS_TAG,
-    ENTRY_POINT_TAG,
-    DEPENCENCIES_TAG,
-    PLUGIN_DEPENDENCY_TAG,
-    NAME_ATTRIBUTE,
-    LANGUAGE_ATTRIBUTE,
-    FILE_ATTRIBUTE,
-    DEFAULT_ATTRIBUTE,
     RESOURCES_SEARCH_PATH,
     TEMPLATE_DUMMY_SEARCH_PATH,
     ASSETS_DUMMY_SEARCH_PATH,
@@ -62,8 +54,6 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 
 CONFIG_FILE: str = "proteus.ini"
-TEMPLATE_FILE: str = "template.xml"
-ICONS_FILE: str = "icons.xml"
 
 # Settings
 SETTINGS: str = "settings"
@@ -116,8 +106,6 @@ class Config(metaclass=SingletonMeta):
     using_custom_repository: bool = False
 
     # XSLT templates ------------------
-    xslt_routes: Dict[str, Path] = None
-    xslt_dependencies: Dict[str, List[str]] = None
     xslt_default_view: str = None
 
     # Language ------------------------
@@ -162,9 +150,6 @@ class Config(metaclass=SingletonMeta):
             self._load_archetypes_repositories()
         )
 
-        # XSL template routes
-        self.xslt_routes, self.xslt_dependencies = self._load_xslt_templates()
-
         # Application settings
         self._setup_app_settings()
 
@@ -194,6 +179,8 @@ class Config(metaclass=SingletonMeta):
         self.resources_directory: Path = (
             proteus.PROTEUS_APP_PATH / directories[RESOURCES_DIRECTORY]
         )
+
+        # -------
         self.archetypes_directory: Path = (
             proteus.PROTEUS_APP_PATH / directories[ARCHETYPES_DIRECTORY]
         )
@@ -253,13 +240,7 @@ class Config(metaclass=SingletonMeta):
 
         # Default view -----------------------------
         self.xslt_default_view: str = self.settings[SETTING_DEFAULT_VIEW]
-
-        # Check if default view exists
-        if self.xslt_default_view not in self.xslt_routes:
-            log.error(
-                f"Default view '{self.xslt_default_view}' does not exist. Using first view found."
-            )
-            self.xslt_default_view = list(self.xslt_routes.keys())[0]
+        log.info(f"Using default view '{self.xslt_default_view}'")
 
         # Default Archetype repository -------------
         default_archetype_repository: str = self.settings[
@@ -324,130 +305,6 @@ class Config(metaclass=SingletonMeta):
             using_custom_archetype_repository
         )
 
-    # --------------------------------------------------------------------------
-    # Method: _load_xslt_templates
-    # Description: Private method that loads XSLT templates from the xslt directory.
-    # Date: 10/10/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def _load_xslt_templates(self) -> Tuple[Dict[str, Path], Dict[str, List[str]]]:
-        """
-        Private method that creates a dictionary with the XSLT routes.
-
-        Returns:
-            xslt_routes (Dict[str,Path]): Dictionary with the XSLT Paths for each template to
-                the entry point file.
-            xslt_dependencies (Dict[str, List[str]]): Dictionary with the XSLT plugin dependencies
-                for each template.
-        """
-        # Initialize dictionaries
-        xslt_routes: Dict[str, Path] = {}
-        xslt_dependencies: Dict[str, List[str]] = {}
-
-        # Iterate over XSLT directory folders
-        for xslt_folder in self.xslt_directory.iterdir():
-            # Check if folder is a directory
-            if xslt_folder.is_file():
-                log.warning(
-                    f"Unexpected item in XSLT directory: {xslt_folder}. It will be ignored."
-                )
-                continue
-
-            # Look for the template.xml file inside the folder
-            template_file: Path = xslt_folder / TEMPLATE_FILE
-            if not template_file.exists():
-                log.error(
-                    f"XSLT template configuration file {template_file} does not exist! Check your XSLT directory."
-                )
-                continue
-
-            # Parse template file
-            template_tree: ET._ElementTree = ET.parse(template_file)
-            template_root: ET._Element = template_tree.getroot()
-
-            # Get the template name
-            template_name: str = template_root.get(NAME_ATTRIBUTE)
-
-            # Check name attribute is not empty
-            assert (
-                template_name is not None and template_name != ""
-            ), f"Name attribute not found in template tag for template {template_file}"
-
-            # ----------------------------
-            # Entry point file handling
-            # ----------------------------
-
-            # Set default entry point in case there is no entryPoints tag
-            entry_points: ET._Element = template_root.find(ENTRY_POINTS_TAG)
-
-            # Check entryPoints tag exists
-            assert (
-                entry_points is not None
-            ), f"'entryPoints' tag not found in template {template_name}"
-
-            entry_point_file: str = entry_points.get(DEFAULT_ATTRIBUTE)
-
-            # Iterate over entryPoints tag children to get the entryPoint for the current language or the default one
-            for entry_point in entry_points.findall(ENTRY_POINT_TAG):
-                # Get language and file attributes for the entryPoint tag
-                lang = entry_point.get(LANGUAGE_ATTRIBUTE)
-                file = entry_point.get(FILE_ATTRIBUTE)
-
-                # Check xml is well formed
-                assert (
-                    lang is not None and file is not None
-                ), f"Language or file attribute not found in entryPoint tag for template {template_name}"
-
-                # Add the template file to the dictionary if the language is the same as the application language
-                # Otherwise, add the default template file
-                if lang == self.language:
-                    entry_point_file = file
-
-            # Form the entry point file path
-            entry_point_file_path: Path = (
-                self.xslt_directory / xslt_folder / entry_point_file
-            )
-
-            # Check if the template entry point file exists
-            assert (
-                entry_point_file_path.exists()
-            ), f"XSLT template entry point file {entry_point_file} does not exist in {xslt_folder}!"
-
-            # Set the entry point file path
-            xslt_routes[template_name] = entry_point_file_path
-
-            # ----------------------------
-            # Template dependencies handling
-            # ----------------------------
-            # Initialize template dependencies list
-            template_dependencies: List[str] = []
-
-            # Get the dependencies tag
-            dependencies: ET._Element = template_root.find(DEPENCENCIES_TAG)
-
-            # Check dependencies tag exists
-            assert (
-                dependencies is not None
-            ), f"'dependencies' tag not found in template {template_name}"
-
-            # Iterate over dependencies tag children to get the pluginDependency
-            for dependency in dependencies.findall(PLUGIN_DEPENDENCY_TAG):
-                # Get name attribute for the pluginDependency tag
-                name = dependency.get(NAME_ATTRIBUTE)
-
-                # Check xml is well formed
-                assert (
-                    name is not None and name != ""
-                ), f"Name attribute not found in pluginDependency tag for template {template_name}"
-
-                # Add the template dependency to the list
-                template_dependencies.append(name)
-
-            # Add the template dependencies list to the dictionary
-            xslt_dependencies[template_name] = template_dependencies
-
-        return xslt_routes, xslt_dependencies
 
     # --------------------------------------------------------------------------
     # Method: _load_archetypes_repositories
@@ -598,16 +455,6 @@ class Config(metaclass=SingletonMeta):
         ), f"PROTEUS xslt directory '{self.xslt_directory}' does not exist!"
 
         log.info("  XSLT directory OK")
-
-        # Check xsl templates loaded
-        for template in self.xslt_routes:
-            assert self.xslt_routes[
-                template
-            ].exists(), (
-                f"PROTEUS xslt template '{self.xslt_routes[template]}' does not exist!"
-            )
-
-        log.info("  XSLT templates directories OK")
 
     # ==========================================================================
     # Public methods

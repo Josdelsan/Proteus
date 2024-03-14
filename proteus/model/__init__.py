@@ -91,3 +91,15 @@ DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 # Name prefix for cloned objects
 COPY_OF = str('archetype.copy-of')
 
+# XSLT templates config file tags and attributes
+XSLT_TEMPLATE_TAG            = "template"
+XSLT_ENTRY_POINTS_TAG        = "entryPoints"
+XSLT_ENTRY_POINT_TAG         = "entryPoint"
+XSLT_DEPENCENCIES_TAG        = "dependencies"
+XSLT_PLUGIN_DEPENDENCY_TAG   = "pluginDependency"
+
+XSLT_NAME_ATTRIBUTE      = "name"
+XSLT_LANGUAGE_ATTRIBUTE  = "language"
+XSLT_FILE_ATTRIBUTE      = "file"
+XSLT_DEFAULT_ATTRIBUTE   = "default"
+

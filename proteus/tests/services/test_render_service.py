@@ -22,6 +22,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.utils.config import Config
+from proteus.utils.plugin_manager import PluginManager
 from proteus.services.render_service import RenderService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
@@ -37,7 +38,8 @@ def render_service():
     """
     Fixture for RenderService object
     """
-    # Config object is not mocked
+    # Load plugins before creating the RenderService object
+    PluginManager().load_plugins(Config().plugins_directory)
     return RenderService()
 
 
@@ -77,7 +79,7 @@ def normalize_string(string: str) -> str:
 # Integration tests
 # --------------------------------------------------------------------------
 
-
+@pytest.mark.order(1)
 def test_get_xslt(render_service: RenderService):
     """
     Test for get_xslt method
@@ -108,10 +110,6 @@ def test_render(
     """
     # Arrange -------------------------
 
-    # TODO: Consider if it is worth to mock plugin_manager functions.
-    render_service.plugin_manager.load_plugins(Config().plugins_directory)
-    render_service._namespace_configuration()
-
     # Mock StataManager get_current_document method
     mocker.patch(
         "proteus.utils.state_manager.StateManager.get_current_document",
@@ -131,20 +129,23 @@ def test_render(
         html_string == example_html
     ), "Render result does not match with the expected result from the example HTML file"
 
-@pytest.mark.order(1)
+@pytest.mark.order(3)
 def test_render_error(mocker, render_service: RenderService, example_xml: ET.Element):
     """
     Test error handling when the XSLT transformation fails
     """
     # Arrange -------------------------
-    # Force transformation failure not loading plugin manager because
-    # default template requires a plugin function
+    
+    # Remove known function to force an error
+    ns = ET.FunctionNamespace("http://proteus.us.es/utils")
+    ns['current_document'] = lambda : None
+
     # Act -----------------------------
     html_string: str = render_service.render(example_xml, DEFAULT_TEMPLATE)
 
     # Assert --------------------------
 
-    error_string = "<errors><error>Unregistered function</error><error>runtime error, element 'variable'</error><error>Failed to evaluate the expression of variable 'currentDocumentId'.</error></errors>\n"
+    error_string = "<errors><error>Invalid expression</error><error>runtime error, element 'variable'</error><error>Failed to evaluate the expression of variable 'currentDocumentId'.</error></errors>\n"
 
     assert isinstance(
         html_string, str

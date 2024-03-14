@@ -253,13 +253,13 @@ class Object(AbstractObject):
         """
 
         # Parse and load XML into memory
-        root: ET.Element = ET.parse(self.path).getroot()
+        root: ET._Element = ET.parse(self.path).getroot()
 
         # Check root is not None
         assert root is not None, f"Root element is not valid in {self.path}."
 
         # Load children
-        children: ET.Element = root.find(CHILDREN_TAG)
+        children: ET._Element = root.find(CHILDREN_TAG)
 
         # Check whether it has children
         assert (
@@ -267,7 +267,7 @@ class Object(AbstractObject):
         ), f"PROTEUS object file {self.id} does not have a <{CHILDREN_TAG}> element."
 
         # Parse object's children
-        child: ET.Element
+        child: ET._Element
         for child in children:
             child_id: ProteusID = child.attrib[ID_ATTRIBUTE]
 
@@ -299,7 +299,7 @@ class Object(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def load_traces(self, root: ET.Element) -> None:
+    def load_traces(self, root: ET._Element) -> None:
         """
         It loads a PROTEUS object's traces from an XML root element.
         """
@@ -307,7 +307,7 @@ class Object(AbstractObject):
         assert root is not None, f"Root element is not valid in {self.path}."
 
         # Find <traces> element
-        traces_element: ET.Element = root.find(TRACES_TAG)
+        traces_element: ET._Element = root.find(TRACES_TAG)
 
         # If <traces> element is not found, ignore traces
         # TODO: Consider raising an exception. Now is prepared to avoid breaking
@@ -316,12 +316,12 @@ class Object(AbstractObject):
         self.traces: dict[str, Trace] = dict[str, Trace]()
         if traces_element is not None:
             # Find <traceProperty> elements
-            trace_property_elements: List[ET.Element] = traces_element.findall(
+            trace_property_elements: List[ET._Element] = traces_element.findall(
                 TRACE_PROPERTY_TAG
             )
 
             # Create a Trace object for each <traceProperty> element
-            trace_property_element: ET.Element
+            trace_property_element: ET._Element
             for trace_property_element in trace_property_elements:
                 trace_name: str = trace_property_element.attrib.get(NAME_ATTRIBUTE)
 
@@ -454,7 +454,7 @@ class Object(AbstractObject):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def generate_xml(self) -> ET.Element:
+    def generate_xml(self) -> ET._Element:
         """
         It generates an XML element for the object.
         """

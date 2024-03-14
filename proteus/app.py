@@ -109,8 +109,7 @@ class ProteusApplication:
         self.main_window = MainWindow(parent=None, controller=controller)
         self.main_window.show()
 
-        # Plugin dependencies check and load plugin components
-        self.check_plugins_dependencies()
+        # Load plugin components
         self.load_plugin_components()
 
         if self.project_path:
@@ -136,14 +135,18 @@ class ProteusApplication:
         """
         # Set translator configuration and load translations
         self.translator.set_language(self.config.language)
-        self.translator.set_i18n_directory(self.config.i18n_directory)
-        self.translator.set_archetypes_directory(self.config.current_archetype_repository)
-        self.translator.load_system_translations()
+        self.translator.set_proteus_i18n_directory(self.config.i18n_directory)
+        self.translator.load_translations(self.config.i18n_directory)
+        self.translator.load_translations(
+            self.config.current_archetype_repository / "i18n"
+        )
 
         # Set dynamic icons configuration and load icons
-        self.dynamic_icons.set_icons_directory(self.config.icons_directory)
-        self.dynamic_icons.set_archetypes_directory(self.config.current_archetype_repository)
-        self.dynamic_icons.load_system_icons()
+        self.dynamic_icons.load_icons(self.config.icons_directory)
+        self.dynamic_icons.load_icons(
+            self.config.current_archetype_repository / "icons",
+            archetype_repository=True,
+        )
 
         # Load plugins
         self.plugin_manager.load_plugins(self.config.plugins_directory)
@@ -161,27 +164,6 @@ class ProteusApplication:
             self.app.setStyleSheet(_stylesheet)
             del _stylesheet
 
-    # --------------------------------------------------------------------------
-    # Method: check_plugins_dependencies
-    # Description: Check if all the plugins dependencies are satisfied.
-    # Date: 08/01/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def check_plugins_dependencies(self) -> None:
-        """
-        Check if all the plugins dependencies are satisfied. Do not return
-        anything. If there is a dependency that is not satisfied, the
-        application will crash.
-        """
-        loaded_plugins: List[str] = self.plugin_manager.get_plugins()
-
-        for template, plugins in self.config.xslt_dependencies.items():
-            for plugin in plugins:
-                if plugin not in loaded_plugins:
-                    raise Exception(
-                        f"Plugin dependency not satisfied: '{plugin}' for template {template}. Current loaded plugins: {loaded_plugins}"
-                    )
 
     # --------------------------------------------------------------------------
     # Method: load_plugin_components

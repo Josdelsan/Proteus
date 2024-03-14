@@ -238,8 +238,6 @@ def test_add_project_template(
     """
     # Arrange -------------------------
     DUMMY_TEMPLATE = "example"
-    # Mock xlst_routes from Config class
-    Config().xslt_routes[DUMMY_TEMPLATE] = "dummy.path"
 
     # Check that the dummy template do not exist
     old_template_list = project_service.project.xsl_templates.copy()
@@ -257,26 +255,6 @@ def test_add_project_template(
     assert (
         DUMMY_TEMPLATE not in old_template_list
     ), f"{DUMMY_TEMPLATE} template should not exist in project template list before calling add_project_template, old list: {old_template_list}"
-
-
-def test_add_project_template_negative(
-    project_service: ProjectService,
-):
-    """
-    Test the add_project_template method negative case.
-    """
-    # Arrange -------------------------
-    NON_EXISTING_TEMPLATE = "non_existing_template"
-
-    # Act - Assert --------------------
-    # Check assertion error is raised
-    with pytest.raises(AssertionError):
-        project_service.add_project_template(NON_EXISTING_TEMPLATE)
-
-    # Check that the project template is not added
-    assert (
-        NON_EXISTING_TEMPLATE not in project_service.project.xsl_templates
-    ), f"Project template list should not contain {NON_EXISTING_TEMPLATE} template, current list: {project_service.project.xsl_templates}"
 
 
 @pytest.mark.parametrize(

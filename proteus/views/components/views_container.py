@@ -139,10 +139,15 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         current_default_view: str = Config().xslt_default_view
         if current_default_view in xsl_templates:
             xsl_templates.remove(current_default_view)
-            xsl_templates.insert(0, current_default_view)
+        xsl_templates.insert(0, current_default_view)
 
         for xsl_template in xsl_templates:
             self.add_view(xsl_template)
+
+        # Check at least one view is available
+        assert (
+            len(self.tabs) > 0
+        ), "Project selected templates and default template were not found in XSLT directory, there is no views to display!"
 
         # Create a button to add new views
         button_icon = DynamicIcons().icon(ProteusIconType.App, "add_view_icon")
@@ -176,6 +181,12 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         :param xslt_name: Name of the xslt file.
         """
+        if xslt_name not in self._controller.get_available_xslt():
+            log.error(
+                f"XSLT template {xslt_name} not found in the XSLT directory, view not added to the views container component."
+            )
+            return
+
         # Create browser
         browser: QWebEngineView = QWebEngineView(self)
         browser.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)

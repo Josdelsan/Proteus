@@ -294,19 +294,7 @@ class Project(AbstractObject):
         xsl_templates: List[str] = []
         for xsl_template_element in xsl_templates_element:
             xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTRIBUTE, None)
-
-            # NOTE: Templates that are not in the system installation are
-            #       ignored and not saved later
-            if xsl_template_name in Config().xslt_routes:
-                xsl_templates.append(xsl_template_name)
-            else:
-                log.warning(
-                    f"XSL template '{xsl_template_name}' is not in the system installation and will be ignored. It will not be saved later if the project is modified."
-                )
-
-        # Include the default template if it is not in the list
-        if Config().xslt_default_view not in xsl_templates:
-            xsl_templates.insert(0, Config().xslt_default_view)
+            xsl_templates.append(xsl_template_name)
 
         # Return XSL templates
         return xsl_templates

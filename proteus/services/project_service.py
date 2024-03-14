@@ -915,12 +915,6 @@ class ProjectService:
 
         :param template_name: The name of the template to add.
         """
-        # Check if the template exists in the app installation
-        xslt_routes: Dict[str, Path] = Config().xslt_routes
-        assert (
-            template_name in xslt_routes
-        ), f"XSLT file {template_name} not found in config file"
-
         self.project.xsl_templates.append(template_name)
         self.project.state = ProteusState.DIRTY
 

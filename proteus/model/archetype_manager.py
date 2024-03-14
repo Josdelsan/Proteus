@@ -169,7 +169,7 @@ class ArchetypeManager:
             ), f"Unexpected files or directories in {join(archetypes_dir, group_subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
-            objects_pointer_xml: ET._Element = ET.parse(objects_pointer_file)
+            objects_pointer_xml: ET._ElementTree = ET.parse(objects_pointer_file)
             objects_id_list: list[str] = [
                 child.attrib[ID_ATTRIBUTE] for child in objects_pointer_xml.getroot()
             ]
@@ -270,7 +270,7 @@ class ArchetypeManager:
             ), f"Unexpected files or directories in {join(archetypes_dir, subdir)}. Check the archetype directory structure."
 
             # Parse the XML file
-            document_pointer_xml: ET._Element = ET.parse(document_pointer_file)
+            document_pointer_xml: ET._ElementTree = ET.parse(document_pointer_file)
 
             # Get the id of the root document from document.xml
             document_id: str = document_pointer_xml.getroot().attrib[ID_ATTRIBUTE]

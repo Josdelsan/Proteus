@@ -47,6 +47,7 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
 from proteus.model.trace import Trace
+from proteus.model.template import Template
 
 from proteus.utils.events import (
     AddViewEvent,
@@ -661,7 +662,29 @@ class Controller:
         """
         Get the available xslt templates in the xslt folder.
         """
-        return self._render_service.get_available_xslt()
+        templates: List[Template] = self._render_service.get_templates()
+        return [template.name for template in templates]
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_template_by_name
+    # Description: Get templates loaded from the xslt directory.
+    # Date       : 14/03/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_template_by_name(self, template_name) -> Template:
+        """
+        Get template by name from the xslt directory.
+        """
+        templates: List[Template] = self._render_service.get_templates()
+
+        # Check the template exists
+        assert template_name in [
+            template.name for template in templates
+        ], f"Template {template_name} does not exist in the xslt directory!"
+
+        return next(template for template in templates if template.name == template_name)
+
 
     # ----------------------------------------------------------------------
     # Method     : get_project_templates
@@ -695,6 +718,14 @@ class Controller:
         :param template_name: The name of the template to add.
         """
         log.info(f"Adding '{template_name}' template to the project")
+
+        # Get the available templates to check if the template exists
+        loaded_templates: List[Template] = self._render_service.get_templates()
+
+        # Check the template exists
+        assert template_name in [
+            template.name for template in loaded_templates
+        ], f"Template {template_name} does not exist in the xslt directory!"
 
         self._project_service.add_project_template(template_name)
 

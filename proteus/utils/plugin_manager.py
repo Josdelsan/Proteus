@@ -89,13 +89,13 @@ class PluginManager(metaclass=SingletonMeta):
         self._proteus_components: Dict[str, Callable] = {}
 
     # --------------------------------------------------------------------------
-    # Method: import_plugin
+    # Method: _import_plugin
     # Description: Import a module given a module name.
     # Date: 03/01/2023
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def import_plugin(self, module_name: str) -> Union[PluginInterface, None]:
+    def _import_plugin(self, module_name: str) -> Union[PluginInterface, None]:
         """
         Import a plugin given a module name. If the module is not found, it
         returns None.
@@ -110,98 +110,8 @@ class PluginManager(metaclass=SingletonMeta):
             return None
 
     # --------------------------------------------------------------------------
-    # Method: register_xslt_function
-    # Description: Register an XSLT function in the plugin manager.
-    # Date: 03/01/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def register_xslt_function(self, name: str, function: Callable) -> None:
-        """
-        Register an XSLT function in the plugin manager. If there is already a
-        function registered with the same name, it will be ignored.
-
-        It validates if the function is callable.
-
-        :param name: Name of the XSLT function.
-        :param function: Function to register.
-        """
-        # Validate the function
-        if not callable(function):
-            log.error(f"XSLT function '{name}' is not callable, ignoring it")
-            return
-
-        # Register the function
-        if name in self._xslt_functions:
-            log.error(f"XSLT function '{name}' already registered, ignoring it")
-            return
-
-        log.info(f"Registering XSLT function '{name}'")
-        self._xslt_functions[name] = function
-
-    # --------------------------------------------------------------------------
-    # Method: register_qwebchannel_class
-    # Description: Register a QWebChannel class in the plugin manager.
-    # Date: 03/01/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def register_qwebchannel_class(self, name: str, class_: Callable) -> None:
-        """
-        Register a QWebChannel class in the plugin manager. If there is already a
-        class registered with the same name, it will be ignored.
-
-        It validates if the class is callable.
-
-        :param class_: Class to register.
-        """
-        # Validate the class
-        if not callable(class_):
-            log.error(f"QWebChannel class '{name}' is not callable, ignoring it")
-            return
-
-        # Register the class
-        if name in self._qwebchannel_classes:
-            log.error(f"QWebChannel class '{name}' already registered, ignoring it")
-            return
-
-        log.info(f"Registering QWebChannel class '{name}'")
-        self._qwebchannel_classes[name] = class_
-
-    # --------------------------------------------------------------------------
-    # Method: register_proteus_component
-    # Description: Register a ProteusComponent class in the plugin manager.
-    # Date: 09/01/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def register_proteus_component(self, name: str, class_: Callable) -> None:
-        """
-        Register a ProteusComponent class in the plugin manager. If there is already a
-        class registered with the same name, it will be ignored.
-
-        It validates if the class is callable.
-
-        :param class_: Class to register.
-        """
-        # Validate the class
-        if not callable(class_):
-            log.error(f"ProteusComponent class '{name}' is not callable, ignoring it")
-            return
-
-        # Register the class
-        if name in self._proteus_components:
-            log.error(
-                f"ProteusComponent class '{name}' already registered, ignoring it"
-            )
-            return
-
-        log.info(f"Registering ProteusComponent class '{name}'")
-        self._proteus_components[name] = class_
-
-    # --------------------------------------------------------------------------
     # Method: load_plugins
-    # Description: Load the plugins from the plugins directory.
+    # Description: Load the plugins from a plugins directory.
     # Date: 03/01/2023
     # Version: 0.1
     # Author: José María Delgado Sánchez
@@ -212,6 +122,8 @@ class PluginManager(metaclass=SingletonMeta):
         in the plugins directory and try to import them. If the module is
         successfully imported, it will call the register function of the module
         to register the XSLT functions and QWebChannel classes.
+
+        :param plugins_directory: Path to the plugins directory.
         """
         log.info(
             f"Loading PROTEUS plugins from plugins directory '{plugins_directory.as_posix()}'"
@@ -247,7 +159,7 @@ class PluginManager(metaclass=SingletonMeta):
         # Iterate over the modules in the plugins directory
         for module_name in plugins_modules:
             # Import the module
-            module = self.import_plugin(module_name)
+            module = self._import_plugin(module_name)
 
             if module is None:
                 continue
@@ -320,3 +232,100 @@ class PluginManager(metaclass=SingletonMeta):
         Get the plugins loaded in the plugin manager.
         """
         return list(self._plugins.keys())
+
+
+    # ==========================================================================
+    # Register methods (used by plugins)
+    # ==========================================================================
+
+    # --------------------------------------------------------------------------
+    # Method: register_xslt_function
+    # Description: Register an XSLT function in the plugin manager.
+    # Date: 03/01/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def register_xslt_function(self, name: str, function: Callable) -> None:
+        """
+        Register an XSLT function in the plugin manager. If there is already a
+        function registered with the same name, it will be ignored.
+
+        It validates if the function is callable.
+
+        :param name: Name of the XSLT function.
+        :param function: Function to register.
+        """
+        # Validate the function
+        if not callable(function):
+            log.error(f"XSLT function '{name}' is not callable, ignoring it")
+            return
+
+        # Register the function
+        if name in self._xslt_functions:
+            log.error(f"XSLT function '{name}' already registered, ignoring it")
+            return
+
+        log.info(f"Registering XSLT function '{name}'")
+        self._xslt_functions[name] = function
+
+    # --------------------------------------------------------------------------
+    # Method: register_qwebchannel_class
+    # Description: Register a QWebChannel class in the plugin manager.
+    # Date: 03/01/2023
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def register_qwebchannel_class(self, name: str, class_: Callable) -> None:
+        """
+        Register a QWebChannel class in the plugin manager. If there is already a
+        class registered with the same name, it will be ignored.
+
+        It validates if the class is callable.
+
+        :param name: Name of the QWebChannel class.
+        :param class_: Class to register.
+        """
+        # Validate the class
+        if not callable(class_):
+            log.error(f"QWebChannel class '{name}' is not callable, ignoring it")
+            return
+
+        # Register the class
+        if name in self._qwebchannel_classes:
+            log.error(f"QWebChannel class '{name}' already registered, ignoring it")
+            return
+
+        log.info(f"Registering QWebChannel class '{name}'")
+        self._qwebchannel_classes[name] = class_
+
+    # --------------------------------------------------------------------------
+    # Method: register_proteus_component
+    # Description: Register a ProteusComponent class in the plugin manager.
+    # Date: 09/01/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def register_proteus_component(self, name: str, class_: Callable) -> None:
+        """
+        Register a ProteusComponent class in the plugin manager. If there is already a
+        class registered with the same name, it will be ignored.
+
+        It validates if the class is callable.
+
+        :param name: Name of the ProteusComponent class.
+        :param class_: Class to register.
+        """
+        # Validate the class
+        if not callable(class_):
+            log.error(f"ProteusComponent class '{name}' is not callable, ignoring it")
+            return
+
+        # Register the class
+        if name in self._proteus_components:
+            log.error(
+                f"ProteusComponent class '{name}' already registered, ignoring it"
+            )
+            return
+
+        log.info(f"Registering ProteusComponent class '{name}'")
+        self._proteus_components[name] = class_
