@@ -23,7 +23,7 @@ from lxml import etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.trace import Trace
 from proteus.model.project import Project

@@ -28,7 +28,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ASSETS_REPOSITORY
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons, ProteusIconType
 

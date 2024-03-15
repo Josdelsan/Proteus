@@ -42,7 +42,7 @@ from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_repository import ArchetypeRepository
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures
@@ -80,7 +80,7 @@ def sample_archetype_document() -> Object:
     Fixture that returns a PROTEUS sample archetype document object.
     """
     archetype_list: list[Object] = ArchetypeRepository.load_document_archetypes(
-        Config().current_archetype_repository
+        Config().profile_settings.selected_archetype_repository_path
     )
     return archetype_list[0]
 
@@ -91,7 +91,7 @@ def sample_archetype_object() -> Object:
     Fixture that returns a PROTEUS sample archetype object object.
     """
     archetype_type_dict = ArchetypeRepository.load_object_archetypes(
-        Config().current_archetype_repository
+        Config().profile_settings.selected_archetype_repository_path
     )
     # Known archetype type general (00_general directory)
     archetype_class_dict = archetype_type_dict["general"]

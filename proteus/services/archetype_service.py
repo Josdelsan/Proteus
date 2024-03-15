@@ -21,7 +21,7 @@ from typing import Union, List, Dict
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -81,7 +81,7 @@ class ArchetypeService:
         if self._project_archetypes is None:
             # Load project archetypes using ArchetypeRepository
             self._project_archetypes = ArchetypeRepository.load_project_archetypes(
-                archetypes_folder=Config().current_archetype_repository
+                archetypes_folder=Config().profile_settings.selected_archetype_repository_path
             )
 
             # Check that the list of project archetypes is a list
@@ -117,7 +117,7 @@ class ArchetypeService:
         if self._document_archetypes is None:
             # Load document archetypes using the ArchetypeRepository
             self._document_archetypes = ArchetypeRepository.load_document_archetypes(
-                archetypes_folder=Config().current_archetype_repository
+                archetypes_folder=Config().profile_settings.selected_archetype_repository_path
             )
 
             # Check that the list of document archetypes is a list
@@ -153,7 +153,7 @@ class ArchetypeService:
         if self._object_archetypes is None:
             # Load object archetypes using the ArchetypeRepository
             self._object_archetypes = ArchetypeRepository.load_object_archetypes(
-                archetypes_folder=Config().current_archetype_repository
+                archetypes_folder=Config().profile_settings.selected_archetype_repository_path
             )
 
             # Check that the dict of object archetypes is a dict

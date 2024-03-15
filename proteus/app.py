@@ -29,7 +29,7 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_LOGGING_DIR
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons
@@ -86,11 +86,6 @@ class ProteusApplication:
         log.info(f"Home directory: {Path.home()}")
         log.info(f"{Path(__file__) = }")
 
-        log.info(f"{self.config.resources_directory = }")
-        log.info(f"{self.config.icons_directory = }")
-        log.info(f"{self.config.archetypes_directory = }")
-        log.info(f"{self.config.plugins_directory = }")
-
         # Create the application instance and set the excepthook
         # to handle uncaught exceptions in every thread.
         sys.excepthook = self.excepthook
@@ -101,8 +96,8 @@ class ProteusApplication:
         # app_font.setPointSize(app_font.pointSize() + 2)
         # self.app.setFont(app_font)
 
-        # Initial configuration
-        self.initial_configuration()
+        # Initial setup
+        self.initial_setup()
 
         # Create the main window
         controller = Controller()
@@ -120,50 +115,54 @@ class ProteusApplication:
         sys.exit(self.app.exec())
 
     # --------------------------------------------------------------------------
-    # Method: initial_configuration
+    # Method: initial_setup
     # Description: Initial configuration of the application.
     # Date: 12/02/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def initial_configuration(self) -> None:
+    def initial_setup(self) -> None:
         """
         Initial configuration that must be done before the app start.
 
-        It handles initialization of translator, dynamic icons, plugins,
+        It handles initialization of translator, icons, plugins,
         request interceptor and stylesheet
         """
-        # Set translator configuration and load translations
-        self.translator.set_language(self.config.language)
-        self.translator.set_proteus_i18n_directory(self.config.i18n_directory)
-        self.translator.load_translations(self.config.i18n_directory)
-        self.translator.load_translations(
-            self.config.current_archetype_repository / "i18n"
+        # App settings resources ------------------------------
+        self.translator.set_language(self.config.app_settings.language)
+        self.translator.set_proteus_i18n_directory(
+            self.config.app_settings.i18n_directory
         )
+        self.translator.load_translations(self.config.app_settings.i18n_directory)
+        self.dynamic_icons.load_icons(self.config.app_settings.icons_directory)
 
-        # Set dynamic icons configuration and load icons
-        self.dynamic_icons.load_icons(self.config.icons_directory)
-        self.dynamic_icons.load_icons(
-            self.config.current_archetype_repository / "icons",
-            archetype_repository=True,
+        # Profile resources -----------------------------------
+        self.translator.load_translations(self.config.profile_settings.i18n_directory)
+        self.dynamic_icons.load_icons(self.config.profile_settings.icons_directory)
+        self.plugin_manager.load_plugins(self.config.profile_settings.plugins_directory)
+
+        # Selected archetype repository specific resources
+        selected_archetype_repository_path = (
+            self.config.profile_settings.selected_archetype_repository_path
         )
+        self.translator.load_translations(selected_archetype_repository_path / "i18n")
+        self.dynamic_icons.load_icons(selected_archetype_repository_path / "icons")
 
-        # Load plugins
-        self.plugin_manager.load_plugins(self.config.plugins_directory)
-
-        # Setup the request interceptor
+        # Setup the request interceptor -----------------------
         profile = QWebEngineProfile.defaultProfile()
         profile.setUrlRequestInterceptor(self.request_interceptor)
         self.app.aboutToQuit.connect(self.request_interceptor.stop_server)
 
-        # Set application style sheet
+        # Set application style sheet -------------------------
         with open(
-            self.config.resources_directory / "stylesheets" / "proteus.qss", "r"
+            self.config.app_settings.resources_directory
+            / "stylesheets"
+            / "proteus.qss",
+            "r",
         ) as f:
             _stylesheet = f.read()
             self.app.setStyleSheet(_stylesheet)
             del _stylesheet
-
 
     # --------------------------------------------------------------------------
     # Method: load_plugin_components

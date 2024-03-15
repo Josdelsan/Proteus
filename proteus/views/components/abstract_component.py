@@ -25,7 +25,7 @@ from PyQt6.QtWidgets import QWidget
 # --------------------------------------------------------------------------
 
 from proteus.application.utils.abstract_meta import AbstractObjectMeta
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.application.state_manager import StateManager
 from proteus.application.resources.translator import Translator
 from proteus.controller.command_stack import Controller
@@ -90,10 +90,8 @@ class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
         component. When other parameters are not provided, they will be
         called with the default constructor to access the singleton instance.
 
-        :param controller: Controller instance.
         :param parent: Parent QWidget.
-        :param config: App configuration instance.
-        :param translator: Translator instance.
+        :param controller: Controller instance.
         :param state_manager: State manager instance.
         """
         super(ProteusComponent, self).__init__(parent, *args, **kwargs)

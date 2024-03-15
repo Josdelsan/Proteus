@@ -33,13 +33,19 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model.archetype_repository import ArchetypeRepository
-from proteus.application.config import (
+from proteus.application.configuration.config import (
     Config,
-    SETTING_LANGUAGE,
+)
+from proteus.application.configuration.profile_settings import (
+    ProfileSettings,
     SETTING_DEFAULT_VIEW,
-    SETTING_CUSTOM_ARCHETYPE_REPOSITORY,
     SETTING_DEFAULT_ARCHETYPE_REPOSITORY,
-    SETTING_USING_CUSTOM_REPOSITORY,
+)
+from proteus.application.configuration.app_settings import (
+    AppSettings,
+    SETTING_LANGUAGE,
+    SETTING_USING_DEFAULT_PROFILE,
+    SETTING_CUSTOM_PROFILE_PATH,
 )
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.icons import Icons, ProteusIconType
@@ -176,9 +182,7 @@ class SettingsDialog(ProteusDialog):
             )
 
         # Set the current language
-        current_lang: str = Config().current_config_file_user_settings.get(
-            SETTING_LANGUAGE, None
-        )
+        current_lang: str = Config().current_config_file_user_settings.get("", None)
         assert (
             current_lang is not None or current_lang == ""
         ), f"Error getting current language from configuration"
@@ -198,9 +202,7 @@ class SettingsDialog(ProteusDialog):
         language_layout.addWidget(self.error_language_label)
 
         # Group box
-        language_group: QGroupBox = QGroupBox(
-            _("settings_dialog.language.group")
-        )
+        language_group: QGroupBox = QGroupBox(_("settings_dialog.language.group"))
         language_group.setLayout(language_layout)
 
         return language_group
@@ -239,9 +241,7 @@ class SettingsDialog(ProteusDialog):
             )
 
         current_default_repository: str = (
-            Config().current_config_file_user_settings.get(
-                SETTING_DEFAULT_ARCHETYPE_REPOSITORY
-            )
+            Config().current_config_file_user_settings.get("")
         )
 
         self.default_repository_combo.setCurrentIndex(
@@ -252,16 +252,14 @@ class SettingsDialog(ProteusDialog):
         self.default_repository_checkbox: QCheckBox = QCheckBox(
             _("settings_dialog.default_repository.checkbox")
         )
-        current_custom_repository: str = (
-            Config().current_config_file_user_settings.get(
-                SETTING_CUSTOM_ARCHETYPE_REPOSITORY, None
-            )
+        current_custom_repository: str = Config().current_config_file_user_settings.get(
+            "SETTING_CUSTOM_ARCHETYPE_REPOSITORY", None
         )
 
-        using_custom_repository_str: str = (
-            Config().current_config_file_user_settings.get(
-                SETTING_USING_CUSTOM_REPOSITORY
-            )
+        using_custom_repository_str: (
+            str
+        ) = Config().current_config_file_user_settings.get(
+            "SETTING_USING_CUSTOM_REPOSITORY"
         )
         using_custom_repository: bool = using_custom_repository_str == "True"
 
@@ -330,7 +328,7 @@ class SettingsDialog(ProteusDialog):
             )
 
         # Set the current view
-        current_default_view: str = Config().xslt_default_view
+        current_default_view: str = Config().profile_setting.selected_view
         index: int = self.default_view_combo.findData(current_default_view)
         self.default_view_combo.setCurrentIndex(index)
 
@@ -466,24 +464,24 @@ class SettingsDialog(ProteusDialog):
         settings: Dict[str, str] = {}
 
         # Store language
-        language: str = self.language_combo.currentData()
-        settings[SETTING_LANGUAGE] = language
+        # language: str = self.language_combo.currentData()
+        # settings[SETTING_LANGUAGE] = language
 
-        # Store default view
-        default_view: str = self.default_view_combo.currentData()
-        settings[SETTING_DEFAULT_VIEW] = default_view
+        # # Store default view
+        # default_view: str = self.default_view_combo.currentData()
+        # settings[SETTING_DEFAULT_VIEW] = default_view
 
-        # Store using custom repository
-        using_custom_repository: bool = not self.default_repository_checkbox.isChecked()
-        settings[SETTING_USING_CUSTOM_REPOSITORY] = str(using_custom_repository)
+        # # Store using custom repository
+        # using_custom_repository: bool = not self.default_repository_checkbox.isChecked()
+        # settings[SETTING_USING_CUSTOM_REPOSITORY] = str(using_custom_repository)
 
-        # Store default repository
-        default_repository: str = self.default_repository_combo.currentData()
-        settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY] = default_repository
+        # # Store default repository
+        # default_repository: str = self.default_repository_combo.currentData()
+        # settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY] = default_repository
 
-        # Store custom repository
-        repository_path = self.custom_repository_edit.directory()
-        settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] = str(repository_path)
+        # # Store custom repository
+        # repository_path = self.custom_repository_edit.directory()
+        # settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] = str(repository_path)
 
         # ---------------------
         # Save settings

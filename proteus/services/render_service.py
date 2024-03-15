@@ -26,7 +26,7 @@ import lxml.etree as ET
 
 from proteus.model.template import Template
 from proteus.application.resources.plugins import Plugins
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -107,7 +107,7 @@ class RenderService:
         loaded_plugins: List[str] = Plugins().get_plugins()
 
         # Iterate over XSLT directory folders
-        for xslt_folder in Config().xslt_directory.iterdir():
+        for xslt_folder in Config().profile_settings.xslt_directory.iterdir():
             # Check if folder is a directory
             if xslt_folder.is_file():
                 log.warning(
@@ -160,8 +160,8 @@ class RenderService:
             # Use the default entrypoint if the language is not found
             template = self._templates[template_name]
             entrypoint: Path
-            if Config().language in template.entrypoints:
-                entrypoint = template.entrypoints[Config().language]
+            if Config().app_settings.language in template.entrypoints:
+                entrypoint = template.entrypoints[Config().app_settings.language]
             else:
                 entrypoint = template.default_entrypoint
 

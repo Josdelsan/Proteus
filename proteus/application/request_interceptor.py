@@ -33,7 +33,7 @@ from PyQt6.QtCore import QUrl
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application import TEMPLATE_DUMMY_SEARCH_PATH, ASSETS_DUMMY_SEARCH_PATH
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
             # Based on the search path, get the resource directory
             resource_directory: str = None
             if TEMPLATE_DUMMY_SEARCH_PATH == search_path:
-                resource_directory = Config().xslt_directory.as_posix()
+                resource_directory = Config().profile_settings.xslt_directory.as_posix()
             elif ASSETS_DUMMY_SEARCH_PATH == search_path:
                 resource_directory = (
                     f"{Config().current_project_path}/{ASSETS_REPOSITORY}"

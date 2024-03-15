@@ -21,7 +21,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.config import Config
+from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.services.render_service import RenderService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH

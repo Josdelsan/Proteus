@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import QDialogButtonBox
 # --------------------------------------------------------------------------
 
 from proteus.application.resources.translator import Translator
-from proteus.application.config import (
+from proteus.application.configuration.config import (
     Config,
     SETTINGS,
     SETTING_LANGUAGE,
@@ -175,7 +175,7 @@ def test_config_dialog_change_settings(app, file_settings):
 
     # Change settings
     new_language = "es_ES"
-    new_archetype_repository = Config().current_archetype_repository.as_posix()
+    new_archetype_repository = Config().profile_settings.selected_archetype_repository_path.as_posix()
 
     # Open config dialog
     dialog: SettingsDialog = get_dialog(settings_button.click)
