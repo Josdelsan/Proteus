@@ -25,7 +25,7 @@ from lxml import etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)

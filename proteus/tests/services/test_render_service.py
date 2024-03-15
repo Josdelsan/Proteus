@@ -21,8 +21,8 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
-from proteus.utils.plugin_manager import PluginManager
+from proteus.application.config import Config
+from proteus.application.resources.plugins import Plugins
 from proteus.services.render_service import RenderService
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 
@@ -39,7 +39,7 @@ def render_service():
     Fixture for RenderService object
     """
     # Load plugins before creating the RenderService object
-    PluginManager().load_plugins(Config().plugins_directory)
+    Plugins().load_plugins(Config().plugins_directory)
     return RenderService()
 
 
@@ -101,7 +101,7 @@ def test_render(
     mocker, render_service: RenderService, example_xml: ET.Element, example_html: str
 ):
     """
-    Test for render method. PluginManager has to be loaded and namespace configuration
+    Test for render method. Plugins has to be loaded and namespace configuration
     has to be re-executed to test the render method.
 
     NOTE: The output HTML file does not load correctly the images, css and js because
@@ -112,7 +112,7 @@ def test_render(
 
     # Mock StataManager get_current_document method
     mocker.patch(
-        "proteus.utils.state_manager.StateManager.get_current_document",
+        "proteus.application.state_manager.StateManager.get_current_document",
         return_value="722GfFiezi5F",
     )
 

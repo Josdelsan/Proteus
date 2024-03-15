@@ -51,7 +51,7 @@ from proteus.model import (
     XLS_TEMPLATE_TAG,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.utils.config import Config
+from proteus.application.config import Config
 
 # if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object

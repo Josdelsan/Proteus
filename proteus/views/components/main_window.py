@@ -28,14 +28,13 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.utils import ProteusIconType
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
-from proteus.utils.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
-from proteus.utils.state_restorer import write_state_to_file
+from proteus.application.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
+from proteus.application.state_restorer import write_state_to_file
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow, ProteusComponent):
         self.setWindowTitle(_("main_window.title"))
 
         # Set the window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
         # Set the window size
@@ -319,7 +318,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-            proteus_icon = DynamicIcons().icon(
+            proteus_icon = Icons().icon(
                 ProteusIconType.App, "proteus_icon"
             )
             confirmation_dialog.setWindowIcon(proteus_icon)

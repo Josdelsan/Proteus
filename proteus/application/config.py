@@ -38,9 +38,9 @@ from PyQt6 import QtCore
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.abstract_meta import SingletonMeta
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
-from proteus.utils import (
+from proteus.application import (
     RESOURCES_SEARCH_PATH,
     TEMPLATE_DUMMY_SEARCH_PATH,
     ASSETS_DUMMY_SEARCH_PATH,
@@ -179,6 +179,13 @@ class Config(metaclass=SingletonMeta):
         self.resources_directory: Path = (
             proteus.PROTEUS_APP_PATH / directories[RESOURCES_DIRECTORY]
         )
+        self.icons_directory: Path = (
+            self.resources_directory / directories[ICONS_DIRECTORY]
+        )
+        
+        self.i18n_directory: Path = (
+            self.resources_directory / directories[I18N_DIRECTORY]
+        )
 
         # -------
         self.archetypes_directory: Path = (
@@ -187,15 +194,10 @@ class Config(metaclass=SingletonMeta):
         self.plugins_directory: Path = (
             proteus.PROTEUS_APP_PATH / directories[PLUGINS_DIRECTORY]
         )
-        self.icons_directory: Path = (
-            self.resources_directory / directories[ICONS_DIRECTORY]
-        )
         self.xslt_directory: Path = (
-            self.resources_directory / directories[XSLT_DIRECTORY]
+            proteus.PROTEUS_APP_PATH / directories[XSLT_DIRECTORY]
         )
-        self.i18n_directory: Path = (
-            self.resources_directory / directories[I18N_DIRECTORY]
-        )
+        
 
     # --------------------------------------------------------------------------
     # Method: _setup_qt_search_paths

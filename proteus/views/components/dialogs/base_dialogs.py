@@ -35,9 +35,8 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils import ProteusIconType
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 
 
@@ -96,7 +95,7 @@ class ProteusDialog(QDialog, ProteusComponent):
         # Dialog configuration --------------------
 
         # Icon may be overriden by the child class
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
         self._content_widget = QWidget()
@@ -113,7 +112,7 @@ class ProteusDialog(QDialog, ProteusComponent):
         self.reject_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
         self.reject_button.setText(_("dialog.reject_button"))
 
-        us_logo: QIcon = DynamicIcons().icon(ProteusIconType.App, "US-digital")
+        us_logo: QIcon = Icons().icon(ProteusIconType.App, "US-digital")
         us_logo_label: QLabel = QLabel()
         us_logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         us_logo_label.setPixmap(us_logo.pixmap(80, 80))
@@ -177,7 +176,7 @@ class MessageBox(QMessageBox):
     def __init__(self, parent, *args, **kwargs):
         super(MessageBox, self).__init__(parent, *args, **kwargs)
 
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
     # --------------------------------------------------------------------------

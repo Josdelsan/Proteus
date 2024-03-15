@@ -42,7 +42,7 @@ from proteus.model.trace import Trace
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_repository import ArchetypeRepository
-from proteus.utils.config import Config
+from proteus.application.config import Config
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures

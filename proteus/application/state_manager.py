@@ -24,8 +24,8 @@ import logging
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.utils.abstract_meta import SingletonMeta
-from proteus.utils.events import (
+from proteus.application.utils.abstract_meta import SingletonMeta
+from proteus.application.events import (
     SelectObjectEvent,
     CurrentDocumentChangedEvent,
     CurrentViewChangedEvent,

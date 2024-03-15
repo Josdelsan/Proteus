@@ -30,9 +30,8 @@ from proteus.model import ProteusID, PROTEUS_ACRONYM
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.document_tree import DocumentTree
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.events import (
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.events import (
     AddDocumentEvent,
     ModifyObjectEvent,
     CurrentDocumentChangedEvent,
@@ -156,7 +155,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             tab_index = self.addTab(tab, document_acronym)
 
         # Set the tab icon
-        icon = DynamicIcons().icon(ProteusIconType.Document, document_acronym)
+        icon = Icons().icon(ProteusIconType.Document, document_acronym)
         self.setTabIcon(tab_index, icon)
         self.setIconSize(QSize(32, 32))
 
@@ -298,7 +297,7 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
             self.setTabText(tab_index, document_acronym)
 
             # Get new icon
-            icon = DynamicIcons().icon(ProteusIconType.Document, document_acronym)
+            icon = Icons().icon(ProteusIconType.Document, document_acronym)
             self.setTabIcon(tab_index, icon)
 
     # ----------------------------------------------------------------------

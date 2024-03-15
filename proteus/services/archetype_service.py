@@ -21,7 +21,7 @@ from typing import Union, List, Dict
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.application.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object

@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 

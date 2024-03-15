@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QDialogButtonBox
 # --------------------------------------------------------------------------
 
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.tests.end2end.fixtures import app, get_dialog

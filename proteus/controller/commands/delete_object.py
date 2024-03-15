@@ -30,8 +30,8 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.state_manager import StateManager
-from proteus.utils.events import (
+from proteus.application.state_manager import StateManager
+from proteus.application.events import (
     AddObjectEvent,
     DeleteObjectEvent,
     ModifyObjectEvent,

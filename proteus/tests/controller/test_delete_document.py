@@ -26,7 +26,7 @@ from proteus.model import ProteusID
 from proteus.model.trace import Trace
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.utils.state_manager import StateManager
+from proteus.application.state_manager import StateManager
 from proteus.controller.commands.delete_document import (
     DeleteDocumentCommand,
 )

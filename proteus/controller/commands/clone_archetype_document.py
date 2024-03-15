@@ -27,7 +27,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
-from proteus.utils.events import (
+from proteus.application.events import (
     AddDocumentEvent,
     DeleteDocumentEvent,
 )

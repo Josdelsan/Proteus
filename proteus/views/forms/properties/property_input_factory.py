@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QLabel, QSizePolicy
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 
 # Properties imports
 from proteus.model.trace import Trace, NO_TARGETS_LIMIT

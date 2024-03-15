@@ -37,7 +37,7 @@ from proteus.model import (
 from proteus.model.object import Object
 from proteus.model.properties.code_property import ProteusCode
 from proteus.views.components.abstract_component import ProteusComponent
-from proteus.utils.events import (
+from proteus.application.events import (
     OpenProjectEvent,
     AddObjectEvent,
     DeleteObjectEvent,

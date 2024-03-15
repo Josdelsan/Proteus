@@ -30,7 +30,7 @@ from proteus.services.project_service import ProjectService
 from proteus.controller.commands.update_properties import (
     UpdatePropertiesCommand,
 )
-from proteus.utils.events import ModifyObjectEvent
+from proteus.application.events import ModifyObjectEvent
 
 # --------------------------------------------------------------------------
 # Fixtures

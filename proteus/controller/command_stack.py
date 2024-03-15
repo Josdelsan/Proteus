@@ -41,15 +41,15 @@ from proteus.controller.commands.change_object_position import (
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.utils.state_manager import StateManager
-from proteus.utils.decorators import proteus_action
+from proteus.application.state_manager import StateManager
+from proteus.application.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
 from proteus.model.trace import Trace
 from proteus.model.template import Template
 
-from proteus.utils.events import (
+from proteus.application.events import (
     AddViewEvent,
     DeleteViewEvent,
     StackChangedEvent,

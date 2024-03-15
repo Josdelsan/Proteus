@@ -28,7 +28,7 @@ from pathlib import Path
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class PluginInterface:
         """
 
 
-class PluginManager(metaclass=SingletonMeta):
+class Plugins(metaclass=SingletonMeta):
     """
     Manage PROTEUS plugins. A plugin is a module that can be loaded at runtime
     and register XSLT functions and QWebChannel classes for use in the templates.
@@ -64,14 +64,14 @@ class PluginManager(metaclass=SingletonMeta):
 
     # --------------------------------------------------------------------------
     # Method: __init__
-    # Description: Constructor for PluginManager class.
+    # Description: Constructor for Plugins class.
     # Date: 03/01/2023
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
     def __init__(self):
         """
-        It initializes the PluginManager class.
+        It initializes the Plugins class.
         """
         # --------------------------------
         # Initialize the plugin registries

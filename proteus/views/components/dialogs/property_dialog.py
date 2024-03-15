@@ -39,9 +39,8 @@ from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property, MarkdownProperty
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.resources.translator import Translator
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
@@ -168,7 +167,7 @@ class PropertyDialog(ProteusDialog):
         window_name: str = self.object.get_property(PROTEUS_NAME).value
         self.setWindowTitle(window_name)
 
-        dialog_icon: QIcon = DynamicIcons().icon(icon_type, main_obj_class)
+        dialog_icon: QIcon = Icons().icon(icon_type, main_obj_class)
         self.setWindowIcon(dialog_icon)
 
         # Properties and traces layout ----------------------------------

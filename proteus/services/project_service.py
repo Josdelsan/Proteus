@@ -24,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.application.config import Config
 from proteus.model import (
     ProteusID,
     ID_ATTRIBUTE,

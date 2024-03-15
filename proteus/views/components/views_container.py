@@ -35,12 +35,11 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.utils import ProteusIconType
-from proteus.utils.translator import Translator
-from proteus.utils.config import Config
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.plugin_manager import PluginManager
-from proteus.utils.events import (
+from proteus.application.resources.translator import Translator
+from proteus.application.config import Config
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.resources.plugins import Plugins
+from proteus.application.events import (
     ModifyObjectEvent,
     AddViewEvent,
     DeleteViewEvent,
@@ -150,7 +149,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         ), "Project selected templates and default template were not found in XSLT directory, there is no views to display!"
 
         # Create a button to add new views
-        button_icon = DynamicIcons().icon(ProteusIconType.App, "add_view_icon")
+        button_icon = Icons().icon(ProteusIconType.App, "add_view_icon")
         add_view_button: QPushButton = QPushButton()
         add_view_button.setIcon(button_icon)
 
@@ -198,7 +197,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         # QWebChannel setup for plugins
         channel_objects: Dict[str, ProteusComponent] = {}
-        for name, _class in PluginManager().get_qwebchannel_classes().items():
+        for name, _class in Plugins().get_qwebchannel_classes().items():
             channel_object = _class(parent=self)
             channel_objects[name] = channel_object
 

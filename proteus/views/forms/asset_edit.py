@@ -27,11 +27,10 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils import ProteusIconType
 from proteus.model import ASSETS_REPOSITORY
-from proteus.utils.config import Config
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.config import Config
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 
 # Module configuration
 _ = Translator().text
@@ -97,7 +96,7 @@ class AssetEdit(QWidget):
         self.input.setDisabled(True)
 
         # Browse button
-        browse_button_icon: Path = DynamicIcons().icon(
+        browse_button_icon: Path = Icons().icon(
             ProteusIconType.App, "browse_asset_icon"
         )
         self.browse_button = QPushButton()
@@ -204,7 +203,7 @@ class AssetEdit(QWidget):
                     # Ask the user if he wants to overwrite the file
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
-                    proteus_icon = DynamicIcons().icon(
+                    proteus_icon = Icons().icon(
                         ProteusIconType.App, "proteus_icon"
                     )
                     msg_box.setWindowIcon(proteus_icon)

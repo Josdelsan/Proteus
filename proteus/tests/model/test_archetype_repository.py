@@ -28,7 +28,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.config import Config
+from proteus.application.config import Config
 from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.model.object import Object
 from proteus.model.project import Project

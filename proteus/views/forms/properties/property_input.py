@@ -37,11 +37,9 @@ from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
-from proteus.utils.abstract_meta import AbstractObjectMeta
-from proteus.utils.translator import Translator
-from proteus.utils.config import Config
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.utils.abstract_meta import AbstractObjectMeta
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 # Module configuration
@@ -157,7 +155,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 inmutable_checkbox.stateChanged.connect(self._update_enabled)
 
                 # Set the icon
-                icon: QIcon = DynamicIcons().icon(
+                icon: QIcon = Icons().icon(
                     ProteusIconType.App, "inmutable-property-edit-disabled"
                 )
                 inmutable_checkbox.setIcon(icon)
@@ -281,7 +279,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 else "inmutable-property-edit-enabled"
             )
 
-            icon: QIcon = DynamicIcons().icon(ProteusIconType.App, icon_str)
+            icon: QIcon = Icons().icon(ProteusIconType.App, icon_str)
             self.inmutable_checkbox.setIcon(icon)
 
         # Trigger inmutable property warning

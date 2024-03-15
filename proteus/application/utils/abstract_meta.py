@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 from abc import ABC
-from threading import Lock, Thread
+from threading import Lock
 
 # --------------------------------------------------------------------------
 # Third-party library imports

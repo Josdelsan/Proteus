@@ -33,7 +33,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model.archetype_repository import ArchetypeRepository
-from proteus.utils.config import (
+from proteus.application.config import (
     Config,
     SETTING_LANGUAGE,
     SETTING_DEFAULT_VIEW,
@@ -42,9 +42,8 @@ from proteus.utils.config import (
     SETTING_USING_CUSTOM_REPOSITORY,
 )
 from proteus.controller.command_stack import Controller
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.resources.translator import Translator
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
@@ -109,7 +108,7 @@ class SettingsDialog(ProteusDialog):
         self.setWindowTitle(_("settings_dialog.title"))
 
         # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
         # Connect the buttons to the slots
@@ -236,7 +235,7 @@ class SettingsDialog(ProteusDialog):
             )
             self.default_repository_combo.setItemIcon(
                 self.default_repository_combo.count() - 1,
-                DynamicIcons().icon(ProteusIconType.Repository, repository),
+                Icons().icon(ProteusIconType.Repository, repository),
             )
 
         current_default_repository: str = (

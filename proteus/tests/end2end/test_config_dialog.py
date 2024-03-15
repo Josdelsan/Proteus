@@ -23,8 +23,8 @@ from PyQt6.QtWidgets import QDialogButtonBox
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.translator import Translator
-from proteus.utils.config import (
+from proteus.application.resources.translator import Translator
+from proteus.application.config import (
     Config,
     SETTINGS,
     SETTING_LANGUAGE,

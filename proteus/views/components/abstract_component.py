@@ -24,10 +24,10 @@ from PyQt6.QtWidgets import QWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.abstract_meta import AbstractObjectMeta
-from proteus.utils.config import Config
-from proteus.utils.state_manager import StateManager
-from proteus.utils.translator import Translator
+from proteus.application.utils.abstract_meta import AbstractObjectMeta
+from proteus.application.config import Config
+from proteus.application.state_manager import StateManager
+from proteus.application.resources.translator import Translator
 from proteus.controller.command_stack import Controller
 
 # logging configuration

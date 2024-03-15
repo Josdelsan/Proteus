@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import QMessageBox
 # Proteus imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.model import ProteusID, PROTEUS_DOCUMENT, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object

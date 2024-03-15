@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.model.properties.enum_property import EnumProperty
 from proteus.views.forms.properties.property_input import PropertyInput
 

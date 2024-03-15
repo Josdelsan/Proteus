@@ -26,9 +26,8 @@ from proteus.model.properties import ClassListProperty
 from proteus.controller.command_stack import Controller
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.check_combo_box import CheckComboBox
-from proteus.utils.translator import Translator
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -104,7 +103,7 @@ class ClassListPropertyInput(PropertyInput):
             is_checked = project_available_class in property_classes
 
             # Class icon
-            class_icon = DynamicIcons().icon(
+            class_icon = Icons().icon(
                 ProteusIconType.Archetype, project_available_class
             )
 

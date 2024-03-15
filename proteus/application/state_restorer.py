@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import QApplication, QTreeWidgetItem
 from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.views.components.document_tree import DocumentTree
-from proteus.utils.state_manager import StateManager
+from proteus.application.state_manager import StateManager
 
 # logging configuration
 log = logging.getLogger(__name__)

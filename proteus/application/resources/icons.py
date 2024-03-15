@@ -18,6 +18,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from strenum import StrEnum
 from lxml import etree as ET
 from PyQt6.QtGui import QIcon
 
@@ -25,8 +26,7 @@ from PyQt6.QtGui import QIcon
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils import ProteusIconType, DEFAULT_ICON_KEY
-from proteus.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.abstract_meta import SingletonMeta
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -36,21 +36,37 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 
 ICONS_FILE: str = "icons.xml"
+DEFAULT_ICON_KEY = ":Proteus-default-icon"
+
+
+# --------------------------------------------------------------------------
+# Class: ProteusIconType
+# Description: Enum for PROTEUS icon types
+# Date: 15/03/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class ProteusIconType(StrEnum):
+    App = "app"
+    MainMenu = "main_menu"
+    Archetype = "archetype"
+    Repository = "repository"
+    Document = "document"
+
 
 ARCHETYPE_ACCEPTED_ICONS_TYPES = [
     ProteusIconType.Archetype,
     ProteusIconType.Document,
 ]
 
-
 # --------------------------------------------------------------------------
-# Class: DynamicIcons
+# Class: Icons
 # Description: Manage the icons for PROTEUS application
 # Date: 12/02/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class DynamicIcons(metaclass=SingletonMeta):
+class Icons(metaclass=SingletonMeta):
     """
     Handle PROTEUS icons. It can load icons from directories that contain
     an icons configuration file 'icons.xml'. The icons configuration file
@@ -86,14 +102,14 @@ class DynamicIcons(metaclass=SingletonMeta):
 
     # --------------------------------------------------------------------------
     # Method: __init__
-    # Description: Constructor for DynamicIcons class.
+    # Description: Constructor for Icons class.
     # Date: 26/06/2023
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
     def __init__(self):
         """
-        Initializes the DynamicIcons class.
+        Initializes the Icons class.
         """
         # Icons variable
         self._icons_paths: Dict[ProteusIconType, Dict[str, Path]] = {}

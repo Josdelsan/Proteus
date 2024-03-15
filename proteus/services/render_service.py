@@ -25,8 +25,8 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.model.template import Template
-from proteus.utils.plugin_manager import PluginManager
-from proteus.utils.config import Config
+from proteus.application.resources.plugins import Plugins
+from proteus.application.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class RenderService:
         ns.prefix = "proteus-utils"
 
         # Register plugins functions
-        for name, func in PluginManager().get_xslt_functions().items():
+        for name, func in Plugins().get_xslt_functions().items():
             ns[name] = func
 
     # ----------------------------------------------------------------------
@@ -104,7 +104,7 @@ class RenderService:
         Load the XSLT templates from the templates directory defined in the
         config class.
         """
-        loaded_plugins: List[str] = PluginManager().get_plugins()
+        loaded_plugins: List[str] = Plugins().get_plugins()
 
         # Iterate over XSLT directory folders
         for xslt_folder in Config().xslt_directory.iterdir():

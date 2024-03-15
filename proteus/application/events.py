@@ -26,7 +26,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.abstract_meta import AbstractObjectMeta
+from proteus.application.utils.abstract_meta import AbstractObjectMeta
 from proteus.model import ProteusID
 
 # logging configuration

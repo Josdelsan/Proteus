@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import QDialogButtonBox
 
 from proteus.model import PROTEUS_NAME
 from proteus.views.components.main_window import MainWindow
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 

@@ -36,7 +36,7 @@ from proteus.model.project import Project
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
 from proteus.controller.command_stack import Controller
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
 # Module configuration

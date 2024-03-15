@@ -65,7 +65,7 @@ from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import Property, FileProperty, DateProperty
 from proteus.model.properties.code_property import ProteusCode, CodeProperty
 from proteus.model.trace import Trace
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 
 
 # from proteus.model.project import Project

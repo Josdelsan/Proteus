@@ -50,9 +50,8 @@ from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller
 from proteus.views.forms.check_combo_box import CheckComboBox
-from proteus.utils import ProteusIconType
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.resources.translator import Translator
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -159,12 +158,12 @@ class TraceEdit(QWidget):
 
         # Create QPushButtons
         self.add_button = QPushButton()
-        add_button_icon = DynamicIcons().icon(ProteusIconType.App, "add_trace_icon")
+        add_button_icon = Icons().icon(ProteusIconType.App, "add_trace_icon")
         self.add_button.setIcon(add_button_icon)
 
         self.remove_button = QPushButton()
         self.remove_button.setEnabled(False)
-        remove_button_icon = DynamicIcons().icon(
+        remove_button_icon = Icons().icon(
             ProteusIconType.App, "remove_trace_icon"
         )
         self.remove_button.setIcon(remove_button_icon)
@@ -428,7 +427,7 @@ class TraceEditDialog(QDialog):
         self.setWindowTitle(title)
 
         # Set window icon
-        proteus_icon = DynamicIcons().icon(ProteusIconType.App, "proteus_icon")
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
         # -----------------------
@@ -487,7 +486,7 @@ class TraceEditDialog(QDialog):
             class_name_tr = _(f"archetype.class.{_class}", alternative_text=_class)
 
             # Class icon
-            class_icon = DynamicIcons().icon(ProteusIconType.Archetype, _class)
+            class_icon = Icons().icon(ProteusIconType.Archetype, _class)
 
             # Add item
             self.class_selector_combo.addItem(class_name_tr, _class, True, class_icon)
@@ -755,5 +754,5 @@ def _list_item_setup(list_item: QListWidgetItem, object: Object) -> None:
 
     # Set icon
     object_class: ProteusClassTag = object.classes[-1]
-    icon = DynamicIcons().icon(ProteusIconType.Archetype, object_class)
+    icon = Icons().icon(ProteusIconType.Archetype, object_class)
     list_item.setIcon(icon)

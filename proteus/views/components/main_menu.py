@@ -49,11 +49,10 @@ from proteus.views.components.archetypes_menu_dropdown import (
 )
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
-from proteus.utils.state_restorer import read_state_from_file, write_state_to_file
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils import ProteusIconType
-from proteus.utils.events import (
+from proteus.application.state_restorer import read_state_from_file, write_state_to_file
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.events import (
     SelectObjectEvent,
     OpenProjectEvent,
     SaveProjectEvent,
@@ -592,7 +591,7 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Show a confirmation dialog
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-                proteus_icon = DynamicIcons().icon(
+                proteus_icon = Icons().icon(
                     ProteusIconType.App, "proteus_icon"
                 )
                 confirmation_dialog.setWindowIcon(proteus_icon)

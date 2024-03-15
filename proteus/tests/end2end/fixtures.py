@@ -33,11 +33,11 @@ from PyQt6.QtCore import QTimer
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.context_menu import ContextMenu
-from proteus.utils.state_manager import StateManager
-from proteus.utils.config import Config
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.plugin_manager import PluginManager
+from proteus.application.state_manager import StateManager
+from proteus.application.config import Config
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons
+from proteus.application.resources.plugins import Plugins
 from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
@@ -116,8 +116,8 @@ def load_translations_icons_plugins():
     """
     config = Config()
     translator = Translator()
-    dynamic_icons = DynamicIcons()
-    plugin_manager = PluginManager()
+    dynamic_icons = Icons()
+    plugin_manager = Plugins()
 
     if translator._translations == {}:
         translator.set_language(config.language)

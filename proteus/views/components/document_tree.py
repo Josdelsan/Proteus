@@ -44,14 +44,13 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
-from proteus.utils import ProteusIconType
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.context_menu import ContextMenu
-from proteus.utils.events import (
+from proteus.application.events import (
     SelectObjectEvent,
     SaveProjectEvent,
     ModifyObjectEvent,
@@ -279,7 +278,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Set the icon based on the object last class
         object_class: ProteusClassTag = object.classes[-1]
-        icon = DynamicIcons().icon(ProteusIconType.Archetype, object_class)
+        icon = Icons().icon(ProteusIconType.Archetype, object_class)
         tree_item.setIcon(0, icon)
 
         # Set the item data to store the object id

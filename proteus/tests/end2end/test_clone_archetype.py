@@ -26,7 +26,7 @@ from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.archetypes_menu_dropdown import ArchetypesMenuDropdown
-from proteus.utils.state_manager import StateManager
+from proteus.application.state_manager import StateManager
 from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import app, load_project
 

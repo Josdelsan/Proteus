@@ -25,9 +25,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils import ProteusIconType
-from proteus.utils.config import Config
-from proteus.utils.dynamic_icons import DynamicIcons
+from proteus.application.resources.icons import Icons, ProteusIconType
 
 
 # --------------------------------------------------------------------------
@@ -84,7 +82,7 @@ class DirectoryEdit(QWidget):
         self.input.setDisabled(True)
 
         # Browse button
-        browse_button_icon = DynamicIcons().icon(ProteusIconType.App, "browse_dir_icon")
+        browse_button_icon = Icons().icon(ProteusIconType.App, "browse_dir_icon")
 
         self.browse_button = QPushButton()
         self.browse_button.setIcon(browse_button_icon)

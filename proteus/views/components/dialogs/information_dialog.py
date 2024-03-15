@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 
 from proteus import PROTEUS_VERSION
 from proteus.controller.command_stack import Controller
-from proteus.utils.translator import Translator
+from proteus.application.resources.translator import Translator
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
 # Module configuration

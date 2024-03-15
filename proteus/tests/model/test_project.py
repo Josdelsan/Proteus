@@ -38,7 +38,7 @@ from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import STRING_PROPERTY_TAG
-from proteus.utils.config import Config
+from proteus.application.config import Config
 from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
 from proteus.tests import fixtures
 from proteus.tests.fixtures import SampleData

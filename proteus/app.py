@@ -29,13 +29,13 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_LOGGING_DIR
-from proteus.utils.config import Config
-from proteus.utils.plugin_manager import PluginManager
-from proteus.utils.translator import Translator
-from proteus.utils.dynamic_icons import DynamicIcons
-from proteus.utils.state_manager import StateManager
-from proteus.utils.state_restorer import read_state_from_file
-from proteus.utils.request_interceptor import WebEngineUrlRequestInterceptor
+from proteus.application.config import Config
+from proteus.application.resources.plugins import Plugins
+from proteus.application.resources.translator import Translator
+from proteus.application.resources.icons import Icons
+from proteus.application.state_manager import StateManager
+from proteus.application.state_restorer import read_state_from_file
+from proteus.application.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
 
@@ -60,9 +60,9 @@ class ProteusApplication:
         """
         # General configuration
         self.config: Config = Config()
-        self.plugin_manager: PluginManager = PluginManager()
+        self.plugin_manager: Plugins = Plugins()
         self.translator: Translator = Translator()
-        self.dynamic_icons: DynamicIcons = DynamicIcons()
+        self.dynamic_icons: Icons = Icons()
 
         # Request interceptor
         self.request_interceptor: WebEngineUrlRequestInterceptor = (

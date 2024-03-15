@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import QWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.utils.abstract_meta import AbstractObjectMeta
+from proteus.application.utils.abstract_meta import AbstractObjectMeta
 from proteus.controller.command_stack import Controller
 
 
