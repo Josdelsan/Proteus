@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: test_archetype_manager.py
-# Description: pytest file for the PROTEUS ArchetypeManager
+# File: test_archetype_repository.py
+# Description: pytest file for the PROTEUS ArchetypeRepository
 # Date: 20/10/2022
 # Version: 0.2
 # Author: José María Delgado Sánchez
@@ -8,7 +8,7 @@
 # ==========================================================================
 # Update: 15/04/2023 (José María)
 # Description:
-# - Tests adapted to the new ArchetypeManager logic
+# - Tests adapted to the new ArchetypeRepository logic
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -29,7 +29,7 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.utils.config import Config
-from proteus.model.archetype_manager import ArchetypeManager
+from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.model.object import Object
 from proteus.model.project import Project
 
@@ -39,7 +39,7 @@ from proteus.model.project import Project
 
 
 # --------------------------------------------------------------------------
-# ArchetypeManager unit tests
+# ArchetypeRepository unit tests
 # --------------------------------------------------------------------------
 
 def test_project_archetype():
@@ -49,7 +49,7 @@ def test_project_archetype():
     number_of_projects : int = len(os.listdir(dir_path))
     
     # Check if load project function return all the projects
-    projects : list[Project] = ArchetypeManager.load_project_archetypes(current_archetype_repository)
+    projects : list[Project] = ArchetypeRepository.load_project_archetypes(current_archetype_repository)
     assert len(projects) == number_of_projects, \
         f"Number of archetype projects not match with the number of archetype projects in the directory"
     
@@ -65,7 +65,7 @@ def test_document_archetype():
     number_of_documents = len(os.listdir(dir_path))
     
     # Check if load document function return all the documents
-    documents : list[Object] = ArchetypeManager.load_document_archetypes(current_archetype_repository)
+    documents : list[Object] = ArchetypeRepository.load_document_archetypes(current_archetype_repository)
     assert len(documents) == number_of_documents, \
         f"Number of archetype documents not match with the number of archetype documents in the directory"
     
@@ -81,7 +81,7 @@ def test_object_archetype():
     archetype_groups = os.listdir(dir_path)
     
     # Check if load object function return all the classes
-    objects : dict[str, dict[str, List[Object]]] = ArchetypeManager.load_object_archetypes(current_archetype_repository)
+    objects : dict[str, dict[str, List[Object]]] = ArchetypeRepository.load_object_archetypes(current_archetype_repository)
     for archetype_group in archetype_groups:
 
         # Check if the class is in the objects dictionary (parsed to remove order prefix)

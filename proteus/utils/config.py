@@ -319,7 +319,7 @@ class Config(metaclass=SingletonMeta):
         Load archetypes repositories from the arhcetypes directory. Returns a dictionary
         with the repository name (folder name) and the repository path.
 
-        It use ArchetypeManager to check if the repository is valid loading the archetypes
+        It use ArchetypeRepository to check if the repository is valid loading the archetypes
         from the repository.
         """
         # Initialize dictionary

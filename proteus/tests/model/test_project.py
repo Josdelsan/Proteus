@@ -34,7 +34,7 @@ import lxml.etree as ET
 from proteus import PROTEUS_APP_PATH
 from proteus.model import PROJECT_FILE_NAME, OBJECTS_REPOSITORY, PROTEUS_NAME
 from proteus.model.abstract_object import ProteusState
-from proteus.model.archetype_manager import ArchetypeManager
+from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.properties import STRING_PROPERTY_TAG
@@ -69,7 +69,7 @@ def sample_archetype_project() -> Project:
     """
     Fixture that returns a PROTEUS sample archetype project.
     """
-    project_arquetypes: List[Project] = ArchetypeManager.load_project_archetypes(
+    project_arquetypes: List[Project] = ArchetypeRepository.load_project_archetypes(
         Config().current_archetype_repository
     )
     return project_arquetypes[0]

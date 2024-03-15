@@ -1,6 +1,6 @@
 # ==========================================================================
-# File: archetype_manager.py
-# Description: PROTEUS archetype manager
+# File: archetype_repository.py
+# Description: PROTEUS archetype repository
 # Date: 13/04/2023
 # Version: 0.3
 # Author: Pablo Rivera Jiménez
@@ -82,7 +82,7 @@ class ArchetypesType(StrEnum):
 
 
 # --------------------------------------------------------------------------
-# Class: ArchetypeManager
+# Class: ArchetypeRepository
 # Description: Class for managing PROTEUS archetypes
 # Date: 13/04/2023
 # Version: 0.2
@@ -91,7 +91,7 @@ class ArchetypesType(StrEnum):
 # ----------------------------------------------------------------------
 
 
-class ArchetypeManager:
+class ArchetypeRepository:
     """
     An utility class for managing PROTEUS archetypes. It must provide a way
     to get the project, document, and object archetypes on demand from an
@@ -120,7 +120,7 @@ class ArchetypeManager:
         :return: A dict with key archetype group/category type and value
         dict of object lists by class (its main  class).
         """
-        log.info("ArchetypeManager - load object archetypes")
+        log.info("ArchetypeRepository - load object archetypes")
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
@@ -225,7 +225,7 @@ class ArchetypeManager:
 
         :return: A list of documents (Objects) objects.
         """
-        log.info("ArchetypeManager - load document archetypes")
+        log.info("ArchetypeRepository - load document archetypes")
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
@@ -312,7 +312,7 @@ class ArchetypeManager:
 
         :return: A list of Project objects.
         """
-        log.info("ArchetypeManager - load project archetypes")
+        log.info("ArchetypeRepository - load project archetypes")
         # Build archetypes directory name from archetype type (project)
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.PROJECTS)
 

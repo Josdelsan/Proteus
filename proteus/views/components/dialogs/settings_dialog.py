@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.archetype_manager import ArchetypeManager
+from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.utils.config import (
     Config,
     SETTING_LANGUAGE,
@@ -418,11 +418,11 @@ class SettingsDialog(ProteusDialog):
                 self.error_default_repository_label.setHidden(False)
                 return False
 
-            # Check if it is a valid repository using ArchetypeManager
+            # Check if it is a valid repository using ArchetypeRepository
             try:
-                ArchetypeManager.load_object_archetypes(_repo_path)
-                ArchetypeManager.load_document_archetypes(_repo_path)
-                ArchetypeManager.load_project_archetypes(_repo_path)
+                ArchetypeRepository.load_object_archetypes(_repo_path)
+                ArchetypeRepository.load_document_archetypes(_repo_path)
+                ArchetypeRepository.load_project_archetypes(_repo_path)
             except Exception as e:
                 log.error(f"Error loading custom archetypes from repository: {e}")
                 self.error_default_repository_label.setText(

@@ -25,7 +25,7 @@ from proteus.utils.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.archetype_manager import ArchetypeManager
+from proteus.model.archetype_repository import ArchetypeRepository
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -79,15 +79,15 @@ class ArchetypeService:
         """
         # Lazy loading of project archetypes
         if self._project_archetypes is None:
-            # Load project archetypes using ArchetypeManager
-            self._project_archetypes = ArchetypeManager.load_project_archetypes(
+            # Load project archetypes using ArchetypeRepository
+            self._project_archetypes = ArchetypeRepository.load_project_archetypes(
                 archetypes_folder=Config().current_archetype_repository
             )
 
             # Check that the list of project archetypes is a list
             assert isinstance(
                 self._project_archetypes, list
-            ), f"Could not load project archetypes. ArchetypeManager returned {self._project_archetypes}"
+            ), f"Could not load project archetypes. ArchetypeRepository returned {self._project_archetypes}"
 
             # Populate the archetype index
             for project in self._project_archetypes:
@@ -115,15 +115,15 @@ class ArchetypeService:
         """
         # Lazy loading of document archetypes
         if self._document_archetypes is None:
-            # Load document archetypes using the ArchetypeManager
-            self._document_archetypes = ArchetypeManager.load_document_archetypes(
+            # Load document archetypes using the ArchetypeRepository
+            self._document_archetypes = ArchetypeRepository.load_document_archetypes(
                 archetypes_folder=Config().current_archetype_repository
             )
 
             # Check that the list of document archetypes is a list
             assert isinstance(
                 self._document_archetypes, list
-            ), f"Could not load document archetypes. ArchetypeManager returned {self._document_archetypes}"
+            ), f"Could not load document archetypes. ArchetypeRepository returned {self._document_archetypes}"
 
             # Populate the archetype index
             for document in self._document_archetypes:
@@ -151,15 +151,15 @@ class ArchetypeService:
         """
         # Lazy loading of object archetypes
         if self._object_archetypes is None:
-            # Load object archetypes using the ArchetypeManager
-            self._object_archetypes = ArchetypeManager.load_object_archetypes(
+            # Load object archetypes using the ArchetypeRepository
+            self._object_archetypes = ArchetypeRepository.load_object_archetypes(
                 archetypes_folder=Config().current_archetype_repository
             )
 
             # Check that the dict of object archetypes is a dict
             assert isinstance(
                 self._object_archetypes, dict
-            ), f"Could not load object archetypes. ArchetypeManager returned {self._object_archetypes}"
+            ), f"Could not load object archetypes. ArchetypeRepository returned {self._object_archetypes}"
 
             # ------------------------------------------------------------------
             # Populate non ordered list of object archetypes

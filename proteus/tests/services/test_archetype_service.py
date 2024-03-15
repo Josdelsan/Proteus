@@ -25,7 +25,7 @@ import pytest
 from proteus.model import ProteusID
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.archetype_manager import ArchetypeManager
+from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.services.archetype_service import ArchetypeService
 
 
@@ -215,13 +215,13 @@ def test_get_project_archetypes(mocker, archetype_service: ArchetypeService):
     It tests the get_project_archetypes method.
     """
     # Arrange -------------------------
-    # Mock ArchetypeManager.load_project_archetypes static method
+    # Mock ArchetypeRepository.load_project_archetypes static method
     mock_project = mocker.MagicMock(spec=Project)
     mock_project.id = "mock_project_1"
 
     mock_project_archetypes = [mock_project]
     mocker.patch.object(
-        ArchetypeManager,
+        ArchetypeRepository,
         "load_project_archetypes",
         return_value=mock_project_archetypes,
     )
@@ -236,8 +236,8 @@ def test_get_project_archetypes(mocker, archetype_service: ArchetypeService):
         project_archetypes, list
     ), f"project_archetypes should be a list, not {type(project_archetypes)}"
 
-    # Check that ArchetypeManager.load_project_archetypes static method is called
-    ArchetypeManager.load_project_archetypes.assert_called_once()
+    # Check that ArchetypeRepository.load_project_archetypes static method is called
+    ArchetypeRepository.load_project_archetypes.assert_called_once()
 
 
 def test_get_project_archetypes_invalid_archetypes(
@@ -250,7 +250,7 @@ def test_get_project_archetypes_invalid_archetypes(
     # Mock the load_project_archetypes function to return an invalid value (not a list)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
-        ArchetypeManager, "load_project_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_project_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
@@ -268,7 +268,7 @@ def test_get_project_archetypes_duplicate_id(
     project_mock.id = "1"
     mock_archetypes = [project_mock, project_mock]
     mocker.patch.object(
-        ArchetypeManager, "load_project_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_project_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
@@ -283,14 +283,14 @@ def test_get_document_archetypes(mocker, archetype_service: ArchetypeService):
     It tests the get_document_archetypes method.
     """
     # Arrange -------------------------
-    # Mock ArchetypeManager.load_document_archetypes static method
+    # Mock ArchetypeRepository.load_document_archetypes static method
     mock_document = mocker.MagicMock(spec=Object)
     mock_document.id = "mock_document_1"
 
     mock_document_archetypes = [mock_document]
 
     mocker.patch.object(
-        ArchetypeManager,
+        ArchetypeRepository,
         "load_document_archetypes",
         return_value=mock_document_archetypes,
     )
@@ -305,8 +305,8 @@ def test_get_document_archetypes(mocker, archetype_service: ArchetypeService):
         document_archetypes, list
     ), f"document_archetypes should be a list, not {type(document_archetypes)}"
 
-    # Check that ArchetypeManager.load_document_archetypes static method is called
-    ArchetypeManager.load_document_archetypes.assert_called_once()
+    # Check that ArchetypeRepository.load_document_archetypes static method is called
+    ArchetypeRepository.load_document_archetypes.assert_called_once()
 
 
 def test_get_document_archetypes_invalid_archetypes(
@@ -319,7 +319,7 @@ def test_get_document_archetypes_invalid_archetypes(
     # Mock the load_document_archetypes function to return an invalid value (not a list)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
-        ArchetypeManager, "load_document_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_document_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
@@ -340,7 +340,7 @@ def test_get_document_archetypes_duplicate_id(
     document_mock.id = "1"
     mock_archetypes = [document_mock, document_mock]
     mocker.patch.object(
-        ArchetypeManager, "load_document_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_document_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
@@ -360,7 +360,7 @@ def test_get_object_archetypes_groups(mocker, archetype_service: ArchetypeServic
 
     mock_object_archetypes = {"mock_type_1": {"mock_object_class_1": [mock_object]}}
     mocker.patch.object(
-        ArchetypeManager,
+        ArchetypeRepository,
         "load_object_archetypes",
         return_value=mock_object_archetypes,
     )
@@ -375,8 +375,8 @@ def test_get_object_archetypes_groups(mocker, archetype_service: ArchetypeServic
         object_archetypes_groups, list
     ), f"object_archetypes should be a list, not {type(object_archetypes_groups)}"
 
-    # Check that ArchetypeManager.load_object_archetypes static method is called
-    ArchetypeManager.load_object_archetypes.assert_called_once()
+    # Check that ArchetypeRepository.load_object_archetypes static method is called
+    ArchetypeRepository.load_object_archetypes.assert_called_once()
 
 
 def test_get_object_archetypes_by_group(mocker, archetype_service: ArchetypeService):
@@ -391,7 +391,7 @@ def test_get_object_archetypes_by_group(mocker, archetype_service: ArchetypeServ
 
     mock_object_archetypes = {OBJECT_GROUP: {OBJECT_CLASS: [mock_object]}}
     mocker.patch.object(
-        ArchetypeManager,
+        ArchetypeRepository,
         "load_object_archetypes",
         return_value=mock_object_archetypes,
     )
@@ -408,8 +408,8 @@ def test_get_object_archetypes_by_group(mocker, archetype_service: ArchetypeServ
         object_archetypes_by_class, dict
     ), f"object_archetypes should be a list, not {type(object_archetypes_by_class)}"
 
-    # Check that ArchetypeManager.load_object_archetypes static method is called
-    ArchetypeManager.load_object_archetypes.assert_called_once()
+    # Check that ArchetypeRepository.load_object_archetypes static method is called
+    ArchetypeRepository.load_object_archetypes.assert_called_once()
 
 
 def test_get_object_archetypes_invalid_archetypes(
@@ -422,7 +422,7 @@ def test_get_object_archetypes_invalid_archetypes(
     # Mock the load_object_archetypes function to return an invalid value (not a dict)
     mock_archetypes = "invalid archetypes"
     mocker.patch.object(
-        ArchetypeManager, "load_object_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_object_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
@@ -443,7 +443,7 @@ def test_get_object_archetypes_duplicate_id(
     object_mock.id = "1"
     mock_archetypes = {"General": { "section": [object_mock, object_mock]}}
     mocker.patch.object(
-        ArchetypeManager, "load_object_archetypes", return_value=mock_archetypes
+        ArchetypeRepository, "load_object_archetypes", return_value=mock_archetypes
     )
 
     # Act & Assert --------------------
