@@ -127,9 +127,12 @@ class Trace:
 
         # Max targets number validation
         if not isinstance(self.max_targets_number, int) or self.max_targets_number <= 0:
-            log.warning(
-                f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
-            )
+            # Log warning omitted to avoid excessive logging so the user do not have to be excessively verbose when creating an archetype
+            # log.warning(
+            #     f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
+            # )
+
+
             # self.max_targets_number = NO_TARGETS_LIMIT cannot be used when frozen=True
             object.__setattr__(self, "max_targets_number", NO_TARGETS_LIMIT)
 

@@ -13,7 +13,7 @@
 import logging
 import shutil
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from configparser import ConfigParser
 
 # --------------------------------------------------------------------------
@@ -41,6 +41,8 @@ DEFAULT_PROFILE_DIRECTORY: str = "default_profile_directory"
 # User editable settings
 SETTINGS: str = "settings"
 SETTING_LANGUAGE: str = "language"
+SETTING_DEFAULT_VIEW: str = "default_view"
+SETTING_DEFAULT_ARCHETYPE_REPOSITORY: str = "selected_archetype_repository"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
 SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
 
@@ -67,8 +69,10 @@ class AppSettings:
     i18n_directory: Path = None
     default_profile_directory: Path = None
 
-    # Application settings
+    # Application settings (User editable settings)
     language: str = None
+    default_view: str = None
+    default_archetype_repository: str = None
     using_default_profile: bool = None
     custom_profile_path: Path = None
 
@@ -113,25 +117,16 @@ class AppSettings:
 
         log.info(f"Loading settings from {settings_file_path}...")
 
-        return AppSettings(
+        app_settings = AppSettings(
             app_path=app_path,
             settings_file_path=settings_file_path,
             config_parser=config_parser,
         )
 
-    # --------------------------------------------------------------------------
-    # Method: __post_init__
-    # Description: Post initialization method
-    # Date: 15/03/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __post_init__(self) -> None:
-        """
-        Post initialization method.
-        """
-        self._load_directories()
-        self._load_user_settings()
+        app_settings._load_directories()
+        app_settings._load_user_settings()
+
+        return app_settings
 
     # --------------------------------------------------------------------------
     # Method: _load_directories
@@ -197,6 +192,22 @@ class AppSettings:
 
         log.info(f"Config file {self.settings_file_path} | Language: {self.language}")
 
+        # Default view -------------------
+        self.default_view = settings[SETTING_DEFAULT_VIEW]
+
+        log.info(
+            f"Config file {self.settings_file_path} | Default view: {self.default_view}"
+        )
+
+        # Default archetype repository -------------------
+        self.default_archetype_repository = settings[
+            SETTING_DEFAULT_ARCHETYPE_REPOSITORY
+        ]
+
+        log.info(
+            f"Config file {self.settings_file_path} | Default archetype repository: {self.default_archetype_repository}"
+        )
+
         # Profile ------------------------
         using_default_profile_str: str = settings[SETTING_USING_DEFAULT_PROFILE]
         using_default_profile: bool = using_default_profile_str.lower() == "true"
@@ -215,5 +226,88 @@ class AppSettings:
                 self.using_default_profile = True
 
         log.info(
-            f"Config file {self.settings_file_path} | Using default profile: {self.using_default_profile} | Custom profile path: {self.custom_profile_path}"
+            f"Loaded app user settings from {self.settings_file_path}."
         )
+        log.info(f"{self.language = }")
+        log.info(f"{self.default_archetype_repository = }")
+        log.info(f"{self.default_view = }")
+        log.info(f"{self.using_default_profile = }")
+        log.info(f"{self.custom_profile_path = }")
+
+
+    # --------------------------------------------------------------------------
+    # Method: clone
+    # Description: Clone the current object with the new user settings (if any)
+    # Date: 18/03/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def clone(
+        self,
+        language: str = None,
+        default_view: str = None,
+        default_archetype_repository: str = None,
+        using_default_profile: bool = None,
+        custom_profile_path: Path = None,
+    ) -> "AppSettings":
+        """
+        Clone the current object with the new user settings (if any).
+        """
+        if language is None:
+            language = self.language
+
+        if default_view is None:
+            default_view = self.default_view
+
+        if default_archetype_repository is None:
+            default_archetype_repository = self.default_archetype_repository
+
+        if using_default_profile is None:
+            using_default_profile = self.using_default_profile
+
+        if custom_profile_path is None:
+            custom_profile_path = self.custom_profile_path
+
+        return replace(
+            self,
+            language=language,
+            default_view=default_view,
+            default_archetype_repository=default_archetype_repository,
+            using_default_profile=using_default_profile,
+            custom_profile_path=custom_profile_path,
+        )
+
+    # --------------------------------------------------------------------------
+    # Method: save
+    # Description: Save the current settings to the configuration file
+    # Date: 18/03/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def save(self) -> None:
+        """
+        Save the current settings to the configuration file.
+        """
+        # Settings section
+        self.config_parser[SETTINGS][SETTING_LANGUAGE] = self.language
+        self.config_parser[SETTINGS][SETTING_DEFAULT_VIEW] = self.default_view
+        self.config_parser[SETTINGS][
+            SETTING_DEFAULT_ARCHETYPE_REPOSITORY
+        ] = self.default_archetype_repository
+        self.config_parser[SETTINGS][SETTING_USING_DEFAULT_PROFILE] = str(
+            self.using_default_profile
+        )
+        self.config_parser[SETTINGS][SETTING_CUSTOM_PROFILE_PATH] = str(
+            self.custom_profile_path
+        )
+
+        with open(self.settings_file_path, "w") as config_file:
+            self.config_parser.write(config_file)
+
+        log.info(f"Settings saved to {self.settings_file_path}.")
+        log.info(f"{self.language = }")
+        log.info(f"{self.default_view = }")
+        log.info(f"{self.default_archetype_repository = }")
+        log.info(f"{self.using_default_profile = }")
+        log.info(f"{self.custom_profile_path = }")
+        

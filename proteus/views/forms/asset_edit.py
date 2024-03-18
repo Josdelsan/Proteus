@@ -29,6 +29,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application.configuration.config import Config
+from proteus.application.state_manager import StateManager
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons, ProteusIconType
 
@@ -169,7 +170,7 @@ class AssetEdit(QWidget):
         Copies the file to the assets directory if it is not already there.
         """
         # Assets directory
-        assets_path = f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
+        assets_path = StateManager().current_project_path / ASSETS_REPOSITORY
 
         file_dialog = QFileDialog()
 
@@ -178,7 +179,7 @@ class AssetEdit(QWidget):
         selected_file = file_dialog.getOpenFileName(
             self,
             caption="Select image",
-            directory=assets_path,
+            directory=assets_path.as_posix(),
             filter="Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)",
         )
 
@@ -196,16 +197,14 @@ class AssetEdit(QWidget):
 
             # Avoid copying the file if it was selected from the assets directory
             # It triggers an error when the file is copied to the same directory
-            if file_path.parent.as_posix() != assets_path:
+            if file_path.parent != assets_path:
                 # Before copying the file, check if it already exists
                 # a file with the same name in the assets directory
-                if Path(f"{assets_path}/{file_path.name}").exists():
+                if (assets_path / file_path.name).exists():
                     # Ask the user if he wants to overwrite the file
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Icon.Warning)
-                    proteus_icon = Icons().icon(
-                        ProteusIconType.App, "proteus_icon"
-                    )
+                    proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
                     msg_box.setWindowIcon(proteus_icon)
                     msg_box.setWindowTitle(_("asset_edit.warning.title"))
                     msg_box.setText(_("asset_edit.warning.text"))

@@ -24,6 +24,9 @@ from configparser import ConfigParser
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.template import Template
+from proteus.model.archetype_repository import ArchetypeRepository
+
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
@@ -39,9 +42,9 @@ ICONS_DIRECTORY: str = "icons_directory"
 I18N_DIRECTORY: str = "i18n_directory"
 
 # User editable settings
-SETTINGS: str = "settings"
-SETTING_DEFAULT_VIEW: str = "default_view"
-SETTING_DEFAULT_ARCHETYPE_REPOSITORY: str = "selected_archetype_repository"
+PREFERENCES: str = "preferences"
+PREFERENCE_DEFAULT_VIEW: str = "default_view"
+PREFERENCE_DEFAULT_ARCHETYPE_REPOSITORY: str = "selected_archetype_repository"
 
 
 # logging configuration
@@ -59,20 +62,20 @@ class ProfileSettings:
     settings_file_path: Path = None
     config_parser: ConfigParser = None
 
-    # Directory settings (not editable by the user)
+    # Directory settings
     plugins_directory: Path = None
     archetypes_directory: Path = None
     xslt_directory: Path = None
     icons_directory: Path = None
     i18n_directory: Path = None
 
-    # Profile settings
-    default_view: str = None
-    selected_archetype_repository: str = None
+    # Profile preferences settings
+    preferred_default_view: str = None
+    preferred_archetype_repository: str = None
 
-    # Archetype repository path
-    # NOTE: This is stored to avoid building the path every time it is needed
-    selected_archetype_repository_path: Path = None
+    # Found templates/archetypes repositories
+    listed_templates: List[str] = None
+    listed_archetype_repositories: List[str] = None
 
     # --------------------------------------------------------------------------
     # Method: load
@@ -100,25 +103,18 @@ class ProfileSettings:
 
         log.info(f"Loading settings from {settings_file_path}...")
 
-        return ProfileSettings(
+        profile_settings = ProfileSettings(
             profile_path=profile_path,
             settings_file_path=settings_file_path,
             config_parser=config_parser,
         )
 
-    # --------------------------------------------------------------------------
-    # Method: __post_init__
-    # Description: Post initialization method
-    # Date: 15/03/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __post_init__(self) -> None:
-        """
-        Post initialization method.
-        """
-        self._load_directories()
-        self._load_user_settings()
+        profile_settings._load_directories()
+        profile_settings._list_templates_and_archetype_repositories()
+        profile_settings._load_user_settings()
+
+        return profile_settings
+
 
     # --------------------------------------------------------------------------
     # Method: _load_directories
@@ -142,6 +138,7 @@ class ProfileSettings:
         self.icons_directory = self.profile_path / directories[ICONS_DIRECTORY]
         self.i18n_directory = self.profile_path / directories[I18N_DIRECTORY]
 
+        # Archetypes and XSLT directories are mandatory
         assert (
             self.archetypes_directory.exists()
         ), f"Archetypes directory {self.archetypes_directory} does not exist in profile {self.profile_path}!"
@@ -149,17 +146,30 @@ class ProfileSettings:
             self.xslt_directory.exists()
         ), f"XSLT directory {self.xslt_directory} does not exist in profile {self.profile_path}!"
 
+        # Plugins, icons and i18n directories are optional
         if not directories[PLUGINS_DIRECTORY]:
+            log.warning(
+                f"Plugins directory is not set in profile config {self.profile_path}!"
+            )
+        elif not self.plugins_directory.exists():
             log.warning(
                 f"Plugins directory {self.plugins_directory} does not exist in profile {self.profile_path}!"
             )
 
         if not directories[ICONS_DIRECTORY]:
             log.warning(
+                f"Icons directory is not set in profile config {self.profile_path}!"
+            )
+        elif not self.icons_directory.exists():
+            log.warning(
                 f"Icons directory {self.icons_directory} does not exist in profile {self.profile_path}!"
             )
 
         if not directories[I18N_DIRECTORY]:
+            log.warning(
+                f"i18n directory is not set in profile config {self.profile_path}!"
+            )
+        elif not self.i18n_directory.exists():
             log.warning(
                 f"i18n directory {self.i18n_directory} does not exist in profile {self.profile_path}!"
             )
@@ -178,50 +188,90 @@ class ProfileSettings:
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    # TODO: Implement archetype repository and XSLT template validation?
     def _load_user_settings(self) -> None:
         """
         Load user editable settings from the configuration file.
         """
         # Settings section
-        settings = self.config_parser[SETTINGS]
+        settings = self.config_parser[PREFERENCES]
 
         # Default view -----------------------
-        default_view = settings[SETTING_DEFAULT_VIEW]
+        preferred_default_view = settings[PREFERENCE_DEFAULT_VIEW]
 
         assert (
-            default_view is not None and default_view != ""
+            preferred_default_view is not None and preferred_default_view != ""
         ), f"Selected view setting is not defined in {self.settings_file_path}!"
 
-        listed_views: List[str] = [
-            e.name for e in self.xslt_directory.iterdir() if e.is_dir()
-        ]
-
-        if default_view not in listed_views:
+        if preferred_default_view not in self.listed_templates:
             log.error(
-                f"Selected view {default_view} was not found in the XSLT directory. Using first view found instead."
+                f"Selected view {preferred_default_view} was not found in the XSLT directory. Using first view found instead."
             )
-            default_view = listed_views[0]
+            preferred_default_view = self.listed_templates[0]
 
-        self.default_view = default_view
+        self.preferred_default_view = preferred_default_view
 
         # Default archetype repository -----------------------
-        selected_archetype_repository = settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY]
+        preferred_archetype_repository = settings[PREFERENCE_DEFAULT_ARCHETYPE_REPOSITORY]
 
         assert (
-            selected_archetype_repository is not None
-            and selected_archetype_repository != ""
+            preferred_archetype_repository is not None
+            and preferred_archetype_repository != ""
         ), f"Default archetype repository setting is not defined in {self.settings_file_path}!"
 
-        listed_archetype_repositories: List[str] = [
-            e.name for e in self.archetypes_directory.iterdir() if e.is_dir()
-        ]
-
-        if selected_archetype_repository not in listed_archetype_repositories:
+        if preferred_archetype_repository not in self.listed_archetype_repositories:
             log.error(
-                f"Default archetype repository {selected_archetype_repository} was not found in the archetypes directory. Using first archetype repository found instead."
+                f"Default archetype repository {preferred_archetype_repository} was not found in the archetypes directory. Using first archetype repository found instead."
             )
-            selected_archetype_repository = listed_archetype_repositories[0]
+            preferred_archetype_repository = self.listed_archetype_repositories[0]
 
-        self.selected_archetype_repository = selected_archetype_repository
-        self.selected_archetype_repository_path = self.archetypes_directory / selected_archetype_repository
+        self.preferred_archetype_repository = preferred_archetype_repository
+
+
+    # --------------------------------------------------------------------------
+    # Method: _list_templates_and_archetype_repositories
+    # Description: List templates and archetype repositories found in the profile
+    # Date: 18/03/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _list_templates_and_archetype_repositories(self) -> None:
+        """
+        List templates and archetype repositories found in the profile.
+
+        It validates that the templates and archetypes repositories are valid
+        by loading them using their corresponding classes. They listed items
+        are not stored, just their names.
+        """
+
+        # Templates
+        self.listed_templates = []
+
+        for template_dir in self.xslt_directory.iterdir():
+            try:
+                Template.load(template_dir)
+                self.listed_templates.append(template_dir.name)
+            except Exception as e:
+                log.error(f"Could not load template from {template_dir}. It will be ignored in profile settings. Error: {e}")
+
+        assert (
+            len(self.listed_templates) > 0
+        ), f"No valid templates found in the XSLT directory {self.xslt_directory}!"
+
+        # Archetype repositories
+        self.listed_archetype_repositories = []
+
+        for archetype_repository_dir in self.archetypes_directory.iterdir():
+            try:
+                ArchetypeRepository.load_object_archetypes(archetype_repository_dir)
+                ArchetypeRepository.load_document_archetypes(archetype_repository_dir)
+                ArchetypeRepository.load_project_archetypes(archetype_repository_dir)
+                self.listed_archetype_repositories.append(archetype_repository_dir.name)
+            except Exception as e:
+                log.error(f"Could not load archetype repository from {archetype_repository_dir}. It will be ignored in profile settings. Error: {e}")
+
+        assert (
+            len(self.listed_archetype_repositories) > 0
+        ), f"No valid archetype repositories found in the archetypes directory {self.archetypes_directory}!"
+
+        log.info(f"Listed templates: {self.listed_templates}")
+        log.info(f"Listed archetype repositories: {self.listed_archetype_repositories}")

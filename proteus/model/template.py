@@ -121,6 +121,8 @@ class Template:
         # Load the template dependencies
         self._load_dependencies()
 
+        log.info(f"Template '{self.name}' loaded from {self.path}")
+
 
     # ----------------------------------------------------------------------
     # Method     : _load_entrypoints

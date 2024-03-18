@@ -120,7 +120,7 @@ class ArchetypeRepository:
         :return: A dict with key archetype group/category type and value
         dict of object lists by class (its main  class).
         """
-        log.info("ArchetypeRepository - load object archetypes")
+        log.info(f"ArchetypeRepository - load object archetypes from {archetypes_folder}")
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
@@ -225,7 +225,7 @@ class ArchetypeRepository:
 
         :return: A list of documents (Objects) objects.
         """
-        log.info("ArchetypeRepository - load document archetypes")
+        log.info(f"ArchetypeRepository - load document archetypes from {archetypes_folder}")
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
@@ -312,7 +312,7 @@ class ArchetypeRepository:
 
         :return: A list of Project objects.
         """
-        log.info("ArchetypeRepository - load project archetypes")
+        log.info(f"ArchetypeRepository - load project archetypes from {archetypes_folder}")
         # Build archetypes directory name from archetype type (project)
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.PROJECTS)
 

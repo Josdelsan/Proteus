@@ -34,6 +34,7 @@ from PyQt6.QtCore import QUrl
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application import TEMPLATE_DUMMY_SEARCH_PATH, ASSETS_DUMMY_SEARCH_PATH
 from proteus.application.configuration.config import Config
+from proteus.application.state_manager import StateManager
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -100,8 +101,8 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
                 resource_directory = Config().profile_settings.xslt_directory.as_posix()
             elif ASSETS_DUMMY_SEARCH_PATH == search_path:
                 resource_directory = (
-                    f"{Config().current_project_path}/{ASSETS_REPOSITORY}"
-                )
+                    StateManager().current_project_path / ASSETS_REPOSITORY
+                ).as_posix()
             else:
                 raise Exception(
                     f"Invalid search path: {search_path} while handling request {self.path}"
@@ -136,7 +137,6 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(str(e).encode())
 
-
     # --------------------------------------------------------------------------
     # Method: log_message
     # Description: Overrides the log_message method to avoid logging in the stdout.
@@ -149,6 +149,7 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
         Overrides the log_message method to avoid logging in the stdout.
         """
         log.debug(format % args)
+
 
 # --------------------------------------------------------------------------
 # Class: WebEngineUrlRequestInterceptor

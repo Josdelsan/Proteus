@@ -24,6 +24,10 @@ def test_application_directories():
     It tests that essential PROTEUS directories exist.
     """
     app : Config = Config()
-    assert app.resources_directory.is_dir()
-    assert app.icons_directory.is_dir()
-    assert app.archetypes_directory.is_dir()
+    assert app.app_settings.resources_directory.is_dir()
+    assert app.app_settings.icons_directory.is_dir()
+    assert app.app_settings.i18n_directory.is_dir()
+    assert app.app_settings.default_profile_directory.is_dir()
+
+    assert app.profile_settings.archetypes_directory.is_dir()
+    assert app.profile_settings.xslt_directory.is_dir()

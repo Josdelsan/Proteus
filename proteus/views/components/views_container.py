@@ -135,7 +135,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         xsl_templates: list[str] = self._controller.get_project_templates()
         # Move the current default view to the first position so it is the
         # first tab to be displayed
-        current_default_view: str = Config().profile_settings.default_view
+        current_default_view: str = Config().app_settings.default_view
         if current_default_view in xsl_templates:
             xsl_templates.remove(current_default_view)
         xsl_templates.insert(0, current_default_view)

@@ -39,7 +39,7 @@ def render_service():
     Fixture for RenderService object
     """
     # Load plugins before creating the RenderService object
-    Plugins().load_plugins(Config().plugins_directory)
+    Plugins().load_plugins(Config().profile_settings.plugins_directory)
     return RenderService()
 
 

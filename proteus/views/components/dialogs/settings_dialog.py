@@ -1,7 +1,7 @@
 # ==========================================================================
 # File: settings_dialog.py
 # Description: PyQT6 settings dialog component for the PROTEUS application
-# Date: 27/06/2023
+# Date: 18/03/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict
+from typing import List
 from pathlib import Path
 import logging
 
@@ -32,21 +32,8 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.archetype_repository import ArchetypeRepository
-from proteus.application.configuration.config import (
-    Config,
-)
-from proteus.application.configuration.profile_settings import (
-    ProfileSettings,
-    SETTING_DEFAULT_VIEW,
-    SETTING_DEFAULT_ARCHETYPE_REPOSITORY,
-)
-from proteus.application.configuration.app_settings import (
-    AppSettings,
-    SETTING_LANGUAGE,
-    SETTING_USING_DEFAULT_PROFILE,
-    SETTING_CUSTOM_PROFILE_PATH,
-)
+from proteus.application.configuration.config import Config
+from proteus.application.configuration.profile_settings import ProfileSettings
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import Translator
@@ -62,7 +49,7 @@ _ = Translator().text  # Translator
 # --------------------------------------------------------------------------
 # Class: SettingsDialog
 # Description: PyQT6 settings dialog component for the PROTEUS application
-# Date: 27/06/2023
+# Date: 18/03/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
@@ -76,7 +63,7 @@ class SettingsDialog(ProteusDialog):
     # Method     : __init__
     # Description: Class constructor, invoke the parents class constructors
     #              and create the component.
-    # Date       : 27/06/2023
+    # Date       : 18/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -89,12 +76,14 @@ class SettingsDialog(ProteusDialog):
 
         # Settings edit widgets
         self.language_combo: QComboBox = None
-        self.custom_repository_edit: DirectoryEdit = None
-        self.default_repository_checkbox: QCheckBox = None
+        self.view_combo: QComboBox = None
+        self.default_repository_combo: QComboBox = None
+
+        self.custom_profile_edit: DirectoryEdit = None
+        self.default_profile_checkbox: QCheckBox = None
 
         # Error message labels
-        self.error_language_label: QLabel = None
-        self.error_default_repository_label: QLabel = None
+        self.error_profile_label: QLabel = None
 
         # Create the component
         self.create_component()
@@ -102,7 +91,7 @@ class SettingsDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : create_component
     # Description: Create the component
-    # Date       : 27/06/2023
+    # Date       : 18/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -133,14 +122,16 @@ class SettingsDialog(ProteusDialog):
 
         # Specific settings group boxes
         language_box: QGroupBox = self.create_language_box()
-        repository_box: QGroupBox = self.create_repository_box()
-        view_box: QGroupBox = self.create_view_box()
+        profile_box: QGroupBox = self.create_profile_box()
+        profile_specific_settings: QGroupBox = (
+            self.create_profile_specific_settings_box()
+        )
 
         # Add the widgets to the layout
         layout.addWidget(setting_info_label)
         layout.addWidget(language_box)
-        layout.addWidget(repository_box)
-        layout.addWidget(view_box)
+        layout.addWidget(profile_specific_settings)
+        layout.addWidget(profile_box)
         layout.addStretch()
 
         self.set_content_layout(layout)
@@ -158,12 +149,9 @@ class SettingsDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     def create_language_box(self) -> QGroupBox:
         """
-        Create the language group box that contains the language label, combo
-        box and error message label.
+        Create the language group box that contains the language combo box.
 
-        It iterates over the i18n directory to get the available languages
-        and add them to the combo box. The current language is selected by
-        default (stored in the config file).
+        Available languages are obtained from the translator instance.
         """
         # Language layout
         language_layout: QVBoxLayout = QVBoxLayout()
@@ -172,7 +160,6 @@ class SettingsDialog(ProteusDialog):
         languages: List[str] = Translator().available_languages
 
         # Create a combo box with the available views
-        lang_label: QLabel = QLabel(_("settings_dialog.language.label"))
         self.language_combo: QComboBox = QComboBox()
 
         for lang in languages:
@@ -182,7 +169,8 @@ class SettingsDialog(ProteusDialog):
             )
 
         # Set the current language
-        current_lang: str = Config().current_config_file_user_settings.get("", None)
+        current_lang: str = Config().app_settings_copy.language
+
         assert (
             current_lang is not None or current_lang == ""
         ), f"Error getting current language from configuration"
@@ -190,16 +178,8 @@ class SettingsDialog(ProteusDialog):
         index: int = self.language_combo.findData(current_lang)
         self.language_combo.setCurrentIndex(index)
 
-        # Error message label
-        self.error_language_label: QLabel = QLabel()
-        self.error_language_label.setObjectName("error_label")
-        self.error_language_label.setWordWrap(True)
-        self.error_language_label.setHidden(True)
-
         # Add the widgets to the layout
-        language_layout.addWidget(lang_label)
         language_layout.addWidget(self.language_combo)
-        language_layout.addWidget(self.error_language_label)
 
         # Group box
         language_group: QGroupBox = QGroupBox(_("settings_dialog.language.group"))
@@ -208,29 +188,100 @@ class SettingsDialog(ProteusDialog):
         return language_group
 
     # ---------------------------------------------------------------------
-    # Method     : create_repository_box
-    # Description: Create the repository group box
+    # Method     : create_profile_box
+    # Description: Create the profile group box
     # Date       : 25/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
-    def create_repository_box(self) -> QGroupBox:
+    def create_profile_box(self) -> QGroupBox:
         """
-        Create the repository group box that contains the default repository label,
-        combo box, custom repository checkbox, custom repository edit and error
-        message label.
+        Create the repository group box that contains the profile settings
+        (default or custom profile path)
         """
-        # Default repository layout
-        repository_layout: QVBoxLayout = QVBoxLayout()
+        profile_layout: QVBoxLayout = QVBoxLayout()
 
-        # Default repository label
+        self.default_profile_checkbox: QCheckBox = QCheckBox(
+            _("settings_dialog.default_profile.checkbox")
+        )
+        custom_profile_path: Path = Config().app_settings_copy.custom_profile_path
+        custom_profile_dir_str: str
+        if custom_profile_path is None:
+            custom_profile_dir_str = ""
+        else:
+            custom_profile_dir_str = custom_profile_path.as_posix()
+
+        using_default_profile: bool = Config().app_settings_copy.using_default_profile
+
+        self.default_profile_checkbox.setChecked(using_default_profile)
+
+        # Directory edit
+        self.custom_profile_edit: DirectoryEdit = DirectoryEdit()
+        self.custom_profile_edit.setEnabled(not using_default_profile)
+        self.custom_profile_edit.setDirectory(custom_profile_dir_str)
+
+        # Error message label
+        self.error_profile_label: QLabel = QLabel()
+        self.error_profile_label.setObjectName("error_label")
+        self.error_profile_label.setWordWrap(True)
+        self.error_profile_label.setHidden(True)
+
+        # Connect checkbox signal to the directory edit and combo setEnabled
+        # NOTE: 2 is the state of the checkbox when it is checked
+        self.default_profile_checkbox.stateChanged.connect(
+            lambda state: self.custom_profile_edit.setEnabled(not state == 2)
+        )
+
+        # Add the widgets to the layout
+        profile_layout.addWidget(self.default_profile_checkbox)
+        profile_layout.addWidget(self.custom_profile_edit)
+        profile_layout.addWidget(self.error_profile_label)
+
+        # Group box
+        profile_group: QGroupBox = QGroupBox(
+            _("settings_dialog.default_profile.group")
+        )
+        profile_group.setLayout(profile_layout)
+
+        return profile_group
+
+    # ---------------------------------------------------------------------
+    # Method     : create_profile_specific_settings_box
+    # Description: Create the profile specific settings group box
+    # Date       : 25/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def create_profile_specific_settings_box(self) -> QGroupBox:
+        """
+        Create the profile specific settings group box that contains the
+        the selected default view and the selected archetype repository.
+        """
+        # View layout
+        layout: QVBoxLayout = QVBoxLayout()
+
+        # Default view -------------------------------------
+        default_view_label: QLabel = QLabel(_("settings_dialog.default_view.label"))
+        self.default_view_combo: QComboBox = QComboBox()
+        for view_name in self._controller.get_available_xslt():
+            self.default_view_combo.addItem(
+                _(f"xslt_templates.{view_name}", alternative_text=view_name),
+                view_name,
+            )
+
+        # Set the current view
+        current_default_view: str = Config().app_settings_copy.default_view
+        index: int = self.default_view_combo.findData(current_default_view)
+        self.default_view_combo.setCurrentIndex(index)
+
+        # Selected repository -------------------------------------
         default_repository_label: QLabel = QLabel(
             _("settings_dialog.default_repository.label")
         )
 
         # Default repository combo
         self.default_repository_combo: QComboBox = QComboBox()
-        for repository in Config().archetypes_repositories.keys():
+        for repository in Config().profile_settings.listed_archetype_repositories:
             self.default_repository_combo.addItem(
                 _(f"settings.repository.{repository}", alternative_text=repository),
                 repository,
@@ -240,196 +291,78 @@ class SettingsDialog(ProteusDialog):
                 Icons().icon(ProteusIconType.Repository, repository),
             )
 
-        current_default_repository: str = (
-            Config().current_config_file_user_settings.get("")
-        )
+        current_default_repository: str = Config().app_settings_copy.default_archetype_repository
 
         self.default_repository_combo.setCurrentIndex(
             self.default_repository_combo.findData(current_default_repository)
         )
 
-        # Use default repository checkbox
-        self.default_repository_checkbox: QCheckBox = QCheckBox(
-            _("settings_dialog.default_repository.checkbox")
-        )
-        current_custom_repository: str = Config().current_config_file_user_settings.get(
-            "SETTING_CUSTOM_ARCHETYPE_REPOSITORY", None
-        )
-
-        using_custom_repository_str: (
-            str
-        ) = Config().current_config_file_user_settings.get(
-            "SETTING_USING_CUSTOM_REPOSITORY"
-        )
-        using_custom_repository: bool = using_custom_repository_str == "True"
-
-        self.default_repository_checkbox.setChecked(not using_custom_repository)
-
-        # Directory edit
-        self.custom_repository_edit: DirectoryEdit = DirectoryEdit()
-        # If it is not using the default repository, set the directory
-        self.custom_repository_edit.setEnabled(using_custom_repository)
-        self.default_repository_combo.setEnabled(not using_custom_repository)
-        self.custom_repository_edit.setDirectory(current_custom_repository)
-
-        # Error message label
-        self.error_default_repository_label: QLabel = QLabel()
-        self.error_default_repository_label.setObjectName("error_label")
-        self.error_default_repository_label.setWordWrap(True)
-        self.error_default_repository_label.setHidden(True)
-
-        # Connect checkbox signal to the directory edit and combo setEnabled
-        # NOTE: 2 is the state of the checkbox when it is checked
-        self.default_repository_checkbox.stateChanged.connect(
-            lambda state: self.custom_repository_edit.setEnabled(not state == 2)
-        )
-        self.default_repository_checkbox.stateChanged.connect(
-            lambda state: self.default_repository_combo.setEnabled(state == 2)
-        )
-
         # Add the widgets to the layout
-        repository_layout.addWidget(default_repository_label)
-        repository_layout.addWidget(self.default_repository_combo)
-        repository_layout.addWidget(self.default_repository_checkbox)
-        repository_layout.addWidget(self.custom_repository_edit)
-        repository_layout.addWidget(self.error_default_repository_label)
+        layout.addWidget(default_view_label)
+        layout.addWidget(self.default_view_combo)
+        layout.addWidget(default_repository_label)
+        layout.addWidget(self.default_repository_combo)
 
         # Group box
-        default_repository_group: QGroupBox = QGroupBox(
-            _("settings_dialog.default_repository.group")
+        group: QGroupBox = QGroupBox(
+            _("settings_dialog.profile_settings.group")
         )
-        default_repository_group.setLayout(repository_layout)
+        group.setLayout(layout)
 
-        return default_repository_group
-
-    # ---------------------------------------------------------------------
-    # Method     : create_view_box
-    # Description: Create the view group box
-    # Date       : 25/01/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ---------------------------------------------------------------------
-    def create_view_box(self) -> QGroupBox:
-        """
-        Create the view group box that contains the default view label and combo box.
-        """
-        # View layout
-        view_layout: QVBoxLayout = QVBoxLayout()
-
-        # Default view label
-        default_view_label: QLabel = QLabel(_("settings_dialog.default_view.label"))
-
-        # Default view combo
-        self.default_view_combo: QComboBox = QComboBox()
-        for view_name in self._controller.get_available_xslt():
-            self.default_view_combo.addItem(
-                _(f"xslt_templates.{view_name}", alternative_text=view_name),
-                view_name,
-            )
-
-        # Set the current view
-        current_default_view: str = Config().profile_setting.selected_view
-        index: int = self.default_view_combo.findData(current_default_view)
-        self.default_view_combo.setCurrentIndex(index)
-
-        # Add the widgets to the layout
-        view_layout.addWidget(default_view_label)
-        view_layout.addWidget(self.default_view_combo)
-
-        # Group box
-        default_view_group: QGroupBox = QGroupBox(
-            _("settings_dialog.default_view.group")
-        )
-        default_view_group.setLayout(view_layout)
-
-        return default_view_group
+        return group
 
     # ======================================================================
     # Validators
     # ======================================================================
 
-    # ----------------------------------------------------------------------
-    # Method     : validate_language
-    # Description: Validate the language
-    # Date       : 25/01/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def validate_language(self) -> bool:
-        """
-        Validate if the language input is correct. It checks if the language
-        is in the available languages list.
-
-        It shows an error message if the language is not correct. Otherwise,
-        it hides the error message if it was shown before.
-
-        :return: True if the language is correct, False otherwise
-        """
-        language: str = self.language_combo.currentData()
-        if language is None or language == "":
-            self.error_language_label.setText(
-                _("settings_dialog.error.invalid_language")
-            )
-            self.error_language_label.setHidden(False)
-            return False
-
-        self.error_language_label.setHidden(True)
-        return True
-
     # ---------------------------------------------------------------------
-    # Method     : validate_default_repository
-    # Description: Validate the default repository
+    # Method     : validate_profile
+    # Description: Validate the selected profile
     # Date       : 25/01/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
     def validate_repository(self) -> bool:
         """
-        Validate if the default repository input is correct. It checks if the
-        path exists and if it is a valid repository.
+        Validate if the custom profile can be loaded from the selected path.
 
-        It shows an error message if the path is not correct. Otherwise,
-        it hides the error message if it was shown before.
-
-        :return: True if the path is correct, False otherwise
+        :return: True if the profile can be loaded, False otherwise
         """
-        default_repository: bool = self.default_repository_checkbox.isChecked()
-        repository_path: str = self.custom_repository_edit.directory()
+        default_profile: bool = self.default_profile_checkbox.isChecked()
+        profile_path: str = self.custom_profile_edit.directory()
 
         # If it is using custom repository, check if it is correct
-        if not default_repository:
+        if not default_profile:
             # Check if the path is empty
-            if repository_path == "":
-                self.error_default_repository_label.setText(
-                    _("settings_dialog.error.repository.empty_path")
+            if profile_path == "":
+                self.error_profile_label.setText(
+                    _("settings_dialog.error.profile.empty_path")
                 )
-                self.error_default_repository_label.setHidden(False)
+                self.error_profile_label.setHidden(False)
                 return False
 
             # Check if the path exists
-            _repo_path: Path = Path(repository_path)
-            if not _repo_path.exists():
-                self.error_default_repository_label.setText(
-                    _("settings_dialog.error.repository.invalid_path")
+            _profile_path: Path = Path(profile_path)
+            if not _profile_path.exists():
+                self.error_profile_label.setText(
+                    _("settings_dialog.error.profile.invalid_path")
                 )
-                self.error_default_repository_label.setHidden(False)
+                self.error_profile_label.setHidden(False)
                 return False
 
-            # Check if it is a valid repository using ArchetypeRepository
+            # Check if it is a valid profile using profile settings loader
             try:
-                ArchetypeRepository.load_object_archetypes(_repo_path)
-                ArchetypeRepository.load_document_archetypes(_repo_path)
-                ArchetypeRepository.load_project_archetypes(_repo_path)
+                ProfileSettings.load(_profile_path)
             except Exception as e:
-                log.error(f"Error loading custom archetypes from repository: {e}")
-                self.error_default_repository_label.setText(
-                    _("settings_dialog.error.repository.invalid_repository")
+                log.error(f"Error loading custom profile from path {_profile_path} error: {e}")
+                self.error_profile_label.setText(
+                    _("settings_dialog.error.profile.invalid_profile", e)
                 )
-                self.error_default_repository_label.setHidden(False)
+                self.error_profile_label.setHidden(False)
                 return False
 
         # If we reach this point, there are no errors
-        self.error_language_label.setHidden(True)
+        self.error_profile_label.setHidden(True)
         return True
 
     # ======================================================================
@@ -439,7 +372,7 @@ class SettingsDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : save_button_clicked
     # Description: Save button clicked event handler
-    # Date       : 27/06/2023
+    # Date       : 18/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -451,7 +384,6 @@ class SettingsDialog(ProteusDialog):
         # Validate settings
         # ---------------------
         valid_settings: bool = True
-        valid_settings = self.validate_language() and valid_settings
         valid_settings = self.validate_repository() and valid_settings
 
         # If there are errors, do not save the settings
@@ -461,32 +393,21 @@ class SettingsDialog(ProteusDialog):
         # ---------------------
         # Store validated settings
         # ---------------------
-        settings: Dict[str, str] = {}
 
-        # Store language
-        # language: str = self.language_combo.currentData()
-        # settings[SETTING_LANGUAGE] = language
+        config = Config()
 
-        # # Store default view
-        # default_view: str = self.default_view_combo.currentData()
-        # settings[SETTING_DEFAULT_VIEW] = default_view
-
-        # # Store using custom repository
-        # using_custom_repository: bool = not self.default_repository_checkbox.isChecked()
-        # settings[SETTING_USING_CUSTOM_REPOSITORY] = str(using_custom_repository)
-
-        # # Store default repository
-        # default_repository: str = self.default_repository_combo.currentData()
-        # settings[SETTING_DEFAULT_ARCHETYPE_REPOSITORY] = default_repository
-
-        # # Store custom repository
-        # repository_path = self.custom_repository_edit.directory()
-        # settings[SETTING_CUSTOM_ARCHETYPE_REPOSITORY] = str(repository_path)
+        config.app_settings_copy = config.app_settings_copy.clone(
+            language=self.language_combo.currentData(),
+            default_view=self.default_view_combo.currentData(),
+            using_default_profile=self.default_profile_checkbox.isChecked(),
+            default_archetype_repository=self.default_repository_combo.currentData(),
+            custom_profile_path=self.custom_profile_edit.directory(),
+        )
 
         # ---------------------
         # Save settings
         # ---------------------
-        Config().save_user_settings(settings)
+        config.app_settings_copy.save()
 
         # Close the form window
         self.close()
@@ -495,7 +416,7 @@ class SettingsDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : cancel_button_clicked
     # Description: Cancel button clicked event handler
-    # Date       : 27/06/2023
+    # Date       : 18/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -515,7 +436,7 @@ class SettingsDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : create_dialog
     # Description: Create a settings dialog and show it
-    # Date       : 27/06/2023
+    # Date       : 18/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------

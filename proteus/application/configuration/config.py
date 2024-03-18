@@ -18,9 +18,8 @@
 
 import os
 import datetime
-from typing import Dict
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -67,16 +66,12 @@ class Config(metaclass=SingletonMeta):
     app_settings: AppSettings = None
     profile_settings: ProfileSettings = None
 
-    # TODO: This is set in the project service. Current project information
-    # may be stored in a separate class. This is a workarround to access
-    # assets folder.
-    current_project_path: str = None
+    # App settings copy (store user changes)
+    app_settings_copy: AppSettings = None
 
-    # TODO: This is a workaround to preserve user settings changes until
-    # the application is restarted. This is required because the config
-    # setting dialog do not access the config file directly but this class
-    # instance to check settings values.
-    current_config_file_user_settings: Dict[str, str] = None
+    # Archetype repository path
+    # NOTE: This is stored to avoid building the path every time it is needed
+    selected_archetype_repository_path: Path = None
 
     def __post_init__(self):
         """
@@ -92,7 +87,6 @@ class Config(metaclass=SingletonMeta):
 
         # Qt search paths
         self._setup_qt_search_paths()
-
 
     # ==========================================================================
     # Private methods
@@ -114,7 +108,7 @@ class Config(metaclass=SingletonMeta):
 
         # Select correct profile path (custom or default)
         profile_path: Path = self.app_settings.default_profile_directory
-        if self.app_settings.using_default_profile:
+        if not self.app_settings.using_default_profile:
             profile_path = self.app_settings.custom_profile_path
 
         # Try to load the profile settings
@@ -135,6 +129,34 @@ class Config(metaclass=SingletonMeta):
                 self.profile_settings = ProfileSettings.load(
                     self.app_settings.default_profile_directory
                 )
+
+        # Validate settings using profile information
+        if self.app_settings.default_view not in self.profile_settings.listed_templates:
+            log.warning(
+                f"Selected default view '{self.app_settings.default_view}' is not available in the profile. Using profile preferred view instead."
+            )
+
+            self.app_settings.default_view = self.profile_settings.preferred_default_view
+
+        if (
+            self.app_settings.default_archetype_repository
+            not in self.profile_settings.listed_archetype_repositories
+        ):
+            log.warning(
+                f"Selected default archetype repository '{self.app_settings.default_archetype_repository}' is not available in the profile. Using profile preferred repository instead."
+            )
+
+            self.app_settings.default_archetype_repository = (
+                self.profile_settings.preferred_archetype_repository
+            )
+
+        # Set the selected archetype repository path
+        self.selected_archetype_repository_path = (
+            self.profile_settings.archetypes_directory
+            / self.app_settings.default_archetype_repository
+        )
+        # Create a copy of the app settings to store user changes
+        self.app_settings_copy = replace(self.app_settings)
 
     # --------------------------------------------------------------------------
     # Method: _setup_qt_search_paths

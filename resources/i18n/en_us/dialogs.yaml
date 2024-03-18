@@ -66,18 +66,17 @@ new_view_dialog.error.duplicated_view: "The view already exists"
 settings_dialog.title: "Proteus settings"
 
 settings_dialog.language.group: "Language"
-settings_dialog.language.label: "Select language:"
-settings_dialog.error.invalid_language: "Please select a valid language"
 
-settings_dialog.default_repository.group: "Archetype repository"
-settings_dialog.default_repository.label: "System archetypes repositories:"
-settings_dialog.default_repository.checkbox: "Uncheck to use a custom archetype repository"
-settings_dialog.error.repository.empty_path: "Please select a valid repository path"
-settings_dialog.error.repository.invalid_path: "The selected path does not exist"
-settings_dialog.error.repository.invalid_repository: "The selected path is not a valid archetype repository, see log file for more information about the error"
+settings_dialog.default_profile.group: "Profile"
+settings_dialog.default_profile.checkbox: "Uncheck to use a custom profile"
 
-settings_dialog.default_view.group: "Views"
+settings_dialog.error.profile.empty_path: "Please select a valid profile path"
+settings_dialog.error.profile.invalid_path: "The selected path does not exist"
+settings_dialog.error.profile.invalid_profile: "The selected path is not a valid profile, see log file for more information about the error. Error: {}"
+
+settings_dialog.profile_settings.group: "Profile specific settings"
 settings_dialog.default_view.label: "Default view:"
+settings_dialog.default_repository.label: "Archetype repository:"
 
 settings_dialog.info.label: "The changes will be applied when you restart the application"
 
@@ -136,10 +135,3 @@ delete_dialog.tree.header: Click in each item to see the elements that will be u
 # ---------------------------------------------------------------------------
 asset_edit.warning.title: "Warning"
 asset_edit.warning.text: "There is already a file with the same name in the assets folder. Do you want to replace it?"
-
-
-# ---------------------------------------------------------------------------
-# WebChannel dialog
-# ---------------------------------------------------------------------------
-document.navigation.request.title: "The selected item is not in the current document"
-document.navigation.request.text: "The selected item '{}'' is in the document '{}', do you want to navigate to it?"

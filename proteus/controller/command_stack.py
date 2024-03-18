@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List, Set, Dict, Union
+from pathlib import Path
 import logging
 
 # --------------------------------------------------------------------------
@@ -438,6 +439,7 @@ class Controller:
         # It must be done before notifying the OPEN_PROJECT event to avoid
         # inconsistencies in the subscribed components.
         StateManager().clear()
+        StateManager().current_project_path = Path(project_path)
         OpenProjectEvent().notify()
 
     # ----------------------------------------------------------------------

@@ -44,7 +44,7 @@ from proteus.model.project import Project
 
 def test_project_archetype():
     # Get the number of projects in archetypes projects
-    current_archetype_repository = Config().profile_settings.selected_archetype_repository_path
+    current_archetype_repository = Config().selected_archetype_repository_path
     dir_path = str(current_archetype_repository / "projects")
     number_of_projects : int = len(os.listdir(dir_path))
     
@@ -60,7 +60,7 @@ def test_project_archetype():
 
 def test_document_archetype():
     # Get the number of documents in archetypes documents
-    current_archetype_repository = Config().profile_settings.selected_archetype_repository_path
+    current_archetype_repository = Config().selected_archetype_repository_path
     dir_path = str(current_archetype_repository / "documents")
     number_of_documents = len(os.listdir(dir_path))
     
@@ -76,7 +76,7 @@ def test_document_archetype():
 
 def test_object_archetype():
     # Get the number of objects arquetypes clases
-    current_archetype_repository = Config().profile_settings.selected_archetype_repository_path
+    current_archetype_repository = Config().selected_archetype_repository_path
     dir_path = str(current_archetype_repository / "objects")
     archetype_groups = os.listdir(dir_path)
     

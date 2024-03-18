@@ -120,22 +120,24 @@ def load_translations_icons_plugins():
     plugin_manager = Plugins()
 
     if translator._translations == {}:
-        translator.set_language(config.language)
-        translator.set_proteus_i18n_directory(config.i18n_directory)
-        translator.load_translations(config.i18n_directory)
+        translator.set_language(config.app_settings.language)
+        translator.set_proteus_i18n_directory(config.app_settings.i18n_directory)
+        translator.load_translations(config.app_settings.i18n_directory)
+        translator.load_translations(config.profile_settings.i18n_directory)
         translator.load_translations(
-            config.current_archetype_repository / "i18n"
+            config.selected_archetype_repository_path / "i18n"
         )
 
     if dynamic_icons._icons_paths == {}:
-        dynamic_icons.load_icons(config.icons_directory)
+        dynamic_icons.load_icons(config.app_settings.icons_directory)
+        dynamic_icons.load_icons(config.profile_settings.icons_directory)
         dynamic_icons.load_icons(
-            config.current_archetype_repository / "icons",
+            config.selected_archetype_repository_path / "icons",
             archetype_repository=True,
         )
 
     if plugin_manager._plugins == {}:
-        plugin_manager.load_plugins(config.plugins_directory)
+        plugin_manager.load_plugins(config.profile_settings.plugins_directory)
 
 def restore_app_singleton_instances():
     """

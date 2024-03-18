@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application import ASSETS_DUMMY_SEARCH_PATH, TEMPLATE_DUMMY_SEARCH_PATH
-from proteus.application.configuration.config import Config
+from proteus.application.state_manager import StateManager
 from proteus.application.resources.translator import Translator
 from proteus.application.state_manager import StateManager
 from proteus.controller.command_stack import Controller
@@ -129,7 +129,7 @@ class ExportHTML(ExportStrategy):
 
             # ------------------------------------------------------------------
             # Copy the project assets folder to the export folder
-            assets_folder: Path = Path(Config().current_project_path) / ASSETS_REPOSITORY
+            assets_folder: Path = StateManager().current_project_path / ASSETS_REPOSITORY
             assets_folder_destination: Path = export_folder / ASSETS_REPOSITORY
             shutil.copytree(assets_folder, assets_folder_destination)
 

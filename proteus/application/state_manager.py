@@ -13,6 +13,7 @@
 # --------------------------------------------------------------------------
 
 from typing import Dict, Union
+from pathlib import Path
 import logging
 
 # --------------------------------------------------------------------------
@@ -64,6 +65,8 @@ class StateManager(metaclass=SingletonMeta):
         self.current_document: ProteusID = None
         self.current_object: Dict[ProteusID, ProteusID] = {}
         self.current_view: str = None
+
+        self.current_project_path: Path = None
 
     # ==========================================================================
     # App state variables management mehtods
@@ -272,6 +275,7 @@ class StateManager(metaclass=SingletonMeta):
         self.current_document = None
         self.current_object = {}
         self.current_view = None
+        self.current_project_path = None
 
     
 

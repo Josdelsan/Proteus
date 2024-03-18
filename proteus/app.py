@@ -143,7 +143,7 @@ class ProteusApplication:
 
         # Selected archetype repository specific resources
         selected_archetype_repository_path = (
-            self.config.profile_settings.selected_archetype_repository_path
+            self.config.selected_archetype_repository_path
         )
         self.translator.load_translations(selected_archetype_repository_path / "i18n")
         self.dynamic_icons.load_icons(selected_archetype_repository_path / "icons")

@@ -17,6 +17,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 import logging
 
 # --------------------------------------------------------------------------
@@ -92,10 +93,10 @@ def image_to_base64(context, asset_file: List[ET._Element]) -> str:
     repository name.
     """
 
-    assets_path: str = f"{Config().current_project_path}/{ASSETS_REPOSITORY}/{asset_file[0].text}"
+    assets_path: Path = StateManager().current_project_path / ASSETS_REPOSITORY / asset_file[0].text
 
     # Load the image using QImage
-    image = QImage(assets_path)
+    image = QImage(assets_path.as_posix())
 
     ba = QByteArray()
     buffer = QBuffer(ba)

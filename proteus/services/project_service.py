@@ -12,7 +12,6 @@
 
 import logging
 from typing import Union, List, Dict, Set
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,7 +23,6 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.application.configuration.config import Config
 from proteus.model import (
     ProteusID,
     ID_ATTRIBUTE,
@@ -108,9 +106,6 @@ class ProjectService:
         """
         # Load project
         self.project = Project.load(project_path)
-
-        # Set current project path in application config
-        Config().current_project_path = project_path
 
         # Initialize project index
         self.project_index = {}
