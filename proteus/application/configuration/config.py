@@ -11,6 +11,11 @@
 # Description:
 # - Convert the Config class into a singleton class.
 # ==========================================================================
+# Update: 20/03/2024 (José María Delgado Sánchez)
+# Description:
+# - Moved configuration file handling to separate class and reduced class
+#   responsibilities.
+# ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
@@ -52,7 +57,7 @@ log = logging.getLogger(__name__)
 # Class: Config
 # Description: Class for the Configuration PROTEUS application
 # Date: 11/10/2022
-# Version: 0.2
+# Version: 0.3
 # Author: Amador Durán Toro
 #         Pablo Rivera Jiménez
 #         José María Delgado Sánchez

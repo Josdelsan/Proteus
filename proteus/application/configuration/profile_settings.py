@@ -111,7 +111,7 @@ class ProfileSettings:
 
         profile_settings._load_directories()
         profile_settings._list_templates_and_archetype_repositories()
-        profile_settings._load_user_settings()
+        profile_settings._load_preference_settings()
 
         return profile_settings
 
@@ -182,15 +182,15 @@ class ProfileSettings:
         log.info(f"{self.i18n_directory = }")
 
     # --------------------------------------------------------------------------
-    # Method: _load_user_settings
-    # Description: Load user editable settings from the configuration file
+    # Method: _load_preference_settings
+    # Description: Load profile preference settings from the configuration file
     # Date: 15/03/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def _load_user_settings(self) -> None:
+    def _load_preference_settings(self) -> None:
         """
-        Load user editable settings from the configuration file.
+        Load user settings from the configuration file.
         """
         # Settings section
         settings = self.config_parser[PREFERENCES]

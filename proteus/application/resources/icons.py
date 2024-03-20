@@ -93,8 +93,7 @@ class Icons(metaclass=SingletonMeta):
     All the repeated values (included default) defined in the icons file inside
     archetype repository will override the values defined in the resources
     directory. This allows mantaining default values in the application while
-    it is possible to override them in the archetype repository specific
-    implementation.
+    it is possible to override them.
 
     This class uses memoization to store the icons already instantiated as
     QIcon objects.
@@ -136,9 +135,8 @@ class Icons(metaclass=SingletonMeta):
         Stores the icons paths found in the configuration file. 
 
         archetype_repo_mode is used to be less strict when reading the icons
-        configuration file. This is because the archetype repository may not
-        have custom default icons and it cannot contain custom icons for
-        app/main_menu type.
+        configuration file. This is because the archetype repositories cannot
+        contain custom icons for app/main_menu type.
 
         :param icons_path: Path to the icons directory.
         :param archetype_repo_mode: Load icons from archetype repository mode.

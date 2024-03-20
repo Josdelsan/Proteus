@@ -25,17 +25,6 @@ from pathlib import Path
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import (
-    XSLT_DEFAULT_ATTRIBUTE,
-    XSLT_DEPENCENCIES_TAG,
-    XSLT_ENTRY_POINT_TAG,
-    XSLT_ENTRY_POINTS_TAG,
-    XSLT_FILE_ATTRIBUTE,
-    XSLT_LANGUAGE_ATTRIBUTE,
-    XSLT_NAME_ATTRIBUTE,
-    XSLT_PLUGIN_DEPENDENCY_TAG,
-    XSLT_TEMPLATE_TAG,
-)
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -45,6 +34,19 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------
 
 TEMPLATE_CONFIG_FILE: str = "template.xml"
+
+# XSLT templates config file tags and attributes
+XSLT_TEMPLATE_TAG            = "template"
+XSLT_ENTRY_POINTS_TAG        = "entryPoints"
+XSLT_ENTRY_POINT_TAG         = "entryPoint"
+XSLT_DEPENCENCIES_TAG        = "dependencies"
+XSLT_PLUGIN_DEPENDENCY_TAG   = "pluginDependency"
+
+XSLT_NAME_ATTRIBUTE      = "name"
+XSLT_LANGUAGE_ATTRIBUTE  = "language"
+XSLT_FILE_ATTRIBUTE      = "file"
+XSLT_DEFAULT_ATTRIBUTE   = "default"
+
 
 
 # --------------------------------------------------------------------------
@@ -59,9 +61,9 @@ class Template:
 
     name: str
     path: Path
-    default_entrypoint: Path
-    entrypoints: Dict[str, Path]
-    plugin_dependencies: List[str]
+    default_entrypoint: Path = None
+    entrypoints: Dict[str, Path] = None
+    plugin_dependencies: List[str] = None
 
     # ----------------------------------------------------------------------
     # Method     : load
@@ -94,35 +96,17 @@ class Template:
         ), f"Name attribute not found in template tag for template {template_file}"
 
         # Return the template object
-        return Template(
+        template = Template(
             name=template_name,
             path=template_path,
-            default_entrypoint=None,
-            entrypoints={},
-            plugin_dependencies=[],
         )
 
+        template._load_entrypoints()
+        template._load_dependencies()
 
-    # ----------------------------------------------------------------------
-    # Method     : __post_init__
-    # Description: Post initialization method
-    # Date       : 14/03/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __post_init__(self):
-        """
-        Post initialization method
-        """
+        log.info(f"Template '{template_name}' loaded from {template_path}")
 
-        # Load the template entry points
-        self._load_entrypoints()
-
-        # Load the template dependencies
-        self._load_dependencies()
-
-        log.info(f"Template '{self.name}' loaded from {self.path}")
-
+        return template
 
     # ----------------------------------------------------------------------
     # Method     : _load_entrypoints
@@ -135,6 +119,9 @@ class Template:
         """
         Loads template entry points from the template configuration file.
         """
+
+        self.default_entrypoint: Path = None
+        self.entrypoints: Dict[str, Path] = {}
 
         root: ET._Element = ET.parse(self.path / TEMPLATE_CONFIG_FILE).getroot()
 
@@ -188,6 +175,8 @@ class Template:
         """
         Loads template dependencies from the template configuration file.
         """
+
+        self.plugin_dependencies: List[str] = []
 
         root: ET._Element = ET.parse(self.path / TEMPLATE_CONFIG_FILE).getroot()
 

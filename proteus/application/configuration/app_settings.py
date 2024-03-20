@@ -32,7 +32,6 @@ CONFIG_FILE: str = "proteus.ini"
 
 # Directories
 DIRECTORIES: str = "directories"
-BASE_DIRECTORY: str = "base_directory"
 RESOURCES_DIRECTORY: str = "resources_directory"
 ICONS_DIRECTORY: str = "icons_directory"
 I18N_DIRECTORY: str = "i18n_directory"
@@ -63,7 +62,6 @@ class AppSettings:
     config_parser: ConfigParser = None
 
     # Directory settings (not editable by the user)
-    base_directory: Path = None
     resources_directory: Path = None
     icons_directory: Path = None
     i18n_directory: Path = None
@@ -142,7 +140,6 @@ class AppSettings:
         # Directories section
         directories = self.config_parser[DIRECTORIES]
 
-        self.base_directory = self.app_path / directories[BASE_DIRECTORY]
         self.resources_directory = self.app_path / directories[RESOURCES_DIRECTORY]
         self.icons_directory = self.resources_directory / directories[ICONS_DIRECTORY]
         self.i18n_directory = self.resources_directory / directories[I18N_DIRECTORY]
@@ -150,9 +147,6 @@ class AppSettings:
             self.app_path / directories[DEFAULT_PROFILE_DIRECTORY]
         )
 
-        assert (
-            self.base_directory.exists()
-        ), f"PROTEUS base directory {self.base_directory} does not exist!"
         assert (
             self.resources_directory.exists()
         ), f"PROTEUS resources directory {self.resources_directory} does not exist!"
@@ -167,7 +161,6 @@ class AppSettings:
         ), f"PROTEUS default profile directory {self.default_profile_directory} does not exist!"
 
         log.info(f"Directories loaded from {self.settings_file_path}.")
-        log.info(f"{self.base_directory = }")
         log.info(f"{self.resources_directory = }")
         log.info(f"{self.icons_directory = }")
         log.info(f"{self.i18n_directory = }")

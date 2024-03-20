@@ -15,11 +15,6 @@
 # standard library imports
 from typing import NewType
 
-# local imports
-#from model.abstract_object import AbstractObject
-#from model.property import Property, PropertyFactory
-#from model.project import Project
-#from model.object import Object
 
 # ==========================================================================
 # constants
@@ -45,18 +40,18 @@ XSL_TEMPLATES_TAG  = str('xsl-templates')
 XLS_TEMPLATE_TAG   = str('xsl-template')
 
 # XML attributes
-ID_ATTRIBUTE                = str('id')
-ACCEPTED_CHILDREN_ATTRIBUTE = str('acceptedChildren')
-ACCEPTED_PARENTS_ATTRIBUTE  = str('acceptedParents')
-ACCEPTED_TARGETS_ATTRIBUTE  = str('acceptedTargets')
-CLASSES_ATTRIBUTE           = str('classes')
-NAME_ATTRIBUTE              = str('name')
-REQUIRED_ATTRIBUTE          = str('required')
-INMUTABLE_ATTRIBUTE         = str('inmutable')
-CATEGORY_ATTRIBUTE          = str('category')
-TOOLTIP_ATTRIBUTE           = str('tooltip')
-TARGET_ATTRIBUTE            = str('target')
-TRACE_TYPE_ATTRIBUTE        = str('traceType')
+ID_ATTRIBUTE                   = str('id')
+ACCEPTED_CHILDREN_ATTRIBUTE    = str('acceptedChildren')
+ACCEPTED_PARENTS_ATTRIBUTE     = str('acceptedParents')
+ACCEPTED_TARGETS_ATTRIBUTE     = str('acceptedTargets')
+CLASSES_ATTRIBUTE              = str('classes')
+NAME_ATTRIBUTE                 = str('name')
+REQUIRED_ATTRIBUTE             = str('required')
+INMUTABLE_ATTRIBUTE            = str('inmutable')
+CATEGORY_ATTRIBUTE             = str('category')
+TOOLTIP_ATTRIBUTE              = str('tooltip')
+TARGET_ATTRIBUTE               = str('target')
+TRACE_TYPE_ATTRIBUTE           = str('traceType')
 MAX_TARGETS_NUMBER_ATTRIBUTE   = str('maxTargetsNumber')
 
 # Type for Class tags in Proteus
@@ -72,16 +67,16 @@ PROTEUS_NONE     = ProteusClassTag(':Proteus-none')
 PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
 
 # Some predefined attribute names
-PROTEUS_CODE = str(':Proteus-code')
-PROTEUS_NAME = str(':Proteus-name')
-PROTEUS_DATE = str(':Proteus-date')
+PROTEUS_CODE    = str(':Proteus-code')
+PROTEUS_NAME    = str(':Proteus-name')
+PROTEUS_DATE    = str(':Proteus-date')
 PROTEUS_ACRONYM = str(':Proteus-acronym')
 
 # Some predefined traceability types
-PROTEUS_DEPENDENCY = str(':Proteus-dependency')
-PROTEUS_AUTHOR = str(':Proteus-author')
-PROTEUS_INFORMATION_SOURCE = str(':Proteus-information-source')
-PROTEUS_WORKS_FOR = str(':Proteus-works-for')
+PROTEUS_DEPENDENCY          = str(':Proteus-dependency')
+PROTEUS_AUTHOR              = str(':Proteus-author')
+PROTEUS_INFORMATION_SOURCE  = str(':Proteus-information-source')
+PROTEUS_WORKS_FOR           = str(':Proteus-works-for')
 
 # Default values
 DEFAULT_TRACE_NAME     = str('trace')
@@ -91,15 +86,4 @@ DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 # Name prefix for cloned objects
 COPY_OF = str('archetype.copy-of')
 
-# XSLT templates config file tags and attributes
-XSLT_TEMPLATE_TAG            = "template"
-XSLT_ENTRY_POINTS_TAG        = "entryPoints"
-XSLT_ENTRY_POINT_TAG         = "entryPoint"
-XSLT_DEPENCENCIES_TAG        = "dependencies"
-XSLT_PLUGIN_DEPENDENCY_TAG   = "pluginDependency"
-
-XSLT_NAME_ATTRIBUTE      = "name"
-XSLT_LANGUAGE_ATTRIBUTE  = "language"
-XSLT_FILE_ATTRIBUTE      = "file"
-XSLT_DEFAULT_ATTRIBUTE   = "default"
 

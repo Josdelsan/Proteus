@@ -44,6 +44,8 @@ LANGUAGE_CONFIG_FILE = "languages.xml"
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
+# TODO: Consider allowing external i18n directories to load languages to
+# available languages. This will allow Proteus profiles to add new languages.
 class Translator(metaclass=SingletonMeta):
     """
     Manage the language translations for PROTEUS application. It stores the
@@ -53,6 +55,9 @@ class Translator(metaclass=SingletonMeta):
     Translations are stored in i18n directory. Each language has its own
     directory with the translations files or file. The translations files
     are yaml files.
+
+    Available languages are based on the built-in language configuration file
+    located in application i18n directory.
     """
 
     # --------------------------------------------------------------------------
@@ -339,7 +344,7 @@ class Translator(metaclass=SingletonMeta):
     # Version: 0.2
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    # TODO: this method follows a EAFP philosophy since most of the strings
+    # NOTE: this method follows a EAFP philosophy since most of the strings
     # in the app will have translations. For really (really) big archetype
     # repositories that are not translated, this might cause a performance
     # issue on app startup. Also tests may be affected by this.

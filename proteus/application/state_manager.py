@@ -46,7 +46,8 @@ log = logging.getLogger(__name__)
 class StateManager(metaclass=SingletonMeta):
     """
     State manager for the PROTEUS application. It stores the current
-    selected document and the selected object for each document tree.
+    selected document, the selected object for each document tree and the
+    current view. Also stores the current project path.
     """
 
     # --------------------------------------------------------------------------
