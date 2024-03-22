@@ -1,0 +1,10 @@
+# ==========================================================================
+# File: profiles.yaml
+# Description: Proteus application profiles related translations
+# Date: 22/03/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+profiles.ir: "Requirements Engineering subject (IR)"
+profiles.description.ir: "Profile for Requirements Engineering (IR) subject at University of Seville"

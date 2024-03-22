@@ -124,17 +124,10 @@ def load_translations_icons_plugins():
         translator.set_proteus_i18n_directory(config.app_settings.i18n_directory)
         translator.load_translations(config.app_settings.i18n_directory)
         translator.load_translations(config.profile_settings.i18n_directory)
-        translator.load_translations(
-            config.selected_archetype_repository_path / "i18n"
-        )
 
     if dynamic_icons._icons_paths == {}:
         dynamic_icons.load_icons(config.app_settings.icons_directory)
         dynamic_icons.load_icons(config.profile_settings.icons_directory)
-        dynamic_icons.load_icons(
-            config.selected_archetype_repository_path / "icons",
-            archetype_repository=True,
-        )
 
     if plugin_manager._plugins == {}:
         plugin_manager.load_plugins(config.profile_settings.plugins_directory)

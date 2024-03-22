@@ -44,7 +44,6 @@ I18N_DIRECTORY: str = "i18n_directory"
 # User editable settings
 PREFERENCES: str = "preferences"
 PREFERENCE_DEFAULT_VIEW: str = "default_view"
-PREFERENCE_DEFAULT_ARCHETYPE_REPOSITORY: str = "selected_archetype_repository"
 
 
 # logging configuration
@@ -71,11 +70,10 @@ class ProfileSettings:
 
     # Profile preferences settings
     preferred_default_view: str = None
-    preferred_archetype_repository: str = None
 
-    # Found templates/archetypes repositories
+    # Found templates
     listed_templates: List[str] = None
-    listed_archetype_repositories: List[str] = None
+
 
     # --------------------------------------------------------------------------
     # Method: load
@@ -110,7 +108,7 @@ class ProfileSettings:
         )
 
         profile_settings._load_directories()
-        profile_settings._list_templates_and_archetype_repositories()
+        profile_settings._validate_profile_basic_content()
         profile_settings._load_preference_settings()
 
         return profile_settings
@@ -151,28 +149,34 @@ class ProfileSettings:
             log.warning(
                 f"Plugins directory is not set in profile config {self.profile_path}!"
             )
+            self.plugins_directory = None
         elif not self.plugins_directory.exists():
             log.warning(
                 f"Plugins directory {self.plugins_directory} does not exist in profile {self.profile_path}!"
             )
+            self.plugins_directory = None
 
         if not directories[ICONS_DIRECTORY]:
             log.warning(
                 f"Icons directory is not set in profile config {self.profile_path}!"
             )
+            self.icons_directory = None
         elif not self.icons_directory.exists():
             log.warning(
                 f"Icons directory {self.icons_directory} does not exist in profile {self.profile_path}!"
             )
+            self.icons_directory = None
 
         if not directories[I18N_DIRECTORY]:
             log.warning(
                 f"i18n directory is not set in profile config {self.profile_path}!"
             )
+            self.i18n_directory = None
         elif not self.i18n_directory.exists():
             log.warning(
                 f"i18n directory {self.i18n_directory} does not exist in profile {self.profile_path}!"
             )
+            self.i18n_directory = None
 
         log.info(f"Directories loaded from {self.settings_file_path}.")
         log.info(f"{self.archetypes_directory = }")
@@ -210,46 +214,28 @@ class ProfileSettings:
 
         self.preferred_default_view = preferred_default_view
 
-        # Default archetype repository -----------------------
-        preferred_archetype_repository = settings[PREFERENCE_DEFAULT_ARCHETYPE_REPOSITORY]
-
-        assert (
-            preferred_archetype_repository is not None
-            and preferred_archetype_repository != ""
-        ), f"Default archetype repository setting is not defined in {self.settings_file_path}!"
-
-        if preferred_archetype_repository not in self.listed_archetype_repositories:
-            log.error(
-                f"Default archetype repository {preferred_archetype_repository} was not found in the archetypes directory. Using first archetype repository found instead."
-            )
-            preferred_archetype_repository = self.listed_archetype_repositories[0]
-
-        self.preferred_archetype_repository = preferred_archetype_repository
-
 
     # --------------------------------------------------------------------------
-    # Method: _list_templates_and_archetype_repositories
-    # Description: List templates and archetype repositories found in the profile
+    # Method: _validate_profile_basic_content
+    # Description: Validate the basic content of the profile
     # Date: 18/03/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def _list_templates_and_archetype_repositories(self) -> None:
+    def _validate_profile_basic_content(self) -> None:
         """
-        List templates and archetype repositories found in the profile.
-
-        It validates that the templates and archetypes repositories are valid
-        by loading them using their corresponding classes. They listed items
-        are not stored, just their names.
+        Validate the basic content of the profile (templates and archetype repositories).
+        Loads all the templates and the archetype repository in order to check if they are valid.
+        List the templates found.
         """
 
-        # Templates
+        # Templates --------------------------
         self.listed_templates = []
 
         for template_dir in self.xslt_directory.iterdir():
             try:
-                Template.load(template_dir)
-                self.listed_templates.append(template_dir.name)
+                template = Template.load(template_dir)
+                self.listed_templates.append(template.name)
             except Exception as e:
                 log.error(f"Could not load template from {template_dir}. It will be ignored in profile settings. Error: {e}")
 
@@ -257,21 +243,16 @@ class ProfileSettings:
             len(self.listed_templates) > 0
         ), f"No valid templates found in the XSLT directory {self.xslt_directory}!"
 
-        # Archetype repositories
-        self.listed_archetype_repositories = []
-
-        for archetype_repository_dir in self.archetypes_directory.iterdir():
-            try:
-                ArchetypeRepository.load_object_archetypes(archetype_repository_dir)
-                ArchetypeRepository.load_document_archetypes(archetype_repository_dir)
-                ArchetypeRepository.load_project_archetypes(archetype_repository_dir)
-                self.listed_archetype_repositories.append(archetype_repository_dir.name)
-            except Exception as e:
-                log.error(f"Could not load archetype repository from {archetype_repository_dir}. It will be ignored in profile settings. Error: {e}")
-
-        assert (
-            len(self.listed_archetype_repositories) > 0
-        ), f"No valid archetype repositories found in the archetypes directory {self.archetypes_directory}!"
-
         log.info(f"Listed templates: {self.listed_templates}")
-        log.info(f"Listed archetype repositories: {self.listed_archetype_repositories}")
+
+        # Archetype repository ----------------
+        try:
+            ArchetypeRepository.load_object_archetypes(self.archetypes_directory)
+            ArchetypeRepository.load_document_archetypes(self.archetypes_directory)
+            ArchetypeRepository.load_project_archetypes(self.archetypes_directory)
+        except Exception as e:
+            log.error(f"Could not load archetype repository from {self.archetypes_directory}. It will be ignored in profile settings. Error: {e}")
+            raise e
+
+
+        

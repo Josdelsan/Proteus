@@ -80,7 +80,7 @@ def sample_archetype_document() -> Object:
     Fixture that returns a PROTEUS sample archetype document object.
     """
     archetype_list: list[Object] = ArchetypeRepository.load_document_archetypes(
-        Config().selected_archetype_repository_path
+        Config().profile_settings.archetypes_directory
     )
     return archetype_list[0]
 
@@ -91,7 +91,7 @@ def sample_archetype_object() -> Object:
     Fixture that returns a PROTEUS sample archetype object object.
     """
     archetype_type_dict = ArchetypeRepository.load_object_archetypes(
-        Config().selected_archetype_repository_path
+        Config().profile_settings.archetypes_directory
     )
     # Known archetype type general (00_general directory)
     archetype_class_dict = archetype_type_dict["general"]

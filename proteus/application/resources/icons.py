@@ -50,14 +50,9 @@ class ProteusIconType(StrEnum):
     App = "app"
     MainMenu = "main_menu"
     Archetype = "archetype"
-    Repository = "repository"
+    Profile = "profile"
     Document = "document"
 
-
-ARCHETYPE_ACCEPTED_ICONS_TYPES = [
-    ProteusIconType.Archetype,
-    ProteusIconType.Document,
-]
 
 # --------------------------------------------------------------------------
 # Class: Icons
@@ -87,12 +82,10 @@ class Icons(metaclass=SingletonMeta):
     - icon_file: Icon file path.
 
     The icons configuration file must be located in the icons directory.
-    Archetype repository icons can only add values for archetypes and acronyms.
-    Other types found will be ignored.
 
     All the repeated values (included default) defined in the icons file inside
-    archetype repository will override the values defined in the resources
-    directory. This allows mantaining default values in the application while
+    the profile will override the values defined in the resources
+    directory. This allows maintaining default values in the application while
     it is possible to override them.
 
     This class uses memoization to store the icons already instantiated as
@@ -129,17 +122,12 @@ class Icons(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def _load_icons(self, icons_path: Path, archetype_repo_mode: bool = False) -> None:
+    def _load_icons(self, icons_path: Path) -> None:
         """
         Loads the icons configuration file 'icons.xml' from the given directory.
         Stores the icons paths found in the configuration file. 
 
-        archetype_repo_mode is used to be less strict when reading the icons
-        configuration file. This is because the archetype repositories cannot
-        contain custom icons for app/main_menu type.
-
         :param icons_path: Path to the icons directory.
-        :param archetype_repo_mode: Load icons from archetype repository mode.
         """
 
         # Parse icons file
@@ -153,14 +141,9 @@ class Icons(metaclass=SingletonMeta):
             type_name: str = type_tag.attrib.get("name", None)
 
             # Check if type name is a valid ProteusIconType
-            if archetype_repo_mode:
-                assert (
-                    type_name in ARCHETYPE_ACCEPTED_ICONS_TYPES
-                ), f"Icon type '{type_name}' is not a valid ProteusIconType for archetypes, check {icons_file.as_posix()} file."
-            else:
-                assert (
-                    type_name in ProteusIconType._member_map_.values()
-                ), f"Icon type '{type_name}' is not a valid ProteusIconType, check {icons_file.as_posix()} file."
+            assert (
+                type_name in ProteusIconType._member_map_.values()
+            ), f"Icon type '{type_name}' is not a valid ProteusIconType, check {icons_file.as_posix()} file."
 
             # Initialize type dictionary
             type_dictionary: Dict[str, Path] = {}
@@ -169,8 +152,7 @@ class Icons(metaclass=SingletonMeta):
             default_icon: str = type_tag.attrib.get("default", None)
             if default_icon is not None:
                 type_dictionary[DEFAULT_ICON_KEY] = icons_path / default_icon
-            elif not archetype_repo_mode:
-                log.critical(
+                log.warning(
                     f"Default icon not found for icon type '{type_name}'. This could crash the application. Check {icons_path.as_posix()} file."
                 )
 
@@ -214,20 +196,23 @@ class Icons(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def load_icons(self, icons_directory: Path, archetype_repository: bool = False) -> bool:
+    def load_icons(self, icons_directory: Path) -> bool:
         """
         Loads the icons from the given directory. Returns True if the icons
         were loaded successfully, False otherwise.
 
         :param icons_directory: Path to the icons directory.
-        :param archetype_repository: True if the icons are being loaded from the archetype repository, False otherwise.
 
         :return: True if the icons were loaded successfully, False otherwise.
         """
 
+        if icons_directory is None:
+            log.error("Icons directory is None.")
+            return False
+
         if icons_directory.exists() and icons_directory.is_dir():
             try:
-                self._load_icons(icons_directory, archetype_repository)
+                self._load_icons(icons_directory)
                 return True
             except Exception as e:
                 log.error(f"Error loading icons: {e}")

@@ -129,6 +129,10 @@ class Plugins(metaclass=SingletonMeta):
             f"Loading PROTEUS plugins from plugins directory '{plugins_directory.as_posix()}'"
         )
 
+        if plugins_directory is None:
+            log.error("Plugins directory is None")
+            return
+
         # Import the package
         if not plugins_directory.exists():
             log.error(

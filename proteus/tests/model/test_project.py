@@ -49,7 +49,7 @@ from proteus.tests.fixtures import SampleData
 
 # NOTE: This is a sample project that is used for testing purposes.
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
-ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "profile/archetypes/remus"
+ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "profiles/IR/archetypes/"
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -70,7 +70,7 @@ def sample_archetype_project() -> Project:
     Fixture that returns a PROTEUS sample archetype project.
     """
     project_arquetypes: List[Project] = ArchetypeRepository.load_project_archetypes(
-        Config().selected_archetype_repository_path
+        Config().profile_settings.archetypes_directory
     )
     return project_arquetypes[0]
 

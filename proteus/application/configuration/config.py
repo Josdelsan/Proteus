@@ -74,9 +74,11 @@ class Config(metaclass=SingletonMeta):
     # App settings copy (store user changes)
     app_settings_copy: AppSettings = None
 
-    # Archetype repository path
-    # NOTE: This is stored to avoid building the path every time it is needed
-    selected_archetype_repository_path: Path = None
+    # Listed profiles
+    # NOTE: They are stored as lowercase strings. Validation is not
+    # performed to avoid loading all the profiles. We assume built-in
+    # profiles must be valid.
+    listed_profiles: list[str] = None
 
     def __post_init__(self):
         """
@@ -109,10 +111,27 @@ class Config(metaclass=SingletonMeta):
         """
         Private method that loads the settings from the configuration files.
         """
+        # Load app settings
         self.app_settings = AppSettings.load(proteus.PROTEUS_APP_PATH)
 
+        # List profiles directories available
+        self.listed_profiles = [
+            path.name.lower()
+            for path in self.app_settings.profiles_directory.glob("*")
+            if path.is_dir()
+        ]
+
+        # If the selected profile is not available, use the first listed profile
+        if not self.app_settings.selected_profile.lower() in self.listed_profiles:
+            log.error(
+                f"Selected profile '{self.app_settings.selected_profile}' is not available in the profiles directory. Using listed profiles instead."
+            )
+            self.app_settings.selected_profile = self.listed_profiles[0]
+
         # Select correct profile path (custom or default)
-        profile_path: Path = self.app_settings.default_profile_directory
+        profile_path: Path = (
+            self.app_settings.profiles_directory / self.app_settings.selected_profile
+        )
         if not self.app_settings.using_default_profile:
             profile_path = self.app_settings.custom_profile_path
 
@@ -132,7 +151,8 @@ class Config(metaclass=SingletonMeta):
                     "Custom profile is not valid. Using default profile instead."
                 )
                 self.profile_settings = ProfileSettings.load(
-                    self.app_settings.default_profile_directory
+                    self.app_settings.profiles_directory
+                    / self.app_settings.selected_profile
                 )
 
         # Validate settings using profile information
@@ -141,25 +161,10 @@ class Config(metaclass=SingletonMeta):
                 f"Selected default view '{self.app_settings.default_view}' is not available in the profile. Using profile preferred view instead."
             )
 
-            self.app_settings.default_view = self.profile_settings.preferred_default_view
-
-        if (
-            self.app_settings.default_archetype_repository
-            not in self.profile_settings.listed_archetype_repositories
-        ):
-            log.warning(
-                f"Selected default archetype repository '{self.app_settings.default_archetype_repository}' is not available in the profile. Using profile preferred repository instead."
+            self.app_settings.default_view = (
+                self.profile_settings.preferred_default_view
             )
 
-            self.app_settings.default_archetype_repository = (
-                self.profile_settings.preferred_archetype_repository
-            )
-
-        # Set the selected archetype repository path
-        self.selected_archetype_repository_path = (
-            self.profile_settings.archetypes_directory
-            / self.app_settings.default_archetype_repository
-        )
         # Create a copy of the app settings to store user changes
         self.app_settings_copy = replace(self.app_settings)
 

@@ -79,6 +79,8 @@ settings_dialog.default_repository.label: "Repositorio de arquetipos:"
 
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
 
+settings_dialog.descriptions.empty: "No hay descripción disponible"
+
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------

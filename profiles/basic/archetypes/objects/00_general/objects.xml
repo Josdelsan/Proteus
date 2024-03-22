@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object id="empty-paragraph" />
+    <object id="lorem-paragraph" />
+    <object id="glossary-item" />
+    <object id="empty-section" />
+    <object id="empty-appendix" />
+    <object id="external-resource" />
+    <object id="graphic-file" />
+    <object id="organization" />
+    <object id="stakeholder" />
+    <object id="meeting" />
+    <object id="arch-link" />
+    <object id="actor" />
+    <object id="use-case" />
+    <object id="use-case-step" />
+    <object id="information-requirement" />
+    <object id="specific-data" />
+    <object id="objective" />
+    <object id="constraint" />
+    <object id="functional-requirement" />
+    <object id="non-functional-requirement" />
+    <object id="matrix" />
+</objects>

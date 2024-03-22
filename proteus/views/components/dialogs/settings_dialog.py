@@ -77,10 +77,13 @@ class SettingsDialog(ProteusDialog):
         # Settings edit widgets
         self.language_combo: QComboBox = None
         self.view_combo: QComboBox = None
-        self.default_repository_combo: QComboBox = None
 
+        self.profile_combo: QComboBox = None
         self.custom_profile_edit: DirectoryEdit = None
         self.default_profile_checkbox: QCheckBox = None
+
+        # Description labels
+        self.profile_description_label: QLabel = None
 
         # Error message labels
         self.error_profile_label: QLabel = None
@@ -201,9 +204,7 @@ class SettingsDialog(ProteusDialog):
         """
         profile_layout: QVBoxLayout = QVBoxLayout()
 
-        self.default_profile_checkbox: QCheckBox = QCheckBox(
-            _("settings_dialog.default_profile.checkbox")
-        )
+        # Profile info --------------------------------------------
         custom_profile_path: Path = Config().app_settings_copy.custom_profile_path
         custom_profile_dir_str: str
         if custom_profile_path is None:
@@ -213,14 +214,41 @@ class SettingsDialog(ProteusDialog):
 
         using_default_profile: bool = Config().app_settings_copy.using_default_profile
 
+        # Profiles combo box --------------------------------------
+        self.profile_combo: QComboBox = QComboBox()
+        for profile in Config().listed_profiles:
+            self.profile_combo.addItem(
+                _(f"profiles.{profile}", alternative_text=profile), profile
+            )
+            self.profile_combo.setItemIcon(
+                self.profile_combo.count() - 1,
+                Icons().icon(ProteusIconType.Profile, profile),
+            )
+
+        self.profile_combo.setCurrentIndex(
+            self.profile_combo.findData(Config().app_settings_copy.selected_profile)
+        )
+
+        self.profile_combo.setEnabled(using_default_profile)
+
+        # Description label
+        self.profile_description_label: QLabel = QLabel()
+        self.profile_description_label.setWordWrap(True)
+        self._update_description_label()
+        self.profile_combo.currentIndexChanged.connect(self._update_description_label)
+
+        # Default profile checkbox --------------------------------
+        self.default_profile_checkbox: QCheckBox = QCheckBox(
+            _("settings_dialog.default_profile.checkbox")
+        )
         self.default_profile_checkbox.setChecked(using_default_profile)
 
-        # Directory edit
+        # Directory edit -------------------------------------
         self.custom_profile_edit: DirectoryEdit = DirectoryEdit()
         self.custom_profile_edit.setEnabled(not using_default_profile)
         self.custom_profile_edit.setDirectory(custom_profile_dir_str)
 
-        # Error message label
+        # Error message label -------------------------------------
         self.error_profile_label: QLabel = QLabel()
         self.error_profile_label.setObjectName("error_label")
         self.error_profile_label.setWordWrap(True)
@@ -231,16 +259,19 @@ class SettingsDialog(ProteusDialog):
         self.default_profile_checkbox.stateChanged.connect(
             lambda state: self.custom_profile_edit.setEnabled(not state == 2)
         )
+        self.default_profile_checkbox.stateChanged.connect(
+            lambda state: self.profile_combo.setEnabled(not state == 2)
+        )
 
-        # Add the widgets to the layout
+        # Add the widgets to the layout ---------------------------
+        profile_layout.addWidget(self.profile_combo)
+        profile_layout.addWidget(self.profile_description_label)
         profile_layout.addWidget(self.default_profile_checkbox)
         profile_layout.addWidget(self.custom_profile_edit)
         profile_layout.addWidget(self.error_profile_label)
 
         # Group box
-        profile_group: QGroupBox = QGroupBox(
-            _("settings_dialog.default_profile.group")
-        )
+        profile_group: QGroupBox = QGroupBox(_("settings_dialog.default_profile.group"))
         profile_group.setLayout(profile_layout)
 
         return profile_group
@@ -274,39 +305,12 @@ class SettingsDialog(ProteusDialog):
         index: int = self.default_view_combo.findData(current_default_view)
         self.default_view_combo.setCurrentIndex(index)
 
-        # Selected repository -------------------------------------
-        default_repository_label: QLabel = QLabel(
-            _("settings_dialog.default_repository.label")
-        )
-
-        # Default repository combo
-        self.default_repository_combo: QComboBox = QComboBox()
-        for repository in Config().profile_settings.listed_archetype_repositories:
-            self.default_repository_combo.addItem(
-                _(f"settings.repository.{repository}", alternative_text=repository),
-                repository,
-            )
-            self.default_repository_combo.setItemIcon(
-                self.default_repository_combo.count() - 1,
-                Icons().icon(ProteusIconType.Repository, repository),
-            )
-
-        current_default_repository: str = Config().app_settings_copy.default_archetype_repository
-
-        self.default_repository_combo.setCurrentIndex(
-            self.default_repository_combo.findData(current_default_repository)
-        )
-
         # Add the widgets to the layout
         layout.addWidget(default_view_label)
         layout.addWidget(self.default_view_combo)
-        layout.addWidget(default_repository_label)
-        layout.addWidget(self.default_repository_combo)
 
         # Group box
-        group: QGroupBox = QGroupBox(
-            _("settings_dialog.profile_settings.group")
-        )
+        group: QGroupBox = QGroupBox(_("settings_dialog.profile_settings.group"))
         group.setLayout(layout)
 
         return group
@@ -322,7 +326,7 @@ class SettingsDialog(ProteusDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ---------------------------------------------------------------------
-    def validate_repository(self) -> bool:
+    def validate_profile(self) -> bool:
         """
         Validate if the custom profile can be loaded from the selected path.
 
@@ -354,7 +358,9 @@ class SettingsDialog(ProteusDialog):
             try:
                 ProfileSettings.load(_profile_path)
             except Exception as e:
-                log.error(f"Error loading custom profile from path {_profile_path} error: {e}")
+                log.error(
+                    f"Error loading custom profile from path {_profile_path} error: {e}"
+                )
                 self.error_profile_label.setText(
                     _("settings_dialog.error.profile.invalid_profile", e)
                 )
@@ -384,7 +390,7 @@ class SettingsDialog(ProteusDialog):
         # Validate settings
         # ---------------------
         valid_settings: bool = True
-        valid_settings = self.validate_repository() and valid_settings
+        valid_settings = self.validate_profile() and valid_settings
 
         # If there are errors, do not save the settings
         if not valid_settings:
@@ -396,12 +402,18 @@ class SettingsDialog(ProteusDialog):
 
         config = Config()
 
+        custom_profile_path: Path = (
+            Path(self.custom_profile_edit.directory())
+            if self.custom_profile_edit.directory()
+            else None
+        )
+
         config.app_settings_copy = config.app_settings_copy.clone(
             language=self.language_combo.currentData(),
             default_view=self.default_view_combo.currentData(),
+            selected_profile=self.profile_combo.currentData(),
             using_default_profile=self.default_profile_checkbox.isChecked(),
-            default_archetype_repository=self.default_repository_combo.currentData(),
-            custom_profile_path=self.custom_profile_edit.directory(),
+            custom_profile_path=custom_profile_path,
         )
 
         # ---------------------
@@ -430,6 +442,33 @@ class SettingsDialog(ProteusDialog):
         self.deleteLater()
 
     # ======================================================================
+    # Helper methods
+    # ======================================================================
+        
+    # ----------------------------------------------------------------------
+    # Method     : _update_description_label
+    # Description: Update the description label with the profile description.
+    # Date       : 22/03/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _update_description_label(self) -> None:
+        """
+        Update the description label with the profile description.
+        """
+        profile_name: str = self.profile_combo.currentData()
+        if profile_name:
+            description: str = _(f"profiles.description.{profile_name}", alternative_text="")
+            if description == "":
+                self.profile_description_label.setStyleSheet("color: red")
+                self.profile_description_label.setText(
+                    _("settings_dialog.descriptions.empty")
+                )
+            else:
+                self.profile_description_label.setStyleSheet("color: black")
+                self.profile_description_label.setText(description)
+
+    # ======================================================================
     # Dialog static methods (create and show the form window)
     # ======================================================================
 
@@ -448,3 +487,4 @@ class SettingsDialog(ProteusDialog):
         dialog = SettingsDialog(controller=controller)
         dialog.exec()
         return dialog
+

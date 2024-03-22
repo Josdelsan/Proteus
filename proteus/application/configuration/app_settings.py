@@ -35,13 +35,13 @@ DIRECTORIES: str = "directories"
 RESOURCES_DIRECTORY: str = "resources_directory"
 ICONS_DIRECTORY: str = "icons_directory"
 I18N_DIRECTORY: str = "i18n_directory"
-DEFAULT_PROFILE_DIRECTORY: str = "default_profile_directory"
+PROFILES_DIRECTORY: str = "profiles_directory"
 
 # User editable settings
 SETTINGS: str = "settings"
 SETTING_LANGUAGE: str = "language"
 SETTING_DEFAULT_VIEW: str = "default_view"
-SETTING_DEFAULT_ARCHETYPE_REPOSITORY: str = "selected_archetype_repository"
+SETTING_SELECTED_PROFILE: str = "selected_profile"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
 SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
 
@@ -65,12 +65,12 @@ class AppSettings:
     resources_directory: Path = None
     icons_directory: Path = None
     i18n_directory: Path = None
-    default_profile_directory: Path = None
+    profiles_directory: Path = None
 
     # Application settings (User editable settings)
     language: str = None
     default_view: str = None
-    default_archetype_repository: str = None
+    selected_profile: str = None
     using_default_profile: bool = None
     custom_profile_path: Path = None
 
@@ -143,9 +143,7 @@ class AppSettings:
         self.resources_directory = self.app_path / directories[RESOURCES_DIRECTORY]
         self.icons_directory = self.resources_directory / directories[ICONS_DIRECTORY]
         self.i18n_directory = self.resources_directory / directories[I18N_DIRECTORY]
-        self.default_profile_directory = (
-            self.app_path / directories[DEFAULT_PROFILE_DIRECTORY]
-        )
+        self.profiles_directory = self.app_path / directories[PROFILES_DIRECTORY]
 
         assert (
             self.resources_directory.exists()
@@ -157,14 +155,14 @@ class AppSettings:
             self.i18n_directory.exists()
         ), f"PROTEUS i18n directory {self.i18n_directory} does not exist!"
         assert (
-            self.default_profile_directory.exists()
-        ), f"PROTEUS default profile directory {self.default_profile_directory} does not exist!"
+            self.profiles_directory.exists()
+        ), f"PROTEUS profiles directory {self.profiles_directory} does not exist!"
 
         log.info(f"Directories loaded from {self.settings_file_path}.")
         log.info(f"{self.resources_directory = }")
         log.info(f"{self.icons_directory = }")
         log.info(f"{self.i18n_directory = }")
-        log.info(f"{self.default_profile_directory = }")
+        log.info(f"{self.profiles_directory = }")
 
     # --------------------------------------------------------------------------
     # Method: _load_user_settings
@@ -192,41 +190,35 @@ class AppSettings:
             f"Config file {self.settings_file_path} | Default view: {self.default_view}"
         )
 
-        # Default archetype repository -------------------
-        self.default_archetype_repository = settings[
-            SETTING_DEFAULT_ARCHETYPE_REPOSITORY
-        ]
-
-        log.info(
-            f"Config file {self.settings_file_path} | Default archetype repository: {self.default_archetype_repository}"
-        )
-
         # Profile ------------------------
+        self.selected_profile = settings[SETTING_SELECTED_PROFILE]
+
         using_default_profile_str: str = settings[SETTING_USING_DEFAULT_PROFILE]
         using_default_profile: bool = using_default_profile_str.lower() == "true"
         self.using_default_profile = using_default_profile
 
         custom_profile_path_str: str = settings[SETTING_CUSTOM_PROFILE_PATH]
-        if custom_profile_path_str and not using_default_profile:
-            custom_profile_path = Path(custom_profile_path_str)
-
-            if custom_profile_path.exists():
-                self.custom_profile_path = custom_profile_path
-            else:
-                log.warning(
-                    f"Custom profile path {custom_profile_path} does not exist. Using default profile..."
+        self.custom_profile_path = Path(custom_profile_path_str) if custom_profile_path_str else None
+        
+    
+        if not using_default_profile:
+            if self.custom_profile_path is None:
+                log.error(
+                    f"Custom profile path not specified in {self.settings_file_path}. Using default profile..."
+                )
+                self.using_default_profile = True
+            elif not self.custom_profile_path.exists():
+                log.error(
+                    f"Custom profile path {self.custom_profile_path} does not exist. Using default profile..."
                 )
                 self.using_default_profile = True
 
-        log.info(
-            f"Loaded app user settings from {self.settings_file_path}."
-        )
+        log.info(f"Loaded app user settings from {self.settings_file_path}.")
         log.info(f"{self.language = }")
-        log.info(f"{self.default_archetype_repository = }")
         log.info(f"{self.default_view = }")
+        log.info(f"{self.selected_profile = }")
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
-
 
     # --------------------------------------------------------------------------
     # Method: clone
@@ -239,7 +231,7 @@ class AppSettings:
         self,
         language: str = None,
         default_view: str = None,
-        default_archetype_repository: str = None,
+        selected_profile: str = None,
         using_default_profile: bool = None,
         custom_profile_path: Path = None,
     ) -> "AppSettings":
@@ -252,8 +244,8 @@ class AppSettings:
         if default_view is None:
             default_view = self.default_view
 
-        if default_archetype_repository is None:
-            default_archetype_repository = self.default_archetype_repository
+        if selected_profile is None:
+            selected_profile = self.selected_profile
 
         if using_default_profile is None:
             using_default_profile = self.using_default_profile
@@ -265,7 +257,7 @@ class AppSettings:
             self,
             language=language,
             default_view=default_view,
-            default_archetype_repository=default_archetype_repository,
+            selected_profile=selected_profile,
             using_default_profile=using_default_profile,
             custom_profile_path=custom_profile_path,
         )
@@ -284,14 +276,12 @@ class AppSettings:
         # Settings section
         self.config_parser[SETTINGS][SETTING_LANGUAGE] = self.language
         self.config_parser[SETTINGS][SETTING_DEFAULT_VIEW] = self.default_view
-        self.config_parser[SETTINGS][
-            SETTING_DEFAULT_ARCHETYPE_REPOSITORY
-        ] = self.default_archetype_repository
+        self.config_parser[SETTINGS][SETTING_SELECTED_PROFILE] = self.selected_profile
         self.config_parser[SETTINGS][SETTING_USING_DEFAULT_PROFILE] = str(
             self.using_default_profile
         )
-        self.config_parser[SETTINGS][SETTING_CUSTOM_PROFILE_PATH] = str(
-            self.custom_profile_path
+        self.config_parser[SETTINGS][SETTING_CUSTOM_PROFILE_PATH] = (
+            self.custom_profile_path.as_posix() if self.custom_profile_path else ""
         )
 
         with open(self.settings_file_path, "w") as config_file:
@@ -300,7 +290,6 @@ class AppSettings:
         log.info(f"Settings saved to {self.settings_file_path}.")
         log.info(f"{self.language = }")
         log.info(f"{self.default_view = }")
-        log.info(f"{self.default_archetype_repository = }")
+        log.info(f"{self.selected_profile = }")
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
-        

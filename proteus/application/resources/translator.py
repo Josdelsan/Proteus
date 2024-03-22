@@ -314,6 +314,9 @@ class Translator(metaclass=SingletonMeta):
             and self.proteus_i18n_directory is not None
         ), "Language configuration must be set before loading the translations."
 
+        if translations_directory is None:
+            log.error("Translations directory not found.")
+            return False
         
         # Load archetype repository translations ----------------
         lang_file: Path = (

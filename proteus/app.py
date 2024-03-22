@@ -141,12 +141,6 @@ class ProteusApplication:
         self.dynamic_icons.load_icons(self.config.profile_settings.icons_directory)
         self.plugin_manager.load_plugins(self.config.profile_settings.plugins_directory)
 
-        # Selected archetype repository specific resources
-        selected_archetype_repository_path = (
-            self.config.selected_archetype_repository_path
-        )
-        self.translator.load_translations(selected_archetype_repository_path / "i18n")
-        self.dynamic_icons.load_icons(selected_archetype_repository_path / "icons")
 
         # Setup the request interceptor -----------------------
         profile = QWebEngineProfile.defaultProfile()

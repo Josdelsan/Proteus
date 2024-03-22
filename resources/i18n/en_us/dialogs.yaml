@@ -80,6 +80,8 @@ settings_dialog.default_repository.label: "Archetype repository:"
 
 settings_dialog.info.label: "The changes will be applied when you restart the application"
 
+settings_dialog.descriptions.empty: "No description available"
+
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------
