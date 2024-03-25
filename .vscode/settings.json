@@ -8,5 +8,8 @@
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "python.formatting.provider": "none",
-    "python.analysis.autoImportCompletions": false
+    "python.analysis.autoImportCompletions": false,
+    "files.exclude": {
+        "**/__pycache__": true
+    }
 }

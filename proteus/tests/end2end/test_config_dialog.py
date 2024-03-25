@@ -108,11 +108,11 @@ def test_config_dialog_open(app, app_settings: AppSettings):
     ), f"Selected profile setting is {current_selected_profile} but should be {app_settings.selected_profile}"
 
     # Check using_default_profile setting was correctly set in the checkbox
-    current_using_default_profile = dialog.default_profile_checkbox.isChecked()
+    use_custom_profile_checkbox = dialog.use_custom_profile_checkbox.isChecked()
 
     assert (
-        current_using_default_profile == app_settings.using_default_profile
-    ), f"Using default profile setting is {current_using_default_profile} but should be {app_settings.using_default_profile}"
+        use_custom_profile_checkbox == (not app_settings.using_default_profile)
+    ), f"Use custom profile setting is {use_custom_profile_checkbox} but should be {not app_settings.using_default_profile}"
 
     # Check custom_profile_path setting was correctly set in directory edit and checkbox
     current_custom_profile_path = dialog.custom_profile_edit.directory()

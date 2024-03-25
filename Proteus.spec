@@ -20,7 +20,7 @@ exe = EXE(
     a.scripts,
     a.binaries,
     Tree('resources', prefix='resources'),
-    Tree('profile', prefix='profile'),
+    Tree('profiles', prefix='profiles'),
     a.datas,
     [],
     name='Proteus',

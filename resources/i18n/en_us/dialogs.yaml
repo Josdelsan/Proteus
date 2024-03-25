@@ -55,7 +55,6 @@ new_project_dialog.error.folder_already_exists: "The folder already exists, sele
 # ---------------------------------------------------------------------------
 new_view_dialog.title: "Add new view"
 new_view_dialog.combobox.label: "Select view:"
-new_view_dialog.description_label: "View description:"
 new_view_dialog.no_description: "No description available"
 new_view_dialog.error.no_view_selected: "Please select a valid view"
 new_view_dialog.error.duplicated_view: "The view already exists"
@@ -68,7 +67,7 @@ settings_dialog.title: "Proteus settings"
 settings_dialog.language.group: "Language"
 
 settings_dialog.default_profile.group: "Profile"
-settings_dialog.default_profile.checkbox: "Uncheck to use a custom profile"
+settings_dialog.default_profile.checkbox: "Check to use a custom profile"
 
 settings_dialog.error.profile.empty_path: "Please select a valid profile path"
 settings_dialog.error.profile.invalid_path: "The selected path does not exist"
@@ -78,7 +77,7 @@ settings_dialog.profile_settings.group: "Profile specific settings"
 settings_dialog.default_view.label: "Default view:"
 settings_dialog.default_repository.label: "Archetype repository:"
 
-settings_dialog.info.label: "The changes will be applied when you restart the application"
+settings_dialog.info.label: "The changes will be applied once the application is restarted"
 
 settings_dialog.descriptions.empty: "No description available"
 

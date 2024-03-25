@@ -104,11 +104,6 @@ class NewViewDialog(ProteusDialog):
             self.view_combo.addItem(view_translation, view)
 
         # Create description labels
-        description_placeholder_label: QLabel = QLabel(
-            _("new_view_dialog.description_label")
-        )
-        description_placeholder_label.setWordWrap(True)
-
         self.description_content_label: QLabel = QLabel()
         self.description_content_label.setWordWrap(True)
 
@@ -128,7 +123,6 @@ class NewViewDialog(ProteusDialog):
         # Add the widgets to the layout
         layout.addWidget(view_label)
         layout.addWidget(self.view_combo)
-        layout.addWidget(description_placeholder_label)
         layout.addWidget(self.description_content_label)
         layout.addWidget(self.error_label)
         layout.addStretch()
@@ -156,12 +150,12 @@ class NewViewDialog(ProteusDialog):
                 f"xslt_templates.description.{view_name}", alternative_text=""
             )
             if description == "":
-                self.description_content_label.setStyleSheet("color: red")
+                self.description_content_label.setStyleSheet("color: red; font-style: italic;")
                 self.description_content_label.setText(
                     _("new_document_dialog.archetype.description.empty")
                 )
             else:
-                self.description_content_label.setStyleSheet("color: black")
+                self.description_content_label.setStyleSheet("color: black; font-style: italic;")
                 self.description_content_label.setText(description)
 
     # ----------------------------------------------------------------------

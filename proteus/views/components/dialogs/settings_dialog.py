@@ -37,6 +37,7 @@ from proteus.application.configuration.profile_settings import ProfileSettings
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import Translator
+from proteus.views.buttons import get_separator
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 
@@ -80,7 +81,7 @@ class SettingsDialog(ProteusDialog):
 
         self.profile_combo: QComboBox = None
         self.custom_profile_edit: DirectoryEdit = None
-        self.default_profile_checkbox: QCheckBox = None
+        self.use_custom_profile_checkbox: QCheckBox = None
 
         # Description labels
         self.profile_description_label: QLabel = None
@@ -234,14 +235,22 @@ class SettingsDialog(ProteusDialog):
         # Description label
         self.profile_description_label: QLabel = QLabel()
         self.profile_description_label.setWordWrap(True)
-        self._update_description_label()
-        self.profile_combo.currentIndexChanged.connect(self._update_description_label)
+
+        # Update the description label when the combo box changes
+        self.profile_combo.currentIndexChanged.connect(
+            lambda: self._update_description_label(
+                self.profile_combo,
+                "profiles.description",
+                self.profile_description_label,
+            )
+        )
+        self.profile_combo.currentIndexChanged.emit(self.profile_combo.currentIndex())
 
         # Default profile checkbox --------------------------------
-        self.default_profile_checkbox: QCheckBox = QCheckBox(
+        self.use_custom_profile_checkbox: QCheckBox = QCheckBox(
             _("settings_dialog.default_profile.checkbox")
         )
-        self.default_profile_checkbox.setChecked(using_default_profile)
+        self.use_custom_profile_checkbox.setChecked(not using_default_profile)
 
         # Directory edit -------------------------------------
         self.custom_profile_edit: DirectoryEdit = DirectoryEdit()
@@ -255,18 +264,19 @@ class SettingsDialog(ProteusDialog):
         self.error_profile_label.setHidden(True)
 
         # Connect checkbox signal to the directory edit and combo setEnabled
-        # NOTE: 2 is the state of the checkbox when it is checked
-        self.default_profile_checkbox.stateChanged.connect(
-            lambda state: self.custom_profile_edit.setEnabled(not state == 2)
+        # state = 2 is checked, state = 0 is unchecked
+        self.use_custom_profile_checkbox.stateChanged.connect(
+            lambda state: self.custom_profile_edit.setEnabled(state == 2)
         )
-        self.default_profile_checkbox.stateChanged.connect(
-            lambda state: self.profile_combo.setEnabled(not state == 2)
+        self.use_custom_profile_checkbox.stateChanged.connect(
+            lambda state: self.profile_combo.setEnabled(state == 0)
         )
 
         # Add the widgets to the layout ---------------------------
         profile_layout.addWidget(self.profile_combo)
         profile_layout.addWidget(self.profile_description_label)
-        profile_layout.addWidget(self.default_profile_checkbox)
+        profile_layout.addWidget(get_separator())
+        profile_layout.addWidget(self.use_custom_profile_checkbox)
         profile_layout.addWidget(self.custom_profile_edit)
         profile_layout.addWidget(self.error_profile_label)
 
@@ -305,9 +315,26 @@ class SettingsDialog(ProteusDialog):
         index: int = self.default_view_combo.findData(current_default_view)
         self.default_view_combo.setCurrentIndex(index)
 
+        # Description label
+        self.view_description_label: QLabel = QLabel()
+        self.view_description_label.setWordWrap(True)
+
+        # Update the description label when the combo box changes
+        self.default_view_combo.currentIndexChanged.connect(
+            lambda: self._update_description_label(
+                self.default_view_combo,
+                "xslt_templates.description",
+                self.view_description_label,
+            )
+        )
+        self.default_view_combo.currentIndexChanged.emit(
+            self.default_view_combo.currentIndex()
+        )
+
         # Add the widgets to the layout
         layout.addWidget(default_view_label)
         layout.addWidget(self.default_view_combo)
+        layout.addWidget(self.view_description_label)
 
         # Group box
         group: QGroupBox = QGroupBox(_("settings_dialog.profile_settings.group"))
@@ -332,11 +359,11 @@ class SettingsDialog(ProteusDialog):
 
         :return: True if the profile can be loaded, False otherwise
         """
-        default_profile: bool = self.default_profile_checkbox.isChecked()
+        using_custom_profile: bool = self.use_custom_profile_checkbox.isChecked()
         profile_path: str = self.custom_profile_edit.directory()
 
         # If it is using custom repository, check if it is correct
-        if not default_profile:
+        if using_custom_profile:
             # Check if the path is empty
             if profile_path == "":
                 self.error_profile_label.setText(
@@ -412,7 +439,7 @@ class SettingsDialog(ProteusDialog):
             language=self.language_combo.currentData(),
             default_view=self.default_view_combo.currentData(),
             selected_profile=self.profile_combo.currentData(),
-            using_default_profile=self.default_profile_checkbox.isChecked(),
+            using_default_profile=(not self.use_custom_profile_checkbox.isChecked()),
             custom_profile_path=custom_profile_path,
         )
 
@@ -444,29 +471,32 @@ class SettingsDialog(ProteusDialog):
     # ======================================================================
     # Helper methods
     # ======================================================================
-        
+
     # ----------------------------------------------------------------------
     # Method     : _update_description_label
-    # Description: Update the description label with the profile description.
+    # Description: Update the description label with the description.
     # Date       : 22/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _update_description_label(self) -> None:
+    def _update_description_label(
+        self, combobox: QComboBox, translation_code: str, description_label: QLabel
+    ) -> None:
         """
-        Update the description label with the profile description.
+        Update the description label with the description found using the translation code
+        and the combo box current data.
         """
-        profile_name: str = self.profile_combo.currentData()
+        profile_name: str = combobox.currentData()
         if profile_name:
-            description: str = _(f"profiles.description.{profile_name}", alternative_text="")
+            description: str = _(
+                f"{translation_code}.{profile_name}", alternative_text=""
+            )
             if description == "":
-                self.profile_description_label.setStyleSheet("color: red")
-                self.profile_description_label.setText(
-                    _("settings_dialog.descriptions.empty")
-                )
+                description_label.setStyleSheet("color: red; font-style: italic")
+                description_label.setText(_("settings_dialog.descriptions.empty"))
             else:
-                self.profile_description_label.setStyleSheet("color: black")
-                self.profile_description_label.setText(description)
+                description_label.setStyleSheet("color: black; font-style: italic")
+                description_label.setText(description)
 
     # ======================================================================
     # Dialog static methods (create and show the form window)
@@ -487,4 +517,3 @@ class SettingsDialog(ProteusDialog):
         dialog = SettingsDialog(controller=controller)
         dialog.exec()
         return dialog
-
