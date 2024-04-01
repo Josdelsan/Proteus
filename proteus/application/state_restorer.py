@@ -176,10 +176,15 @@ def read_state_from_file(
 
     # Current view validation
     try:
-        available_views = controller.get_available_xslt()
+        current_project = controller.get_current_project()
+
+        assert current_project is not None, "Error getting current project"
+
+        project_views = current_project.xsl_templates
+
         assert (
-            current_view in available_views
-        ), f"View '{current_view}' not found in proteus available views {available_views}"
+            current_view in project_views
+        ), f"View '{current_view}' not found in proteus available views {project_views}"
     except AssertionError as error:
         log.error(f"Error restoring app state from file {file_path}: {error}")
         view_valid = False
