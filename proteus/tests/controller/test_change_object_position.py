@@ -26,14 +26,14 @@ from proteus.services.project_service import ProjectService
 from proteus.controller.commands.change_object_position import (
     ChangeObjectPositionCommand,
 )
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.tests.fixtures import SampleData
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
 
 
 @pytest.fixture

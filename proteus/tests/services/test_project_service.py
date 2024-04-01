@@ -31,15 +31,15 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.model.properties import Property
 from proteus.services.project_service import ProjectService
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.tests.fixtures import SampleData
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
-EXAMPLE_XML_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
+EXAMPLE_XML_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project_example_doc.xml"
 SAMPLE_OBJECT_ID = SampleData.get("section_dl_2")
 SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
 
@@ -203,7 +203,7 @@ def test_generate_project_xml(
     Test the generate_project_xml method.
     """
     # Arrange -------------------------
-    basic_project_service.load_project(PROTEUS_SAMPLE_DATA_PATH / ONE_DOC_PROJECT)
+    basic_project_service.load_project(PROTEUS_SAMPLE_PROJECTS_PATH / ONE_DOC_PROJECT)
 
     # Create parser
     # NOTE: CDATA is not stripped because it is needed for the comparison.

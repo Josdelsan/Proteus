@@ -24,7 +24,7 @@ import lxml.etree as ET
 from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.services.render_service import RenderService
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -49,7 +49,7 @@ def example_xml() -> ET.Element:
     Fixture for example XML. XML was created from EXAMPLE document
     from example_project.
     """
-    xml_path = PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc.xml"
+    xml_path = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project_example_doc.xml"
     return ET.parse(xml_path)
 
 
@@ -60,7 +60,7 @@ def example_html() -> str:
     from example_project. Generated with default template.
     """
     html_path = (
-        PROTEUS_SAMPLE_DATA_PATH / "example_project_example_doc_default_template.html"
+        PROTEUS_SAMPLE_PROJECTS_PATH / "example_project_example_doc_default_template.html"
     )
     with open(html_path, "r", encoding="utf-8") as f:
         html_string = f.read()

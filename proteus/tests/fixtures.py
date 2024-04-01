@@ -30,7 +30,7 @@ import yaml
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_SAMPLE_DATA_FILE
+from proteus.tests import PROTEUS_PROJECT_DATA_FILE
 from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, ProteusID
 from proteus.model.properties import \
     Property,                      \
@@ -113,7 +113,7 @@ class SampleData:
         """
         Load the yaml file containing the sample data.
         """
-        with open(PROTEUS_SAMPLE_DATA_FILE, "r") as f:
+        with open(PROTEUS_PROJECT_DATA_FILE, "r") as f:
             cls.sample_data = yaml.safe_load(f)
 
     @classmethod

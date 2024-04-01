@@ -29,13 +29,13 @@ from proteus.services.archetype_service import ArchetypeService
 from proteus.controller.commands.clone_archetype_document import (
     CloneArchetypeDocumentCommand,
 )
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
 
 
 @pytest.fixture

@@ -20,8 +20,11 @@ from proteus import PROTEUS_APP_PATH
 
 # --------------------------------------------------------------------------
 
-PROTEUS_TEST_PATH = PROTEUS_APP_PATH / "proteus/tests"
-PROTEUS_SAMPLE_DATA_PATH = PROTEUS_TEST_PATH / "sample_data"
+PROTEUS_SAMPLE_PROJECTS_PATH = PROTEUS_APP_PATH / "proteus/tests/sample_data" # Sample data directory
 
-# Sample data mapping file
-PROTEUS_SAMPLE_DATA_FILE = PROTEUS_SAMPLE_DATA_PATH / "sample_data_map.yaml"
+# Icons
+PROTEUS_SAMPLE_ICONS_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "icons"
+
+# Projects
+PROTEUS_SAMPLE_PROJECTS_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "projects"
+PROTEUS_PROJECT_DATA_FILE = PROTEUS_SAMPLE_PROJECTS_PATH / "sample_data_map.yaml" # Sample data mapping file

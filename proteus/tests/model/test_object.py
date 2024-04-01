@@ -43,7 +43,7 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_repository import ArchetypeRepository
 from proteus.application.configuration.config import Config
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.tests.fixtures import SampleData
 from proteus.tests import fixtures
 
@@ -53,7 +53,7 @@ from proteus.tests import fixtures
 
 # NOTE: This is a sample project that is used for testing purposes. The
 #       sample object id was selected from this project.
-SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_DATA_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
 SAMPLE_OBJECT_ID = SampleData.get("section_with_dependencies_outside_and_inside")
 SAMPLE_DOCUMENT_ID = SampleData.get("document_1")
 

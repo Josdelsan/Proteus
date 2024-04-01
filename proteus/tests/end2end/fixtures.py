@@ -30,7 +30,7 @@ from PyQt6.QtCore import QTimer
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.tests import PROTEUS_SAMPLE_DATA_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.application.state_manager import StateManager
@@ -84,7 +84,7 @@ def app(qtbot, mocker):
 
 def load_project(
     main_window: MainWindow,
-    project_path: str = PROTEUS_SAMPLE_DATA_PATH,
+    project_path: str = PROTEUS_SAMPLE_PROJECTS_PATH,
     project_name: str = TEST_PROJECT_NAME,
 ):
     """
