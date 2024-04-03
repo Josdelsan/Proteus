@@ -116,13 +116,13 @@ class Config(metaclass=SingletonMeta):
 
         # List profiles directories available
         self.listed_profiles = [
-            path.name.lower()
+            path.name
             for path in self.app_settings.profiles_directory.glob("*")
             if path.is_dir()
         ]
 
         # If the selected profile is not available, use the first listed profile
-        if not self.app_settings.selected_profile.lower() in self.listed_profiles:
+        if not self.app_settings.selected_profile in self.listed_profiles:
             log.error(
                 f"Selected profile '{self.app_settings.selected_profile}' is not available in the profiles directory. Using listed profiles instead."
             )
