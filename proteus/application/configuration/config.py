@@ -154,6 +154,7 @@ class Config(metaclass=SingletonMeta):
                     self.app_settings.profiles_directory
                     / self.app_settings.selected_profile
                 )
+                self.app_settings.using_default_profile = True
 
         # Validate settings using profile information
         if self.app_settings.default_view not in self.profile_settings.listed_templates:

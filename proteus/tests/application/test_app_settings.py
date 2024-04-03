@@ -10,7 +10,6 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Generator, List
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -96,7 +95,7 @@ def test_load_settings_custom_profile_none_path(mocker):
     Check that the settings are handled correctly if the using default profile is False
     and custom profile path is None.
     """
-    
+
     # --------------------
     # Arrange
     # --------------------
@@ -131,12 +130,14 @@ def test_load_settings_custom_profile_nonexisting_path(mocker):
     Check that the settings are handled correctly if the using default profile is False
     and custom profile path is a non-existing path.
     """
-    
+
     # --------------------
     # Arrange
     # --------------------
 
-    app_settings_path = PROTEUS_SAMPLE_INIT_FILES_PATH / "init_custom_profile_nonexisting_path"
+    app_settings_path = (
+        PROTEUS_SAMPLE_INIT_FILES_PATH / "init_custom_profile_nonexisting_path"
+    )
 
     mocker.patch("pathlib.Path.cwd", return_value=app_settings_path)
 
@@ -191,8 +192,10 @@ def test_load_settings_copy_file_to_cwd(mocker):
 
     # Check the file was copied to the current working directory
     assert (
-        (app_settings_path / CONFIG_FILE).exists()
-    ), f"Expected file '{app_settings_path / CONFIG_FILE}' to exist, but it does not"
+        app_settings_path / CONFIG_FILE
+    ).exists(), (
+        f"Expected file '{app_settings_path / CONFIG_FILE}' to exist, but it does not"
+    )
 
     assert (
         app_settings.settings_file_path == app_settings_path / CONFIG_FILE
@@ -208,15 +211,42 @@ def test_load_settings_copy_file_to_cwd(mocker):
 
 
 @pytest.mark.parametrize(
-        "language, default_view, selected_profile, using_default_profile, custom_profile_path",
-        [
-            (None, None, None, None, None),
-            ("es_ES", None, None, None, None),
-            (None, "another_view", None, None, None),
-            (None, None, "another_profile", None, None),
-        ],
+    "language, default_view, selected_profile, using_default_profile, custom_profile_path, expected_using_default_profile, expected_custom_profile_path",
+    [
+        (None, None, None, None, None, None, None),
+        ("es_ES", None, None, None, None, None, None),
+        (None, "another_view", None, None, None, None, None),
+        (None, None, "another_profile", None, None, None, None),
+        (None, None, None, False, None, True, None),  # Invalid path
+        (
+            None,
+            None,
+            None,
+            False,
+            Path("/path/to/nowhere"),
+            True,
+            Path("/path/to/nowhere"),
+        ),  # Invalid path
+        (
+            None,
+            None,
+            None,
+            False,
+            Path(),
+            False,
+            Path(),
+        ),  # NOTE: Profile validation is not performed in app settings so this is valid
+    ],
 )
-def test_app_settings_clone(language: str, default_view: str, selected_profile: str, using_default_profile: bool, custom_profile_path: Path):
+def test_app_settings_clone(
+    language: str,
+    default_view: str,
+    selected_profile: str,
+    using_default_profile: bool,
+    custom_profile_path: Path,
+    expected_using_default_profile: bool,
+    expected_custom_profile_path: Path,
+):
     """
     Test the clone method of the AppSettings class.
     """
@@ -270,20 +300,21 @@ def test_app_settings_clone(language: str, default_view: str, selected_profile: 
             cloned_settings.selected_profile == selected_profile
         ), f"Expected selected profile '{selected_profile}', but got '{cloned_settings.selected_profile}'"
 
-    if using_default_profile is None:
-        assert (
-            cloned_settings.using_default_profile == app_settings.using_default_profile
-        ), f"Expected using default profile '{app_settings.using_default_profile}', but got '{cloned_settings.using_default_profile}'"
-    else:
-        assert (
-            cloned_settings.using_default_profile == using_default_profile
-        ), f"Expected using default profile '{using_default_profile}', but got '{cloned_settings.using_default_profile}'"
-
-    if custom_profile_path is None:
+    # Compare using the expected values. They might change after clone due to validation in clone method
+    if expected_custom_profile_path is None:
         assert (
             cloned_settings.custom_profile_path == app_settings.custom_profile_path
         ), f"Expected custom profile path '{app_settings.custom_profile_path}', but got '{cloned_settings.custom_profile_path}'"
     else:
         assert (
-            cloned_settings.custom_profile_path == custom_profile_path
-        ), f"Expected custom profile path '{custom_profile_path}', but got '{cloned_settings.custom_profile_path}'"
+            cloned_settings.using_default_profile == expected_using_default_profile
+        ), f"Expected using default profile '{expected_using_default_profile}', but got '{cloned_settings.using_default_profile}'"
+
+    if expected_custom_profile_path is None:
+        assert (
+            cloned_settings.custom_profile_path == app_settings.custom_profile_path
+        ), f"Expected custom profile path '{app_settings.custom_profile_path}', but got '{cloned_settings.custom_profile_path}'"
+    else:
+        assert (
+            cloned_settings.custom_profile_path == expected_custom_profile_path
+        ), f"Expected custom profile path '{expected_custom_profile_path}', but got '{cloned_settings.custom_profile_path}'"

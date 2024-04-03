@@ -39,6 +39,11 @@ def test_load_profile_settings_nonexistent_file():
         ProfileSettings.load(Path() / "nonexistent_profile")
 
 
+# --------------------------------------------------------------------------
+# Integration tests
+# --------------------------------------------------------------------------
+# Dependens on Template and/or Archetype load methods
+        
 def test_load_profile_settings_min():
     """
     Check that the profile settings are loaded correctly with the minimum
@@ -89,12 +94,6 @@ def test_load_profile_settings_min():
     assert (
         len(profile_settings.listed_templates) == 1
     ), f"Expected: 1, Actual: {len(profile_settings.listed_templates)}"
-
-
-# --------------------------------------------------------------------------
-# Integration tests
-# --------------------------------------------------------------------------
-# Dependens on Template and Archetype load methods
 
 def test_load_profile_settings_full():
     """

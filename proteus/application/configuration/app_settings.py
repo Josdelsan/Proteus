@@ -199,9 +199,30 @@ class AppSettings:
 
         custom_profile_path_str: str = settings[SETTING_CUSTOM_PROFILE_PATH]
         self.custom_profile_path = Path(custom_profile_path_str) if custom_profile_path_str else None
-        
-    
-        if not using_default_profile:
+
+        self._validate_profile_path()
+
+        log.info(f"Loaded app user settings from {self.settings_file_path}.")
+        log.info(f"{self.language = }")
+        log.info(f"{self.default_view = }")
+        log.info(f"{self.selected_profile = }")
+        log.info(f"{self.using_default_profile = }")
+        log.info(f"{self.custom_profile_path = }")
+
+    # --------------------------------------------------------------------------
+    # Method: _validate_profile_path
+    # Description: Validate the custom profile path
+    # Date: 03/04/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _validate_profile_path(self) -> None:
+        """
+        Validate the custom profile path changing the using_default_profile flag
+        if the custom profile path is not valid.
+        """
+
+        if not self.using_default_profile:
             if self.custom_profile_path is None:
                 log.error(
                     f"Custom profile path not specified in {self.settings_file_path}. Using default profile..."
@@ -212,13 +233,6 @@ class AppSettings:
                     f"Custom profile path {self.custom_profile_path} does not exist. Using default profile..."
                 )
                 self.using_default_profile = True
-
-        log.info(f"Loaded app user settings from {self.settings_file_path}.")
-        log.info(f"{self.language = }")
-        log.info(f"{self.default_view = }")
-        log.info(f"{self.selected_profile = }")
-        log.info(f"{self.using_default_profile = }")
-        log.info(f"{self.custom_profile_path = }")
 
     # --------------------------------------------------------------------------
     # Method: clone
@@ -253,7 +267,7 @@ class AppSettings:
         if custom_profile_path is None:
             custom_profile_path = self.custom_profile_path
 
-        return replace(
+        new_settings = replace(
             self,
             language=language,
             default_view=default_view,
@@ -261,6 +275,9 @@ class AppSettings:
             using_default_profile=using_default_profile,
             custom_profile_path=custom_profile_path,
         )
+
+        new_settings._validate_profile_path()
+        return new_settings
 
     # --------------------------------------------------------------------------
     # Method: save
