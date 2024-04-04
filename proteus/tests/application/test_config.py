@@ -10,8 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Generator, List
-from pathlib import Path
+from typing import Generator
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,12 +23,8 @@ import pytest
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_APP_PATH
-from proteus.tests import (
-    PROTEUS_SAMPLE_INIT_FILES_PATH,
-    PROTEUS_SAMPLE_PROFILES_PATH,
-    PROTEUS_SAMPLE_CONFIG_PATH,
-)
-from proteus.application.configuration.app_settings import AppSettings, CONFIG_FILE
+from proteus.tests import PROTEUS_SAMPLE_CONFIG_PATH
+from proteus.application.configuration.app_settings import AppSettings
 from proteus.application.configuration.config import Config
 from proteus.application.configuration.profile_settings import ProfileSettings
 
