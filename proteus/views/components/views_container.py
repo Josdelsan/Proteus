@@ -18,7 +18,7 @@ import logging
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt, QByteArray, QUrl
-from PyQt6.QtGui import QDesktopServices, QIcon
+from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
 from PyQt6.QtWebEngineCore import QWebEnginePage
@@ -104,6 +104,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         #       QWebEngineView cannot be added to multiple parents.
         self.tabs: Dict[str, QWebEngineView] = {}
 
+        self.add_view_button: QPushButton
+
         # Create the component
         self.create_component()
 
@@ -150,14 +152,14 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         # Create a button to add new views
         button_icon = Icons().icon(ProteusIconType.App, "add_view_icon")
-        add_view_button: QPushButton = QPushButton()
-        add_view_button.setIcon(button_icon)
+        self.add_view_button: QPushButton = QPushButton()
+        self.add_view_button.setIcon(button_icon)
 
         # Connect to new view dialog
-        add_view_button.clicked.connect(
+        self.add_view_button.clicked.connect(
             lambda: NewViewDialog.create_dialog(self._controller)
         )
-        self.setCornerWidget(add_view_button, Qt.Corner.TopRightCorner)
+        self.setCornerWidget(self.add_view_button, Qt.Corner.TopRightCorner)
 
         # Hide the close button on the main view tab
         self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()

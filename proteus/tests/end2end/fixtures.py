@@ -23,7 +23,7 @@
 from typing import Callable
 import pytest
 import time
-from PyQt6.QtWidgets import QApplication, QDialog
+from PyQt6.QtWidgets import QApplication, QDialog, QWidget
 from PyQt6.QtCore import QTimer
 
 # --------------------------------------------------------------------------
@@ -33,6 +33,7 @@ from PyQt6.QtCore import QTimer
 from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.context_menu import ContextMenu
+from proteus.views.components.views_container import ViewsContainer
 from proteus.application.state_manager import StateManager
 from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import Translator
@@ -132,6 +133,7 @@ def load_translations_icons_plugins():
     if plugin_manager._plugins == {}:
         plugin_manager.load_plugins(config.profile_settings.plugins_directory)
 
+
 def restore_app_singleton_instances():
     """
     Restores the singleton instances of the app.
@@ -140,16 +142,21 @@ def restore_app_singleton_instances():
     StateManager().current_object = {}
     StateManager().current_view = None
 
+
 def mock_views_container(mocker):
     """
-    Mocks ViewsContainer methods to avoid the creation of the QWebEngineView
+    Mocks some ViewsContainer methods to avoid the creation of the QWebEngineView
     and QWebEnginePage instances. This is necessary because the QWebEngineView
     class is not supported by the pytest-qt plugin.
     """
 
+    def dummy_add_view(self: ViewsContainer, xslt_name):
+        self.tabs.__setitem__(xslt_name, None)
+        self.addTab(QWidget(), xslt_name)
+
     mocker.patch(
-        "proteus.views.components.views_container.ViewsContainer.create_component",
-        lambda *args, **kwargs: None,
+        "proteus.views.components.views_container.ViewsContainer.add_view",
+        lambda self, xslt_name: dummy_add_view(self, xslt_name),
     )
 
     mocker.patch(
@@ -163,11 +170,6 @@ def mock_views_container(mocker):
     )
 
     mocker.patch(
-        "proteus.views.components.views_container.ViewsContainer.update_on_add_view",
-        lambda *args, **kwargs: None,
-    )
-
-    mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.update_on_select_object",
         lambda *args, **kwargs: None,
     )
@@ -177,6 +179,10 @@ def mock_views_container(mocker):
         lambda *args, **kwargs: None,
     )
 
+    mocker.patch(
+        "proteus.views.components.views_container.ViewsContainer.current_view_changed",
+        lambda *args, **kwargs: None,
+    )
 
 # NOTE: https://github.com/pytest-dev/pytest-qt/issues/256
 # Dialog handling can interfere with running tests together. Workaround

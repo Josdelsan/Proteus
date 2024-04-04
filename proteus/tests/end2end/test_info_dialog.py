@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: test_info_dialog.py
-# Description: pytest file for the PROTEUS pyqt info fialog
+# Description: pytest file for the PROTEUS pyqt info dialog
 # Date: 29/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
