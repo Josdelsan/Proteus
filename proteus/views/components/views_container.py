@@ -279,8 +279,6 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         browser: QWebEngineView = self.tabs[current_view]
 
         # If there is no current document, clear the browser
-        # TODO: Consider use cases where there is no current document (all documents deleted)
-        # but project information is still relevant enough to be rendered.
         if current_document_id is None:
             browser.page().setContent(QByteArray(), "text/html")
             return

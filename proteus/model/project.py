@@ -136,10 +136,6 @@ class Project(AbstractObject):
         # TODO: pass some arguments?
         super().__init__(project_file_path)
 
-        # Save the project path as a project's attribute
-        # TODO: probably this can be factored up to superclass
-        self.path = project_file_path
-
         # Parse and load XML into memory
         root: ET.Element = ET.parse(project_file_path).getroot()
 

@@ -50,7 +50,6 @@ class AbstractObjectMeta(type(QObject), type(ABC)):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-# TODO: Consider if a naive implementation is enough.
 class SingletonMeta(type):
     """
     Metaclass for Singleton classes. It is used to create a singleton class.

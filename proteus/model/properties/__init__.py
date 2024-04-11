@@ -92,9 +92,6 @@ TIME_FORMAT             = str('%H:%M:%S')
 from proteus.model.properties.property import Property
 from proteus.model.properties.property_factory import PropertyFactory
 
-# TODO: The following classes' access might not be necessary
-#       at package level in future versions. ¿Remove them?
-
 from proteus.model.properties.boolean_property import BooleanProperty
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.date_property import DateProperty

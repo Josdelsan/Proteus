@@ -59,10 +59,6 @@ class ProteusState(Enum):
     Enumeration for abstract object's state.
     """
 
-    # TODO Is it necessary to add FRESH? When you clone project -> it saves -> CLEAN
-    # When load project -> It is saved -> CLEAN ->
-    # Remove something -> Deleted and father -> Dirty
-    # when edit something -> dirty
     FRESH = 0  # new object, just cloned but not already saved
     CLEAN = 1  # loaded object, not modified
     DIRTY = 2  # loaded object, modified
@@ -101,10 +97,6 @@ class AbstractObject(ABC):
 
         :param path: the path to the XML file containing the object's data.
         """
-
-        # # Check file exists at path
-        # assert os.path.isfile(path), \
-        #     f"PROTEUS {(self.__class__.__name__).lower()} file {path} not found."
 
         # TODO: put all common code in Project and Object here
 
@@ -223,57 +215,6 @@ class AbstractObject(ABC):
         # Update object's state
         if self.state == ProteusState.CLEAN:
             self.state = ProteusState.DIRTY
-
-    # ----------------------------------------------------------------------
-    # Method     : generate_xml
-    # Description: abstract method for generating an XML element from an
-    # abstract object. It must be overriden in subclasses.
-    # Date       : 15/09/2022
-    # Version    : 0.1
-    # Author     : Amador Durán Toro
-    # ----------------------------------------------------------------------
-
-    def generate_xml(self) -> ET.Element:
-        """
-        It generates an XML element from an abstract object. It must be
-        overriden in subclasses.
-
-        :return: ET.Element. The XML element
-        """
-
-        # Check if instance is a Project or an Object
-        if self.class_name == "Project":
-            # Create <project> element and set ID
-            element: ET.Element = ET.Element(PROJECT_TAG)
-
-        elif self.class_name == "Object":
-            # Create <object> element and set ID
-            element: ET.Element = ET.Element(OBJECT_TAG)
-
-        # Set element the id
-        element.set(ID_ATTRIBUTE, self.id)
-
-        # Create <properties> element
-        self.generate_xml_properties(element)
-
-        # Check if instance is a Project or an Object
-        if self.class_name == "Project":
-            # Create <documents> element
-            documents_element = ET.SubElement(element, DOCUMENTS_TAG)
-            # Create <document> subelements
-            for document in self.documents.values():
-                document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
-                document_element.set(ID_ATTRIBUTE, document.id)
-
-        elif self.class_name == "Object":
-            # Create <children> element
-            children_element = ET.SubElement(element, CHILDREN_TAG)
-            # Create <child> subelements
-            for child in self.children.values():
-                child_element = ET.SubElement(children_element, CHILD_TAG)
-                child_element.set(ID_ATTRIBUTE, child.id)
-
-        return element
 
     # ----------------------------------------------------------------------
     # Method     : generate_properties_xml

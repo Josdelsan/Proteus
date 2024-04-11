@@ -435,8 +435,7 @@ class Controller:
         # This triggers the STACK_CHANGED event
         self.stack.clear()
 
-        # TODO: Consider if this is the right place to clear the StateManager.
-        # It must be done before notifying the OPEN_PROJECT event to avoid
+        # Clear must be done before notifying the OPEN_PROJECT event to avoid
         # inconsistencies in the subscribed components.
         StateManager().clear()
         StateManager().current_project_path = Path(project_path)

@@ -28,13 +28,9 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ASSETS_REPOSITORY
-from proteus.application.configuration.config import Config
 from proteus.application.state_manager import StateManager
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons, ProteusIconType
-
-# Module configuration
-_ = Translator().text
 
 # Module configuration
 _ = Translator().text
@@ -174,13 +170,12 @@ class AssetEdit(QWidget):
 
         file_dialog = QFileDialog()
 
-        # TODO: Translate using the translator
         # Get the name of the selected file
         selected_file = file_dialog.getOpenFileName(
             self,
-            caption="Select image",
+            caption=_('asset_edit.file_dialog.title'),
             directory=assets_path.as_posix(),
-            filter="Images (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)",
+            filter=f"{_('asset_edit.file_dialog.filter')} (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)",
         )
 
         if selected_file[0] != "":

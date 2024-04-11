@@ -119,9 +119,6 @@ class Object(AbstractObject):
         Static factory method for loading a PROTEUS object given a project
         and a short UUID.
         """
-        # TODO new param (parent:Project/Object) to set parent object
-        # needed for some actions (move, delete, etc.)
-
         # Check project is not None
         assert (
             project is not None

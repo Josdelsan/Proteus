@@ -122,7 +122,7 @@ function suscribeProteusId() {
             propertiesDialog(element.getAttribute('data-proteus-id'), event);
         });
 
-        // TODO: Add more events here if needed
+        // NOTE: Add more events here if needed
     });
 }
 
