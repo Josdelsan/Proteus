@@ -10,25 +10,24 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from copy import deepcopy
 
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QMessageBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
 import proteus
-from proteus.application.resources.translator import Translator
 from proteus.application.configuration.config import Config
 from proteus.application.configuration.app_settings import AppSettings
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.settings_dialog import SettingsDialog
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.tests.end2end.fixtures import app, get_dialog
 
 # --------------------------------------------------------------------------
@@ -166,8 +165,10 @@ def test_config_dialog_change_settings(app, app_settings: AppSettings):
     dialog.default_view_combo.setCurrentIndex(new_default_view_index)
 
     # Save settings
-    dialog.accept_button.click()
+    warning_dialog: MessageBox = get_dialog(dialog.accept_button.click)
+    warning_dialog.button(QMessageBox.StandardButton.Ok).click()
     dialog.deleteLater()
+    warning_dialog.deleteLater()
 
     # --------------------------------------------
     # Assert
@@ -255,8 +256,10 @@ def test_config_dialog_change_profile(app, app_settings: AppSettings):
     dialog.profile_combo.setCurrentIndex(new_profile_index)
 
     # Save settings
-    dialog.accept_button.click()
+    warning_dialog: MessageBox = get_dialog(dialog.accept_button.click)
+    warning_dialog.button(QMessageBox.StandardButton.Ok).click()
     dialog.deleteLater()
+    warning_dialog.deleteLater()
 
     # --------------------------------------------
     # Assert
@@ -356,8 +359,10 @@ def test_config_dialog_change_custom_profile(app, app_settings: AppSettings):
     is_enabled_profile_combo = dialog.profile_combo.isEnabled()
 
     # Save settings
-    dialog.accept_button.click()
+    warning_dialog: MessageBox = get_dialog(dialog.accept_button.click)
+    warning_dialog.button(QMessageBox.StandardButton.Ok).click()
     dialog.deleteLater()
+    warning_dialog.deleteLater()
 
     # --------------------------------------------
     # Assert
