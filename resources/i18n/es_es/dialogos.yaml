@@ -80,6 +80,9 @@ settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicaci�
 
 settings_dialog.descriptions.empty: "No hay descripción disponible"
 
+settings_dialog_warning.title: "Aplicar cambios"
+settings_dialog_warning.text: "Los cambios se aplicarán al reiniciar la aplicación"
+
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------

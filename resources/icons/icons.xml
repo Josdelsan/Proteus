@@ -23,6 +23,9 @@
         <icon key="context-menu-clone" file="context_menu/clone-object-button.png"/>
         <icon key="context-menu-up" file="context_menu/move-up-arrow.png"/>
         <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>
+
+        <icon key="en_US" file="flags/en_US.png"/>
+        <icon key="es_ES" file="flags/es_ES.png"/>
     </type>
     <type name="main_menu" default="default-archetype.png">
         <icon key="new-project" file="main_menu/new-project-button.png" />

@@ -81,6 +81,9 @@ settings_dialog.info.label: "The changes will be applied once the application is
 
 settings_dialog.descriptions.empty: "No description available"
 
+settings_dialog_warning.title: "Apply changes"
+settings_dialog_warning.text: "The changes will be applied once the application is restarted."
+
 # ---------------------------------------------------------------------------
 # Export dialog
 # ---------------------------------------------------------------------------

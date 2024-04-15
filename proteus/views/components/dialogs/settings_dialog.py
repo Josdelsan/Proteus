@@ -39,7 +39,7 @@ from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import Translator
 from proteus.views.buttons import get_separator
 from proteus.views.forms.directory_edit import DirectoryEdit
-from proteus.views.components.dialogs.base_dialogs import ProteusDialog
+from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 
 
 # Module configuration
@@ -170,6 +170,10 @@ class SettingsDialog(ProteusDialog):
             self.language_combo.addItem(
                 _(f"settings.language.{lang}", alternative_text=lang),
                 lang,
+            )
+            self.language_combo.setItemIcon(
+                self.language_combo.count() - 1,
+                Icons().icon(ProteusIconType.App, lang),
             )
 
         # Set the current language
@@ -447,6 +451,15 @@ class SettingsDialog(ProteusDialog):
         # Save settings
         # ---------------------
         config.app_settings_copy.save()
+
+        # Show warning dialog, the changes will be applied after restart
+        # Avoid showing the warning dialog if the settings are the same as the
+        # current loaded settings
+        if config.app_settings != config.app_settings_copy:
+            MessageBox.warning(
+                _("settings_dialog_warning.title"),
+                _("settings_dialog_warning.text"),
+            )
 
         # Close the form window
         self.close()

@@ -429,7 +429,12 @@ class Controller:
         self._project_service = ProjectService()
 
         # Load the project
-        self._project_service.load_project(project_path)
+        try:
+            self._project_service.load_project(project_path)
+        except Exception as e:
+            log.error(f"Error loading project from path: {project_path}. {e}")
+            self._project_service = None
+            raise e
 
         # Clear the command stack
         # This triggers the STACK_CHANGED event
