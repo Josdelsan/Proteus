@@ -77,7 +77,7 @@ class SettingsDialog(ProteusDialog):
 
         # Settings edit widgets
         self.language_combo: QComboBox = None
-        self.view_combo: QComboBox = None
+        self.default_view_combo: QComboBox = None
 
         self.profile_combo: QComboBox = None
         self.custom_profile_edit: DirectoryEdit = None
@@ -85,6 +85,7 @@ class SettingsDialog(ProteusDialog):
 
         # Description labels
         self.profile_description_label: QLabel = None
+        self.view_description_label: QLabel = None
 
         # Error message labels
         self.error_profile_label: QLabel = None

@@ -159,7 +159,16 @@ class NewProjectDialog(ProteusDialog):
             if index >= 0:
                 archetype: Project = project_archetypes[index]
                 self._archetype_id = archetype.id
-                description_output.setText(archetype.properties["description"].value)
+
+                description_property = archetype.get_property("description")
+                if description_property is None:
+                    description_output.setStyleSheet("color: red; font-style: italic")
+                    description_output.setText(_("settings_dialog.descriptions.empty"))
+                else:
+                    description_output.setStyleSheet("color: black; font-style: italic")
+                    description_output.setText(description_property.value)
+
+                self.adjustSize()
 
         # Update the description when the user selects an archetype
         self.archetype_combo.currentIndexChanged.connect(update_description)
