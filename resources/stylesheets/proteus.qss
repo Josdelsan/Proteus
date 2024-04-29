@@ -290,15 +290,10 @@ QCheckBox:pressed {
 /* QDockWidget subclass */
 
 /* Menu bottom border */
-#MainMenu QTabWidget::pane {
+#MainMenu #main_menu_container {
     border-bottom: 1px solid slategray;
 }
 
-/* Separator length adjustment */
-#MainMenu QFrame#v-separator {
-    padding-bottom: -0.20em;
-    padding-top: -0.20em;
-}
 
 /* Main menu background colors */
 #MainMenu QWidget#main_tab {

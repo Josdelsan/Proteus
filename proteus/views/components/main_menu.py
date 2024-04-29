@@ -19,9 +19,13 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
+    QLabel,
     QHBoxLayout,
+    QVBoxLayout,
     QTabWidget,
     QDockWidget,
     QToolButton,
@@ -34,6 +38,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.application.configuration.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
@@ -150,7 +155,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
 
         # --------------------
-        # Create the component
+        # Create tabbed widget
         # --------------------
         # Add the main tab
         self.add_main_tab(_("main_menu.tab.home.name"))
@@ -163,8 +168,49 @@ class MainMenu(QDockWidget, ProteusComponent):
         for type_name in object_archetypes_dict.keys():
             self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
 
-        # Set the tab widget as the main widget of the component
-        self.setWidget(self.tab_widget)
+        # --------------------
+        # Profile information
+        # --------------------
+        selected_profile = Config().app_settings.selected_profile
+
+        profile_information: QWidget = QWidget()
+        profile_information.setMinimumWidth(100)
+        icon_information_layout: QVBoxLayout = QVBoxLayout()
+
+        icon_label: QLabel = QLabel()
+        profile_icon = Icons().icon(ProteusIconType.Profile, selected_profile)
+        icon_label.setPixmap(profile_icon.pixmap(32, 32))
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        profile_label: QLabel = QLabel(
+            _(f"profiles.{selected_profile}", alternative_text=selected_profile)
+        )
+        profile_label.setWordWrap(True)
+        profile_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        icon_information_layout.addStretch()
+        icon_information_layout.addWidget(icon_label)
+        icon_information_layout.addWidget(profile_label)
+        icon_information_layout.addStretch()
+        profile_information.setLayout(icon_information_layout)
+
+        # --------------------
+        # Menu container
+        # --------------------
+        container: QWidget = QWidget()
+        container.setObjectName("main_menu_container")
+        container_layout: QHBoxLayout = QHBoxLayout()
+        container_layout.setContentsMargins(0, 0, 0, 1)
+        container.setLayout(container_layout)
+
+        # Add widgets to the container layout
+        container_layout.addWidget(self.tab_widget)
+
+        if Config().app_settings.using_default_profile:
+            container_layout.addWidget(profile_information)
+
+        # Set the container as the widget of the dock widget
+        self.setWidget(container)
 
         log.info("Main menu component created")
 
@@ -370,7 +416,9 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Set the tab widget layout as the main widget of the tab widget
         tab_widget.setLayout(tab_layout)
-        tab_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        tab_widget.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self.tab_widget.addTab(tab_widget, _(tab_name_code, alternative_text=type_name))
 
     # ---------------------------------------------------------------------
@@ -591,9 +639,7 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Show a confirmation dialog
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-                proteus_icon = Icons().icon(
-                    ProteusIconType.App, "proteus_icon"
-                )
+                proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
                 confirmation_dialog.setWindowIcon(proteus_icon)
                 confirmation_dialog.setWindowTitle(
                     _("main_menu.open_project.save.title")
@@ -603,7 +649,7 @@ class MainMenu(QDockWidget, ProteusComponent):
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
                 confirmation_dialog.button(QMessageBox.StandardButton.Yes).setText(
-                _("dialog.yes_button")
+                    _("dialog.yes_button")
                 )
                 confirmation_dialog.button(QMessageBox.StandardButton.No).setText(
                     _("dialog.no_button")
