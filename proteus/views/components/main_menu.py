@@ -20,7 +20,6 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
@@ -39,7 +38,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.application.configuration.config import Config
-from proteus.model import ProteusID, PROTEUS_ANY
+from proteus.model import ProteusID, PROTEUS_ANY, PROJECT_FILE_NAME
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
@@ -615,14 +614,16 @@ class MainMenu(QDockWidget, ProteusComponent):
         new project.
         """
         # Open the file dialog
-        directory_path: str = QFileDialog.getExistingDirectory(
-            None, _("main_menu.open_project.caption"), ""
-        )
+        # getOpenFileName returns a tuple where the first element is the
+        # selected file path
+        project_file_path: str = QFileDialog.getOpenFileName(
+            None, _("main_menu.open_project.caption"), "", filter=PROJECT_FILE_NAME
+        )[0]
 
         # If a directory was selected, check if there is already a project
         # open with unsaved changes and ask the user if he wants to save
         # them before opening the new project
-        if directory_path:
+        if project_file_path:
             # Check unsaved changes ---------------------
             # Check if the project has unsaved changes
             unsaved_changes: bool = not self._controller.stack.isClean()
@@ -664,6 +665,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
             # Project load ---------------------
             try:
+                directory_path = Path(project_file_path).parent
                 self._controller.load_project(project_path=directory_path)
                 read_state_from_file(
                     Path(directory_path), self._controller, self._state_manager

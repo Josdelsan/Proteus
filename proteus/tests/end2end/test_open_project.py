@@ -11,6 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
@@ -20,6 +21,7 @@
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import PROJECT_FILE_NAME
 from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.tests.end2end.fixtures import app
@@ -28,7 +30,7 @@ from proteus.tests.end2end.fixtures import app
 # Fixtures
 # --------------------------------------------------------------------------
 
-SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
+SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project" / PROJECT_FILE_NAME
 
 
 # --------------------------------------------------------------------------
@@ -53,8 +55,8 @@ def test_open_project(mocker, app):
 
     # Mock the QFileDialog response and handle the dialog life cycle
     mocker.patch(
-        "PyQt6.QtWidgets.QFileDialog.getExistingDirectory",
-        return_value=str(SAMPLE_PROJECT_PATH),
+        "PyQt6.QtWidgets.QFileDialog.getOpenFileName",
+        return_value=[SAMPLE_PROJECT_PATH],
     )
 
     # Store previous information
