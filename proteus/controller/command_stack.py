@@ -781,7 +781,7 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @proteus_action
-    def create_project(self, archetype_id, name, path) -> None:
+    def create_project(self, archetype_id: ProteusID, name: str, path: str) -> None:
         """
         Create a new project with the given archetype id, name and path.
 

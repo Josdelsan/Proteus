@@ -17,13 +17,13 @@ import os
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QComboBox,
     QLineEdit,
-    QFrame,
+    QWizard,
+    QWizardPage,
 )
 
 
@@ -31,226 +31,230 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, PROTEUS_NAME
+from proteus.model import PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
+from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import Translator
-from proteus.views.components.dialogs.base_dialogs import ProteusDialog
+from proteus.application.resources.icons import Icons, ProteusIconType
 
 # Module configuration
 _ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------
-# Class: NewProject
-# Description: PyQT6 new project component for the PROTEUS application
-# Date: 28/05/2023
+# Class: NewProjectDialog
+# Description: PyQT6 new project wizard dialog for the PROTEUS application
+# Date: 01/05/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class NewProjectDialog(ProteusDialog):
+class NewProjectDialog(QWizard, ProteusComponent):
     """
-    New project component class for the PROTEUS application. It provides a
-    dialog form to create new projects from project archetypes.
+    Wizard dialog for creating a new project in the PROTEUS application.
+    Guides the user through the process of selecting an archetype, a path and a name for the project.
     """
 
-    # ----------------------------------------------------------------------
-    # Method     : __init__
-    # Description: Class constructor, invoke the parents class constructors
-    #              and create the component.
-    # Date       : 28/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Class constructor, invoke the parents class constructors and create
-        the component. Create properties to store the new project data.
-        """
+    def __init__(self, *args, **kwargs):
         super(NewProjectDialog, self).__init__(*args, **kwargs)
 
-        # Properties for creating a new project
-        self._name: str = None
-        self._path: str = None
-        self._archetype_id: ProteusID = None
-
-        # Create the component
-        self.create_component()
-
-    # ----------------------------------------------------------------------
-    # Method     : create_component
-    # Description: Create the component
-    # Date       : 28/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def create_component(self) -> None:
-        """
-        Create the component to display the new project dialog form.
-        """
-        layout: QVBoxLayout = QVBoxLayout()
-
-        # Set the dialog title and sizeHint
+        # Wizard configuration
         self.setWindowTitle(_("new_project_dialog.title"))
-        self.sizeHint = lambda: QSize(450, 0)
 
-        # Create a separator widget
-        separator: QFrame = QFrame()
-        separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setFrameShadow(QFrame.Shadow.Sunken)
+        proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
+        self.setWindowIcon(proteus_icon)
 
-        # Get project archetypes
-        project_archetypes: List[Project] = self._controller.get_project_archetypes()
-        # Create a combo box with the project archetypes
-        archetype_label: QLabel = QLabel(_("new_project_dialog.combobox.label"))
-        self.archetype_combo: QComboBox = QComboBox()
+        # Pages
+        self.addPage(ArchetypePage(self._controller.get_project_archetypes()))
+        self.addPage(PathPage())
+        self.addPage(NamePage())
 
-        archetype: Project = None
-        for archetype in project_archetypes:
-            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
+    def accept(self):
+        if self.validateCurrentPage():
+            project_archetypes: List[Project] = self._controller.get_project_archetypes()
 
-        # Show the archetype description
-        description_label: QLabel = QLabel(
-            _("new_project_dialog.archetype.description")
-        )
-        description_output: QLabel = QLabel()
-        description_output.setWordWrap(True)
+            name = self.field("name")
+            path = self.field("path")
+            archetype = project_archetypes[self.field("archetype") - 1].id
 
-        # Create the name input widget
-        name_label = QLabel(_("new_project_dialog.input.name"))
-        self.name_input: QLineEdit = QLineEdit()
+            super().accept()
+            self._controller.create_project(archetype, name, path)
 
-        # Create the path input widget
-        path_label: QLabel = QLabel(_("new_project_dialog.input.path"))
-        self.path_input: DirectoryEdit = DirectoryEdit()
-
-        self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
-
-        # Error message label
-        self.error_label: QLabel = QLabel()
-        self.error_label.setObjectName("error_label")
-        self.error_label.setWordWrap(True)
-
-        # Add the widgets to the layout
-        layout.addWidget(archetype_label)
-        layout.addWidget(self.archetype_combo)
-        layout.addWidget(description_label)
-        layout.addWidget(description_output)
-        layout.addWidget(separator)
-        layout.addWidget(name_label)
-        layout.addWidget(self.name_input)
-        layout.addWidget(path_label)
-        layout.addWidget(self.path_input)
-        layout.addWidget(self.error_label)
-        layout.addStretch()
-
-        self.set_content_layout(layout)
-
-        # ---------------------------------------------
-        # Actions
-        # ---------------------------------------------
-
-        # Update the description when the user selects an archetype
-        def update_description():
-            index = self.archetype_combo.currentIndex()
-            if index >= 0:
-                archetype: Project = project_archetypes[index]
-                self._archetype_id = archetype.id
-
-                description_property = archetype.get_property("description")
-                if description_property is None:
-                    description_output.setStyleSheet("color: red; font-style: italic")
-                    description_output.setText(_("settings_dialog.descriptions.empty"))
-                else:
-                    description_output.setStyleSheet("color: black; font-style: italic")
-                    description_output.setText(description_property.value)
-
-                self.adjustSize()
-
-        # Update the description when the user selects an archetype
-        self.archetype_combo.currentIndexChanged.connect(update_description)
-        # Update the description for the first archetype
-        update_description()
-
-    # ======================================================================
-    # Dialog slots methods (connected to the component signals)
-    # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : save_button_clicked
-    # Description: Save button clicked event handler
-    # Date       : 29/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def save_button_clicked(self):
-        # Get the project name
-        name: str = self.name_input.text()
-        path: str = self.path_input.directory()
-
-        if name is None or name == "" or not is_valid_folder_name(name):
-            self.error_label.setText(_("new_project_dialog.error.invalid_folder_name"))
-            return
-
-        if path is None or path == "" or not os.path.exists(path):
-            self.error_label.setText(_("new_project_dialog.error.invalid_path"))
-            return
-
-        if self._archetype_id is None:
-            self.error_label.setText(
-                _("new_project_dialog.error.no_archetype_selected")
-            )
-            return
-
-        if os.path.exists(f"{path}/{name}"):
-            self.error_label.setText(
-                _("new_project_dialog.error.folder_already_exists")
-            )
-            return
-
-        # Create the project
-        self._controller.create_project(self._archetype_id, name, path)
-
-        # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Cancel button clicked event handler
-    # Date       : 29/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without creating any project.
-        """
-        # Close the form window without saving any changes
-        self.close()
-        self.deleteLater()
-
-    # ======================================================================
-    # Dialog static methods (create and show the form window)
-    # ======================================================================
-
-    # ----------------------------------------------------------------------
-    # Method     : create_dialog (static)
-    # Description: Create a new project dialog and show it
-    # Date       : 05/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(controller: Controller) -> "NewProjectDialog":
-        """
-        Create a new project dialog and show it
-        """
-        # Create the dialog
         dialog = NewProjectDialog(controller=controller)
         dialog.exec()
         return dialog
+
+
+class ArchetypePage(QWizardPage):
+    """
+    Select an archetype for the new project in a combobox. If the project has
+    a description, it will be displayed below the combobox.
+    """
+    def __init__(self, archetypes: List[Project], *args, **kwargs):
+        super(ArchetypePage, self).__init__(*args, **kwargs)
+
+        # Variables
+        self.archetypes = archetypes
+
+        # Set the title and subtitle
+        self.setTitle(_("new_project_dialog.archetype.title"))
+        self.setSubTitle(_("new_project_dialog.archetype.subtitle"))
+
+        # Archetype Combobox
+        self.archetype_combo = QComboBox()
+        self.archetype_combo.addItem(_("new_project_dialog.archetype.select_archetype"))
+        for archetype in archetypes:
+            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
+
+        self.registerField("archetype*", self.archetype_combo)
+
+        # Error label
+        self.error_label = QLabel()
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
+
+        # Description label
+        self.description_label = QLabel(_("new_project_dialog.archetype.description"))
+        self.description_label.setWordWrap(True)
+        
+        self.description_container_label = QLabel()
+        self.description_container_label.setWordWrap(True)
+
+        # Layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.archetype_combo)
+        layout.addWidget(self.description_label)
+        layout.addWidget(self.description_container_label)
+        layout.addWidget(self.error_label)
+        self.setLayout(layout)
+
+        # Signals
+        self.archetype_combo.currentIndexChanged.connect(self.update_description)
+
+    def update_description(self):
+        index = self.archetype_combo.currentIndex()
+        if index > 0:
+            # -1 ommits the default option
+            archetype: Project = self.archetypes[index-1]
+
+            description_property = archetype.get_property("description")
+            if description_property is not None:
+                self.description_container_label.setStyleSheet("color: black; font-style: italic")
+                self.description_container_label.setText(description_property.value)
+                return
+            
+        self.description_container_label.setStyleSheet("color: red; font-style: italic")
+        self.description_container_label.setText(_("settings_dialog.descriptions.empty"))
+
+        self.adjustSize()
+
+    def validatePage(self):
+        index = self.archetype_combo.currentIndex()
+        if index == 0:
+            self.error_label.setText(_("new_project_dialog.error.no_archetype_selected"))
+            return False
+
+        self.error_label.setText("")
+        return True
+
+    def cleanupPage(self) -> None:
+        self.error_label.setText("")
+        self.archetype_combo.setCurrentIndex(0)
+        self.update_description()
+        return super().cleanupPage()
+
+
+class PathPage(QWizardPage):
+    """
+    Select a path for the new project using a DirectoryEdit widget (QLineEdit
+    with a QFileDialog button).
+    """
+    def __init__(self, *args, **kwargs):
+        super(PathPage, self).__init__(*args, **kwargs)
+
+        # Set the title and subtitle
+        self.setTitle(_("new_project_dialog.path.title"))
+        self.setSubTitle(_("new_project_dialog.path.subtitle"))
+
+        # Path input
+        self.path_input = DirectoryEdit()
+
+        self.registerField("path*", self.path_input.input, "text", self.path_input.input.textChanged)
+
+        # Error label
+        self.error_label = QLabel()
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
+
+        # Layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.path_input)
+        layout.addWidget(self.error_label)
+        self.setLayout(layout)
+
+    def validatePage(self):
+        path = self.path_input.directory()
+        if path is None or path == "" or not os.path.exists(path):
+            self.error_label.setText(_("new_project_dialog.error.invalid_path"))
+            return False
+
+        self.error_label.setText("")
+        return True
+
+    def cleanupPage(self) -> None:
+        self.error_label.setText("")
+        self.path_input.setDirectory("")
+        return super().cleanupPage()
+    
+
+class NamePage(QWizardPage):
+    """
+    Select a name for the new project. The name must be a valid folder name
+    and the folder must not already exist in the selected path.
+    """
+    def __init__(self, *args, **kwargs):
+        super(NamePage, self).__init__(*args, **kwargs)
+
+        # Set the title and subtitle
+        self.setTitle(_("new_project_dialog.name.title"))
+        self.setSubTitle(_("new_project_dialog.name.subtitle"))
+
+        # Name input
+        self.name_input = QLineEdit()
+
+        self.registerField("name*", self.name_input, "text", self.name_input.textChanged)
+
+        # Error label
+        self.error_label = QLabel()
+        self.error_label.setObjectName("error_label")
+        self.error_label.setWordWrap(True)
+
+        # Layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.name_input)
+        layout.addWidget(self.error_label)
+        self.setLayout(layout)
+
+    def validatePage(self):
+        name = self.name_input.text()
+        if name is None or name == "" or not is_valid_folder_name(name):
+            self.error_label.setText(_("new_project_dialog.error.invalid_folder_name"))
+            return False
+        
+        path = self.field("path")
+        full_path = f"{path}/{name}"
+        if os.path.exists(full_path):
+            self.error_label.setText(_("new_project_dialog.error.folder_already_exists", full_path))
+            return False
+
+        self.error_label.setText("")
+        return True
+
+    def cleanupPage(self) -> None:
+        self.error_label.setText("")
+        self.name_input.setText("")
+        return super().cleanupPage()

@@ -33,6 +33,10 @@ def is_valid_folder_name(folder_name) -> bool:
     """
     Check if a folder name is valid for the current operating system.
     """
+    # Check for empty strings
+    if not folder_name:
+        return False
+
     # Check for forbidden characters
     forbidden_characters = re.compile(r'[<>:"/\\|?*]')
     if forbidden_characters.search(folder_name):

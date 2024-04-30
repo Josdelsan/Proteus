@@ -6,13 +6,12 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QWidget,
     QLineEdit,
@@ -43,6 +42,9 @@ class DirectoryEdit(QWidget):
     Similar to PyQt6 QLineEdit, QTextEdit, etc. It is used to retrieve the
     value of the user input.
     """
+
+    # Signals --------------------------------------------------------------
+    directoryChanged = pyqtSignal()
 
     # ----------------------------------------------------------------------
     # Method     : __init__
@@ -96,6 +98,7 @@ class DirectoryEdit(QWidget):
 
         # Connect signals --------------------------------------------------
         self.browse_button.clicked.connect(self._browse_directory_dialog)
+        self.input.textChanged.connect(lambda: self.directoryChanged.emit())
 
     # ----------------------------------------------------------------------
     # Method     : directory

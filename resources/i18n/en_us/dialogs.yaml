@@ -41,14 +41,25 @@ new_document_dialog.error.no_archetype_selected: "Please select a valid document
 # New project dialog
 # ---------------------------------------------------------------------------
 new_project_dialog.title: "Create new project"
-new_project_dialog.combobox.label: "Select Project Archetype:"
-new_project_dialog.archetype.description: "Project Description:"
-new_project_dialog.input.name: "Enter project name:"
-new_project_dialog.input.path: "Select project path:"
+
+# Page 1
+new_project_dialog.archetype.title: "Select project archetype"
+new_project_dialog.archetype.subtitle: "Select the project archetype to create a new project. The project will be a clone of the selected archetype."
+new_project_dialog.archetype.select_archetype: "Select archetype"
+new_project_dialog.archetype.description: "Description provided by the selected archetype:"
 new_project_dialog.error.no_archetype_selected: "Please select a valid project archetype"
+
+# Page 2
+new_project_dialog.path.title: "Select project path"
+new_project_dialog.path.subtitle: "Select the path where the project will be created."
 new_project_dialog.error.invalid_path: "Please select a valid project path"
+
+# Page 3
+new_project_dialog.name.title: "Enter project name"
+new_project_dialog.name.subtitle: "Select the name of the project. It will be used as the name of the project folder. Name must be valid according to the OS file system rules."
 new_project_dialog.error.invalid_folder_name: "Project folder name invalid, please select another name"
-new_project_dialog.error.folder_already_exists: "The folder already exists, select another path or name"
+new_project_dialog.error.folder_already_exists: "The folder already exists, select another path or name. Path: {}"
+
 
 # ---------------------------------------------------------------------------
 # New view dialog
