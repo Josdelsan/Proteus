@@ -11,6 +11,7 @@
 # --------------------------------------------------------------------------
 
 from typing import List
+from pathlib import Path
 import os
 
 # --------------------------------------------------------------------------
@@ -66,6 +67,26 @@ class NewProjectDialog(QWizard, ProteusComponent):
         proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
         self.setWindowIcon(proteus_icon)
 
+        us_logo = Icons().icon(ProteusIconType.App, "US-digital")
+        self.setPixmap(QWizard.WizardPixmap.LogoPixmap, us_logo.pixmap(64, 64))
+
+        # Buttons translations
+        self.setButtonText(
+            QWizard.WizardButton.CancelButton, _("wizard_dialog.buttons.cancel")
+        )
+        self.setButtonText(
+            QWizard.WizardButton.NextButton, _("wizard_dialog.buttons.next")
+        )
+        self.setButtonText(
+            QWizard.WizardButton.FinishButton, _("wizard_dialog.buttons.finish")
+        )
+        self.setButtonText(
+            QWizard.WizardButton.BackButton, _("wizard_dialog.buttons.back")
+        )
+        self.setButtonText(
+            QWizard.WizardButton.HelpButton, _("wizard_dialog.buttons.help")
+        )
+
         # Pages
         self.addPage(ArchetypePage(self._controller.get_project_archetypes()))
         self.addPage(PathPage())
@@ -73,7 +94,9 @@ class NewProjectDialog(QWizard, ProteusComponent):
 
     def accept(self):
         if self.validateCurrentPage():
-            project_archetypes: List[Project] = self._controller.get_project_archetypes()
+            project_archetypes: List[Project] = (
+                self._controller.get_project_archetypes()
+            )
 
             name = self.field("name")
             path = self.field("path")
@@ -94,6 +117,7 @@ class ArchetypePage(QWizardPage):
     Select an archetype for the new project in a combobox. If the project has
     a description, it will be displayed below the combobox.
     """
+
     def __init__(self, archetypes: List[Project], *args, **kwargs):
         super(ArchetypePage, self).__init__(*args, **kwargs)
 
@@ -120,7 +144,7 @@ class ArchetypePage(QWizardPage):
         # Description label
         self.description_label = QLabel(_("new_project_dialog.archetype.description"))
         self.description_label.setWordWrap(True)
-        
+
         self.description_container_label = QLabel()
         self.description_container_label.setWordWrap(True)
 
@@ -139,23 +163,29 @@ class ArchetypePage(QWizardPage):
         index = self.archetype_combo.currentIndex()
         if index > 0:
             # -1 ommits the default option
-            archetype: Project = self.archetypes[index-1]
+            archetype: Project = self.archetypes[index - 1]
 
             description_property = archetype.get_property("description")
             if description_property is not None:
-                self.description_container_label.setStyleSheet("color: black; font-style: italic")
+                self.description_container_label.setStyleSheet(
+                    "color: black; font-style: italic"
+                )
                 self.description_container_label.setText(description_property.value)
                 return
-            
+
         self.description_container_label.setStyleSheet("color: red; font-style: italic")
-        self.description_container_label.setText(_("settings_dialog.descriptions.empty"))
+        self.description_container_label.setText(
+            _("settings_dialog.descriptions.empty")
+        )
 
         self.adjustSize()
 
     def validatePage(self):
         index = self.archetype_combo.currentIndex()
         if index == 0:
-            self.error_label.setText(_("new_project_dialog.error.no_archetype_selected"))
+            self.error_label.setText(
+                _("new_project_dialog.error.no_archetype_selected")
+            )
             return False
 
         self.error_label.setText("")
@@ -173,6 +203,7 @@ class PathPage(QWizardPage):
     Select a path for the new project using a DirectoryEdit widget (QLineEdit
     with a QFileDialog button).
     """
+
     def __init__(self, *args, **kwargs):
         super(PathPage, self).__init__(*args, **kwargs)
 
@@ -183,7 +214,9 @@ class PathPage(QWizardPage):
         # Path input
         self.path_input = DirectoryEdit()
 
-        self.registerField("path*", self.path_input.input, "text", self.path_input.input.textChanged)
+        self.registerField(
+            "path*", self.path_input.input, "text", self.path_input.input.textChanged
+        )
 
         # Error label
         self.error_label = QLabel()
@@ -209,13 +242,14 @@ class PathPage(QWizardPage):
         self.error_label.setText("")
         self.path_input.setDirectory("")
         return super().cleanupPage()
-    
+
 
 class NamePage(QWizardPage):
     """
     Select a name for the new project. The name must be a valid folder name
     and the folder must not already exist in the selected path.
     """
+
     def __init__(self, *args, **kwargs):
         super(NamePage, self).__init__(*args, **kwargs)
 
@@ -226,7 +260,9 @@ class NamePage(QWizardPage):
         # Name input
         self.name_input = QLineEdit()
 
-        self.registerField("name*", self.name_input, "text", self.name_input.textChanged)
+        self.registerField(
+            "name*", self.name_input, "text", self.name_input.textChanged
+        )
 
         # Error label
         self.error_label = QLabel()
@@ -244,11 +280,16 @@ class NamePage(QWizardPage):
         if name is None or name == "" or not is_valid_folder_name(name):
             self.error_label.setText(_("new_project_dialog.error.invalid_folder_name"))
             return False
-        
+
         path = self.field("path")
-        full_path = f"{path}/{name}"
+        full_path = Path(path) / name
         if os.path.exists(full_path):
-            self.error_label.setText(_("new_project_dialog.error.folder_already_exists", full_path))
+            self.error_label.setText(
+                _(
+                    "new_project_dialog.error.folder_already_exists",
+                    full_path.as_posix(),
+                )
+            )
             return False
 
         self.error_label.setText("")

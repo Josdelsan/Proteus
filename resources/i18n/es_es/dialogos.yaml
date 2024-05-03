@@ -17,6 +17,12 @@ dialog.close_button: "Cerrar"
 dialog.yes_button: "Sí"
 dialog.no_button: "No"
 
+wizard_dialog.buttons.cancel: "Cancelar"
+wizard_dialog.buttons.next: "Siguiente"
+wizard_dialog.buttons.back: "Atrás"
+wizard_dialog.buttons.finish: "Finalizar"
+wizard_dialog.buttons.help: "Ayuda"
+
 # ---------------------------------------------------------------------------
 # OpenProjectDialog
 # ---------------------------------------------------------------------------

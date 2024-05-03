@@ -19,7 +19,7 @@ import shutil
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import QWizard
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -28,7 +28,12 @@ from PyQt6.QtWidgets import QDialogButtonBox
 from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.application.resources.translator import Translator
 from proteus.views.components.main_window import MainWindow
-from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
+from proteus.views.components.dialogs.new_project_dialog import (
+    NewProjectDialog,
+    ArchetypePage,
+    NamePage,
+    PathPage,
+)
 from proteus.tests.end2end.fixtures import app, get_dialog
 
 # --------------------------------------------------------------------------
@@ -73,13 +78,21 @@ def test_create_project(app):
     create_project_button = main_window.main_menu.new_button
     dialog: NewProjectDialog = get_dialog(create_project_button.click)
 
-    # Select empty-project archetype
-    # NOTE: archetypes might be loaded in different order, this is a workaround
-    # to select the correct archetype
-    dialog._archetype_id = "empty-project"
-    dialog.name_input.setText(PROJECT_NAME)
-    dialog.path_input.setDirectory(str(PROJECT_PATH))
-    dialog.accept_button.click()
+    # Page 1
+    page1: ArchetypePage = dialog.currentPage()
+    combo_index = page1.archetype_combo.findData("empty-project")
+    page1.archetype_combo.setCurrentIndex(combo_index)
+    dialog.next()
+
+    # Page 2
+    page2: PathPage = dialog.currentPage()
+    page2.path_input.setDirectory(str(PROJECT_PATH))
+    dialog.next()
+
+    # Page 3
+    page3: NamePage = dialog.currentPage()
+    page3.name_input.setText(PROJECT_NAME)
+    dialog.button(QWizard.WizardButton.FinishButton).clicked.emit()
 
     # --------------------------------------------
     # Assert
@@ -151,32 +164,19 @@ def test_create_project(app):
 
 
 @pytest.mark.parametrize(
-    "project_path, project_name, expected_error",
+    "project_path, expected_error",
     [
-        ("", "Project name", "new_project_dialog.error.invalid_path"),
-        (None, "Project name", "new_project_dialog.error.invalid_path"),
-        (PROJECT_PATH, "", "new_project_dialog.error.invalid_folder_name"),
-        (PROJECT_PATH, None, "new_project_dialog.error.invalid_folder_name"),
-        (PROJECT_PATH, "/test", "new_project_dialog.error.invalid_folder_name"),
-        (PROJECT_PATH, "1:0test", "new_project_dialog.error.invalid_folder_name"),
-        (PROJECT_PATH, "test?", "new_project_dialog.error.invalid_folder_name"),
-        (
-            PROJECT_PATH,
-            "example_project",
-            "new_project_dialog.error.folder_already_exists",
-        ),  # Existing project
+        ("", "new_project_dialog.error.invalid_path"),
+        (None, "new_project_dialog.error.invalid_path"),
+        ("/nonexisting/path", "new_project_dialog.error.invalid_path"),
     ],
 )
-def test_create_project_negative(app, project_path, project_name, expected_error):
+def test_create_project_path_negative(app, project_path, expected_error):
     """
-    Test the ocreate project use case. Create a project from an archetype and open it
-    automatically. It tests the following steps:
+    Test the create project use case with invalid project path. It tests the following steps:
         - Open the create project dialog
         - Fill the form
-        - Project creation/load
-
-    NOTE: Archetype combo is not tested because it is not possible to select an invalid
-    archetype.
+        - Error message
     """
     # --------------------------------------------
     # Arrange
@@ -194,20 +194,136 @@ def test_create_project_negative(app, project_path, project_name, expected_error
     create_project_button = main_window.main_menu.new_button
     dialog: NewProjectDialog = get_dialog(create_project_button.click)
 
-    dialog.archetype_combo.setCurrentIndex(0)  # Select "empty project" archetype
-    dialog.name_input.setText(project_name)
-    dialog.path_input.setDirectory(str(project_path))
-    dialog.accept_button.click()
+    # Page 1
+    page1: ArchetypePage = dialog.currentPage()
+    combo_index = page1.archetype_combo.findData("empty-project")
+    page1.archetype_combo.setCurrentIndex(combo_index)
+    dialog.next()
+
+    # Page 2 (Path)
+    page2: PathPage = dialog.currentPage()
+    page2.path_input.setDirectory(project_path)
+    dialog.next()
 
     # --------------------------------------------
     # Assert
     # --------------------------------------------
-    assert isinstance(
-        dialog, NewProjectDialog
-    ), f"Dialog is not a NewProjectDialog, '{dialog.__class__.__name__}'"
 
-    assert dialog.error_label.text() == translator.text(expected_error), (
+    assert page2.error_label.text() == translator.text(expected_error), (
         f"Error label text is not the expected"
-        f"current: '{dialog.error_label.text()}'"
+        f"current: '{page2.error_label.text()}'"
         f"expected: '{translator.text(expected_error)}'"
+    )
+
+
+@pytest.mark.parametrize(
+    "project_name, expected_error",
+    [
+        ("", "new_project_dialog.error.invalid_folder_name"),
+        (None, "new_project_dialog.error.invalid_folder_name"),
+        ("1:0test", "new_project_dialog.error.invalid_folder_name"),
+        ("/test", "new_project_dialog.error.invalid_folder_name"),
+        ("test?", "new_project_dialog.error.invalid_folder_name"),
+    ],
+)
+def test_create_project_name_negative(app, project_name, expected_error):
+    """
+    Test the create project use case with invalid project name. It tests the following steps:
+        - Open the create project dialog
+        - Fill the form
+        - Error message
+    """
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+    main_window: MainWindow = app
+
+    # Translator instace to translate error messages
+    translator = Translator()
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+
+    # Open project button click
+    create_project_button = main_window.main_menu.new_button
+    dialog: NewProjectDialog = get_dialog(create_project_button.click)
+
+    # Page 1
+    page1: ArchetypePage = dialog.currentPage()
+    combo_index = page1.archetype_combo.findData("empty-project")
+    page1.archetype_combo.setCurrentIndex(combo_index)
+    dialog.next()
+
+    # Page 2 (Path)
+    page2: PathPage = dialog.currentPage()
+    page2.path_input.setDirectory(str(PROJECT_PATH))
+    dialog.next()
+
+    # Page 3 (Name)
+    page3: NamePage = dialog.currentPage()
+    page3.name_input.setText(project_name)
+    dialog.button(QWizard.WizardButton.FinishButton).clicked.emit()
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    assert page3.error_label.text() == translator.text(expected_error), (
+        f"Error label text is not the expected"
+        f"current: '{page3.error_label.text()}'"
+        f"expected: '{translator.text(expected_error)}'"
+    )
+
+
+def test_create_project_negative_existing_project(app):
+    """
+    Test the create project use case with an existing project. It tests the following steps:
+        - Open the create project dialog
+        - Fill the form
+        - Error message
+    """
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+    main_window: MainWindow = app
+
+    # Translator instace to translate error messages
+    translator = Translator()
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+
+    # Open project button click
+    create_project_button = main_window.main_menu.new_button
+    dialog: NewProjectDialog = get_dialog(create_project_button.click)
+
+    # Page 1
+    page1: ArchetypePage = dialog.currentPage()
+    combo_index = page1.archetype_combo.findData("empty-project")
+    page1.archetype_combo.setCurrentIndex(combo_index)
+    dialog.next()
+
+    # Page 2 (Path)
+    page2: PathPage = dialog.currentPage()
+    page2.path_input.setDirectory(str(PROJECT_PATH))
+    dialog.next()
+
+    # Page 3 (Name)
+    page3: NamePage = dialog.currentPage()
+    page3.name_input.setText("example_project")
+    dialog.button(QWizard.WizardButton.FinishButton).clicked.emit()
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    assert page3.error_label.text() == translator.text(
+        "new_project_dialog.error.folder_already_exists",
+        (PROJECT_PATH / "example_project").as_posix(),
+    ), (
+        f"Error label text is not the expected"
+        f"current: '{page3.error_label.text()}'"
+        f"expected: '{translator.text('new_project_dialog.error.folder_already_exists')}'"
     )

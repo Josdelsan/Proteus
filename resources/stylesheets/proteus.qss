@@ -358,3 +358,12 @@ QCheckBox:pressed {
 #dialog_content_widget { background-color: #f9f9f9; }
 
 #PropertyDialog #dialog_content_widget { background-color: transparent; }
+
+
+/* QWizard */
+QWizard QPushButton {
+    margin: 1px;
+    min-height: 1em;
+    padding-left: 0.75em;
+    padding-right: 0.75em;
+}
