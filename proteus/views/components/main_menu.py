@@ -173,23 +173,31 @@ class MainMenu(QDockWidget, ProteusComponent):
         selected_profile = Config().app_settings.selected_profile
 
         profile_information: QWidget = QWidget()
-        profile_information.setMinimumWidth(100)
+        profile_information.setObjectName("profile_information")
         icon_information_layout: QVBoxLayout = QVBoxLayout()
+
+        profile_label: QLabel = QLabel(_("main_menu.profile_label"))
+        profile_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         icon_label: QLabel = QLabel()
         profile_icon = Icons().icon(ProteusIconType.Profile, selected_profile)
         icon_label.setPixmap(profile_icon.pixmap(32, 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        profile_label: QLabel = QLabel(
+        profile_name: QLabel = QLabel(
             _(f"profiles.{selected_profile}", alternative_text=selected_profile)
         )
-        profile_label.setWordWrap(True)
-        profile_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        profile_name.setWordWrap(True)
+        profile_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        # If the profile label text is too long, trim it
+        if len(profile_name.text()) > 30:
+            profile_name.setText(profile_name.text()[:30] + "...")
+
+        icon_information_layout.addWidget(profile_label)
         icon_information_layout.addStretch()
         icon_information_layout.addWidget(icon_label)
-        icon_information_layout.addWidget(profile_label)
+        icon_information_layout.addWidget(profile_name)
         icon_information_layout.addStretch()
         profile_information.setLayout(icon_information_layout)
 

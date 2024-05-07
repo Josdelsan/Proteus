@@ -2,7 +2,7 @@
 # File: new_project_dialog.py
 # Description: PyQT6 new project component for the PROTEUS application
 # Date: 28/05/2023
-# Version: 0.1
+# Version: 0.2
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
@@ -69,6 +69,9 @@ class NewProjectDialog(QWizard, ProteusComponent):
 
         us_logo = Icons().icon(ProteusIconType.App, "US-digital")
         self.setPixmap(QWizard.WizardPixmap.LogoPixmap, us_logo.pixmap(64, 64))
+
+        self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
+
 
         # Buttons translations
         self.setButtonText(

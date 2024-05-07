@@ -12,6 +12,9 @@
 # Menu tabs
 main_menu.tab.home.name: "Inicio"
 
+# Main menu profile label
+main_menu.profile_label: "Perfil cargado"
+
 # Fixed button groups
 main_menu.button_group.project: "Proyecto"
 main_menu.button_group.document: "Documento"

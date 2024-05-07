@@ -12,6 +12,9 @@
 # Menu tabs
 main_menu.tab.home.name: "Home"
 
+# Main menu profile label
+main_menu.profile_label: "Loaded profile"
+
 # Fixed button groups
 main_menu.button_group.project: "Project"
 main_menu.button_group.document: "Document"

@@ -263,6 +263,11 @@ QCheckBox:pressed {
 }
 
 
+/* Profile information icon (menu) */
+#profile_information {
+    min-width: 100px;
+}
+
 /* ========================================================================= */
 /* DocumentTree component                                                    */
 /* ========================================================================= */
@@ -360,10 +365,15 @@ QCheckBox:pressed {
 #PropertyDialog #dialog_content_widget { background-color: transparent; }
 
 
-/* QWizard */
+/* QWizard (New project dialog) */
 QWizard QPushButton {
     margin: 1px;
     min-height: 1em;
     padding-left: 0.75em;
     padding-right: 0.75em;
+}
+
+QWizard QLineEdit:disabled {
+    background-color: #ffffff;
+    border: 1px solid #e1e1e1;
 }
