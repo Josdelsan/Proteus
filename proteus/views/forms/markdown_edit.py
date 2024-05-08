@@ -39,6 +39,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.application.resources.translator import Translator
+from proteus.views.forms.text_edit import TextEdit
 
 # Module configuration
 _ = Translator().text  # Translator
@@ -75,7 +76,7 @@ class MarkdownEdit(QWidget):
         super().__init__(*args, **kwargs)
 
         # Initialize widgets variables
-        self.input_box: QPlainTextEdit = None
+        self.input_box: TextEdit = None
         self.display_box: QTextEdit = None
         self.mode_button: QPushButton = None
 
@@ -112,7 +113,7 @@ class MarkdownEdit(QWidget):
         self.display_box.setFont(font)
 
         # Input box --------------------------------------------------------
-        self.input_box = QPlainTextEdit()
+        self.input_box = TextEdit()
         self.input_box.sizeHint = lambda: QSize(250, 100)
         self.input_box.wheelEvent = self.wheelEventDecorator(self.input_box.wheelEvent)
         self.input_box.setSizePolicy(
