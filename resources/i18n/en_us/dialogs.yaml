@@ -24,6 +24,22 @@ wizard_dialog.buttons.finish: "Finish"
 wizard_dialog.buttons.help: "Help"
 
 # ---------------------------------------------------------------------------
+# Spellcheck
+# ---------------------------------------------------------------------------
+spellcheck.more_suggestions: "More suggestions"
+spellcheck.language.en: "English"
+spellcheck.language.es: "Spanish"
+spellcheck.language.fr: "French"
+spellcheck.language.pt: "Portuguese"
+spellcheck.language.de: "German"
+spellcheck.language.it: "Italian"
+spellcheck.language.ru: "Russian"
+spellcheck.language.ar: "Arabic"
+spellcheck.language.eu: "Basque"
+spellcheck.language.lv: "Latvian"
+spellcheck.language.nl: "Dutch"
+
+# ---------------------------------------------------------------------------
 # OpenProjectDialog
 # ---------------------------------------------------------------------------
 
@@ -82,6 +98,7 @@ new_view_dialog.error.duplicated_view: "The view already exists"
 settings_dialog.title: "Proteus settings"
 
 settings_dialog.language.group: "Language"
+settings_dialog.spellchecker.label: "Spellchecker language:"
 
 settings_dialog.default_profile.group: "Profile"
 settings_dialog.default_profile.checkbox: "Check to use a custom profile"

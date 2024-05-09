@@ -24,6 +24,22 @@ wizard_dialog.buttons.finish: "Finalizar"
 wizard_dialog.buttons.help: "Ayuda"
 
 # ---------------------------------------------------------------------------
+# Corrector ortográfico
+# ---------------------------------------------------------------------------
+spellcheck.more_suggestions: "Más sugerencias"
+spellcheck.language.en: "Inglés"
+spellcheck.language.es: "Español"
+spellcheck.language.fr: "Francés"
+spellcheck.language.pt: "Portugués"
+spellcheck.language.de: "Alemán"
+spellcheck.language.it: "Italiano"
+spellcheck.language.ru: "Ruso"
+spellcheck.language.ar: "Árabe"
+spellcheck.language.eu: "Vasco"
+spellcheck.language.lv: "Letón"
+spellcheck.language.nl: "Holandés"
+
+# ---------------------------------------------------------------------------
 # OpenProjectDialog
 # ---------------------------------------------------------------------------
 
@@ -81,6 +97,7 @@ new_view_dialog.error.duplicated_view: "La vista seleccionada ya existe"
 settings_dialog.title: "Proteus configuración"
 
 settings_dialog.language.group: "Idioma"
+settings_dialog.spellchecker.label: "Idioma del corrector ortográfico:"
 
 settings_dialog.default_profile.group: "Perfil"
 settings_dialog.default_profile.checkbox: "Marque para usar un perfil personalizado"

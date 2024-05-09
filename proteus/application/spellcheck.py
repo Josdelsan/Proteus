@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 import re
-from typing import Iterator
+from typing import List, Tuple
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -31,6 +31,8 @@ from PyQt6.QtGui import (
 # --------------------------------------------------------------------------
 
 from proteus.application.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.decorators import proteus_action
+
 
 # --------------------------------------------------------------------------
 # Class: SpellCheckerWrapper
@@ -65,21 +67,7 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
 
         self._spellchecker = SpellChecker(language=language)
 
-    # --------------------------------------------------------------------------
-    # Method: list_available_languages
-    # Description: List available languages for spellchecking.
-    # Date: 08/05/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def list_available_languages(self) -> list[str]:
-        """
-        List available languages for spellchecking.
 
-        return: List of available languages dictionaries.
-        """
-        return list(SpellChecker.languages())
-    
     # --------------------------------------------------------------------------
     # Method: check
     # Description: Check the spelling of a word.
@@ -95,7 +83,7 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         return: True if the word is spelled correctly, False otherwise.
         """
         return word in self._spellchecker
-    
+
     # --------------------------------------------------------------------------
     # Method: suggest
     # Description: Get a list of suggested words for a misspelled word.
@@ -103,6 +91,9 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
+    # NOTE: Using proteus_action to handle cursor shape in case of long spellcheck
+    # some words might not have suggestions and take a while to process
+    @proteus_action
     def suggest(self, word: str) -> list[str]:
         """
         Get a list of suggested words for a misspelled word.
@@ -116,7 +107,22 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         else:
             return list()
         
-    
+    # --------------------------------------------------------------------------
+    # Method: list_available_languages (static)
+    # Description: List available languages for spellchecking.
+    # Date: 08/05/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def list_available_languages() -> list[str]:
+        """
+        List available languages for spellchecking.
+
+        return: List of available languages dictionaries.
+        """
+        return list(SpellChecker.languages())
+
     # --------------------------------------------------------------------------
     # Method: tokenize (static)
     # Description: Tokenize a text into words.
@@ -124,20 +130,39 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    # TODO: Ommit email addresses and URLs
+    # TODO: Ommit email addresses
     # TODO: Improve code block handling
     @staticmethod
-    def tokenize(text: str) -> Iterator[re.Match]:
+    def tokenize(text: str) -> List[re.Match]:
         """
         Tokenize a text into words.
 
         param text: Text to tokenize.
         return: List of matches.
         """
-        tokenize_pattern = re.compile(r"\b(?<!`)[A-Za-z]{2,}(?!`)(?!>)\b")
+        tokens: List[re.Match] = list()
 
-        return re.finditer(tokenize_pattern, text)
-    
+        # Look for words with at least 2 characters omitting HTML tags
+        tokenize_pattern = re.compile(r"\b(?<!<)(?<!</)[A-Za-z]{2,}(?!>)\b")
+
+        # TODO: Handle code markdown code blocks (```... ``` or ` ... `). Pattern "(?s)```(?!```).*```"
+        # works when there is only one code block in the text.
+
+        # Store ranges to avoid tokenizing them
+        invalid_ranges: List[Tuple[int, int]] = list()
+
+        # Look for URLs
+        url_pattern = re.compile(r"https?://[^\s]+")
+        for m in url_pattern.finditer(text):
+            invalid_ranges.append((m.start(), m.end()))
+
+        # Exclude invalid matches
+        for m in tokenize_pattern.finditer(text):
+            if not any(start <= m.start() <= end for start, end in invalid_ranges):
+                tokens.append(m)
+
+        return tokens
+
 
 # --------------------------------------------------------------------------
 # Class: SpellCheckHighlighter
@@ -150,7 +175,7 @@ class SpellCheckHighlighter(QSyntaxHighlighter):
     """
     Syntax highlighter for spellchecking. It is used to highlight
     misspelled words in the text.
-    """        
+    """
 
     # --------------------------------------------------------------------------
     # Method: highlightBlock
@@ -162,13 +187,19 @@ class SpellCheckHighlighter(QSyntaxHighlighter):
     def highlightBlock(self, text: str) -> None:
 
         if not hasattr(self, "_spellchecker"):
+            # SpellCheckerWrapper is a Singleton initialized at startup
+            # using user configuration settings.
             self._spellchecker = SpellCheckerWrapper()
 
         highlight_format = QTextCharFormat()
-        highlight_format.setUnderlineStyle(QTextCharFormat.UnderlineStyle.SpellCheckUnderline)
+        highlight_format.setUnderlineStyle(
+            QTextCharFormat.UnderlineStyle.SpellCheckUnderline
+        )
         highlight_format.setUnderlineColor(Qt.GlobalColor.red)
-        
+
         for match in self._spellchecker.tokenize(text):
             word = match.group()
             if not self._spellchecker.check(word):
-                self.setFormat(match.start(), match.end() - match.start(), highlight_format)
+                self.setFormat(
+                    match.start(), match.end() - match.start(), highlight_format
+                )

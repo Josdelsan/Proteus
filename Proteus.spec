@@ -21,6 +21,7 @@ exe = EXE(
     a.binaries,
     Tree('resources', prefix='resources'),
     Tree('profiles', prefix='profiles'),
+    Tree('spellchecker', prefix='spellchecker'),
     a.datas,
     [],
     name='Proteus',

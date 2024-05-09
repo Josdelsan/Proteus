@@ -24,6 +24,8 @@ from configparser import ConfigParser
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.application.spellcheck import SpellCheckerWrapper
+
 # --------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------
@@ -40,6 +42,7 @@ PROFILES_DIRECTORY: str = "profiles_directory"
 # User editable settings
 SETTINGS: str = "settings"
 SETTING_LANGUAGE: str = "language"
+SETTING_SPELLCHECKER_LANGUAGE: str = "spellchecker_language"
 SETTING_DEFAULT_VIEW: str = "default_view"
 SETTING_SELECTED_PROFILE: str = "selected_profile"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
@@ -69,6 +72,7 @@ class AppSettings:
 
     # Application settings (User editable settings)
     language: str = None
+    spellchecker_language: str = None
     default_view: str = None
     selected_profile: str = None
     using_default_profile: bool = None
@@ -183,6 +187,22 @@ class AppSettings:
 
         log.info(f"Config file {self.settings_file_path} | Language: {self.language}")
 
+        # Spellchecker language -----------------------
+        spellchecker_language = settings[SETTING_SPELLCHECKER_LANGUAGE]
+
+        # Check if the spellchecker language is available
+        if spellchecker_language not in SpellCheckerWrapper.list_available_languages():
+            log.error(
+                f"Spellchecker language '{spellchecker_language}' is not available. Using default language..."
+            )
+            spellchecker_language = SpellCheckerWrapper.list_available_languages()[0]
+
+        self.spellchecker_language = spellchecker_language
+
+        log.info(
+            f"Config file {self.settings_file_path} | Spellchecker language: {self.spellchecker_language}"
+        )
+
         # Default view -------------------
         self.default_view = settings[SETTING_DEFAULT_VIEW]
 
@@ -198,7 +218,9 @@ class AppSettings:
         self.using_default_profile = using_default_profile
 
         custom_profile_path_str: str = settings[SETTING_CUSTOM_PROFILE_PATH]
-        self.custom_profile_path = Path(custom_profile_path_str) if custom_profile_path_str else None
+        self.custom_profile_path = (
+            Path(custom_profile_path_str) if custom_profile_path_str else None
+        )
 
         self._validate_profile_path()
 
@@ -244,6 +266,7 @@ class AppSettings:
     def clone(
         self,
         language: str = None,
+        spellchecker_language: str = None,
         default_view: str = None,
         selected_profile: str = None,
         using_default_profile: bool = None,
@@ -254,6 +277,9 @@ class AppSettings:
         """
         if language is None:
             language = self.language
+
+        if spellchecker_language is None:
+            spellchecker_language = self.spellchecker_language
 
         if default_view is None:
             default_view = self.default_view
@@ -270,6 +296,7 @@ class AppSettings:
         new_settings = replace(
             self,
             language=language,
+            spellchecker_language=spellchecker_language,
             default_view=default_view,
             selected_profile=selected_profile,
             using_default_profile=using_default_profile,
@@ -292,6 +319,9 @@ class AppSettings:
         """
         # Settings section
         self.config_parser[SETTINGS][SETTING_LANGUAGE] = self.language
+        self.config_parser[SETTINGS][
+            SETTING_SPELLCHECKER_LANGUAGE
+        ] = self.spellchecker_language
         self.config_parser[SETTINGS][SETTING_DEFAULT_VIEW] = self.default_view
         self.config_parser[SETTINGS][SETTING_SELECTED_PROFILE] = self.selected_profile
         self.config_parser[SETTINGS][SETTING_USING_DEFAULT_PROFILE] = str(
@@ -306,6 +336,7 @@ class AppSettings:
 
         log.info(f"Settings saved to {self.settings_file_path}.")
         log.info(f"{self.language = }")
+        log.info(f"{self.spellchecker_language = }")
         log.info(f"{self.default_view = }")
         log.info(f"{self.selected_profile = }")
         log.info(f"{self.using_default_profile = }")

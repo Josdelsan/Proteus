@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.application.spellcheck import SpellCheckerWrapper
 from proteus.application.configuration.config import Config
 from proteus.application.configuration.profile_settings import ProfileSettings
 from proteus.controller.command_stack import Controller
@@ -77,6 +78,7 @@ class SettingsDialog(ProteusDialog):
 
         # Settings edit widgets
         self.language_combo: QComboBox = None
+        self.spellchecker_combo: QComboBox = None
         self.default_view_combo: QComboBox = None
 
         self.profile_combo: QComboBox = None
@@ -161,6 +163,7 @@ class SettingsDialog(ProteusDialog):
         # Language layout
         language_layout: QVBoxLayout = QVBoxLayout()
 
+        # Language combo box --------------------------------------
         # Get available languages from translator instance
         languages: List[str] = Translator().available_languages
 
@@ -190,7 +193,31 @@ class SettingsDialog(ProteusDialog):
         # Add the widgets to the layout
         language_layout.addWidget(self.language_combo)
 
-        # Group box
+        # SpellChecker combobox --------------------------------------
+        spellchecker_label: QLabel = QLabel(_("settings_dialog.spellchecker.label"))
+        self.spellchecker_combo: QComboBox = QComboBox()
+        for slang in SpellCheckerWrapper.list_available_languages():
+            self.spellchecker_combo.addItem(
+                _(f"spellcheck.language.{slang}", alternative_text=slang), slang
+            )
+
+        # Set the current language
+        current_spellchecker_lang: str = (
+            Config().app_settings_copy.spellchecker_language
+        )
+
+        assert (
+            current_spellchecker_lang is not None or current_spellchecker_lang == ""
+        ), f"Error getting current spellchecker language from configuration"
+
+        index: int = self.spellchecker_combo.findData(current_spellchecker_lang)
+        self.spellchecker_combo.setCurrentIndex(index)
+
+        # Add the widgets to the layout
+        language_layout.addWidget(spellchecker_label)
+        language_layout.addWidget(self.spellchecker_combo)
+
+        # Group box -----------------------------------------------
         language_group: QGroupBox = QGroupBox(_("settings_dialog.language.group"))
         language_group.setLayout(language_layout)
 
@@ -442,6 +469,7 @@ class SettingsDialog(ProteusDialog):
 
         config.app_settings_copy = config.app_settings_copy.clone(
             language=self.language_combo.currentData(),
+            spellchecker_language=self.spellchecker_combo.currentData(),
             default_view=self.default_view_combo.currentData(),
             selected_profile=self.profile_combo.currentData(),
             using_default_profile=(not self.use_custom_profile_checkbox.isChecked()),

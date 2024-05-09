@@ -29,6 +29,7 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_LOGGING_DIR
+from proteus.application.spellcheck import SpellCheckerWrapper
 from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.application.resources.translator import Translator
@@ -140,6 +141,9 @@ class ProteusApplication:
         self.translator.load_translations(self.config.profile_settings.i18n_directory)
         self.dynamic_icons.load_icons(self.config.profile_settings.icons_directory)
         self.plugin_manager.load_plugins(self.config.profile_settings.plugins_directory)
+
+        # Initialize SpellCheckerWrapper ----------------------
+        self.spellchecker = SpellCheckerWrapper(self.config.app_settings.spellchecker_language)
 
 
         # Setup the request interceptor -----------------------

@@ -134,3 +134,6 @@ dmypy.json
 /.vscode/settings.json
 
 docs/
+
+# PySpellchecker build files
+spellchecker/

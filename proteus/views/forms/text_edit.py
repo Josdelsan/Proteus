@@ -10,6 +10,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import List
+
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
@@ -27,6 +29,7 @@ from PyQt6.QtCore import (
 from PyQt6.QtWidgets import (
     QTextEdit,
     QWidget,
+    QMenu,
 )
 
 # --------------------------------------------------------------------------
@@ -39,6 +42,7 @@ from proteus.application.resources.translator import Translator
 
 # Module configuration
 _ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: TextEdit
@@ -72,7 +76,6 @@ class TextEdit(QTextEdit):
         self._highlighter = SpellCheckHighlighter(self.document())
         self._spellchecker = SpellCheckerWrapper()
 
-
     # --------------------------------------------------------------------------
     # Method: mousePressEvent
     # Description: Override mousePressEvent to handle right click as left click
@@ -96,7 +99,6 @@ class TextEdit(QTextEdit):
             )
         super().mousePressEvent(event)
 
-
     # --------------------------------------------------------------------------
     # Method: contextMenuEvent
     # Description: Override contextMenuEvent to add spellcheck suggestions.
@@ -107,6 +109,9 @@ class TextEdit(QTextEdit):
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         """
         Override contextMenuEvent to add spellcheck suggestions.
+
+        SpellChecking will only be shown if no text is selected and the user
+        right-clicks on a word that is suspected to be misspelled.
         """
         self.contextMenu = self.createStandardContextMenu()
 
@@ -115,23 +120,42 @@ class TextEdit(QTextEdit):
         # If there is no selection, select the word under the cursor to check
         if not textCursor.hasSelection():
 
-            # TODO: Avoid selecting special characters so they are not replaced
+            # WordUnderCursor will select underscores as part of the word
+            # this might be a problem for some markdown syntax
             textCursor.select(QTextCursor.SelectionType.WordUnderCursor)
             self.setTextCursor(textCursor)
             word = textCursor.selectedText()
 
-            if self._spellchecker.check(word) is False:
+            if self._spellchecker.check(word) is False and len(word) > 1:
                 self.contextMenu.addSeparator()
 
-                suggestions = self._spellchecker.suggest(word) 
+                suggestions: List[str] = self._spellchecker.suggest(word)
 
                 # TODO: Handle misspelled words that have no suggestions
-                # Show submenu with 10 suggestions
                 if suggestions:
-                    submenu = self.contextMenu.addMenu(_("spellcheck.suggestions"))
+                    submenu: QMenu = None
 
-                    for suggestion in suggestions[:10]:
-                        action = submenu.addAction(suggestion)
-                        action.triggered.connect(lambda checked, text=suggestion: self.insertPlainText(text))
+                    # Show up to 3 suggestions in the context menu
+                    for i, suggestion in enumerate(suggestions):
+                        if i < 3:
+                            action = self.contextMenu.addAction(suggestion)
+                            action.triggered.connect(
+                                lambda checked, text=suggestion: self.insertPlainText(
+                                    text
+                                )
+                            )
+                        # If there are more than 3 suggestions, show them in a submenu
+                        else:
+                            if submenu is None:
+                                submenu = self.contextMenu.addMenu(
+                                    _("spellcheck.more_suggestions")
+                                )
+
+                            action = submenu.addAction(suggestion)
+                            action.triggered.connect(
+                                lambda checked, text=suggestion: self.insertPlainText(
+                                    text
+                                )
+                            )
 
         self.contextMenu.exec(event.globalPos())
