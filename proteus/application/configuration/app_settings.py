@@ -192,10 +192,10 @@ class AppSettings:
 
         # Check if the spellchecker language is available
         if spellchecker_language not in SpellCheckerWrapper.list_available_languages():
-            log.error(
-                f"Spellchecker language '{spellchecker_language}' is not available. Using default language..."
+            log.warning(
+                f"Spellchecker language '{spellchecker_language}' is not available. No spellchecker will be used."
             )
-            spellchecker_language = SpellCheckerWrapper.list_available_languages()[0]
+            spellchecker_language = None
 
         self.spellchecker_language = spellchecker_language
 

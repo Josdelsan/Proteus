@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
-from typing import List
 import sys
 import logging
 import traceback
@@ -64,6 +63,7 @@ class ProteusApplication:
         self.plugin_manager: Plugins = Plugins()
         self.translator: Translator = Translator()
         self.dynamic_icons: Icons = Icons()
+        self.spellchecker = SpellCheckerWrapper()
 
         # Request interceptor
         self.request_interceptor: WebEngineUrlRequestInterceptor = (
@@ -142,8 +142,10 @@ class ProteusApplication:
         self.dynamic_icons.load_icons(self.config.profile_settings.icons_directory)
         self.plugin_manager.load_plugins(self.config.profile_settings.plugins_directory)
 
-        # Initialize SpellCheckerWrapper ----------------------
-        self.spellchecker = SpellCheckerWrapper(self.config.app_settings.spellchecker_language)
+        # SpellCheckerWrapper ----------------------
+        spellchecker_language = self.config.app_settings.spellchecker_language
+        if spellchecker_language is not None:
+            self.spellchecker.set_language(spellchecker_language)
 
 
         # Setup the request interceptor -----------------------

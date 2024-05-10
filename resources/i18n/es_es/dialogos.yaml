@@ -27,6 +27,7 @@ wizard_dialog.buttons.help: "Ayuda"
 # Corrector ortográfico
 # ---------------------------------------------------------------------------
 spellcheck.more_suggestions: "Más sugerencias"
+spellcheck.deactivate: "Desactivar corrector ortográfico"
 spellcheck.language.en: "Inglés"
 spellcheck.language.es: "Español"
 spellcheck.language.fr: "Francés"

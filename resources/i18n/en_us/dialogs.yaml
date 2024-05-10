@@ -27,6 +27,7 @@ wizard_dialog.buttons.help: "Help"
 # Spellcheck
 # ---------------------------------------------------------------------------
 spellcheck.more_suggestions: "More suggestions"
+spellcheck.deactivate: "Disable spellchecker"
 spellcheck.language.en: "English"
 spellcheck.language.es: "Spanish"
 spellcheck.language.fr: "French"

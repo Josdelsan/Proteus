@@ -196,22 +196,28 @@ class SettingsDialog(ProteusDialog):
         # SpellChecker combobox --------------------------------------
         spellchecker_label: QLabel = QLabel(_("settings_dialog.spellchecker.label"))
         self.spellchecker_combo: QComboBox = QComboBox()
+
+        # Add first item that allows deactivation of the spellchecker
+        self.spellchecker_combo.addItem(_("spellcheck.deactivate"), "")
+
+        # Add the available languages
         for slang in SpellCheckerWrapper.list_available_languages():
             self.spellchecker_combo.addItem(
                 _(f"spellcheck.language.{slang}", alternative_text=slang), slang
             )
 
-        # Set the current language
+        # Set the current spellcheck language
         current_spellchecker_lang: str = (
             Config().app_settings_copy.spellchecker_language
         )
 
-        assert (
-            current_spellchecker_lang is not None or current_spellchecker_lang == ""
-        ), f"Error getting current spellchecker language from configuration"
-
-        index: int = self.spellchecker_combo.findData(current_spellchecker_lang)
-        self.spellchecker_combo.setCurrentIndex(index)
+        # Handle the case when the spellchecker is deactivated
+        if current_spellchecker_lang is None or current_spellchecker_lang == "":
+            current_spellchecker_lang = ""
+            self.spellchecker_combo.setCurrentIndex(0)
+        else:
+            index: int = self.spellchecker_combo.findData(current_spellchecker_lang)
+            self.spellchecker_combo.setCurrentIndex(index)
 
         # Add the widgets to the layout
         language_layout.addWidget(spellchecker_label)

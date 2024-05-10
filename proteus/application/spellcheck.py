@@ -55,11 +55,27 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def __init__(self, language: str = "en"):
+    def __init__(self):
         """
         Constructor method.
         """
 
+        self._spellchecker: SpellChecker = None
+
+    
+    # --------------------------------------------------------------------------
+    # Method: set_language
+    # Description: Set the language for spellchecking.
+    # Date: 08/05/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def set_language(self, language: str) -> None:
+        """
+        Set the language for spellchecking.
+
+        param language: Language to set.
+        """
         assert language in SpellChecker.languages(), (
             f"Language '{language}' is not available for spellchecking. "
             f"Available languages are: {', '.join(SpellChecker.languages())}"
@@ -82,6 +98,9 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         param word: word to check.
         return: True if the word is spelled correctly, False otherwise.
         """
+        if self._spellchecker is None:
+            return True
+
         return word in self._spellchecker
 
     # --------------------------------------------------------------------------
@@ -101,6 +120,9 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         param text: Text to get suggestions.
         return: List of suggested words.
         """
+        if self._spellchecker is None:
+            return list()
+
         candidates = self._spellchecker.candidates(word)
         if candidates:
             return list(candidates)
@@ -124,7 +146,7 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         return list(SpellChecker.languages())
 
     # --------------------------------------------------------------------------
-    # Method: tokenize (static)
+    # Method: tokenize
     # Description: Tokenize a text into words.
     # Date: 08/05/2024
     # Version: 0.1
@@ -132,21 +154,23 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
     # --------------------------------------------------------------------------
     # TODO: Ommit email addresses
     # TODO: Improve code block handling
-    @staticmethod
-    def tokenize(text: str) -> List[re.Match]:
+    def tokenize(self, text: str) -> List[re.Match]:
         """
         Tokenize a text into words.
+
+        NOTE: this method is not static so tokenization can be omitted if
+        spellchecking is disabled.
 
         param text: Text to tokenize.
         return: List of matches.
         """
+        if self._spellchecker is None:
+            return list()
+
         tokens: List[re.Match] = list()
 
         # Look for words with at least 2 characters omitting HTML tags
         tokenize_pattern = re.compile(r"\b(?<!<)(?<!</)[A-Za-z]{2,}(?!>)\b")
-
-        # TODO: Handle code markdown code blocks (```... ``` or ` ... `). Pattern "(?s)```(?!```).*```"
-        # works when there is only one code block in the text.
 
         # Store ranges to avoid tokenizing them
         invalid_ranges: List[Tuple[int, int]] = list()
@@ -155,6 +179,14 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
         url_pattern = re.compile(r"https?://[^\s]+")
         for m in url_pattern.finditer(text):
             invalid_ranges.append((m.start(), m.end()))
+
+        # Look for email addresses
+        email_pattern = re.compile(r"\b\w{1,}@\w{1,}\.\w{1,}\b")
+        for m in email_pattern.finditer(text):
+            invalid_ranges.append((m.start(), m.end()))
+
+        # TODO: Handle code markdown code blocks (```... ``` or ` ... `). Pattern "(?s)```(?!```).*```"
+        # works when there is only one code block in the text.
 
         # Exclude invalid matches
         for m in tokenize_pattern.finditer(text):
