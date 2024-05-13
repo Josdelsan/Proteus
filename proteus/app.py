@@ -4,6 +4,7 @@
 # Date: 09/10/2022
 # Version: 0.1
 # Author: Amador Durán Toro
+#         José María Delgado Sánchez
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -38,6 +39,7 @@ from proteus.application.state_restorer import read_state_from_file
 from proteus.application.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -50,6 +52,7 @@ _ = Translator().text  # Translator
 # Date: 09/10/2022
 # Version: 0.1
 # Author: Amador Durán Toro
+#         José María Delgado Sánchez
 # --------------------------------------------------------------------------
 
 
@@ -108,9 +111,8 @@ class ProteusApplication:
         # Load plugin components
         self.load_plugin_components()
 
-        if self.project_path:
-            controller.load_project(self.project_path.as_posix())
-            read_state_from_file(self.project_path, controller, StateManager())
+        # Open project on startup
+        self.open_project_on_startup()
 
         # Execute the application
         sys.exit(self.app.exec())
@@ -146,7 +148,6 @@ class ProteusApplication:
         spellchecker_language = self.config.app_settings.spellchecker_language
         if spellchecker_language is not None:
             self.spellchecker.set_language(spellchecker_language)
-
 
         # Setup the request interceptor -----------------------
         profile = QWebEngineProfile.defaultProfile()
@@ -186,6 +187,60 @@ class ProteusApplication:
                 log.critical(f"Error loading proteus component from plugin: {e}")
 
     # --------------------------------------------------------------------------
+    # Method: open_project_on_startup
+    # Description: Handle startup project opening
+    # Date: 13/05/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def open_project_on_startup(self) -> None:
+        """
+        Handle statup project opening. It will open the last project opened or
+        the project passed as argument. Prioritize the project passed as argument.
+        """
+        project_path_to_open = ""
+
+        if self.project_path:
+            # If project path is passed as argument, set it as the project to open
+            project_path_to_open = self.project_path.as_posix()
+        else:
+            # If no project path is passed as argument, check if the last project
+            # opened is available and ask for confirmation to open it
+            open_project_on_startup = self.config.app_settings.open_project_on_startup
+
+            last_project = self.config.app_settings.get_last_project_opened()
+            if last_project != "" and last_project != None and open_project_on_startup:
+                confirmation_dialog = MessageBox.question(
+                    _("app.open_last_project.title"),
+                    _("app.open_last_project.text"),
+                    last_project,
+                )
+
+                if confirmation_dialog == QMessageBox.StandardButton.Yes:
+                    project_path_to_open = last_project
+
+        if project_path_to_open != "":
+            try:
+                self.main_window._controller.load_project(project_path_to_open)
+                read_state_from_file(
+                    Path(project_path_to_open),
+                    self.main_window._controller,
+                    StateManager(),
+                )
+            except Exception as e:
+                log.error(f"Error opening project on startup: {e}")
+
+                MessageBox.critical(
+                    _("main_menu.open_project.error.title"),
+                    _("main_menu.open_project.error.text"),
+                    e,
+                )
+
+    # ==========================================================================
+    # Exception handling
+    # ==========================================================================
+
+    # --------------------------------------------------------------------------
     # Method: excepthook
     # Description: Handle uncaught exceptions in the application.
     # Date: 01/12/2023
@@ -201,12 +256,9 @@ class ProteusApplication:
         log.critical("Uncaught exception:\n" + tb)
 
         # Show the exception and its traceback in a message box
-        error_dialog = QMessageBox()
-        error_dialog.setIcon(QMessageBox.Icon.Critical)
-        error_dialog.setWindowTitle(_("app.critical_error.title"))
-        error_dialog.setText(_("app.critical_error.text"))
-        error_dialog.setInformativeText(tb)
-        error_dialog.exec()
+        MessageBox.critical(
+            _("app.critical_error.title"), _("app.critical_error.text"), tb
+        )
 
         # Override closeEvent in main window to avoid asking for confirmation
         # when closing the application

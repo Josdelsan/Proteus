@@ -85,6 +85,8 @@ class SettingsDialog(ProteusDialog):
         self.custom_profile_edit: DirectoryEdit = None
         self.use_custom_profile_checkbox: QCheckBox = None
 
+        self.open_project_on_startup_checkbox: QCheckBox = None
+
         # Description labels
         self.profile_description_label: QLabel = None
         self.view_description_label: QLabel = None
@@ -133,10 +135,12 @@ class SettingsDialog(ProteusDialog):
         profile_specific_settings: QGroupBox = (
             self.create_profile_specific_settings_box()
         )
+        startup_box: QGroupBox = self.create_startup_box()
 
         # Add the widgets to the layout
         layout.addWidget(setting_info_label)
         layout.addWidget(language_box)
+        layout.addWidget(startup_box)
         layout.addWidget(profile_specific_settings)
         layout.addWidget(profile_box)
         layout.addStretch()
@@ -380,6 +384,39 @@ class SettingsDialog(ProteusDialog):
 
         return group
 
+    # ---------------------------------------------------------------------
+    # Method     : create_startup_box
+    # Description: Create the startup group box
+    # Date       : 13/03/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def create_startup_box(self) -> QGroupBox:
+        """
+        Create the startup group box that contains the open project on startup checkbox
+        """
+        # Startup layout
+        startup_layout: QVBoxLayout = QVBoxLayout()
+
+        # Open project on startup -------------------------------------
+        self.open_project_on_startup_checkbox: QCheckBox = QCheckBox(
+            _("settings_dialog.open_project_on_startup.checkbox")
+        )
+
+        # Set the current value
+        self.open_project_on_startup_checkbox.setChecked(
+            Config().app_settings_copy.open_project_on_startup
+        )
+
+        # Add the widgets to the layout
+        startup_layout.addWidget(self.open_project_on_startup_checkbox)
+
+        # Group box -----------------------------------------------
+        startup_group: QGroupBox = QGroupBox(_("settings_dialog.startup.group"))
+        startup_group.setLayout(startup_layout)
+
+        return startup_group
+
     # ======================================================================
     # Validators
     # ======================================================================
@@ -480,6 +517,7 @@ class SettingsDialog(ProteusDialog):
             selected_profile=self.profile_combo.currentData(),
             using_default_profile=(not self.use_custom_profile_checkbox.isChecked()),
             custom_profile_path=custom_profile_path,
+            open_project_on_startup=self.open_project_on_startup_checkbox.isChecked(),
         )
 
         # ---------------------

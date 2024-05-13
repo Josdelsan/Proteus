@@ -50,6 +50,9 @@ main_menu.open_project.error.text: "No se pudo abrir el proyecto"
 main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
 main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 
+app.open_last_project.title: "Abrir último proyecto"
+app.open_last_project.text: "¿Desea abrir el último proyecto?"
+
 # ---------------------------------------------------------------------------
 # New document dialog
 # ---------------------------------------------------------------------------
@@ -110,6 +113,9 @@ settings_dialog.error.profile.invalid_profile: "El archivo seleccionado no es un
 settings_dialog.profile_settings.group: "Configuración del perfil"
 settings_dialog.default_view.label: "Vista por defecto:"
 settings_dialog.default_repository.label: "Repositorio de arquetipos:"
+
+settings_dialog.startup.group: "Arranque"
+settings_dialog.open_project_on_startup.checkbox: "Abrir último proyecto al iniciar la aplicación"
 
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
 

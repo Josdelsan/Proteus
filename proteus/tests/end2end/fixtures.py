@@ -165,6 +165,11 @@ def mock_views_container(mocker):
     )
 
     mocker.patch(
+        "proteus.views.components.views_container.ViewsContainer.display_view",
+        lambda *args, **kwargs: None,
+    )
+
+    mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.delete_component",
         lambda *args, **kwargs: None,
     )

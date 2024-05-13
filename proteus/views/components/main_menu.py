@@ -41,6 +41,7 @@ from proteus.application.configuration.config import Config
 from proteus.model import ProteusID, PROTEUS_ANY, PROJECT_FILE_NAME
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.dialogs.new_project_dialog import NewProjectDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.new_document_dialog import NewDocumentDialog
@@ -645,6 +646,10 @@ class MainMenu(QDockWidget, ProteusComponent):
 
             # Unsaved changes confirmation dialog ---------------------
             if unsaved_changes or save_button_enabled:
+                # TODO: This could be implemented using base_dialog.MessageBox but it
+                # does not support connecting slots to buttons signals. Refactor MessageBox
+                # to support this kind of scenarios??
+
                 # Show a confirmation dialog
                 confirmation_dialog = QMessageBox()
                 confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
@@ -674,26 +679,23 @@ class MainMenu(QDockWidget, ProteusComponent):
             # Project load ---------------------
             try:
                 directory_path = Path(project_file_path).parent
-                self._controller.load_project(project_path=directory_path)
+                self._controller.load_project(project_path=directory_path.as_posix())
                 read_state_from_file(
                     Path(directory_path), self._controller, self._state_manager
                 )
             except Exception as e:
-                log.error(e)
-
-                # Show an error message dialog
-                error_dialog = QMessageBox()
-                error_dialog.setIcon(QMessageBox.Icon.Critical)
-                error_dialog.setWindowTitle(_("main_menu.open_project.error.title"))
-                error_dialog.setText(_("main_menu.open_project.error.text"))
-
+                log.error(f"Error loading project: {e}")
                 informative_text: str = str(e)
 
                 tb: str = "".join(traceback.format_tb(e.__traceback__))
                 log.error(tb)
 
-                error_dialog.setInformativeText(informative_text)
-                error_dialog.exec()
+                # Show an error message dialog
+                MessageBox.critical(
+                    _("main_menu.open_project.error.title"),
+                    _("main_menu.open_project.error.text"),
+                    informative_text,
+                )
 
     # ----------------------------------------------------------------------
     # Method     : save_project

@@ -57,7 +57,7 @@ def project_service():
     Depends on Project.load method.
     """
     project_service: ProjectService = ProjectService()
-    project_service.load_project(SAMPLE_PROJECT_PATH)
+    project_service.load_project(SAMPLE_PROJECT_PATH.as_posix())
     return project_service
 
 
@@ -203,7 +203,8 @@ def test_generate_project_xml(
     Test the generate_project_xml method.
     """
     # Arrange -------------------------
-    basic_project_service.load_project(PROTEUS_SAMPLE_PROJECTS_PATH / ONE_DOC_PROJECT)
+    project_path: str = (PROTEUS_SAMPLE_PROJECTS_PATH / ONE_DOC_PROJECT).as_posix()
+    basic_project_service.load_project(project_path)
 
     # Create parser
     # NOTE: CDATA is not stripped because it is needed for the comparison.

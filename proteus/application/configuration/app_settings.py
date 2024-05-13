@@ -47,6 +47,11 @@ SETTING_DEFAULT_VIEW: str = "default_view"
 SETTING_SELECTED_PROFILE: str = "selected_profile"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
 SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
+SETTING_OPEN_PROJECT_ON_STARTUP: str = "open_project_on_startup"
+
+# User session data
+SESSION: str = "session"
+SESSION_LAST_PROJECT_OPENED: str = "last_project_opened"
 
 
 # logging configuration
@@ -77,6 +82,7 @@ class AppSettings:
     selected_profile: str = None
     using_default_profile: bool = None
     custom_profile_path: Path = None
+    open_project_on_startup: bool = None
 
     # --------------------------------------------------------------------------
     # Method: load
@@ -212,10 +218,7 @@ class AppSettings:
 
         # Profile ------------------------
         self.selected_profile = settings[SETTING_SELECTED_PROFILE]
-
-        using_default_profile_str: str = settings[SETTING_USING_DEFAULT_PROFILE]
-        using_default_profile: bool = using_default_profile_str.lower() == "true"
-        self.using_default_profile = using_default_profile
+        self.using_default_profile = settings.getboolean(SETTING_USING_DEFAULT_PROFILE, True)
 
         custom_profile_path_str: str = settings[SETTING_CUSTOM_PROFILE_PATH]
         self.custom_profile_path = (
@@ -224,12 +227,16 @@ class AppSettings:
 
         self._validate_profile_path()
 
+        # Load project on startup ------------------------
+        self.open_project_on_startup = settings.getboolean(SETTING_OPEN_PROJECT_ON_STARTUP, False)
+
         log.info(f"Loaded app user settings from {self.settings_file_path}.")
         log.info(f"{self.language = }")
         log.info(f"{self.default_view = }")
         log.info(f"{self.selected_profile = }")
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
+        log.info(f"{self.open_project_on_startup = }")
 
     # --------------------------------------------------------------------------
     # Method: _validate_profile_path
@@ -271,6 +278,7 @@ class AppSettings:
         selected_profile: str = None,
         using_default_profile: bool = None,
         custom_profile_path: Path = None,
+        open_project_on_startup: bool = None,
     ) -> "AppSettings":
         """
         Clone the current object with the new user settings (if any).
@@ -293,6 +301,9 @@ class AppSettings:
         if custom_profile_path is None:
             custom_profile_path = self.custom_profile_path
 
+        if open_project_on_startup is None:
+            open_project_on_startup = self.open_project_on_startup
+
         new_settings = replace(
             self,
             language=language,
@@ -301,6 +312,7 @@ class AppSettings:
             selected_profile=selected_profile,
             using_default_profile=using_default_profile,
             custom_profile_path=custom_profile_path,
+            open_project_on_startup=open_project_on_startup,
         )
 
         new_settings._validate_profile_path()
@@ -330,6 +342,10 @@ class AppSettings:
         self.config_parser[SETTINGS][SETTING_CUSTOM_PROFILE_PATH] = (
             self.custom_profile_path.as_posix() if self.custom_profile_path else ""
         )
+        self.config_parser[SETTINGS][SETTING_OPEN_PROJECT_ON_STARTUP] = str(
+            self.open_project_on_startup
+        )
+
 
         with open(self.settings_file_path, "w") as config_file:
             self.config_parser.write(config_file)
@@ -341,3 +357,51 @@ class AppSettings:
         log.info(f"{self.selected_profile = }")
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
+        log.info(f"{self.open_project_on_startup = }")
+
+
+    # ==========================================================================
+    # Session data
+    # ==========================================================================
+
+    # --------------------------------------------------------------------------
+    # Method: get_last_project_opened
+    # Description: Get the last project opened
+    # Date: 13/05/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def get_last_project_opened(self) -> str:
+        """
+        Get the last project opened.
+        """
+        try:
+            return self.config_parser[SESSION][SESSION_LAST_PROJECT_OPENED]
+        except KeyError:
+            log.error(
+                f"Session data '{SESSION_LAST_PROJECT_OPENED}' not found in {self.settings_file_path}."
+            )
+            return ""
+        
+    # --------------------------------------------------------------------------
+    # Method: set_last_project_opened
+    # Description: Set the last project opened
+    # Date: 13/05/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def set_last_project_opened(self, last_project_opened: str) -> None:
+        """
+        Set the last project opened. If the open project on startup setting is
+        disabled, the last project opened is not saved.
+        """
+        if self.open_project_on_startup is False:
+            return
+
+        self.config_parser[SESSION][SESSION_LAST_PROJECT_OPENED] = last_project_opened
+
+        with open(self.settings_file_path, "w") as config_file:
+            self.config_parser.write(config_file)
+
+        log.info(f"Session data '{SESSION_LAST_PROJECT_OPENED}' saved to {self.settings_file_path}.")
+        log.info(f"{last_project_opened = }")

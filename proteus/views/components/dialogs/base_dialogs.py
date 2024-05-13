@@ -276,7 +276,7 @@ class MessageBox(QMessageBox):
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg.setDefaultButton(QMessageBox.StandardButton.Ok)
         button = msg.button(QMessageBox.StandardButton.Ok)
-        button.setText(_("dialog.accept_button"))
+        button.setText(_("dialog.close_button"))
 
         return msg.exec()
 

@@ -56,7 +56,7 @@ def test_open_project(mocker, app):
     # Mock the QFileDialog response and handle the dialog life cycle
     mocker.patch(
         "PyQt6.QtWidgets.QFileDialog.getOpenFileName",
-        return_value=[SAMPLE_PROJECT_PATH],
+        return_value=[SAMPLE_PROJECT_PATH.as_posix()],
     )
 
     # Store previous information

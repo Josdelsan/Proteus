@@ -50,6 +50,7 @@ from proteus.model.properties import Property
 from proteus.model.trace import Trace
 from proteus.model.template import Template
 
+from proteus.application.configuration.config import Config
 from proteus.application.events import (
     AddViewEvent,
     DeleteViewEvent,
@@ -439,6 +440,9 @@ class Controller:
         # Clear the command stack
         # This triggers the STACK_CHANGED event
         self.stack.clear()
+
+        # Set the last opened project path
+        Config().app_settings.set_last_project_opened(project_path)
 
         # Clear must be done before notifying the OPEN_PROJECT event to avoid
         # inconsistencies in the subscribed components.

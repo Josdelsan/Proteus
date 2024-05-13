@@ -152,7 +152,6 @@ class SpellCheckerWrapper(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    # TODO: Ommit email addresses
     # TODO: Improve code block handling
     def tokenize(self, text: str) -> List[re.Match]:
         """

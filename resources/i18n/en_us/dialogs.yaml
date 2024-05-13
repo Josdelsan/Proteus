@@ -50,6 +50,9 @@ main_menu.open_project.error.text: "The project could not be opened"
 main_menu.open_project.save.title: "Save project before opening new project"
 main_menu.open_project.save.text: "Do you want to save changes before opening the new selected project?"
 
+app.open_last_project.title: "Open last project"
+app.open_last_project.text: "Do you want to open the last project?"
+
 # ---------------------------------------------------------------------------
 # New document dialog
 # ---------------------------------------------------------------------------
@@ -111,6 +114,9 @@ settings_dialog.error.profile.invalid_profile: "The selected path is not a valid
 settings_dialog.profile_settings.group: "Profile specific settings"
 settings_dialog.default_view.label: "Default view:"
 settings_dialog.default_repository.label: "Archetype repository:"
+
+settings_dialog.startup.group: "Startup"
+settings_dialog.open_project_on_startup.checkbox: "Open last project on startup"
 
 settings_dialog.info.label: "The changes will be applied once the application is restarted"
 

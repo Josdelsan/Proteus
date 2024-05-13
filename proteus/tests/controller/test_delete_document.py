@@ -43,7 +43,7 @@ SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
 @pytest.fixture
 def sample_project_service():
     sample_project_service = ProjectService()
-    sample_project_service.load_project(SAMPLE_PROJECT_PATH)
+    sample_project_service.load_project(SAMPLE_PROJECT_PATH.as_posix())
     return sample_project_service
 
 
