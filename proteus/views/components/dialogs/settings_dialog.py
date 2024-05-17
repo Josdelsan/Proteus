@@ -37,7 +37,7 @@ from proteus.application.configuration.config import Config
 from proteus.application.configuration.profile_settings import ProfileSettings
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.icons import Icons, ProteusIconType
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import Translator, translate as _
 from proteus.views.buttons import get_separator
 from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
@@ -45,7 +45,6 @@ from proteus.views.components.dialogs.base_dialogs import ProteusDialog, Message
 
 # Module configuration
 log = logging.getLogger(__name__)
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

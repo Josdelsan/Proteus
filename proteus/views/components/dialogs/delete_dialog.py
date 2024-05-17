@@ -32,13 +32,11 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ProteusClassTag, ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
 
-# Module configuration
-_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: DeleteDialog

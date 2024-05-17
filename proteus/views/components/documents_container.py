@@ -12,14 +12,12 @@
 
 from typing import Dict, List
 import logging
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QTabWidget, QWidget
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
 
 # --------------------------------------------------------------------------

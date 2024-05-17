@@ -35,10 +35,8 @@ from PyQt6.QtCore import Qt, QSize
 
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.model import ProteusClassTag
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 
-# Module configuration
-_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Functions

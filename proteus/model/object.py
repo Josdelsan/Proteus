@@ -65,7 +65,7 @@ from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import Property, FileProperty, DateProperty
 from proteus.model.properties.code_property import ProteusCode, CodeProperty
 from proteus.model.trace import Trace
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 
 
 # from proteus.model.project import Project
@@ -79,7 +79,7 @@ ProteusClassTag = NewType("ProteusClassTag", str)
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Class: Object

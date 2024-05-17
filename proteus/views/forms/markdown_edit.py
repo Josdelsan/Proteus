@@ -28,7 +28,6 @@ from PyQt6.QtCore import (
 from PyQt6.QtWidgets import (
     QWidget,
     QTextEdit,
-    QPlainTextEdit,
     QVBoxLayout,
     QSizePolicy,
     QPushButton,
@@ -38,11 +37,8 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.views.forms.text_edit import TextEdit
-
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

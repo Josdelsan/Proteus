@@ -13,7 +13,6 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QLineEdit,
@@ -29,11 +28,8 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application.state_manager import StateManager
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
-
-# Module configuration
-_ = Translator().text
 
 
 # --------------------------------------------------------------------------

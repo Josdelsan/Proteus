@@ -16,7 +16,6 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -26,11 +25,9 @@ from proteus.model.properties import ClassListProperty
 from proteus.controller.command_stack import Controller
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.check_combo_box import CheckComboBox
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

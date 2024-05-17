@@ -36,13 +36,11 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.application.resources.icons import Icons, ProteusIconType
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.state_manager import StateManager
 from proteus.controller.command_stack import Controller
 from proteus.views.export.export_strategy import ExportStrategy
 
-# Module configuration
-_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Constants

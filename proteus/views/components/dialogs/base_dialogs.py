@@ -35,13 +35,12 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 
 
 # Module configuration
-_ = Translator().text  # Translator
 log = logging.getLogger(__name__)  # Logger
 
 

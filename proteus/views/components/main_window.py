@@ -17,7 +17,6 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 
@@ -28,7 +27,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
@@ -38,8 +37,6 @@ from proteus.application.state_restorer import write_state_to_file
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
-
 
 # --------------------------------------------------------------------------
 # Class: MainWindow

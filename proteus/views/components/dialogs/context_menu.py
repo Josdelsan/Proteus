@@ -33,14 +33,12 @@ from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 
-# Module configuration
-_ = Translator().text  # Translator
 
 # --------------------------------------------------------------------------
 # Class: ContextMenu

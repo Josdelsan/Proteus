@@ -32,7 +32,7 @@ from proteus import PROTEUS_LOGGING_DIR
 from proteus.application.spellcheck import SpellCheckerWrapper
 from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import Translator, translate as _
 from proteus.application.resources.icons import Icons
 from proteus.application.state_manager import StateManager
 from proteus.application.state_restorer import read_state_from_file
@@ -43,7 +43,6 @@ from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

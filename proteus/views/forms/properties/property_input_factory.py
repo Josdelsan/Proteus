@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import QLabel, QSizePolicy
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 
 # Properties imports
 from proteus.model.trace import Trace, NO_TARGETS_LIMIT
@@ -74,7 +74,6 @@ from proteus.views.forms.properties.class_list_property_input import (
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

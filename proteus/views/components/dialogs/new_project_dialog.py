@@ -38,11 +38,9 @@ from proteus.views.forms.directory_edit import DirectoryEdit
 from proteus.views.forms.validators import is_valid_folder_name
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.controller.command_stack import Controller
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

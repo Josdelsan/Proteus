@@ -40,7 +40,7 @@ from proteus.model.object import Object
 from proteus.model.trace import Trace
 from proteus.model.properties import Property, MarkdownProperty
 from proteus.application.resources.icons import Icons, ProteusIconType
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
@@ -49,7 +49,6 @@ from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
 
 # Module configuration
-_ = Translator().text  # Translator
 log = logging.getLogger(__name__)  # Logger
 
 

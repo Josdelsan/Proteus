@@ -38,13 +38,12 @@ from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.trace import Trace
 from proteus.application.utils.abstract_meta import AbstractObjectMeta
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

@@ -35,7 +35,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.configuration.config import Config
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.plugins import Plugins
@@ -55,7 +55,6 @@ from proteus.views.components.dialogs.new_view_dialog import NewViewDialog
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

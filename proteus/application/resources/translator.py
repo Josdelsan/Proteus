@@ -393,3 +393,30 @@ class Translator(metaclass=SingletonMeta):
             translation = translation.format(*args)
 
         return translation
+
+
+# --------------------------------------------------------------------------
+# Function: translate
+# Description: Returns the translation for the given key.
+# Date: 17/05/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+def translate(key: str, *args, alternative_text: str = None) -> str:
+        """
+        Returns the translation found for the given key. If no translation is
+        found, it returns the key or the alternative text if provided.
+
+        If there are arguments, they are formatted in the translation.
+        Key is processed to lowercase and replace spaces with underscores.
+
+        :param key: Key to find the translation.
+        :param args: Arguments to format the translation.
+        :param alternative_text: Text to return if no translation is found.
+
+        :return: Translation for the given key or the key itself if not found.
+                    If alternative_text is provided and no translation is found,
+                    it returns the alternative text.
+        """
+
+        return Translator().text(key, *args, alternative_text=alternative_text)

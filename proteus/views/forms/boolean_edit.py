@@ -22,17 +22,14 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QLabel,
     QHBoxLayout,
-    QSizePolicy,
 )
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

@@ -24,7 +24,6 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -32,7 +31,7 @@ from PyQt6.QtWidgets import QDialogButtonBox
 
 from proteus.model import PROTEUS_NAME
 from proteus.views.components.main_window import MainWindow
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.end2end.fixtures import app, load_project, get_dialog
 
@@ -100,8 +99,8 @@ def test_property_input_validation(app, property_name, property_value, expected_
 
     # Check error message is correct
     assert (
-        Translator().text(expected_error) == error_message
-    ), f"Error message is '{error_message}' but should be '{Translator().text(expected_error)}'"
+        translate(expected_error) == error_message
+    ), f"Error message is '{error_message}' but should be '{translate(expected_error)}'"
 
     # Check error label visibility
     assert (

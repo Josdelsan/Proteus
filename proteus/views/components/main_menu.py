@@ -55,7 +55,7 @@ from proteus.views.components.archetypes_menu_dropdown import (
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
 from proteus.application.state_restorer import read_state_from_file, write_state_to_file
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.events import (
     SelectObjectEvent,
@@ -68,7 +68,6 @@ from proteus.application.events import (
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

@@ -31,12 +31,10 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.controller.command_stack import Controller
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.views.export import ExportFormat, ExportStrategy, ExportPDF, ExportHTML
 
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

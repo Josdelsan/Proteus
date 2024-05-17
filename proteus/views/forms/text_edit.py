@@ -37,11 +37,8 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.application.spellcheck import SpellCheckHighlighter, SpellCheckerWrapper
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 
-
-# Module configuration
-_ = Translator().text  # Translator
 
 
 # --------------------------------------------------------------------------

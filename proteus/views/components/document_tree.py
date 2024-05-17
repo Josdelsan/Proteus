@@ -44,7 +44,7 @@ from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
 from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
-from proteus.application.resources.translator import Translator
+from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.base_dialogs import MessageBox
@@ -61,7 +61,7 @@ from proteus.application.events import (
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
-_ = Translator().text  # Translator
+
 
 # --------------------------------------------------------------------------
 # Global variables and constants
