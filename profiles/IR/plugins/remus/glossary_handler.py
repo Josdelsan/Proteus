@@ -265,6 +265,10 @@ class GlossaryHandler(ProteusComponent):
 
         :param object: Object to check
         """
+        # Ommit if the object is a project
+        if isinstance(object, Project):
+            return False
+
         # Check if the object is a glossary item class
         if GLOSSARY_CLASS in object.classes:
             return True
