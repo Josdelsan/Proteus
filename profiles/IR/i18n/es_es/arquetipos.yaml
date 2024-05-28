@@ -13,6 +13,7 @@
 
 archetype.category.general: "General"
 archetype.category.software_requirements: "Requisitos del software"
+archetype.category.madeja: "Madeja"
 
 # -----------------------------------------------------------------------
 # Clases
@@ -42,6 +43,12 @@ archetype.class.association-role: "Rol"
 archetype.class.object-component: "Componente"
 archetype.class.object-attribute: "Atributo"
 archetype.class.object-invariant: "Invariante"
+
+# Clases de Madeja
+archetype.class.weakness: "Debilidad"
+archetype.class.strength: "Fortaleza"
+archetype.class.business-process: "Proceso de negocio"
+archetype.class.business-actor: "Actor de negocio"
   
 # -----------------------------------------------------------------------
 # Categorías de propiedades

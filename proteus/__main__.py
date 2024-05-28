@@ -7,6 +7,7 @@
 # ==========================================================================
 
 from pathlib import Path
+import sys
 from proteus import PROTEUS_VERSION, parser
 from proteus.app import ProteusApplication
 
@@ -39,4 +40,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

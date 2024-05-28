@@ -114,7 +114,7 @@ class ProteusApplication:
         self.open_project_on_startup()
 
         # Execute the application
-        sys.exit(self.app.exec())
+        return self.app.exec()
 
     # --------------------------------------------------------------------------
     # Method: initial_setup
