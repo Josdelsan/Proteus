@@ -4,4 +4,5 @@
     <object id="weakness" />
     <object id="business-actor" />
     <object id="business-process" />
+    <object id="user-story" />
 </objects>

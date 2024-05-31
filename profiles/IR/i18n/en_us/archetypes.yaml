@@ -48,6 +48,7 @@ archetype.class.weakness: "Weakness"
 archetype.class.strength: "Strength"
 archetype.class.business-process: "Business process"
 archetype.class.business-actor: "Business actor"
+archetype.class.user-story: "User story"
   
 # -----------------------------------------------------------------------
 # Archetype properties categories
@@ -60,7 +61,8 @@ archetype.prop_category.conditions: "Conditions"
 archetype.prop_category.priority: "Priority"
 archetype.prop_category.description: "Description"
 archetype.prop_category.dependencies: "Dependencies"
-  
+
+
 # -----------------------------------------------------------------------
 # Archetypes enum choices
 # -----------------------------------------------------------------------
@@ -143,3 +145,6 @@ archetype.prop_name.multiplicity-lower-bound: "Lower bound"
 archetype.prop_name.multiplicity-upper-bound: "Upper bound"
 archetype.prop_name.kind-of-property: "Kind of property"
 archetype.prop_name.init-value: "Initial value"
+archetype.prop_name.as-role: "As a ..."
+archetype.prop_name.i-want-to: "I want to ..."
+archetype.prop_name.so-that: "So that ..."

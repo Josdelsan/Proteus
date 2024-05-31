@@ -49,6 +49,7 @@ archetype.class.weakness: "Debilidad"
 archetype.class.strength: "Fortaleza"
 archetype.class.business-process: "Proceso de negocio"
 archetype.class.business-actor: "Actor de negocio"
+archetype.class.user-story: "Historia de usuario"
   
 # -----------------------------------------------------------------------
 # Categorías de propiedades
@@ -145,3 +146,6 @@ archetype.prop_name.multiplicity-lower-bound: "Límite inferior"
 archetype.prop_name.multiplicity-upper-bound: "Límite superior"
 archetype.prop_name.kind-of-property: "Tipo de propiedad"
 archetype.prop_name.init-value: "Valor inicial"
+archetype.prop_name.as-role: "Como ..."
+archetype.prop_name.i-want-to: "Quiero ..."
+archetype.prop_name.so-that: "Para ..."

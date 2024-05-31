@@ -31,5 +31,6 @@
         <icon key="business-actor" file="business-actor.png" />
         <icon key="weakness" file="weakness.png" />
         <icon key="strength" file="strength.png" />
+        <icon key="user-story" file="user-story.png" />
     </type>
 </icons>

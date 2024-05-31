@@ -122,6 +122,9 @@
 <xsl:variable name="proteus:lang_version">Versión</xsl:variable>
 <xsl:variable name="proteus:lang_yes">Sí</xsl:variable>
 <xsl:variable name="proteus:lang_symlink_tooltip">Esta es una representación del objeto original. Modificar este objeto supone modificar el objeto original.</xsl:variable>
+<xsl:variable name="proteus:lang_hu_as_a">Como</xsl:variable>
+<xsl:variable name="proteus:lang_hu_i_want_to">Quiero</xsl:variable>
+<xsl:variable name="proteus:lang_hu_so_that">Para</xsl:variable>
 
 <!-- new in PROTEUS -->
 <xsl:variable name="proteus:lang_code_attributes">// atributos</xsl:variable>

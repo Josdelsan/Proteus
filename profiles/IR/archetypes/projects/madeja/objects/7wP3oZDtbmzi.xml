@@ -2,7 +2,7 @@
 <object id="7wP3oZDtbmzi" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name=":Proteus-name" category="general"><![CDATA[Glosario de términos del dominio del problema]]></stringProperty>
-    <booleanProperty name="is-appendix" category="general" tooltip="property.is-appendix.tooltip">false</booleanProperty>
+    <booleanProperty name="is-appendix" category="general" tooltip="is-appendix">false</booleanProperty>
     <markdownProperty name="comments" category="general"><![CDATA[]]></markdownProperty>
   </properties>
   <children/>

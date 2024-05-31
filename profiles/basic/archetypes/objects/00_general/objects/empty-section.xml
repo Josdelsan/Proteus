@@ -2,7 +2,7 @@
 <object id="empty-section" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Empty section]]></stringProperty>
-    <booleanProperty name="is-appendix" tooltip="property.is-appendix.tooltip">false</booleanProperty>
+    <booleanProperty name="is-appendix" tooltip="is-appendix">false</booleanProperty>
     <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
   </properties>
   <children />
