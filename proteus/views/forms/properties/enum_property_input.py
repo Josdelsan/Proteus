@@ -98,5 +98,5 @@ class EnumPropertyInput(PropertyInput):
                 choice,
             )
         # Set current choice
-        input.setCurrentText(_(property.value))
+        input.setCurrentIndex(input.findData(property.value))
         return input
