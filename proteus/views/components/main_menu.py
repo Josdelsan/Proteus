@@ -20,6 +20,7 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
@@ -181,7 +182,11 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         icon_label: QLabel = QLabel()
         profile_icon = Icons().icon(ProteusIconType.Profile, selected_profile)
-        icon_label.setPixmap(profile_icon.pixmap(32, 32))
+        # The pixmap will keep the aspect ratio of the original image and will be
+        # restricted to the minimum of the width and height values, in this case
+        # the maximun height will be 32 pixels like the menu bar buttons. 2000 is
+        # an arbitrary value to ensure the image is not stretched.
+        icon_label.setPixmap(profile_icon.pixmap(2000, 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         profile_name: QLabel = QLabel(
@@ -189,6 +194,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         )
         profile_name.setWordWrap(True)
         profile_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Set profile name as tooltip
+        profile_information.setToolTip(profile_name.text())
 
         # If the profile label text is too long, trim it
         if len(profile_name.text()) > 30:
@@ -207,7 +215,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         container: QWidget = QWidget()
         container.setObjectName("main_menu_container")
         container_layout: QHBoxLayout = QHBoxLayout()
-        container_layout.setContentsMargins(0, 0, 0, 1)
+        container_layout.setContentsMargins(0, 0, 10, 1)
         container.setLayout(container_layout)
 
         # Add widgets to the container layout

@@ -2,7 +2,7 @@
 <icons>
     <type name="document" default="default-acronym.png"/>
     <type name="profile" default="default-archetype.png">
-        <icon key="IR" file="profiles/REM.ico" />
+        <icon key="IR" file="profiles/madeja.png" />
     </type>
     <type name="archetype" default="default-archetype.png">
         <icon key=":Proteus-document" file="archetypes/document.png" />
