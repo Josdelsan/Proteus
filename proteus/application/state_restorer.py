@@ -176,11 +176,7 @@ def read_state_from_file(
 
     # Current view validation
     try:
-        current_project = controller.get_current_project()
-
-        assert current_project is not None, "Error getting current project"
-
-        project_views = current_project.xsl_templates
+        project_views = controller.get_available_xslt()
 
         assert (
             current_view in project_views
