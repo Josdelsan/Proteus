@@ -60,8 +60,10 @@
                 <!-- Document body -->
                 <xsl:apply-templates select="children/object"/>
 
-                <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
-                <script src="templates:///remus/resources/javascript/proteus.js"></script> 
+                <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+                <script type="text/javascript" src="templates:///remus/resources/javascript/proteus.js"></script>
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/johan/js-deflate/rawdeflate.js"></script>
+                <script type="text/javascript" src="templates:///remus/resources/javascript/plantuml.js"></script>
 
             </body>
         </html>

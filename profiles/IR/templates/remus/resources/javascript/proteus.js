@@ -244,10 +244,3 @@ document.addEventListener('DOMContentLoaded', function () {
     // Setup the buttons of the traceability matrix
     traceabilityMatrixButtonsSetup();
 });
-
-// =========================================================================
-// Execute code on load event
-// =========================================================================
-window.onload = function () {
-
-};

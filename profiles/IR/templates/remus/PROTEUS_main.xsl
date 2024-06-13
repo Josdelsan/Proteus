@@ -59,6 +59,7 @@
     <xsl:include href="archetypes/madeja/PROTEUS_strength.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_weakness.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_user_story.xsl" />
+    <xsl:include href="archetypes/uml/PROTEUS_class_diagram.xsl" />
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

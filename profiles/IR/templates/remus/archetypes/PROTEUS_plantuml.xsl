@@ -97,7 +97,7 @@
                 const plantUMLServerUrl = 'http://www.plantuml.com/plantuml/png/';
 
                 try {
-                    console.error('PlantUML code ' + plantUMLCode)
+                    console.error('PlantUML code \n' + plantUMLCode)
 
                     // DEFLATE compression
                     const utf8PlantUMLCode = unescape(encodeURIComponent(plantUMLCode));
@@ -124,7 +124,7 @@
             async function displayPlantUMLDiagram(plantUMLCode) {
                 const base64Diagram = await fetchPlantUMLDiagram(plantUMLCode);
                 object_id = '<xsl:value-of select="$objectId" />'
-                console.error('Inserting PlantUML diagram into: ' + object_id + '')
+                console.error('Inserting PlantUML diagram into: ' + object_id + ' | ' + $base64Diagram)
 
                 if (base64Diagram) {
                     const imgElement = document.getElementById(object_id);
