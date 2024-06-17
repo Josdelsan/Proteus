@@ -10,14 +10,14 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import QPoint, Qt
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QMenu,
     QTreeWidget,
@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, PROTEUS_NAME
+from proteus.model import ProteusID, PROTEUS_NAME, PROTEUS_DOCUMENT
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
@@ -79,11 +79,19 @@ class ContextMenu(QMenu, ProteusComponent):
         # Dependencies
         self.tree_widget = tree_widget
 
-        # Action buttons
+        # Context menu owner (element object)
+        self.element: Object = None
+
+        # Action buttons (stored in order to make testing easier)
         self.action_edit_object: QAction = None
         self.action_delete_object: QAction = None
         self.action_clone_object: QAction = None
         self.action_move_up_object: QAction = None
+        self.action_move_down_object: QAction = None
+
+        self.submenu_children_sort: QMenu = None
+        self.action_children_sort: QAction = None
+        self.action_children_sort_reverse: QAction = None
 
         # Create the component
         self.create_component()
@@ -109,91 +117,30 @@ class ContextMenu(QMenu, ProteusComponent):
         # Get the selected item id
         selected_item_id: ProteusID = selected_item.data(1, Qt.ItemDataRole.UserRole)
 
-        # Do not show context menu for document root item
         # NOTE: Elements stored in the tree items dictionary are always
         #       Objects.
-        element: Object = self._controller.get_element(selected_item_id)
-        is_document: bool = isinstance(element.parent, Project)
-        if is_document:
-            return
+        self.element: Object = self._controller.get_element(selected_item_id)
+        is_document: bool = isinstance(self.element.parent, Project)
 
-        # Get selected item index and parent item id to handle object
-        # position changes.
-        position_index: int = self.tree_widget.indexFromItem(selected_item).row()
-        parent_id: ProteusID = selected_item.parent().data(1, Qt.ItemDataRole.UserRole)
+        # Actions
+        self.action_edit_object = self._create_edit_action()
+        self.action_delete_object = self._create_delete_action()
+        self.action_clone_object = self._create_clone_action()
+        self.action_move_up_object, self.action_move_down_object = (
+            self._create_move_up_down_actions()
+        )
 
-        # Create the edit action --------------------------------------------
-        self.action_edit_object: QAction = QAction(
-            _("document_tree.menu.action.edit"), self
-        )
-        self.action_edit_object.triggered.connect(
-            lambda: PropertyDialog.create_dialog(
-                element_id=selected_item_id, controller=self._controller
-            )
-        )
-        edit_icon = Icons().icon(ProteusIconType.App, "context-menu-edit")
-        self.action_edit_object.setIcon(edit_icon)
+        # Sort submenu
+        self.submenu_children_sort = self._create_sort_submenu()
+        
 
-        # Create the delete action ------------------------------------------
-        self.action_delete_object: QAction = QAction(
-            _("document_tree.menu.action.delete"), self
-        )
-        self.action_delete_object.triggered.connect(
-            lambda: DeleteDialog.create_dialog(
-                element_id=selected_item_id, controller=self._controller
-            )
-        )
-        delete_icon = Icons().icon(ProteusIconType.App, "context-menu-delete")
-        self.action_delete_object.setIcon(delete_icon)
-
-        # Create clone action -----------------------------------------------
-        self.action_clone_object: QAction = QAction(
-            _("document_tree.menu.action.clone"), self
-        )
-        self.action_clone_object.triggered.connect(
-            lambda: self._controller.clone_object(selected_item_id)
-        )
-        clone_icon = Icons().icon(ProteusIconType.App, "context-menu-clone")
-        self.action_clone_object.setIcon(clone_icon)
-
-        # Create move up action ---------------------------------------------
-        self.action_move_up_object: QAction = QAction(
-            _("document_tree.menu.action.move_up"), self
-        )
-        self.action_move_up_object.triggered.connect(
-            lambda: self._controller.change_object_position(
-                selected_item_id, position_index - 1, parent_id
-            )
-        )
-        move_up_icon = Icons().icon(ProteusIconType.App, "context-menu-up")
-        self.action_move_up_object.setIcon(move_up_icon)
-
-        # Create move down action -------------------------------------------
-        self.action_move_down_object: QAction = QAction(
-            _("document_tree.menu.action.move_down"), self
-        )
-        self.action_move_down_object.triggered.connect(
-            lambda: self._controller.change_object_position(
-                selected_item_id, position_index + 2, parent_id
-            )
-        )
-        move_down_icon = Icons().icon(ProteusIconType.App, "context-menu-down")
-        self.action_move_down_object.setIcon(move_down_icon)
-
-        # Disable the move up action if the selected item is the first
-        # item in the list
-        if position_index == 0:
-            self.action_move_up_object.setEnabled(False)
-
-        # Disable the move down action if the selected item is the last
-        # item in the list
-        if position_index == selected_item.parent().childCount() - 1:
-            self.action_move_down_object.setEnabled(False)
-
-        # Add the actions to the context menu
+        # Add the actions to the context menu ------------------------------
+        # Hide some actions if the element is a document
         self.addAction(self.action_edit_object)
-        self.addAction(self.action_delete_object)
-        self.addAction(self.action_clone_object)
+        if not is_document:
+            self.addAction(self.action_delete_object)
+            self.addAction(self.action_clone_object)
+
         self.addSeparator()
         # Insert the accepted archetypes clone menus
         accepted_archetypes: Dict[str, List[Object]] = (
@@ -211,8 +158,191 @@ class ContextMenu(QMenu, ProteusComponent):
             self.addMenu(archetype_menu)
 
         self.addSeparator()
-        self.addAction(self.action_move_up_object)
-        self.addAction(self.action_move_down_object)
+
+        if not is_document:
+            self.addMenu(self.submenu_children_sort)
+            self.addAction(self.action_move_up_object)
+            self.addAction(self.action_move_down_object)
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_edit_action
+    # Description: Create the edit action.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_edit_action(self) -> QAction:
+        """
+        Create the edit action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.edit"), self)
+        action.triggered.connect(
+            lambda: PropertyDialog.create_dialog(
+                element_id=self.element.id, controller=self._controller
+            )
+        )
+        edit_icon = Icons().icon(ProteusIconType.App, "context-menu-edit")
+        action.setIcon(edit_icon)
+
+        # Visibility and state restrictions (not needed for this action)
+
+        return action
+    
+    # ---------------------------------------------------------------------
+    # Method     : _create_delete_action
+    # Description: Create the delete action.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_delete_action(self) -> QAction:
+        """
+        Create the delete action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.delete"), self)
+        action.triggered.connect(
+            lambda: DeleteDialog.create_dialog(
+                element_id=self.element.id, controller=self._controller
+            )
+        )
+        delete_icon = Icons().icon(ProteusIconType.App, "context-menu-delete")
+        action.setIcon(delete_icon)
+
+        # Disable the delete action if the element is a document
+        if PROTEUS_DOCUMENT in self.element.classes:
+            action.setEnabled(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_clone_action
+    # Description: Create the clone action.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_clone_action(self) -> QAction:
+        """
+        Create the clone action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.clone"), self)
+        action.triggered.connect(lambda: self._controller.clone_object(self.element.id))
+        clone_icon = Icons().icon(ProteusIconType.App, "context-menu-clone")
+        action.setIcon(clone_icon)
+
+        # Disable the clone action if the element is a document
+        if PROTEUS_DOCUMENT in self.element.classes:
+            action.setEnabled(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_move_up_down_actions
+    # Description: Create the move up and move down actions.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_move_up_down_actions(self) -> Tuple[QAction, QAction]:
+        """
+        Create the move up and move down actions.
+        """
+        # Position related information
+        selected_item: QTreeWidgetItem = self.tree_widget.currentItem()
+        position_index: int = self.tree_widget.indexFromItem(selected_item).row()
+
+
+        # Create move up action ---------------------------------------------
+        action_move_up: QAction = QAction(_("document_tree.menu.action.move_up"), self)
+        
+        action_move_up.triggered.connect(
+            lambda: self._controller.change_object_position(
+                self.element.id, position_index - 1, self.element.parent.id
+            )
+        )
+        move_up_icon = Icons().icon(ProteusIconType.App, "context-menu-up")
+        action_move_up.setIcon(move_up_icon)
+
+        # Create move down action -------------------------------------------
+        action_move_down: QAction = QAction(
+            _("document_tree.menu.action.move_down"), self
+        )
+        action_move_down.triggered.connect(
+            lambda: self._controller.change_object_position(
+                self.element.id, position_index + 2, self.element.parent.id
+            )
+        )
+        move_down_icon = Icons().icon(ProteusIconType.App, "context-menu-down")
+        action_move_down.setIcon(move_down_icon)
+
+        # Disable the move up action if the element is the first in the list
+        if position_index == 0:
+            action_move_up.setEnabled(False)
+
+        # Disable the move down action if the element is the last in the list
+        if position_index == len(self.element.parent.get_descendants()) - 1:
+            action_move_down.setEnabled(False)
+
+        # Disable both actions if the element is a document
+        if PROTEUS_DOCUMENT in self.element.classes:
+            action_move_up.setEnabled(False)
+            action_move_down.setEnabled(False)
+
+        return action_move_up, action_move_down
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_sort_submenu
+    # Description: Create the children sort submenu.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_sort_submenu(self) -> QMenu:
+
+        # Create the children sort submenu
+        submenu: QMenu = QMenu(
+            _("document_tree.menu.action.sort_children"), self
+        )
+
+        sort_submenu_icon = Icons().icon(ProteusIconType.App, "context-menu-sort")
+        submenu.setIcon(sort_submenu_icon)
+
+        # Add reverse false action --------------------
+        self.action_children_sort: QAction = QAction(
+            _("document_tree.menu.action.sort_children_alphabetically"), self
+        )
+
+        self.action_children_sort.triggered.connect(
+            lambda: self._controller.sort_object_children(self.element.id)
+        )
+        sort_icon = Icons().icon(ProteusIconType.App, "context-menu-alphabetical-sort")
+        self.action_children_sort.setIcon(sort_icon)
+
+        submenu.addAction(self.action_children_sort)
+
+        # Add reverse true action ---------------------
+        self.action_children_sort_reverse: QAction = QAction(
+            _("document_tree.menu.action.sort_children_reverse"), self
+        )
+
+        self.action_children_sort_reverse.triggered.connect(
+            lambda: self._controller.sort_object_children(self.element.id, reverse=True)
+        )
+
+        sort_reverse_icon = Icons().icon(
+            ProteusIconType.App, "context-menu-reverse-alphabetical-sort"
+        )
+        self.action_children_sort_reverse.setIcon(sort_reverse_icon)
+
+        submenu.addAction(self.action_children_sort_reverse)
+
+        # Visibility and state restrictions ------------
+        # Change submenu state if the element has less than 2 children
+        if len(self.element.get_descendants()) < 2:
+            submenu.setEnabled(False)
+
+        return submenu
+
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)

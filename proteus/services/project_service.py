@@ -928,3 +928,32 @@ class ProjectService:
         """
         self.project.xsl_templates.remove(template_name)
         self.project.state = ProteusState.DIRTY
+
+    # ----------------------------------------------------------------------
+    # Method     : sort_children_by_name
+    # Description: Sort the children of the object by name.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def sort_children_by_name(
+        self, object_id: ProteusID, reverse: bool = False
+    ) -> None:
+        """
+        Sort the children of the object with the given id by name.
+
+        :param object_id: Id of the object to sort.
+        """
+        # Get object using helper method
+        object: Object = self._get_element_by_id(object_id)
+
+        # Check that the element is an object
+        assert isinstance(object, Object), f"Element with id {object} is not an object but a {type(object)}."
+
+        # Sort descendants by name
+        object.children.sort(
+            key=lambda x: x.get_property(PROTEUS_NAME).value, reverse=reverse
+        )
+
+        # Update object state
+        object.state = ProteusState.DIRTY

@@ -39,6 +39,7 @@ from proteus.controller.commands.delete_document import DeleteDocumentCommand
 from proteus.controller.commands.change_object_position import (
     ChangeObjectPositionCommand,
 )
+from proteus.controller.commands.sort_children import SortChildrenCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
@@ -376,6 +377,38 @@ class Controller:
         RequiredSaveActionEvent().notify()
 
     # ----------------------------------------------------------------------
+    # Method     : sort_object_children
+    # Description: Sort the children of an object given its id. It pushes the
+    #              command to the command stack.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @proteus_action
+    def sort_object_children(self, object_id: ProteusID, reverse: bool = False) -> None:
+        """
+        Sort (alphabetically) the children of an object given its id. It pushes
+        the command to the command stack.
+
+        Notify the frontend components when the command is executed passing
+        the object_id as a parameter. MODIFY_OBJECT event is triggered.
+
+        :param object_id: The id of the object to sort its children.
+        """
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Push the command to the command stack
+        log.info(f"Sorting children of object with id: {object_id}")
+        self._push(
+            SortChildrenCommand(
+                object_id=object_id,
+                reverse=reverse,
+                project_service=self._project_service,
+            )
+        )
+
+    # ----------------------------------------------------------------------
     # Method     : delete_document
     # Description: Delete a document given its id. It pushes the command to
     #              the command stack.
@@ -674,7 +707,7 @@ class Controller:
         """
         templates: List[Template] = self._render_service.get_templates()
         return [template.name for template in templates]
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_template_by_name
     # Description: Get templates loaded from the xslt directory.
@@ -693,8 +726,9 @@ class Controller:
             template.name for template in templates
         ], f"Template {template_name} does not exist in the xslt directory!"
 
-        return next(template for template in templates if template.name == template_name)
-
+        return next(
+            template for template in templates if template.name == template_name
+        )
 
     # ----------------------------------------------------------------------
     # Method     : get_project_templates
