@@ -140,9 +140,31 @@ class ClassDiagramGenerator(ProteusComponent):
         # Get the class name
         class_name = class_object.get_property(PROTEUS_NAME).value
 
-        # Generate the PlantUML code
-        plantuml_code = f"class {class_name} {{\n"
+        # Empty string for the PlantUML code
+        plantuml_code = ""
 
+        # Check if it is abstract
+        if class_object.get_property("is-abstract").value:
+            plantuml_code += "abstract "
+
+        # Class keyword
+        plantuml_code += "class "
+
+        # Class name
+        plantuml_code += class_name
+
+        # Check if it is a stereotype (supertype), it is knows supertype is 1 per class limited
+        supertype_list = class_object.traces['supertype'].targets
+        if len(supertype_list) > 0:
+            supertype_id = supertype_list[0]
+            supertype_object = ClassDiagramGenerator.get_element_by_id(supertype_id)
+            supertype_name = supertype_object.get_property(PROTEUS_NAME).value
+            plantuml_code += f" <<{supertype_name}>>"
+
+        # Open class
+        plantuml_code += " {\n"
+
+        # TBD attributes
 
         plantuml_code += "}\n"
 
@@ -167,19 +189,60 @@ class ClassDiagramGenerator(ProteusComponent):
 
         for index, role_object in enumerate(role_objects):
             
-            if index+1 < len(role_objects):
-                next_role_object = role_objects[index+1]
-                # Get class names from traces (it is known max base type is 1 per role)
-                class_id1 = role_object.traces[BASE_TYPE_ROLE_TRACE].targets[0]
-                class_id2 = next_role_object.traces[BASE_TYPE_ROLE_TRACE].targets[0]
+            # Skip if there is less than two roles
+            if len(role_objects) > 1:
 
-                class_object1 = ClassDiagramGenerator.get_element_by_id(class_id1)
-                class_object2 = ClassDiagramGenerator.get_element_by_id(class_id2)
+                # For first and second role, create a normal association
+                if index == 0:
+                    next_role_object = role_objects[index+1]
+                    # Get class names from traces (it is known max base type is 1 per role)
+                    class_name1 = get_class_name_from_role(role_object)
+                    class_name2 = get_class_name_from_role(next_role_object)
 
-                class_name1 = class_object1.get_property(PROTEUS_NAME).value
-                class_name2 = class_object2.get_property(PROTEUS_NAME).value
+                    # Classes bounds
+                    class1_bounds = get_association_role_bounds(role_object)
+                    class2_bounds = get_association_role_bounds(next_role_object)
 
-                plantuml_code += f"{class_name1} -- {class_name2}\n"
+                    plantuml_code += f"{class_name1} {class1_bounds} - {class2_bounds} {class_name2}\n"
+                
+                # Role 2 has been processed in previous iteration
+                elif index == 1:
+                    pass
+
+                # For third role, use previous two roles to create a three-way association
+                elif index == 2:
+                    # Get class names from traces (it is known max base type is 1 per role)
+                    class_name1 = get_class_name_from_role(role_objects[0])
+                    class_name2 = get_class_name_from_role(role_objects[1])
+                    class_name3 = get_class_name_from_role(role_objects[2])
+
+                    plantuml_code += f"({class_name1}, {class_name2}) - {class_name3}\n"
+
+                # More than three roles are not supported
+                else:
+                    log.error(f"Association with more than three roles is not supported by PlantUML. Association object: {association_object.id}")
+                    break
 
         return plantuml_code
 
+
+def get_class_name_from_role(role_object: Object) -> str:
+    """
+    Get the class name from a role object.
+    """
+
+    class_id = role_object.traces[BASE_TYPE_ROLE_TRACE].targets[0]
+    class_object = ClassDiagramGenerator.get_element_by_id(class_id)
+    class_name = class_object.get_property(PROTEUS_NAME).value
+
+    return class_name
+
+def get_association_role_bounds(role_object: Object) -> str:
+    """
+    Get the multiplicity bounds from a role object.
+    """
+
+    lower_bound = role_object.get_property("multiplicity-lower-bound").value
+    upper_bound = role_object.get_property("multiplicity-upper-bound").value
+
+    return f'"{lower_bound}..{upper_bound}"' if lower_bound and upper_bound else ""
