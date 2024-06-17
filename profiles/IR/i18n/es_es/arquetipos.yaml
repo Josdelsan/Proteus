@@ -82,6 +82,10 @@ archetype.enum_choices.low: "Baja"
 archetype.enum_choices.variable: "Variable"
 archetype.enum_choices.constant: "Constante"
 archetype.enum_choices.derived: "Derivado"
+archetype.enum_choices.set: "Conjunto"
+archetype.enum_choices.simple: "Simple"
+archetype.enum_choices.sequence: "Secuencia"
+archetype.enum_choices.bag: "Bolsa"
 
   
 # -----------------------------------------------------------------------
