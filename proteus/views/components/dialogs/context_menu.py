@@ -132,13 +132,12 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Sort submenu
         self.submenu_children_sort = self._create_sort_submenu()
-        
 
         # Add the actions to the context menu ------------------------------
         # Hide some actions if the element is a document
         self.addAction(self.action_edit_object)
+        self.addAction(self.action_delete_object)
         if not is_document:
-            self.addAction(self.action_delete_object)
             self.addAction(self.action_clone_object)
 
         self.addSeparator()
@@ -187,7 +186,7 @@ class ContextMenu(QMenu, ProteusComponent):
         # Visibility and state restrictions (not needed for this action)
 
         return action
-    
+
     # ---------------------------------------------------------------------
     # Method     : _create_delete_action
     # Description: Create the delete action.
@@ -199,18 +198,18 @@ class ContextMenu(QMenu, ProteusComponent):
         """
         Create the delete action.
         """
+        is_document: bool = isinstance(self.element.parent, Project)
+
         action: QAction = QAction(_("document_tree.menu.action.delete"), self)
         action.triggered.connect(
             lambda: DeleteDialog.create_dialog(
-                element_id=self.element.id, controller=self._controller
+                element_id=self.element.id,
+                controller=self._controller,
+                is_document=is_document,
             )
         )
         delete_icon = Icons().icon(ProteusIconType.App, "context-menu-delete")
         action.setIcon(delete_icon)
-
-        # Disable the delete action if the element is a document
-        if PROTEUS_DOCUMENT in self.element.classes:
-            action.setEnabled(False)
 
         return action
 
@@ -251,10 +250,9 @@ class ContextMenu(QMenu, ProteusComponent):
         selected_item: QTreeWidgetItem = self.tree_widget.currentItem()
         position_index: int = self.tree_widget.indexFromItem(selected_item).row()
 
-
         # Create move up action ---------------------------------------------
         action_move_up: QAction = QAction(_("document_tree.menu.action.move_up"), self)
-        
+
         action_move_up.triggered.connect(
             lambda: self._controller.change_object_position(
                 self.element.id, position_index - 1, self.element.parent.id
@@ -300,9 +298,7 @@ class ContextMenu(QMenu, ProteusComponent):
     def _create_sort_submenu(self) -> QMenu:
 
         # Create the children sort submenu
-        submenu: QMenu = QMenu(
-            _("document_tree.menu.action.sort_children"), self
-        )
+        submenu: QMenu = QMenu(_("document_tree.menu.action.sort_children"), self)
 
         sort_submenu_icon = Icons().icon(ProteusIconType.App, "context-menu-sort")
         submenu.setIcon(sort_submenu_icon)
@@ -342,7 +338,6 @@ class ContextMenu(QMenu, ProteusComponent):
             submenu.setEnabled(False)
 
         return submenu
-
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)

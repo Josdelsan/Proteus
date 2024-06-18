@@ -391,7 +391,8 @@ class Controller:
         the command to the command stack.
 
         Notify the frontend components when the command is executed passing
-        the object_id as a parameter. MODIFY_OBJECT event is triggered.
+        the object_id as a parameter. ADD_OBJECT and DELETE_OBJECT events are
+        triggered.
 
         :param object_id: The id of the object to sort its children.
         """
