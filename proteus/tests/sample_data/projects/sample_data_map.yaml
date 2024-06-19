@@ -48,4 +48,7 @@ example_project:
   target_with_2_sources_2: NkrkRpCHFPQS # This object is being targeted by 2 objects (one inside the same parent and another outside)
   section_with_2_children_targeted: 5LAgscVHRg5J # This section has 2 children being targeted inside and outside (two object above)
 
+  # Unsorted objects
+  section_with_unsorted_children: 3CrydgWvxguB # Constains 4 unsorted children (by name b,d,a,c)
+
 
