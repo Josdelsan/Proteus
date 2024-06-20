@@ -48,6 +48,8 @@ from proteus.application.events import (
     CurrentDocumentChangedEvent,
     CurrentViewChangedEvent,
     SelectObjectEvent,
+    SortChildrenEvent,
+    ChangeObjectPositionEvent,
 )
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.abstract_component import ProteusComponent
@@ -237,6 +239,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             - MODIFY OBJECT -> update_view
             - DELETE OBJECT -> update_view
             - CURRENT DOCUMENT CHANGED -> update_view
+            - SORT CHILDREN -> update_view
+            - CHANGE OBJECT POSITION -> update_view
             - ADD VIEW -> update_on_add_view
             - DELETE VIEW -> update_on_delete_view
             - SELECT OBJECT -> update_on_select_object
@@ -246,6 +250,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         ModifyObjectEvent().connect(self.update_view)
         DeleteObjectEvent().connect(self.update_view)
         CurrentDocumentChangedEvent().connect(self.update_view)
+        SortChildrenEvent().connect(self.update_view)
+        ChangeObjectPositionEvent().connect(self.update_view)
 
         AddViewEvent().connect(self.update_on_add_view)
         DeleteViewEvent().connect(self.update_on_delete_view)

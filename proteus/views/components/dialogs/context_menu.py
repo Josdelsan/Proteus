@@ -158,8 +158,8 @@ class ContextMenu(QMenu, ProteusComponent):
 
         self.addSeparator()
 
+        self.addMenu(self.submenu_children_sort)
         if not is_document:
-            self.addMenu(self.submenu_children_sort)
             self.addAction(self.action_move_up_object)
             self.addAction(self.action_move_down_object)
 

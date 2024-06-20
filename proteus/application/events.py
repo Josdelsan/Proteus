@@ -417,6 +417,93 @@ class DeleteObjectEvent(ProteusEvent):
         """
         self.signal.connect(method)
 
+# --------------------------------------------------------------------------
+# Class: ChangeObjectPositionEvent
+# Description: Class for the change object position event in the PROTEUS application.
+# Date: 20/06/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class ChangeObjectPositionEvent(ProteusEvent):
+    """
+    Event to handle the change of the position of an object in the PROTEUS application.
+    """
+
+    signal = pyqtSignal([str, bool])
+
+    def notify(self, object_id: ProteusID, update_view: bool = True) -> None:
+        """
+        Notify the event that the position of an object has changed. Receives the id of
+        the object that has changed position and a boolean indicating whether the view
+        should be updated.
+
+        :param object_id: The id of the object that has been moved.
+        :param update_view: Whether the view should be updated.
+        """
+        log.debug(
+            f"Emitting CHANGE OBJECT POSITION EVENT signal... | object_id: {object_id} update_view: {update_view}"
+        )
+
+        assert (
+            object_id is not None or object_id != ""
+        ), "Object id cannot be None or empty"
+
+        self.signal.emit(object_id, update_view)
+
+    def connect(self, method: Callable[[ProteusID, bool], None]) -> None:
+        """
+        Connect a method to the change object position event. The method should take
+        two arguments: the id of the object that has changed position and a
+        boolean indicating whether the view should be updated.
+
+        :param method: The method to connect to the event.
+        """
+        self.signal.connect(method)
+
+
+# --------------------------------------------------------------------------
+# Class: SortChildrenEvent
+# Description: Class for the sort children event in the PROTEUS application.
+# Date: 20/06/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class SortChildrenEvent(ProteusEvent):
+    """
+    Event to handle the sorting of children in the PROTEUS application.
+    """
+
+    signal = pyqtSignal([str, bool])
+
+    def notify(self, parent_id: ProteusID, update_view: bool = True) -> None:
+        """
+        Notify the event that the children of an object/document have been sorted.
+        Receives the id of the parent object and a boolean indicating whether the view
+        should be updated.
+
+        :param parent_id: The id of the parent object.
+        :param update_view: Whether the view should be updated.
+        """
+        log.debug(
+            f"Emitting SORT CHILDREN EVENT signal... | parent_id: {parent_id} update_view: {update_view}"
+        )
+
+        assert (
+            parent_id is not None or parent_id != ""
+        ), "Parent id cannot be None or empty"
+
+        self.signal.emit(parent_id, update_view)
+
+    def connect(self, method: Callable[[ProteusID, bool], None]) -> None:
+        """
+        Connect a method to the sort children event. The method should take
+        two arguments: the id of the parent object and a boolean indicating
+        whether the view should be updated.
+
+        :param method: The method to connect to the event.
+        """
+        self.signal.connect(method)
+
 
 # --------------------------------------------------------------------------
 # Class: SelectObjectEvent

@@ -110,7 +110,7 @@ class CloneObjectCommand(QUndoCommand):
 
             # Set the parent state to the state after clone stored in the first redo
             parent: Union[Project, Object] = self.project_service._get_element_by_id(self.object_id).parent
-            parent.state: ProteusState = self.after_clone_parent_state
+            parent.state = self.after_clone_parent_state
 
         # Emit the event to update the view
         AddObjectEvent().notify(self.cloned_object.id)
@@ -134,7 +134,7 @@ class CloneObjectCommand(QUndoCommand):
 
         # Set the parent state to the old state
         parent: Union[Project, Object] = self.project_service._get_element_by_id(self.object_id).parent
-        parent.state: ProteusState = self.before_clone_parent_state
+        parent.state = self.before_clone_parent_state
 
         # Deselect the object in case it was selected to avoid errors
         StateManager().deselect_object(self.cloned_object.id)

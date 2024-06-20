@@ -70,6 +70,8 @@ def app(qtbot, mocker):
     # Call the mock_views_container function to mock the ViewsContainer methods
     mock_views_container(mocker)
 
+    mock_set_last_project_opened_method(mocker)
+
     # Create the main window
     main_window = MainWindow(parent=None, controller=Controller())
 
@@ -186,6 +188,17 @@ def mock_views_container(mocker):
 
     mocker.patch(
         "proteus.views.components.views_container.ViewsContainer.current_view_changed",
+        lambda *args, **kwargs: None,
+    )
+
+def mock_set_last_project_opened_method(mocker):
+    """
+    Mocks the set_last_project_opened method to avoid the modification of the
+    ini file during tests execution.
+    """
+
+    mocker.patch(
+        "proteus.application.configuration.app_settings.AppSettings.set_last_project_opened",
         lambda *args, **kwargs: None,
     )
 

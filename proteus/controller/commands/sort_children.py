@@ -25,8 +25,7 @@ from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.services.project_service import ProjectService
 from proteus.application.events import (
-    AddObjectEvent,
-    DeleteObjectEvent,
+    SortChildrenEvent,
 )
 
 # --------------------------------------------------------------------------
@@ -38,7 +37,7 @@ from proteus.application.events import (
 # --------------------------------------------------------------------------
 class SortChildrenCommand(QUndoCommand):
     """
-    Controller class to sort the children of an object.
+    Controller class to sort the children of an object/document.
     """
 
     # ----------------------------------------------------------------------
@@ -93,10 +92,7 @@ class SortChildrenCommand(QUndoCommand):
         # Sort children
         self.project_service.sort_children_by_name(self.object.id, self.reverse)
 
-        # Call delete and add object events in order to uptade the object and its children
-        # in the document tree and view with fewer events calls.
-        DeleteObjectEvent().notify(self.object.id, False)
-        AddObjectEvent().notify(self.object.id)
+        SortChildrenEvent().notify(self.object.id, update_view=True)
 
     # ----------------------------------------------------------------------
     # Method     : undo
@@ -116,10 +112,7 @@ class SortChildrenCommand(QUndoCommand):
         # Restore object state
         self.object.state = self.old_object_state
 
-        # Call delete and add object events in order to uptade the object and its children
-        # in the document tree and view with fewer events calls.
-        DeleteObjectEvent().notify(self.object.id, False)
-        AddObjectEvent().notify(self.object.id)
+        SortChildrenEvent().notify(self.object.id, update_view=True)
 
         
         
