@@ -130,6 +130,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Dead objects expanded state
         # This allows to restore the expanded state of dead and moved objects
+        # TODO: Consider to store this as a class variable so objects can
+        # be expanded(or not) when moving them across documents.
         self.dead_objects_expanded_state: Dict[ProteusID, bool] = {}
 
         # Create the component
@@ -262,7 +264,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         for child in object.children:
             self._populate_tree(new_item, child)
 
-        new_item.setExpanded(True)
 
     # ----------------------------------------------------------------------
     # Method     : _tree_item_setup
@@ -326,7 +327,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             tree_item.setExpanded(self.dead_objects_expanded_state[object.id])
             self.dead_objects_expanded_state.pop(object.id)
 
-
     # ----------------------------------------------------------------------
     # Method     : _delete_tree_item
     # Description: Delete the tree item widget and its children recursively.
@@ -335,29 +335,29 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def _delete_tree_item(self, item: QTreeWidgetItem) -> None:
-                """
-                Helper method to delete item widget and its children recursively.
-                """
-                # Get the children widgets
-                children_widgets: List[QTreeWidgetItem] = [
-                    item.child(i) for i in range(item.childCount())
-                ]
+        """
+        Helper method to delete item widget and its children recursively.
+        """
+        # Get the children widgets
+        children_widgets: List[QTreeWidgetItem] = [
+            item.child(i) for i in range(item.childCount())
+        ]
 
-                # Iterate over the children widgets
-                for child_widget in children_widgets:
-                    self._delete_tree_item(child_widget)
+        # Iterate over the children widgets
+        for child_widget in children_widgets:
+            self._delete_tree_item(child_widget)
 
-                # Item id
-                item_id: ProteusID = item.data(1, Qt.ItemDataRole.UserRole)
+        # Item id
+        item_id: ProteusID = item.data(1, Qt.ItemDataRole.UserRole)
 
-                # Save the expanded state of the item
-                self.dead_objects_expanded_state[item_id] = item.isExpanded()
+        # Save the expanded state of the item
+        self.dead_objects_expanded_state[item_id] = item.isExpanded()
 
-                # Remove the item from its parent
-                item.parent().removeChild(item)
+        # Remove the item from its parent
+        item.parent().removeChild(item)
 
-                # Remove the item from the tree items dictionary
-                self.tree_items.pop(item_id)
+        # Remove the item from the tree items dictionary
+        self.tree_items.pop(item_id)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -495,8 +495,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         :param object_id: The object id to delete from the tree
         """
 
-        
-
         # Check the element id is not None
         assert (
             object_id is not None or object_id != ""
@@ -597,15 +595,41 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Get the children objects
         children_objects: List[Object] = parent_object.get_descendants()
 
-        # Get the children items
+        # Get the children tree items
         children_items: List[QTreeWidgetItem] = [
             self.tree_items[child.id] for child in children_objects
         ]
+
+
+        # NOTE: Helper functions to get and set the expanded state of the object
+        # this is necessary to keep the expanded state of the object and its children
+        # when sorting the children items.
+        def _get_expanded_state(item: QTreeWidgetItem) -> Dict[ProteusID, bool]:
+            expanded_state_dict: Dict[ProteusID, bool] = {}
+            n_children = item.childCount()
+            for i in range(n_children):
+                child_item = item.child(i)
+                expanded_state_dict.update(_get_expanded_state(child_item))
+                expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)] = child_item.isExpanded()
+            return expanded_state_dict
+        
+        def _set_expanded_state(item: QTreeWidgetItem, expanded_state_dict: Dict[ProteusID, bool]) -> None:
+            n_children = item.childCount()
+            for i in range(n_children):
+                child_item = item.child(i)
+                _set_expanded_state(child_item, expanded_state_dict)
+                child_item.setExpanded(expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)])
+
+        # Expanded state of the object and its children
+        expanded_state_dict: Dict[ProteusID, bool] = _get_expanded_state(parent_item)
 
         # Sort the children items
         for i, child_item in enumerate(children_items):
             parent_item.removeChild(child_item)
             parent_item.insertChild(i, child_item)
+
+        # Set the expanded state of the object and its children
+        _set_expanded_state(parent_item, expanded_state_dict)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_change_object_position
@@ -655,7 +679,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             position: int = siblings.index(object)
 
             self._populate_tree(parent_item, object, position)
-
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -812,7 +835,3 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         else:
             event.accept()
             return
-
-
-
-    
