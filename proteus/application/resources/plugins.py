@@ -17,7 +17,7 @@ import sys
 import logging
 import importlib
 import pkgutil
-from typing import Callable, Dict, Union, List
+from typing import Callable, Dict, Union, List, Tuple
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -44,6 +44,7 @@ class PluginInterface:
         register_xslt_function: Callable[[str, Callable], None],
         register_qwebchannel_class: Callable[[str, Callable], None],
         register_proteus_component: Callable[[str, Callable], None],
+        register_xslt_class_and_methods: Callable[[Callable, List[str]], None],
     ) -> None:
         """
         Register the plugin items in the corresponding registries.
@@ -51,13 +52,14 @@ class PluginInterface:
         :param register_xslt_function: Function to register XSLT functions.
         :param register_qwebchannel_class: Function to register QWebChannel classes.
         :param register_proteus_component: Function to register ProteusComponent classes.
+        :param register_xslt_class_and_methods: Function to register XSLT methods from a class.
         """
 
 
 class Plugins(metaclass=SingletonMeta):
     """
     Manage PROTEUS plugins. A plugin is a module that can be loaded at runtime
-    and register XSLT functions and QWebChannel classes for use in the templates.
+    and register XSLT functions/methods and QWebChannel classes for use in the templates.
     ProteusComponents can also be registered with no specific use case if needed
     to access controller functionality.
     """
@@ -87,6 +89,9 @@ class Plugins(metaclass=SingletonMeta):
 
         # ProteusComponent classes initialized in the application (k: class name, v: class)
         self._proteus_components: Dict[str, Callable] = {}
+
+        # ProteusComponent methods that will be registered in the XSLT engine (k: class name, v: methods)
+        self._proteus_components_methods: Dict[str, List[str]] = {}
 
     # --------------------------------------------------------------------------
     # Method: _import_plugin
@@ -237,7 +242,6 @@ class Plugins(metaclass=SingletonMeta):
         """
         return list(self._plugins.keys())
 
-
     # ==========================================================================
     # Register methods (used by plugins)
     # ==========================================================================
@@ -309,15 +313,19 @@ class Plugins(metaclass=SingletonMeta):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def register_proteus_component(self, name: str, class_: Callable) -> None:
+    def register_proteus_component(
+        self, name: str, class_: Callable, methods: List[str] = []
+    ) -> None:
         """
         Register a ProteusComponent class in the plugin manager. If there is already a
-        class registered with the same name, it will be ignored.
+        class registered with the same name, it will be ignored. Object methods can also
+        be registered in order to be used in the XSLT engine.
 
         It validates if the class is callable.
 
         :param name: Name of the ProteusComponent class.
         :param class_: Class to register.
+        :param methods: List of methods to register from the given class.
         """
         # Validate the class
         if not callable(class_):
@@ -333,3 +341,26 @@ class Plugins(metaclass=SingletonMeta):
 
         log.info(f"Registering ProteusComponent class '{name}'")
         self._proteus_components[name] = class_
+
+        # If methods are provided, register them
+        if methods:
+
+            valid_methods: List[str] = []
+
+            # Check every method is in the class
+            for method in methods:
+                if not hasattr(class_, method):
+                    log.error(
+                        f"Method '{method}' not found in class '{class_.__name__}'"
+                    )
+                    continue
+                valid_methods.append(method)
+                log.info(
+                    f"Registering method '{method}' from class '{class_.__name__}'"
+                )
+
+            # Extend the list of methods to be instantiated for the class
+            if self._proteus_components_methods.get(name):
+                self._proteus_components_methods[name].extend(valid_methods)
+            else:
+                self._proteus_components_methods[name] = valid_methods

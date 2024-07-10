@@ -11,9 +11,10 @@ from basics.proteus_xslt_basics import generate_markdown, image_to_base64, curre
 from basics.proteus_xslt_basics import ProteusBasicMethods
 
 
-def register(register_xslt_function, register_qwebchannel_class, _):
+def register(register_xslt_function, register_qwebchannel_class, register_proteus_component):
     register_xslt_function("generate_markdown", generate_markdown)
     register_xslt_function("image_to_base64", image_to_base64)
     register_xslt_function("current_document", current_document)
 
     register_qwebchannel_class("proteusBasics", ProteusBasicMethods)
+

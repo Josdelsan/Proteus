@@ -32,6 +32,9 @@ from proteus.application.configuration.config import Config
 log = logging.getLogger(__name__)
 
 
+FUNCTION_NAMESPACE = "http://proteus.us.es/utils"
+NAMESPACE_PREFIX = "proteus-utils"
+
 # --------------------------------------------------------------------------
 # Class: RenderService
 # Description: Class for render service
@@ -82,15 +85,11 @@ class RenderService:
     def _namespace_configuration(self) -> None:
         """
         Configuration setup for the XSLT functions. This allows to use
-        custom python functions in the XSLT templates.
+        custom python functions in the XSLT templates using a known prefix.
         """
         # Namespace for the XSLT functions
-        ns = ET.FunctionNamespace("http://proteus.us.es/utils")
-        ns.prefix = "proteus-utils"
-
-        # Register plugins functions
-        for name, func in Plugins().get_xslt_functions().items():
-            ns[name] = func
+        ns = ET.FunctionNamespace(FUNCTION_NAMESPACE)
+        ns.prefix = NAMESPACE_PREFIX
 
     # ----------------------------------------------------------------------
     # Method     : _load_templates
@@ -217,3 +216,24 @@ class RenderService:
         Get the available xslt templates in the xslt folder.
         """
         return list(self._templates.values())
+
+    # ----------------------------------------------------------------------
+    # Method     : add_functions_to_namespace
+    # Description: Add functions to the XSLT namespace
+    # Date       : 10/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def add_functions_to_namespace(self, functions: Dict[str, callable]) -> None:
+        """
+        Add functions to the XSLT namespace.
+
+        Functions may be called using the namespace prefix defined in the
+        FUNCTION_NAMESPACE constant and the function name.
+
+        Example: <xsl:value-of select="proteus-utils:function_name()"/>
+        """
+        ns = ET.FunctionNamespace(FUNCTION_NAMESPACE)
+
+        for name, func in functions.items():
+            ns[name] = func

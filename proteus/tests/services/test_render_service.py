@@ -10,6 +10,8 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from pathlib import Path
+
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
@@ -24,7 +26,7 @@ import lxml.etree as ET
 from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.services.render_service import RenderService
-from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
+from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH, PROTEUS_SAMPLE_DATA_PATH
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -37,10 +39,31 @@ DEFAULT_TEMPLATE = "remus"
 def render_service():
     """
     Fixture for RenderService object
+
+    Loading a custom XSLT avoid using components methods in XSLT (cannot
+    be loaded from this test file) but still allows to test XSLT python functions
+    from plugins.
     """
-    # Load plugins before creating the RenderService object
+    # Mock XSLT config dir
+    prev_xslt_dir = Path(Config().profile_settings.xslt_directory)
+    Config().profile_settings.xslt_directory = PROTEUS_SAMPLE_DATA_PATH / "xslt"
+
+    # Load plugins
     Plugins().load_plugins(Config().profile_settings.plugins_directory)
-    return RenderService()
+
+    # Create service
+    service = RenderService()
+
+    # Add plugins XSLT functions
+    service.add_functions_to_namespace(Plugins().get_xslt_functions())
+
+    # Do not add components methods since component cannot be instantiated here
+
+    yield service
+
+    # Clean up
+    Config().profile_settings.xslt_directory = prev_xslt_dir
+
 
 
 @pytest.fixture()
