@@ -390,9 +390,11 @@ class Controller:
         Sort (alphabetically) the children of an object given its id. It pushes
         the command to the command stack.
 
+        Sort is performed by the name or code+name of the children objects
+        (:Proteus-name and :Proteus-code).
+
         Notify the frontend components when the command is executed passing
-        the object_id as a parameter. ADD_OBJECT and DELETE_OBJECT events are
-        triggered.
+        the object_id as a parameter. SORT CHILDREN EVENT is triggered.
 
         :param object_id: The id of the object to sort its children.
         """

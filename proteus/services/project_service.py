@@ -34,6 +34,7 @@ from proteus.model import (
     PROTEUS_ALL,
     PROTEUS_DOCUMENT,
     PROTEUS_NAME,
+    PROTEUS_CODE,
 )
 from proteus.model.project import Project
 from proteus.model.object import Object
@@ -940,7 +941,8 @@ class ProjectService:
         self, object_id: ProteusID, reverse: bool = False
     ) -> None:
         """
-        Sort the children of the object with the given id by name.
+        Sort the children of the object with the given id by name (:Proteus-name).
+        Code (:Proteus-code) is added to as prefix if it is found in the object.
 
         :param object_id: Id of the object to sort.
         """
@@ -948,11 +950,20 @@ class ProjectService:
         object: Object = self._get_element_by_id(object_id)
 
         # Check that the element is an object
-        assert isinstance(object, Object), f"Element with id {object} is not an object but a {type(object)}."
+        assert isinstance(
+            object, Object
+        ), f"Element with id {object} is not an object but a {type(object)}."
+
+        # Lambda expression to sort by name or code + name
+        lambda_ = lambda child: (
+            f"{child.get_property(PROTEUS_CODE).value.to_string()} {child.get_property(PROTEUS_NAME).value}"
+            if child.get_property(PROTEUS_CODE)
+            else child.get_property(PROTEUS_NAME).value
+        )
 
         # Sort descendants by name
         object.children.sort(
-            key=lambda x: x.get_property(PROTEUS_NAME).value, reverse=reverse
+            key=lambda_, reverse=reverse
         )
 
         # Update object state

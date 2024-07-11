@@ -13,6 +13,7 @@ one_doc_project:
   # Document with multiple objects to test rendering
   document_to_render: 722GfFiezi5F
 
+# TODO: Using multiple projects might be necessary to avoid performance issues if the test data grows
 example_project:
   # Empty document with no objects ----------------------------------
   empty_document: 7hadM59iCS5g 
@@ -50,5 +51,6 @@ example_project:
 
   # Unsorted objects
   section_with_unsorted_children: 3CrydgWvxguB # Constains 4 unsorted children (by name b,d,a,c)
+  section_with_unsorted_children_2: 7eVg3bVzRaY2 # Constains 4 unsorted children (by name and code D, [CRQ-004] A, [CRQ-003] A, A)
 
 

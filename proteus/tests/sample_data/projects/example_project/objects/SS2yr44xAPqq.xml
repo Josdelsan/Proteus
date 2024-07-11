@@ -18,6 +18,7 @@
     <child id="4WHw2zMKqGWA"/>
     <child id="6f2MvGSnxsZu"/>
     <child id="3CrydgWvxguB"/>
+    <child id="7eVg3bVzRaY2"/>
   </children>
   <traces>
     <traceProperty name="prepared-by" category="details" acceptedTargets="organization" traceType=":Proteus-author"/>
