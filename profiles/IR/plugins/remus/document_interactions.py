@@ -74,16 +74,21 @@ class DocumentInteractions(ProteusComponent):
             f"Object '{proteus_id}' was double clicked in the document html view, opening edit properties dialog"
         )
 
+        # Select the object in the document tree. Make sure the item is in the current document
+        # otherwise ask the user if he want
+        self.select_and_navigate_to_object(id, False)
+
         # Create the dialog
         PropertyDialog.create_dialog(self._controller, proteus_id)
 
     @pyqtSlot(str)
-    def select_and_navigate_to_object(self, id: str) -> None:
+    def select_and_navigate_to_object(self, id: str, navigate: bool = True) -> None:
         """
         Select the object in the document tree and navigate to the document
         where the object is located if necessary.
 
         :param id: object id
+        :param navigate: flag to indicate if navigate to the object
         """
         if not id:
             log.error(f"Method 'navigate_to_object' called with empty id '{id}'")
@@ -121,7 +126,7 @@ class DocumentInteractions(ProteusComponent):
         if current_document == object_document:
             # This triggers the SELECT_OBJECT event that will select the object
             # in the document tree and also call the scroll javascript function
-            self._state_manager.set_current_object(object_id, object_document)
+            self._state_manager.set_current_object(object_id, object_document, navigate)
             return
 
         # If the object is not in the current document, show the user a message box

@@ -108,6 +108,7 @@ class GlossaryHandler(ProteusComponent):
     object_ids_by_item: Dict[
         str, MutableSet[ProteusID]
     ] = dict()  # k: glossary item name, v: Set[ProteusID]
+    
     pattern: re.Pattern = None
 
     # NOTE: This pattern is build using <code> tags because text is already converted to html

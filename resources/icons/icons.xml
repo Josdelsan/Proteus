@@ -25,6 +25,9 @@
         <icon key="context-menu-clone" file="context_menu/clone-object-button.png"/>
         <icon key="context-menu-up" file="context_menu/move-up-arrow.png"/>
         <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>
+        <icon key="context-menu-alphabetical-sort" file="context_menu/alphabetical-sort.png"/>
+        <icon key="context-menu-reverse-alphabetical-sort" file="context_menu/reverse-alphabetical-sort.png"/>
+        <icon key="context-menu-sort" file="context_menu/context-menu-sort.png"/>
 
         <icon key="en_US" file="flags/en_US.png"/>
         <icon key="es_ES" file="flags/es_ES.png"/>

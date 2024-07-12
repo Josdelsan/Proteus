@@ -13,6 +13,8 @@
 
 import logging
 from typing import Dict, List
+import itertools
+import string
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -56,6 +58,8 @@ from proteus.application.events import (
     ModifyObjectEvent,
     AddObjectEvent,
     DeleteObjectEvent,
+    SortChildrenEvent,
+    ChangeObjectPositionEvent,
 )
 
 
@@ -128,7 +132,13 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Dead objects expanded state
         # This allows to restore the expanded state of dead and moved objects
+        # TODO: Consider to store this as a class variable so objects can
+        # be expanded(or not) when moving them across documents.
         self.dead_objects_expanded_state: Dict[ProteusID, bool] = {}
+
+        # Section indexes
+        # TODO: Implement this as an abstract feature that can be enabled for specific classes
+        self.section_indexes: Dict[ProteusID, str] = {}
 
         # Create the component
         self.create_component()
@@ -163,7 +173,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         top_level_object: Object = self._controller.get_element(self.document_id)
 
         # Populate tree widget
-        self.populate_tree(self, top_level_object)
+        self._populate_tree(self, top_level_object)
 
         # Connect double click to object properties form
         self.itemDoubleClicked.connect(
@@ -193,6 +203,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         self.expandAll()
         self.setExpandsOnDoubleClick(False)
 
+        self.update_section_indexes()
+
     # ----------------------------------------------------------------------
     # Method     : subscribe
     # Description: Subscribe to events.
@@ -210,21 +222,25 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             - MODIFY OBJECT -> update_on_modify_object
             - DELETE OBJECT -> update_on_delete_object
             - SELECT OBJECT -> update_on_select_object
+            - SORT CHILDREN -> update_on_sort_children
+            - CHANGE OBJECT POSITION -> update_on_change_object_position
         """
         AddObjectEvent().connect(self.update_on_add_object)
         SaveProjectEvent().connect(self.update_on_save_project)
         ModifyObjectEvent().connect(self.update_on_modify_object)
         DeleteObjectEvent().connect(self.update_on_delete_object)
         SelectObjectEvent().connect(self.update_on_select_object)
+        SortChildrenEvent().connect(self.update_on_sort_children)
+        ChangeObjectPositionEvent().connect(self.update_on_change_object_position)
 
     # ----------------------------------------------------------------------
-    # Method     : populate_tree
+    # Method     : _populate_tree
     # Description: Populate document tree given the document structure
     # Date       : 04/06/2023
     # Version    : 0.2
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def populate_tree(
+    def _populate_tree(
         self, parent_item: QTreeWidgetItem, object: Object, position=None
     ):
         """
@@ -247,25 +263,23 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             new_item = QTreeWidgetItem(parent_item)
 
         # Setup the new item with object information
-        self.tree_item_setup(new_item, object)
+        self._tree_item_setup(new_item, object)
 
         # Add the new item to the tree items dictionary
         self.tree_items[object.id] = new_item
 
         # Check if the object has children
         for child in object.children:
-            self.populate_tree(new_item, child)
-
-        new_item.setExpanded(True)
+            self._populate_tree(new_item, child)
 
     # ----------------------------------------------------------------------
-    # Method     : tree_item_setup
+    # Method     : _tree_item_setup
     # Description: Setup the tree item for the given object.
     # Date       : 01/12/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def tree_item_setup(self, tree_item: QTreeWidgetItem, object: Object) -> None:
+    def _tree_item_setup(self, tree_item: QTreeWidgetItem, object: Object) -> None:
         """
         Given an object, update the tree item properties to match the object
         properties and state.
@@ -310,8 +324,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         name_str = str(name_property.value)
 
+        # Section index
+        section_index = self.section_indexes.get(object.id, "")
+
         # Build the name string
-        item_string = f"{code_str} {name_str}".strip()
+        item_string = f"{section_index} {code_str} {name_str}".strip()
         tree_item.setText(0, item_string)
 
         # Set the expanded state of the item if it is stored in the dead objects
@@ -319,6 +336,38 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         if object.id in self.dead_objects_expanded_state:
             tree_item.setExpanded(self.dead_objects_expanded_state[object.id])
             self.dead_objects_expanded_state.pop(object.id)
+
+    # ----------------------------------------------------------------------
+    # Method     : _delete_tree_item
+    # Description: Delete the tree item widget and its children recursively.
+    # Date       : 20/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _delete_tree_item(self, item: QTreeWidgetItem) -> None:
+        """
+        Helper method to delete item widget and its children recursively.
+        """
+        # Get the children widgets
+        children_widgets: List[QTreeWidgetItem] = [
+            item.child(i) for i in range(item.childCount())
+        ]
+
+        # Iterate over the children widgets
+        for child_widget in children_widgets:
+            self._delete_tree_item(child_widget)
+
+        # Item id
+        item_id: ProteusID = item.data(1, Qt.ItemDataRole.UserRole)
+
+        # Save the expanded state of the item
+        self.dead_objects_expanded_state[item_id] = item.isExpanded()
+
+        # Remove the item from its parent
+        item.parent().removeChild(item)
+
+        # Remove the item from the tree items dictionary
+        self.tree_items.pop(item_id)
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -360,7 +409,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         ), "Object is not instance of Object in MODIFY OBJECT event"
 
         # Update the tree item with the object information
-        self.tree_item_setup(tree_item, object)
+        self._tree_item_setup(tree_item, object)
+
+        self.update_section_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
@@ -435,7 +486,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         position: int = siblings.index(new_object)
 
         # Create the new item
-        self.populate_tree(parent_item, new_object, position=position)
+        self._populate_tree(parent_item, new_object, position=position)
+
+        self.update_section_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_object
@@ -455,31 +508,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         :param object_id: The object id to delete from the tree
         """
-
-        def delete_item(item: QTreeWidgetItem) -> None:
-            """
-            Helper method to delete item widget and its children recursively.
-            """
-            # Get the children widgets
-            children_widgets: List[QTreeWidgetItem] = [
-                item.child(i) for i in range(item.childCount())
-            ]
-
-            # Iterate over the children widgets
-            for child_widget in children_widgets:
-                delete_item(child_widget)
-
-            # Item id
-            item_id: ProteusID = item.data(1, Qt.ItemDataRole.UserRole)
-
-            # Save the expanded state of the item
-            self.dead_objects_expanded_state[item_id] = item.isExpanded()
-
-            # Remove the item from its parent
-            item.parent().removeChild(item)
-
-            # Remove the item from the tree items dictionary
-            self.tree_items.pop(item_id)
 
         # Check the element id is not None
         assert (
@@ -502,10 +530,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         tree_item.parent().setForeground(0, TREE_ITEM_COLOR[parent_object.state])
 
         # Remove the item from the tree including its children
-        delete_item(tree_item)
+        self._delete_tree_item(tree_item)
 
         # Set current item to None
         self.setCurrentItem(None)
+
+        self.update_section_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -537,8 +567,147 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             # Get the tree item
             tree_item: QTreeWidgetItem = self.tree_items[selected_object_id]
 
+            # Deselect all items, this forces to select the item again
+            # in case it is already selected (useful for expanding the parents)
+            self.setCurrentItem(None)
+
             # Select the item
             self.setCurrentItem(tree_item)
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_sort_children
+    # Description: Update the document tree when the children of an object
+    #              are sorted.
+    # Date       : 20/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_sort_children(self, parent_id: ProteusID) -> None:
+        """
+        Update the document tree when the children of an object/document are
+        sorted. Look for the parent object in the tree items dictionary and
+        sort the children items.
+
+        Triggered by: SortChildrenEvent
+
+        :param parent_id: The parent object id to sort the children
+        """
+        # Check the parent id is not None
+        assert (
+            parent_id is not None or parent_id != ""
+        ), "Parent id is None on SORT CHILDREN event"
+
+        # Check if the parent id is in the tree items dictionary
+        if parent_id not in self.tree_items:
+            return
+
+        # Get the parent item
+        parent_item: QTreeWidgetItem = self.tree_items[parent_id]
+
+        # Get the parent object
+        parent_object: Object = self._controller.get_element(parent_id)
+
+        # Check the parent object is instance of Object
+        assert isinstance(
+            parent_object, Object
+        ), "Parent object is not instance of Object on SORT CHILDREN event"
+
+        # Get the children objects
+        children_objects: List[Object] = parent_object.get_descendants()
+
+        # Get the children tree items
+        children_items: List[QTreeWidgetItem] = [
+            self.tree_items[child.id] for child in children_objects
+        ]
+
+        # NOTE: Helper functions to get and set the expanded state of the object
+        # this is necessary to keep the expanded state of the object and its children
+        # when sorting the children items.
+        def _get_expanded_state(item: QTreeWidgetItem) -> Dict[ProteusID, bool]:
+            expanded_state_dict: Dict[ProteusID, bool] = {}
+            n_children = item.childCount()
+            for i in range(n_children):
+                child_item = item.child(i)
+                expanded_state_dict.update(_get_expanded_state(child_item))
+                expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)] = (
+                    child_item.isExpanded()
+                )
+            return expanded_state_dict
+
+        def _set_expanded_state(
+            item: QTreeWidgetItem, expanded_state_dict: Dict[ProteusID, bool]
+        ) -> None:
+            n_children = item.childCount()
+            for i in range(n_children):
+                child_item = item.child(i)
+                _set_expanded_state(child_item, expanded_state_dict)
+                child_item.setExpanded(
+                    expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)]
+                )
+
+        # Expanded state of the object and its children
+        expanded_state_dict: Dict[ProteusID, bool] = _get_expanded_state(parent_item)
+
+        # Sort the children items
+        for i, child_item in enumerate(children_items):
+            parent_item.removeChild(child_item)
+            parent_item.insertChild(i, child_item)
+
+        # Set the expanded state of the object and its children
+        _set_expanded_state(parent_item, expanded_state_dict)
+
+        self.update_section_indexes()
+
+    # ----------------------------------------------------------------------
+    # Method     : update_on_change_object_position
+    # Description: Update the document tree when an object is moved.
+    # Date       : 20/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_change_object_position(self, object_id: ProteusID) -> None:
+        """
+        Update the document tree when an object is moved. Look for the
+        object in the tree items dictionary and update the tree item
+        position.
+
+        Triggered by: ChangeObjectPositionEvent
+
+        :param object_id: The object id to move
+        """
+        # Check the object id is not None
+        assert (
+            object_id is not None or object_id != ""
+        ), "Object id is None on CHANGE OBJECT POSITION event"
+
+        object: Object = self._controller.get_element(object_id)
+
+        # Item removal from tree ----------------
+        if object_id in self.tree_items.keys():
+            self._delete_tree_item(self.tree_items[object_id])
+
+        # Item insertion in tree ----------------
+        if object.parent.id in self.tree_items.keys():
+            parent_item: QTreeWidgetItem = self.tree_items[object.parent.id]
+
+            # Update the parent item color
+            # NOTE: Parent will always be an Object. Project cannot be selected
+            #       as parent to trigger ADD_OBJECT event. When adding an object
+            #       with Project as parent ADD_DOCUMENT event is triggered.
+            parent: Object = self._controller.get_element(object.parent.id)
+            parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
+
+            # Calculate item position relative to its siblings omits DEAD objects
+            siblings: List[Object] = [
+                s
+                for s in object.parent.get_descendants()
+                if s.state != ProteusState.DEAD
+            ]
+            position: int = siblings.index(object)
+
+            self._populate_tree(parent_item, object, position)
+
+            self.update_section_indexes()
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -695,3 +864,103 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         else:
             event.accept()
             return
+
+    # ======================================================================
+    # Index handling methods
+    # TODO: Implement this as an abstract feature that can be enabled for
+    #       specific classes
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_section_indexes
+    # Description: Update the section indexes for all the sections in the
+    #              document.
+    # Date       : 12/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_section_indexes(self):
+        """
+        Update the section indexes for all the sections in the document.
+
+        Uses _tree_item_setup to update the section indexes in the tree items
+        once the indexes are calculated.
+        """
+        # Get the top level object
+        top_level_object: Object = self._controller.get_element(self.document_id)
+
+        # Clear the section indexes
+        self.section_indexes = {}
+
+        # Calculate the section indexes
+        self._calculate_section_indexes(top_level_object)
+
+        # Add all the new indexex as a prefix to the section names
+        for section_id in self.section_indexes.keys():
+            self._tree_item_setup(self.tree_items[section_id], self._controller.get_element(section_id))
+
+
+    # ----------------------------------------------------------------------
+    # Method     : _calculate_section_indexes
+    # Description: Calculate the section indexes for all the sections in the
+    #              document.
+    # Date       : 12/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _calculate_section_indexes(self, object: Object, acumulated_index: str = ""):
+        """
+        Calculate the section indexes for all the sections in the document.
+        Store the section indexes in the section_indexes dictionary. Uses
+        numeric indexes for the main sections and alphabetic indexes for the
+        appendix sections.
+
+        Uses recursive calls to calculate the section indexes for all the
+        nested sections.
+
+        :param object: The object to calculate the section indexes
+        :param acumulated_index: The acumulated index for the object
+        """
+        numeric_index = 1
+        alpha_index = alpha_sequence()
+
+        for child in object.get_descendants():
+
+            # Skip if object is DEAD or not a section
+            if child.state == ProteusState.DEAD or "section" not in child.classes:
+                continue
+
+            # Set the section index depending if it is an appendix
+            if child.get_property("is-appendix").value:
+                child_index = f"{acumulated_index}.{next(alpha_index)}"
+            else:
+                child_index = f"{acumulated_index}.{str(numeric_index)}"
+
+            # Store the section index
+            self.section_indexes[child.id] = child_index[1:] # Remove the first dot
+
+            # Calculate the section index for the children
+            self._calculate_section_indexes(child, acumulated_index=child_index)
+
+            numeric_index += 1
+
+
+# ======================================================================
+# Helper functions
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Function   : alpha_sequence
+# Description: Generate an infinite sequence of uppercase alphabetic
+#              characters.
+# Date       : 12/07/2024
+# Version    : 0.1
+# Author     : José María Delgado Sánchez
+# ----------------------------------------------------------------------
+def alpha_sequence():
+    """
+    Generate an infinite sequence of uppercase alphabetic characters.
+    """
+    for length in itertools.count(1):
+        for s in itertools.product(string.ascii_uppercase, repeat=length):
+            yield ''.join(s)

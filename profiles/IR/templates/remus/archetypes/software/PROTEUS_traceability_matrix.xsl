@@ -78,8 +78,8 @@
         <xsl:param name="row-classes" select="' '"/>
         
         <!-- Get column and row items using Python -->
-        <xsl:variable name="col-items" select="proteus-utils:get_objects_from_classes($col-classes)"/>
-        <xsl:variable name="row-items" select="proteus-utils:get_objects_from_classes($row-classes)"/>
+        <xsl:variable name="col-items" select="proteus-utils:traceabilityMatrixHelper.get_objects_from_classes($col-classes)"/>
+        <xsl:variable name="row-items" select="proteus-utils:traceabilityMatrixHelper.get_objects_from_classes($row-classes)"/>
         
         <!-- If the are no col or row classes, warns the user and do not create the matrix -->
         <xsl:choose>
@@ -161,7 +161,7 @@
         
         <xsl:for-each select="$col-items">
             <td>
-                <xsl:variable name="has-dependency" select="proteus-utils:check_dependency($row-item-id, @id)"/>
+                <xsl:variable name="has-dependency" select="proteus-utils:traceabilityMatrixHelper.check_dependency($row-item-id, @id)"/>
                 <xsl:choose>
                     <xsl:when test="$has-dependency = 'True'">
                         <xsl:attribute name="class">trace</xsl:attribute>

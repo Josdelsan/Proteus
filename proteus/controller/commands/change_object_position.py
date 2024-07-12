@@ -24,12 +24,10 @@ from PyQt6.QtGui import QUndoCommand
 
 from proteus.model import ProteusID
 from proteus.model.object import Object
-from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.application.events import (
-    AddObjectEvent,
-    DeleteObjectEvent,
+    ChangeObjectPositionEvent,
 )
 
 # --------------------------------------------------------------------------
@@ -102,9 +100,8 @@ class ChangeObjectPositionCommand(QUndoCommand):
             self.object.id, self.new_position, self.new_parent.id
         )
 
-        # Notify a deletion and add object event
-        DeleteObjectEvent().notify(self.object.id, False)
-        AddObjectEvent().notify(self.object.id)
+        # Notify a change object position event
+        ChangeObjectPositionEvent().notify(self.object.id)
 
 
     # ----------------------------------------------------------------------
@@ -143,6 +140,5 @@ class ChangeObjectPositionCommand(QUndoCommand):
         self.old_parent.state = self.old_parent_state
         self.new_parent.state = self.new_parent_state
 
-        # Notify a deletion and add object event
-        DeleteObjectEvent().notify(self.object.id, False)
-        AddObjectEvent().notify(self.object.id)
+        # Notify a change object position event
+        ChangeObjectPositionEvent().notify(self.object.id)

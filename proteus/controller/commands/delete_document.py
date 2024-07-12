@@ -104,7 +104,7 @@ class DeleteDocumentCommand(QUndoCommand):
         else:
             after_clone_parent_state: ProteusState = self.before_clone_parent_state
 
-        self.document.parent.state: ProteusState = after_clone_parent_state
+        self.document.parent.state = after_clone_parent_state
 
         # Update the traces that where pointing to the object or its children
         for source in self.new_sources_traces.keys():
@@ -137,7 +137,7 @@ class DeleteDocumentCommand(QUndoCommand):
         self.project_service.change_state(self.document.id, self.old_document_state)
 
         # Set the parent state to the old state
-        self.document.parent.state: ProteusState = self.before_clone_parent_state
+        self.document.parent.state = self.before_clone_parent_state
 
         # Update the traces that where pointing to the object or its children
         # NOTE: We assume that old_sources_traces and old_sources_states have the same keys

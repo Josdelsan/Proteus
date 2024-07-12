@@ -16,6 +16,7 @@ import sys
 import logging
 import traceback
 import shutil
+from typing import Dict, Callable
 
 # --------------------------------------------------------------------------
 # Third party imports
@@ -173,17 +174,52 @@ class ProteusApplication:
     # --------------------------------------------------------------------------
     # NOTE: This is done in app module to keep the main window clean. These are
     # components that will be not displayed but need access to the backend to
-    # perform complex operations.
+    # perform complex operations (usually XSLT related)
     def load_plugin_components(self) -> None:
         """
         Load the ProteusComponents from the plugins. It uses MainWindow instance
         as parent for the components.
+
+        It register the functions and components methods to be used in XSLT.
+
+        Functions are accessed from the XSLT using the name registered in the plugins.
+        Methods are accessed using the component name dot method standard name (e.g. component.method).
+        It is also required to include the namespace prefix. Check RenderService for more information.
         """
-        for component in self.plugin_manager.get_proteus_components().values():
+
+        xslt_methods: Dict[str, Callable] = {}
+
+        # Components that need to be instantiated in order to not be deleted
+        for comp_name, comp_callable in self.plugin_manager.get_proteus_components().items():
             try:
-                component(self.main_window)
+                obj = comp_callable(self.main_window)
             except Exception as e:
                 log.critical(f"Error loading proteus component from plugin: {e}")
+
+            # Check if the component has methods that has to be registered to use in XSLT
+            methods_list = self.plugin_manager._proteus_components_methods.get(
+                comp_name, []
+            )
+
+            # Store the callable methods references in the plugin manager
+            for method_name in methods_list:
+                try:
+                    method = getattr(obj, method_name)
+                    method_callable_str_from_xslt = f"{comp_name}.{method_name}"
+                    xslt_methods[method_callable_str_from_xslt] = method
+                    print(method())
+                except Exception as e:
+                    log.critical(f"Error loading proteus component method from plugin: {e}")
+
+        # Add the methods to the render service namespace
+        self.main_window._controller._render_service.add_functions_to_namespace(
+            xslt_methods
+        )
+
+        # Add functions to the XSLT namespace
+        self.main_window._controller._render_service.add_functions_to_namespace(
+            self.plugin_manager.get_xslt_functions()
+        )
 
     # --------------------------------------------------------------------------
     # Method: open_project_on_startup

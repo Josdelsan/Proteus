@@ -25,9 +25,7 @@ from PyQt6.QtWidgets import QWidget
 # --------------------------------------------------------------------------
 
 from proteus.application.utils.abstract_meta import AbstractObjectMeta
-from proteus.application.configuration.config import Config
 from proteus.application.state_manager import StateManager
-from proteus.application.resources.translator import Translator
 from proteus.controller.command_stack import Controller
 
 # logging configuration

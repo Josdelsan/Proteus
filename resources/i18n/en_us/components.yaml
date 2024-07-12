@@ -91,3 +91,8 @@ document_tree.menu.action.move_down: "Move down"
 document_tree.menu.action.add_archetype: "Add {}"
 document_tree.drop_action.message_box.error.title: "Error moving object"
 document_tree.drop_action.message_box.error.text: "The object cannot be moved to the selected position, check that the object is accepted by the target object."
+
+document_tree.menu.action.sort_children: "Sort children"
+document_tree.menu.action.sort_children_alphabetically: "Alphabetically"
+document_tree.menu.action.sort_children_reverse: "Alphabetically reverse"
+
