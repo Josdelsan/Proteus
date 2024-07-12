@@ -13,6 +13,8 @@
 
 import logging
 from typing import Dict, List
+import itertools
+import string
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -134,6 +136,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # be expanded(or not) when moving them across documents.
         self.dead_objects_expanded_state: Dict[ProteusID, bool] = {}
 
+        # Section indexes
+        # TODO: Implement this as an abstract feature that can be enabled for specific classes
+        self.section_indexes: Dict[ProteusID, str] = {}
+
         # Create the component
         self.create_component()
 
@@ -196,6 +202,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Expand all items and disable double click expand
         self.expandAll()
         self.setExpandsOnDoubleClick(False)
+
+        self.update_section_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : subscribe
@@ -264,7 +272,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         for child in object.children:
             self._populate_tree(new_item, child)
 
-
     # ----------------------------------------------------------------------
     # Method     : _tree_item_setup
     # Description: Setup the tree item for the given object.
@@ -317,8 +324,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         name_str = str(name_property.value)
 
+        # Section index
+        section_index = self.section_indexes.get(object.id, "")
+
         # Build the name string
-        item_string = f"{code_str} {name_str}".strip()
+        item_string = f"{section_index} {code_str} {name_str}".strip()
         tree_item.setText(0, item_string)
 
         # Set the expanded state of the item if it is stored in the dead objects
@@ -401,6 +411,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Update the tree item with the object information
         self._tree_item_setup(tree_item, object)
 
+        self.update_section_indexes()
+
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
     # Description: Update the document tree when a project is saved.
@@ -476,6 +488,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Create the new item
         self._populate_tree(parent_item, new_object, position=position)
 
+        self.update_section_indexes()
+
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_object
     # Description: Update the document tree when an object is deleted.
@@ -521,6 +535,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Set current item to None
         self.setCurrentItem(None)
 
+        self.update_section_indexes()
+
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
     # Description: Update the document tree when an object is selected.
@@ -550,6 +566,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         else:
             # Get the tree item
             tree_item: QTreeWidgetItem = self.tree_items[selected_object_id]
+
+            # Deselect all items, this forces to select the item again
+            # in case it is already selected (useful for expanding the parents)
+            self.setCurrentItem(None)
 
             # Select the item
             self.setCurrentItem(tree_item)
@@ -600,7 +620,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             self.tree_items[child.id] for child in children_objects
         ]
 
-
         # NOTE: Helper functions to get and set the expanded state of the object
         # this is necessary to keep the expanded state of the object and its children
         # when sorting the children items.
@@ -610,15 +629,21 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             for i in range(n_children):
                 child_item = item.child(i)
                 expanded_state_dict.update(_get_expanded_state(child_item))
-                expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)] = child_item.isExpanded()
+                expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)] = (
+                    child_item.isExpanded()
+                )
             return expanded_state_dict
-        
-        def _set_expanded_state(item: QTreeWidgetItem, expanded_state_dict: Dict[ProteusID, bool]) -> None:
+
+        def _set_expanded_state(
+            item: QTreeWidgetItem, expanded_state_dict: Dict[ProteusID, bool]
+        ) -> None:
             n_children = item.childCount()
             for i in range(n_children):
                 child_item = item.child(i)
                 _set_expanded_state(child_item, expanded_state_dict)
-                child_item.setExpanded(expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)])
+                child_item.setExpanded(
+                    expanded_state_dict[child_item.data(1, Qt.ItemDataRole.UserRole)]
+                )
 
         # Expanded state of the object and its children
         expanded_state_dict: Dict[ProteusID, bool] = _get_expanded_state(parent_item)
@@ -630,6 +655,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Set the expanded state of the object and its children
         _set_expanded_state(parent_item, expanded_state_dict)
+
+        self.update_section_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_change_object_position
@@ -679,6 +706,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             position: int = siblings.index(object)
 
             self._populate_tree(parent_item, object, position)
+
+            self.update_section_indexes()
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -835,3 +864,103 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         else:
             event.accept()
             return
+
+    # ======================================================================
+    # Index handling methods
+    # TODO: Implement this as an abstract feature that can be enabled for
+    #       specific classes
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_section_indexes
+    # Description: Update the section indexes for all the sections in the
+    #              document.
+    # Date       : 12/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_section_indexes(self):
+        """
+        Update the section indexes for all the sections in the document.
+
+        Uses _tree_item_setup to update the section indexes in the tree items
+        once the indexes are calculated.
+        """
+        # Get the top level object
+        top_level_object: Object = self._controller.get_element(self.document_id)
+
+        # Clear the section indexes
+        self.section_indexes = {}
+
+        # Calculate the section indexes
+        self._calculate_section_indexes(top_level_object)
+
+        # Add all the new indexex as a prefix to the section names
+        for section_id in self.section_indexes.keys():
+            self._tree_item_setup(self.tree_items[section_id], self._controller.get_element(section_id))
+
+
+    # ----------------------------------------------------------------------
+    # Method     : _calculate_section_indexes
+    # Description: Calculate the section indexes for all the sections in the
+    #              document.
+    # Date       : 12/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _calculate_section_indexes(self, object: Object, acumulated_index: str = ""):
+        """
+        Calculate the section indexes for all the sections in the document.
+        Store the section indexes in the section_indexes dictionary. Uses
+        numeric indexes for the main sections and alphabetic indexes for the
+        appendix sections.
+
+        Uses recursive calls to calculate the section indexes for all the
+        nested sections.
+
+        :param object: The object to calculate the section indexes
+        :param acumulated_index: The acumulated index for the object
+        """
+        numeric_index = 1
+        alpha_index = alpha_sequence()
+
+        for child in object.get_descendants():
+
+            # Skip if object is DEAD or not a section
+            if child.state == ProteusState.DEAD or "section" not in child.classes:
+                continue
+
+            # Set the section index depending if it is an appendix
+            if child.get_property("is-appendix").value:
+                child_index = f"{acumulated_index}.{next(alpha_index)}"
+            else:
+                child_index = f"{acumulated_index}.{str(numeric_index)}"
+
+            # Store the section index
+            self.section_indexes[child.id] = child_index[1:] # Remove the first dot
+
+            # Calculate the section index for the children
+            self._calculate_section_indexes(child, acumulated_index=child_index)
+
+            numeric_index += 1
+
+
+# ======================================================================
+# Helper functions
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Function   : alpha_sequence
+# Description: Generate an infinite sequence of uppercase alphabetic
+#              characters.
+# Date       : 12/07/2024
+# Version    : 0.1
+# Author     : José María Delgado Sánchez
+# ----------------------------------------------------------------------
+def alpha_sequence():
+    """
+    Generate an infinite sequence of uppercase alphabetic characters.
+    """
+    for length in itertools.count(1):
+        for s in itertools.product(string.ascii_uppercase, repeat=length):
+            yield ''.join(s)
