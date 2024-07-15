@@ -13,6 +13,7 @@
 archetype.category.general: "General"
 archetype.category.software_requirements: "Software requirements"
 archetype.category.madeja: "Madeja"
+archetype.category.uml: "UML"
 
 # -----------------------------------------------------------------------
 # Archetype classes
@@ -42,6 +43,7 @@ archetype.class.association-role: "Role"
 archetype.class.object-component: "Component"
 archetype.class.object-attribute: "Attribute"
 archetype.class.object-invariant: "Invariant"
+archetype.class.class-diagram: "Class diagram"
 
 # Madeja classes
 archetype.class.weakness: "Weakness"

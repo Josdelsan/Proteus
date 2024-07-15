@@ -10,7 +10,7 @@
 
 <xsl:template match="object[@classes='uml class-diagram']">
     <div>
-        <xsl:variable name="plantUmlCode" select="proteus-utils:generate_class_diagram(@id)"/>
+        <xsl:variable name="plantUmlCode" select="proteus-utils:classDiagramGenerator.create(@id)"/>
         <xsl:variable name="objectId" select="@id" />
 
         <xsl:value-of select="$plantUmlCode"/>

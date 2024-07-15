@@ -67,58 +67,53 @@ class ClassDiagramGenerator(ProteusComponent):
 
     get_element_by_id: Callable[[ProteusID], Object] = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        OpenProjectEvent().connect(self.update_on_project_open)
 
-
-    def update_on_project_open(self):
-        ClassDiagramGenerator.get_element_by_id = self._controller.get_element
-
-
-    @staticmethod
-    def create(context, class_diagram_object_id: ProteusID) -> str:
+    def create(self, context, class_diagram_object_id: ProteusID) -> str:
         """
         Create a class diagram from a 'class-diagram' object. Returns the PlantUML code.
         """
 
         # Check a project has been opened
-        if ClassDiagramGenerator.get_element_by_id is None:
+        if self._controller.get_element is None:
             return ""
         
         class_diagram_object_id = class_diagram_object_id[0]
 
         # Get the object
-        class_diagram_object = ClassDiagramGenerator.get_element_by_id(class_diagram_object_id)
+        class_diagram_object = self._controller.get_element(class_diagram_object_id)
 
         # Check the object is a class diagram class
         assert CLASS_DIAGRAM_ARCHETYPE_CLASS in class_diagram_object.classes, f"Class '{CLASS_DIAGRAM_ARCHETYPE_CLASS}' not found in object '{class_diagram_object_id}' with classes '{class_diagram_object.classes}'"
 
         # Get classes and associations
-        classes = ClassDiagramGenerator.get_traces_objects_from_diagram(class_diagram_object, CLASSES_TRACE)
-        associations = ClassDiagramGenerator.get_traces_objects_from_diagram(class_diagram_object, ASSOCIATIONS_TRACE)
+        classes = self.get_traces_objects_from_diagram(class_diagram_object, CLASSES_TRACE)
+        associations = self.get_traces_objects_from_diagram(class_diagram_object, ASSOCIATIONS_TRACE)
+
+        # Notes variable
+        notes = ""
 
         # Generate PlantUML code
         plantuml_classes_code = ""
         for class_object in classes:
-            plantuml_classes_code += ClassDiagramGenerator.generate_plantuml_class_code(class_object)
+            plantuml_classes_code += self.generate_plantuml_class_code(class_object)
+            notes += self.generate_notes(class_object)
 
         # Generate PlantUML code for associations
         plantuml_associations_code = ""
         for association_object in associations:
-            plantuml_associations_code += ClassDiagramGenerator.generate_plantuml_association_code(association_object)
+            plantuml_associations_code += self.generate_plantuml_association_code(association_object)
 
         # Generate PlantUML code for the diagram
         plantuml_code = f"@startuml\n"
         plantuml_code += plantuml_classes_code
         plantuml_code += plantuml_associations_code
+        plantuml_code += notes
         plantuml_code += "@enduml\n"
 
         return plantuml_code
 
 
-    @staticmethod
-    def get_traces_objects_from_diagram(class_diagram_object: Object, trace_name: str) -> List[Object]:
+    def get_traces_objects_from_diagram(self, class_diagram_object: Object, trace_name: str) -> List[Object]:
         """
         Get the classes objects from a class diagram object.
         """
@@ -126,13 +121,13 @@ class ClassDiagramGenerator(ProteusComponent):
         objects = []
 
         for target_id in class_diagram_object.traces[trace_name].targets:
-            target_object = ClassDiagramGenerator.get_element_by_id(target_id)
+            target_object = self._controller.get_element(target_id)
             objects.append(target_object)
 
         return objects
     
-    @staticmethod
-    def generate_plantuml_class_code(class_object: Object):
+
+    def generate_plantuml_class_code(self, class_object: Object):
         """
         Generate the PlantUML code for a class object.
         """
@@ -157,22 +152,23 @@ class ClassDiagramGenerator(ProteusComponent):
         supertype_list = class_object.traces['supertype'].targets
         if len(supertype_list) > 0:
             supertype_id = supertype_list[0]
-            supertype_object = ClassDiagramGenerator.get_element_by_id(supertype_id)
+            supertype_object = self._controller.get_element(supertype_id)
             supertype_name = supertype_object.get_property(PROTEUS_NAME).value
             plantuml_code += f" <<{supertype_name}>>"
 
         # Open class
         plantuml_code += " {\n"
 
-        # TBD attributes
+        # Attributes
+        plantuml_code += self.generate_class_attributes(class_object)
 
+        # Close class
         plantuml_code += "}\n"
 
         return plantuml_code
 
 
-    @staticmethod
-    def generate_plantuml_association_code(association_object: Object):
+    def generate_plantuml_association_code(self, association_object: Object):
         """
         Generate the PlantUML code for an association object.
         """
@@ -194,16 +190,21 @@ class ClassDiagramGenerator(ProteusComponent):
 
                 # For first and second role, create a normal association
                 if index == 0:
+
+                    association_connector = "-down-"
+                    if association_object.get_property("is-derived").value:
+                        association_connector = "^-down-"
+
                     next_role_object = role_objects[index+1]
                     # Get class names from traces (it is known max base type is 1 per role)
-                    class_name1 = get_class_name_from_role(role_object)
-                    class_name2 = get_class_name_from_role(next_role_object)
+                    class_name1 = self.get_class_name_from_role(role_object)
+                    class_name2 = self.get_class_name_from_role(next_role_object)
 
                     # Classes bounds
-                    class1_bounds = get_association_role_bounds(role_object)
-                    class2_bounds = get_association_role_bounds(next_role_object)
+                    class1_bounds = self.get_association_role_bounds(role_object)
+                    class2_bounds = self.get_association_role_bounds(next_role_object)
 
-                    plantuml_code += f"{class_name1} {class1_bounds} - {class2_bounds} {class_name2}\n"
+                    plantuml_code += f"{class_name1} {class1_bounds} {association_connector} {class2_bounds} {class_name2}\n"
                 
                 # Role 2 has been processed in previous iteration
                 elif index == 1:
@@ -212,9 +213,9 @@ class ClassDiagramGenerator(ProteusComponent):
                 # For third role, use previous two roles to create a three-way association
                 elif index == 2:
                     # Get class names from traces (it is known max base type is 1 per role)
-                    class_name1 = get_class_name_from_role(role_objects[0])
-                    class_name2 = get_class_name_from_role(role_objects[1])
-                    class_name3 = get_class_name_from_role(role_objects[2])
+                    class_name1 = self.get_class_name_from_role(role_objects[0])
+                    class_name2 = self.get_class_name_from_role(role_objects[1])
+                    class_name3 = self.get_class_name_from_role(role_objects[2])
 
                     plantuml_code += f"({class_name1}, {class_name2}) - {class_name3}\n"
 
@@ -226,23 +227,69 @@ class ClassDiagramGenerator(ProteusComponent):
         return plantuml_code
 
 
-def get_class_name_from_role(role_object: Object) -> str:
-    """
-    Get the class name from a role object.
-    """
+    def get_class_name_from_role(self, role_object: Object) -> str:
+        """
+        Get the class name from a role object.
+        """
 
-    class_id = role_object.traces[BASE_TYPE_ROLE_TRACE].targets[0]
-    class_object = ClassDiagramGenerator.get_element_by_id(class_id)
-    class_name = class_object.get_property(PROTEUS_NAME).value
+        class_id = role_object.traces[BASE_TYPE_ROLE_TRACE].targets[0]
+        class_object = self._controller.get_element(class_id)
+        class_name = class_object.get_property(PROTEUS_NAME).value
 
-    return class_name
+        return class_name
 
-def get_association_role_bounds(role_object: Object) -> str:
-    """
-    Get the multiplicity bounds from a role object.
-    """
 
-    lower_bound = role_object.get_property("multiplicity-lower-bound").value
-    upper_bound = role_object.get_property("multiplicity-upper-bound").value
+    def get_association_role_bounds(self, role_object: Object) -> str:
+        """
+        Get the multiplicity bounds from a role object.
+        """
 
-    return f'"{lower_bound}..{upper_bound}"' if lower_bound and upper_bound else ""
+        lower_bound = role_object.get_property("multiplicity-lower-bound").value
+        upper_bound = role_object.get_property("multiplicity-upper-bound").value
+
+        return f'"{lower_bound}..{upper_bound}"' if lower_bound and upper_bound else ""
+
+
+    def generate_class_attributes(self, class_object: Object) -> str:
+        """
+        Generate the PlantUML code for the attributes of a class object.
+        """
+
+        attributes = ""
+
+        # Iterate over the children and handle 'object-attribute' objects
+        for child in class_object.get_descendants():
+            if "object-attribute" in child.classes:
+                attribute_name = child.get_property(PROTEUS_NAME).value
+                attribute_base_type = child.get_property("base-type").value
+                attribute_type = child.get_property("type").value
+                attribute_init_value = child.get_property("init-value").value
+                
+                if attribute_type == 'simple':
+                    attributes += f"{attribute_name} : {attribute_base_type}"
+                else:
+                    attributes += f"{attribute_name} : {attribute_type}({attribute_base_type})"
+                    attribute_lower_bound = child.get_property("multiplicity-lower-bound").value
+                    attribute_upper_bound = child.get_property("multiplicity-upper-bound").value
+
+                    if attribute_lower_bound and attribute_upper_bound:
+                        attributes += f" [{attribute_lower_bound}..{attribute_upper_bound}]"
+
+                if attribute_init_value:
+                    attributes += f" = {attribute_init_value}"
+
+                attributes += "\n"
+
+        return attributes
+
+
+    def generate_notes(self, object: Object) -> str:
+        """
+        Generate notes in the right format for the given object in PlantUML.
+        """
+        description = object.get_property("description").value
+        name = object.get_property(PROTEUS_NAME).value
+        if description:
+            return f"note right of {name}\n{description}\nend note\n"
+        else:
+            return ""
