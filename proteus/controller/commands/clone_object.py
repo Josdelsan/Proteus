@@ -52,7 +52,7 @@ class CloneObjectCommand(QUndoCommand):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, object_id: ProteusID, project_service: ProjectService):
+    def __init__(self, object_id: ProteusID, new_parent_id: ProteusID, project_service: ProjectService):
         super(CloneObjectCommand, self).__init__()
 
         # Dependency injection
@@ -63,6 +63,7 @@ class CloneObjectCommand(QUndoCommand):
 
         # Command attributes
         self.object_id: ProteusID = object_id
+        self.new_parent_id: ProteusID = new_parent_id
         self.before_clone_parent_state: ProteusState = None
         self.after_clone_parent_state: ProteusState = None
         self.cloned_object: Object = None
@@ -88,18 +89,18 @@ class CloneObjectCommand(QUndoCommand):
             # Set redo text
             self.setText(f"Clone object {self.object_id}")
 
-            # Get the parent
+            # Get the new parent
             parent: Union[Project, Object] = self.project_service._get_element_by_id(
-                self.object_id
-            ).parent
+                self.new_parent_id
+            )
 
-            # Save the parent state before clone
+            # Save the new parent state before clone
             self.before_clone_parent_state: ProteusState = parent.state
 
             # Clone the object
-            self.cloned_object: Object = self.project_service.clone_object(self.object_id)
+            self.cloned_object: Object = self.project_service.clone_object(self.object_id, self.new_parent_id)
 
-            # Save the parent state after clone
+            # Save the new parent state after clone
             self.after_clone_parent_state = parent.state
         else:
             # Set redo text
@@ -108,8 +109,8 @@ class CloneObjectCommand(QUndoCommand):
             # Change the state of the cloned object and his children to FRESH
             self.project_service.change_state(self.cloned_object.id, ProteusState.FRESH)
 
-            # Set the parent state to the state after clone stored in the first redo
-            parent: Union[Project, Object] = self.project_service._get_element_by_id(self.object_id).parent
+            # Set the new parent state to the state after clone stored in the first redo
+            parent: Union[Project, Object] = self.project_service._get_element_by_id(self.new_parent_id)
             parent.state = self.after_clone_parent_state
 
         # Emit the event to update the view
@@ -132,8 +133,8 @@ class CloneObjectCommand(QUndoCommand):
         # Change the state of the cloned object and his children to DEAD
         self.project_service.change_state(self.cloned_object.id, ProteusState.DEAD)
 
-        # Set the parent state to the old state
-        parent: Union[Project, Object] = self.project_service._get_element_by_id(self.object_id).parent
+        # Set the new parent state to the old state
+        parent: Union[Project, Object] = self.project_service._get_element_by_id(self.new_parent_id)
         parent.state = self.before_clone_parent_state
 
         # Deselect the object in case it was selected to avoid errors

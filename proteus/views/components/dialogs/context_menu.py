@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QTreeWidget,
     QTreeWidgetItem,
+    QApplication,
 )
 
 
@@ -88,6 +89,8 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_clone_object: QAction = None
         self.action_move_up_object: QAction = None
         self.action_move_down_object: QAction = None
+        self.action_copy_object: QAction = None
+        self.action_paste_object: QAction = None
 
         self.submenu_children_sort: QMenu = None
         self.action_children_sort: QAction = None
@@ -126,6 +129,8 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_edit_object = self._create_edit_action()
         self.action_delete_object = self._create_delete_action()
         self.action_clone_object = self._create_clone_action()
+        self.action_copy_object = self._create_copy_action()
+        self.action_paste_object = self._create_paste_action()
         self.action_move_up_object, self.action_move_down_object = (
             self._create_move_up_down_actions()
         )
@@ -141,6 +146,13 @@ class ContextMenu(QMenu, ProteusComponent):
             self.addAction(self.action_clone_object)
 
         self.addSeparator()
+
+        # Insert the copy and paste actions
+        self.addAction(self.action_copy_object)
+        self.addAction(self.action_paste_object)
+
+        self.addSeparator()
+
         # Insert the accepted archetypes clone menus
         accepted_archetypes: Dict[str, List[Object]] = (
             self._controller.get_accepted_object_archetypes(selected_item_id)
@@ -231,6 +243,64 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Disable the clone action if the element is a document
         if PROTEUS_DOCUMENT in self.element.classes:
+            action.setEnabled(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_copy_action
+    # Description: Create the copy action.
+    # Date       : 15/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_copy_action(self) -> QAction:
+        """
+        Create the copy action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.copy"), self)
+        clipboard = QApplication.clipboard()
+        action.triggered.connect(lambda: clipboard.setText(self.element.id))
+        copy_icon = Icons().icon(ProteusIconType.App, "context-menu-copy")
+        action.setIcon(copy_icon)
+
+        # Disable the action if the element is a document
+        if PROTEUS_DOCUMENT in self.element.classes:
+            action.setEnabled(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_paste_action
+    # Description: Create the paste action.
+    # Date       : 15/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_paste_action(self) -> QAction:
+        """
+        Create the paste action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.paste"), self)
+
+        # Get object id from clipboard
+        clipboard = QApplication.clipboard()
+        object_id = clipboard.text()
+
+        # New parent id is the current element id
+        new_parent_id = self.element.id
+
+        # Connect the action to the controller method
+        action.triggered.connect(lambda: self._controller.clone_object(object_id, new_parent_id))
+        paste_icon = Icons().icon(ProteusIconType.App, "context-menu-paste")
+        action.setIcon(paste_icon)
+
+        # Disable the action if the object is not accepted by the parent
+        # If exception is raised it means the clipboard content is invalid id
+        try:
+            if not self._controller.check_clone_operation(object_id, new_parent_id):
+                action.setEnabled(False)
+        except Exception:
             action.setEnabled(False)
 
         return action

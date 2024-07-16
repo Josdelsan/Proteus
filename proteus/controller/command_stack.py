@@ -230,26 +230,67 @@ class Controller:
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @proteus_action
-    def clone_object(self, object_id: ProteusID) -> None:
+    def clone_object(
+        self, object_id: ProteusID, new_parent_id: ProteusID = None
+    ) -> None:
         """
-        Clone an object given its id. It pushes the command to the command
-        stack.
+        Clone an object into a parent given its id. It pushes the command to
+        the command stack.
 
         Notify the frontend components when the command is executed passing
         the object_id as a parameter. ADD_OBJECT event is triggered.
 
         :param object_id: The id of the object to clone.
+        :param new_parent_id: The id of the new parent. If None, the object is
+                                cloned in the same parent.
         """
         # Check object_id is not None
         assert object_id is not None, "Object id can not be None"
+
+        # Check new_parent_id is not None
+        if not new_parent_id:
+            new_parent_id = self._project_service._get_element_by_id(
+                object_id
+            ).parent.id
 
         # Push the command to the command stack
         log.info(f"Cloning object with id: {object_id}")
         self._push(
             CloneObjectCommand(
-                object_id=object_id, project_service=self._project_service
+                object_id=object_id,
+                new_parent_id=new_parent_id,
+                project_service=self._project_service,
             )
         )
+
+    # ----------------------------------------------------------------------
+    # Method     : check_clone_operation
+    # Description: Check if the clone operation is possible.
+    # Date       : 15/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def check_clone_operation(
+        self, object_id: ProteusID, new_parent_id: ProteusID
+    ) -> bool:
+        """
+        Check if an object can be cloned in the given parent.
+
+        Returns True if the parent accepts the object as a descendant and the
+        object can be cloned in the new parent. Returns False otherwise.
+        Raises an exception if the object_id or new_parent_id are invalid.
+
+        :param object_id: Id of the object to clone.
+        :param new_parent_id: Id of the new parent.
+        """
+
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Check new_parent_id is not None
+        assert new_parent_id is not None, "New parent id can not be None"
+
+        return self._project_service.check_clone_operation(object_id, new_parent_id)
 
     # ----------------------------------------------------------------------
     # Method     : delete_object

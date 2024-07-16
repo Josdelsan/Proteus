@@ -86,6 +86,8 @@ document_render.external_link.text: "¿Desea abrir el enlace externo al document
 document_tree.menu.action.edit: "Editar"
 document_tree.menu.action.delete: "Eliminar"
 document_tree.menu.action.clone: "Clonar"
+document_tree.menu.action.copy: "Copiar"
+document_tree.menu.action.paste: "Pegar"
 document_tree.menu.action.move_up: "Mover arriba"
 document_tree.menu.action.move_down: "Mover abajo"
 document_tree.menu.action.add_archetype: "Añade {}"

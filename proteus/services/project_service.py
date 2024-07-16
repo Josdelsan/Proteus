@@ -650,12 +650,14 @@ class ProjectService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def clone_object(self, object_id: ProteusID) -> None:
+    def clone_object(self, object_id: ProteusID, parent_id: ProteusID) -> None:
         """
-        Clones the object with the given id and inserts it as a sibling next
-        to the original object.
+        Clones the object with the given id into the parent object. If the
+        parent object is the same as the object parent, the object is cloned
+        in the next position of the original object.
 
         :param object_id: Id of the object to clone.
+        :param parent_id: Id of the new parent object.
         """
         # Check the object_id is not None
         assert object_id is not None, "Object id cannot be None."
@@ -663,16 +665,22 @@ class ProjectService:
         # Get object using helper method
         object: Object = self._get_element_by_id(object_id)
 
+        # New parent
+        new_parent: Union[Project, Object] = self._get_element_by_id(parent_id)
+
         # Check that the object is an object
         assert isinstance(object, Object), f"Element with id {object} is not an object."
 
         # Calculate position of the cloned object
-        siblings: List[Object] = object.parent.get_descendants()
-        cloned_position: int = siblings.index(object) + 1
+        siblings: List[Object] = new_parent.get_descendants()
+        if object in siblings:
+            cloned_position: int = siblings.index(object) + 1
+        else:
+            cloned_position: int = len(siblings)
 
         # Clone object
         return object.clone_object(
-            parent=object.parent, project=self.project, position=cloned_position
+            parent=new_parent, project=self.project, position=cloned_position
         )
 
     # ----------------------------------------------------------------------
@@ -844,6 +852,53 @@ class ProjectService:
             position_change_allowed = False
 
         return position_change_allowed
+
+    # ----------------------------------------------------------------------
+    # Method     : check_clone_operation
+    # Description: Check if an object can be cloned in the given parent.
+    # Date       : 15/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def check_clone_operation(
+        self,
+        object_id: ProteusID,
+        new_parent_id: ProteusID,
+    ) -> bool:
+        """
+        Check if an object can be cloned in the given parent.
+
+        Returns True if the parent accepts the object as a descendant and the
+        object can be cloned in the new parent. Returns False otherwise.
+        Raises an exception if the object_id or new_parent_id are invalid.
+
+        :param object_id: Id of the object to clone.
+        :param new_parent_id: Id of the new parent.
+        """
+        # Check the object_id is valid
+        assert isinstance(object_id, str), f"Invalid object id {object_id}."
+
+        # Check the new_parent is valid
+        assert isinstance(new_parent_id, str), f"Invalid new parent id {new_parent_id}."
+
+        # Get new parent using helper method
+        new_parent: Union[Project, Object] = self._get_element_by_id(new_parent_id)
+
+        # Check the new_parent is valid
+        assert isinstance(
+            new_parent, (Project, Object)
+        ), f"Invalid new parent {new_parent}."
+
+        # Get object using helper method
+        object: Object = self._get_element_by_id(object_id)
+
+        # Check that the object is an object
+        assert isinstance(object, Object), f"Element with id {object} is not an object."
+
+        # Check if the object can be cloned in the new parent
+        paste_allowed: bool = new_parent.accept_descendant(object)
+
+        return paste_allowed
 
     # ----------------------------------------------------------------------
     # Method     : generate_project_xml

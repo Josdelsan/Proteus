@@ -24,11 +24,14 @@ from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import (
     QDropEvent,
     QDragEnterEvent,
+    QKeyEvent,
+    QKeySequence,
 )
 from PyQt6.QtWidgets import (
     QWidget,
     QTreeWidget,
     QTreeWidgetItem,
+    QApplication,
 )
 
 # --------------------------------------------------------------------------
@@ -865,6 +868,82 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             event.accept()
             return
 
+    # ----------------------------------------------------------------------
+    # Method     : keyPressEvent
+    # Description: Manage the key press event for the tree widget.
+    # Date       : 15/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """
+        Manage the key press event for the tree widget.
+
+        Implemented actions:
+            - Copy: Copy the selected item id to the clipboard (omit documents)
+            - Paste: Paste the copied item id as a child of the selected item
+        """
+
+        # ------------------------------------------------------------------
+        # Copy event
+        # ------------------------------------------------------------------
+        # Copy the selected item id to the clipboard (omit documents)
+        if event.matches(QKeySequence.StandardKey.Copy):
+
+            selected_item = self.currentItem()
+            # Filter if selected item is none
+            if selected_item:
+
+                object_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
+                object = self._controller.get_element(object_id)
+
+                # Filter documents
+                if not PROTEUS_DOCUMENT in object.classes:
+                    clipboard = QApplication.clipboard()
+                    clipboard.setText(object_id)
+
+            return event.accept()
+
+        # ------------------------------------------------------------------
+        # Paste event
+        # ------------------------------------------------------------------
+        # Paste the copied item id as a child of the selected item
+        if event.matches(QKeySequence.StandardKey.Paste):
+            clipboard = QApplication.clipboard()
+            object_id = clipboard.text()
+
+            # Filter if clipboard is empty or selected item is none
+            selected_item = self.currentItem()
+            if selected_item and object_id:
+                new_parent_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
+                
+                # If object is not found it will raise an exception, this happens when
+                # the user has information in the clipboard that is not a valid object id
+                try:
+                    can_copy_into_parent = self._controller.check_clone_operation(object_id, new_parent_id)
+
+                    if can_copy_into_parent:
+                        self._controller.clone_object(object_id, new_parent_id)
+                    else:
+                        object_name = self._controller.get_element(object_id).get_property(PROTEUS_NAME).value
+
+                        # If copy action is not allowed, show a message box
+                        MessageBox.warning(
+                            _("document_tree.paste_action.message_box.error.title"),
+                            _("document_tree.paste_action.message_box.error.text", object_name),
+                        )
+
+                except Exception as e:
+                    log.warning(f"Error pasting object '{object_id}' into parent '{new_parent_id}'. Error: {e}")
+
+            return event.accept()
+        
+        # ------------------------------------------------------------------
+        # Default event
+        # ------------------------------------------------------------------
+
+        return super().keyPressEvent(event)
+    
     # ======================================================================
     # Index handling methods
     # TODO: Implement this as an abstract feature that can be enabled for
