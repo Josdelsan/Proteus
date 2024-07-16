@@ -22,6 +22,7 @@
 
 from typing import Callable
 import pytest
+from pytestqt.qtbot import QtBot
 import time
 from PyQt6.QtWidgets import QApplication, QDialog, QWidget
 from PyQt6.QtCore import QTimer
@@ -55,7 +56,7 @@ TEST_PROJECT_NAME = "example_project"
 # QApplication instace cannot be deleted. This might cause tests failures.
 
 @pytest.fixture(scope="function")
-def app(qtbot, mocker):
+def app(qtbot: QtBot, mocker):
     """
     Handle the creation of the QApplication instance and the main window.
     """

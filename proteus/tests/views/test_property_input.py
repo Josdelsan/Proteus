@@ -15,6 +15,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
+from pytestqt.qtbot import QtBot
 from PyQt6.QtWidgets import QLineEdit, QMessageBox
 
 # --------------------------------------------------------------------------
@@ -67,7 +68,7 @@ def create_property(
 # --------------------------------------------------------------------------
 # Inmutable checkbox tests
 # --------------------------------------------------------------------------
-def test_inmutable_checkbox_creation(qtbot):
+def test_inmutable_checkbox_creation(qtbot: QtBot):
     """
     Test inmutable checkbox is created and checked when the property is inmutable.
     """
@@ -91,7 +92,7 @@ def test_inmutable_checkbox_creation(qtbot):
     ), "Inmutable checkbox was not checked as expected"
 
 
-def test_inmutable_checkbox_not_creation(qtbot):
+def test_inmutable_checkbox_not_creation(qtbot: QtBot):
     """
     Test inmutable checkbox is not created and checked when the property is not inmutable.
     """
@@ -112,7 +113,7 @@ def test_inmutable_checkbox_not_creation(qtbot):
     assert inmutable_checkbox is None, "Inmutable checkbox was created"
 
 
-def test_inmutable_checkbox_click(qtbot, mocker):
+def test_inmutable_checkbox_click(qtbot: QtBot, mocker):
     """
     Test inmutable checkbox click event triggers setEnabled() method in the input widget
     and message box dialog is shown.
@@ -147,7 +148,7 @@ def test_inmutable_checkbox_click(qtbot, mocker):
 # --------------------------------------------------------------------------
 
 
-def test_string_property_proteus_name_validation(qtbot):
+def test_string_property_proteus_name_validation(qtbot: QtBot):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -185,7 +186,7 @@ def test_string_property_proteus_name_validation(qtbot):
         ),
     ],
 )
-def test_string_property_validation(qtbot, property_value, required, expected_error):
+def test_string_property_validation(qtbot: QtBot, property_value, required, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -222,7 +223,7 @@ def test_string_property_validation(qtbot, property_value, required, expected_er
         ),
     ],
 )
-def test_markdown_property_validation(qtbot, property_value, required, expected_error):
+def test_markdown_property_validation(qtbot: QtBot, property_value, required, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -257,7 +258,7 @@ def test_markdown_property_validation(qtbot, property_value, required, expected_
         ("1.2a", "float_property_input.validator.error"),
     ],
 )
-def test_float_property_validation(qtbot, property_value, expected_error):
+def test_float_property_validation(qtbot: QtBot, property_value, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -292,7 +293,7 @@ def test_float_property_validation(qtbot, property_value, expected_error):
         ("1a", "integer_property_input.validator.error"),
     ],
 )
-def test_integer_property_validation(qtbot, property_value, expected_error):
+def test_integer_property_validation(qtbot: QtBot, property_value, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -325,7 +326,7 @@ def test_integer_property_validation(qtbot, property_value, expected_error):
         ("https://url.url/]]>/", False, "url_property_input.validator.error.cdata"),
     ],
 )
-def test_url_property_validation(qtbot, property_value, required, expected_error):
+def test_url_property_validation(qtbot: QtBot, property_value, required, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------
@@ -391,7 +392,7 @@ def test_url_property_validation(qtbot, property_value, required, expected_error
         ),
     ],
 )
-def test_code_property_validation(qtbot, prefix, number, suffix, expected_error):
+def test_code_property_validation(qtbot: QtBot, prefix, number, suffix, expected_error):
     # --------------------------------------------
     # Arrange
     # --------------------------------------------

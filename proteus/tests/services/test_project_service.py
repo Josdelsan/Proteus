@@ -630,15 +630,11 @@ def test_update_properties(mocker, basic_project_service: ProjectService):
         (None),
         ("invalid list"),
         ([1, 2, 3]),
-        (pytest.lazy_fixture("mock_property")),
-        # ([None, pytest.lazy_fixture("mock_property")]),
-        # ([pytest.lazy_fixture("mock_property"), 1, 2, 3]),
+        (pytest.lazy_fixtures("mock_property")),
+        ([None, pytest.lazy_fixtures("mock_property")]),
+        ([pytest.lazy_fixtures("mock_property"), 1, 2, 3]),
     ],
 )
-# TODO: pytest.lazy_fixture does not work when inside a list
-# https://github.com/TvoroG/pytest-lazy-fixture/issues/24
-# Find an alternative to avoid creating a new test
-# https://smarie.github.io/python-pytest-cases/ or fixture return a list?
 def test_update_properties_negative(
     mocker,
     property_list,
@@ -719,9 +715,9 @@ def test_update_traces(mocker, basic_project_service: ProjectService):
         (None),
         ("invalid list"),
         ([1, 2, 3]),
-        (pytest.lazy_fixture("mock_trace")),
-        # ([None, pytest.lazy_fixture("mock_trace")]),
-        # ([pytest.lazy_fixture("mock_trace"), 1, 2, 3]),
+        (pytest.lazy_fixtures("mock_trace")),
+        # ([None, pytest.lazy_fixtures("mock_trace")]),
+        # ([pytest.lazy_fixtures("mock_trace"), 1, 2, 3]),
     ],
 )
 def test_update_traces_negative(

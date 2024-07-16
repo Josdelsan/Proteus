@@ -79,7 +79,7 @@ def test_clone_object_command_redo(sample_project_service: ProjectService, objec
     parent = original_object.parent
 
     # Act -----------------------------
-    delete_object_command = CloneObjectCommand(object_id, sample_project_service)
+    delete_object_command = CloneObjectCommand(object_id, parent.id, sample_project_service)
 
     delete_object_command.redo()
 
@@ -136,7 +136,7 @@ def test_clone_object_command_undo(sample_project_service: ProjectService, objec
     old_parent_state = parent.state
 
     # Act -----------------------------
-    delete_object_command = CloneObjectCommand(object_id, sample_project_service)
+    delete_object_command = CloneObjectCommand(object_id, parent.id, sample_project_service)
 
     delete_object_command.redo()
     delete_object_command.undo()
@@ -188,7 +188,7 @@ def test_clone_object_command_redo_after_undo(
     parent = original_object.parent
 
     # Act -----------------------------
-    delete_object_command = CloneObjectCommand(object_id, sample_project_service)
+    delete_object_command = CloneObjectCommand(object_id, parent.id, sample_project_service)
 
     delete_object_command.redo()
     delete_object_command.undo()
