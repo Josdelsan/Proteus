@@ -139,10 +139,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # be expanded(or not) when moving them across documents.
         self.dead_objects_expanded_state: Dict[ProteusID, bool] = {}
 
-        # Section indexes
-        # TODO: Implement this as an abstract feature that can be enabled for specific classes
-        self.section_indexes: Dict[ProteusID, str] = {}
-
         # Create the component
         self.create_component()
 
@@ -327,11 +323,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         name_str = str(name_property.value)
 
-        # Section index
-        section_index = self.section_indexes.get(object.id, "")
-
         # Build the name string
-        item_string = f"{section_index} {code_str} {name_str}".strip()
+        item_string = f"{code_str} {name_str}".strip()
         tree_item.setText(0, item_string)
 
         # Set the expanded state of the item if it is stored in the dead objects
@@ -968,15 +961,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Get the top level object
         top_level_object: Object = self._controller.get_element(self.document_id)
 
-        # Clear the section indexes
-        self.section_indexes = {}
-
         # Calculate the section indexes
         self._calculate_section_indexes(top_level_object)
-
-        # Add all the new indexex as a prefix to the section names
-        for section_id in self.section_indexes.keys():
-            self._tree_item_setup(self.tree_items[section_id], self._controller.get_element(section_id))
 
 
     # ----------------------------------------------------------------------
@@ -1014,16 +1000,17 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                 child_index = f"{acumulated_index}.{next(alpha_index)}"
             else:
                 child_index = f"{acumulated_index}.{str(numeric_index)}"
+                numeric_index += 1
 
-            # Store the section index
-            self.section_indexes[child.id] = child_index[1:] # Remove the first dot
+            # Set the section index
+            tree_element = self.tree_items[child.id]
+            section_name = child.get_property(PROTEUS_NAME).value
+            tree_element.setText(0, f"{child_index[1:]} {section_name}")
 
             # Calculate the section index for the children
             self._calculate_section_indexes(child, acumulated_index=child_index)
 
-            numeric_index += 1
-
-
+            
 # ======================================================================
 # Helper functions
 # ======================================================================
