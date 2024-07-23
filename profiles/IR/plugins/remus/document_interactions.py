@@ -17,7 +17,7 @@ import logging
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import pyqtSlot
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QTreeWidget
 
 # --------------------------------------------------------------------------
 # Plugin imports
@@ -126,7 +126,12 @@ class DocumentInteractions(ProteusComponent):
         if current_document == object_document:
             # This triggers the SELECT_OBJECT event that will select the object
             # in the document tree and also call the scroll javascript function
-            self._state_manager.set_current_object(object_id, object_document, navigate)
+            self._state_manager.set_current_object(
+                object_id,
+                object_document,
+                navigate,
+                QTreeWidget.ScrollHint.PositionAtTop,
+            )
             return
 
         # If the object is not in the current document, show the user a message box

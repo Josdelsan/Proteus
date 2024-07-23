@@ -20,6 +20,8 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtWidgets import QTreeWidget
+
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
@@ -125,7 +127,11 @@ class StateManager(metaclass=SingletonMeta):
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
     def set_current_object(
-        self, object_id: ProteusID, document_id: ProteusID, navigate: bool = True
+        self,
+        object_id: ProteusID,
+        document_id: ProteusID,
+        navigate: bool = True,
+        scroll_behavior: QTreeWidget.ScrollHint = QTreeWidget.ScrollHint.EnsureVisible,
     ) -> None:
         """
         Sets the current object id for the document id and notifies that the
@@ -133,6 +139,8 @@ class StateManager(metaclass=SingletonMeta):
 
         :param object_id: Selected object id
         :param document_id: Document that contains the selected object id
+        :param navigate: Flag to indicate if we should navigate to the object in the view
+        :param scroll_behavior: Scroll behavior when navigating to the object in the document tree
         """
         log.debug(f"Selecting object {object_id} in document {document_id}")
 
@@ -141,7 +149,7 @@ class StateManager(metaclass=SingletonMeta):
         ), f"Document id {document_id} not found in current application state dictionary."
 
         self.current_object[document_id] = object_id
-        SelectObjectEvent().notify(object_id, document_id, navigate)
+        SelectObjectEvent().notify(object_id, document_id, navigate, scroll_behavior)
 
     # --------------------------------------------------------------------------
     # Method: get_current_object
@@ -193,7 +201,7 @@ class StateManager(metaclass=SingletonMeta):
         for document_id in self.current_object:
             if self.current_object[document_id] == object_id:
                 self.current_object[document_id] = None
-                SelectObjectEvent().notify(object_id, document_id)
+                SelectObjectEvent().notify(None, document_id)
 
     # --------------------------------------------------------------------------
     # Method: set_current_view
@@ -277,6 +285,3 @@ class StateManager(metaclass=SingletonMeta):
         self.current_object = {}
         self.current_view = None
         self.current_project_path = None
-
-    
-

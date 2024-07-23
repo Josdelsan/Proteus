@@ -21,6 +21,7 @@ from abc import ABC, abstractmethod
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QTreeWidget
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -417,6 +418,7 @@ class DeleteObjectEvent(ProteusEvent):
         """
         self.signal.connect(method)
 
+
 # --------------------------------------------------------------------------
 # Class: ChangeObjectPositionEvent
 # Description: Class for the change object position event in the PROTEUS application.
@@ -517,10 +519,14 @@ class SelectObjectEvent(ProteusEvent):
     Event to handle the selection of an object in the PROTEUS application.
     """
 
-    signal = pyqtSignal([str, str, bool])
+    signal = pyqtSignal([str, str, bool, QTreeWidget.ScrollHint])
 
     def notify(
-        self, selected_object_id: ProteusID, document_id: ProteusID, navigate: bool = True
+        self,
+        selected_object_id: ProteusID | None,
+        document_id: ProteusID,
+        navigate: bool = True,
+        scroll_behavior: QTreeWidget.ScrollHint = QTreeWidget.ScrollHint.EnsureVisible,
     ) -> None:
         """
         Notify the event that an object has been selected. Receives the id of
@@ -529,22 +535,23 @@ class SelectObjectEvent(ProteusEvent):
 
         :param selected_object_id: The id of the object that has been selected.
         :param document_id: The id of the document that contains the object.
-        :param scroll: Whether the scroll should be performed.
+        :param navigate: Whether the view should navigate to the selected object.
+        :param scroll_behavior: The scroll behavior to use when selecting the object in the document tree.
         """
         log.debug(
-            f"Emitting SELECT OBJECT EVENT signal... | selected_object_id: {selected_object_id} document_id: {document_id} navigate: {navigate}"
+            f"Emitting SELECT OBJECT EVENT signal... | selected_object_id: {selected_object_id} document_id: {document_id} navigate: {navigate} scroll_behavior: {scroll_behavior}"
         )
 
         # NOTE: Object id can be None if the selection is cleared, see the
         # state_manager deselect_object method for more information.
-        if selected_object_id is not None:
-            scroll = False
+        if selected_object_id is None:
+            navigate = False
 
         assert (
             document_id is not None or document_id != ""
         ), "Document id cannot be None or empty"
 
-        self.signal.emit(selected_object_id, document_id, navigate)
+        self.signal.emit(selected_object_id, document_id, navigate, scroll_behavior)
 
     def connect(self, method: Callable[[ProteusID, ProteusID], None]) -> None:
         """
@@ -689,7 +696,7 @@ class RequiredSaveActionEvent(ProteusEvent):
 
     signal = pyqtSignal(bool)
 
-    def notify(self, save_required: bool=True) -> None:
+    def notify(self, save_required: bool = True) -> None:
         """
         Notify the event if a save action is required (project has unsaved
         changes). Receives a boolean indicating whether a save action is
@@ -697,7 +704,9 @@ class RequiredSaveActionEvent(ProteusEvent):
 
         :param save_required: Whether a save action is required.
         """
-        log.debug(f"Emitting REQUIRED SAVE ACTION EVENT signal... | save_required: {save_required}")
+        log.debug(
+            f"Emitting REQUIRED SAVE ACTION EVENT signal... | save_required: {save_required}"
+        )
 
         self.signal.emit(save_required)
 

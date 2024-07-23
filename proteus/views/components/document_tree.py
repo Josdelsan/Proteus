@@ -529,7 +529,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         self._delete_tree_item(tree_item)
 
         # Set current item to None
-        self.setCurrentItem(None)
+        self._state_manager.deselect_object(object_id)
 
         self.update_section_indexes()
 
@@ -541,7 +541,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     def update_on_select_object(
-        self, selected_object_id: ProteusID, document_id: ProteusID
+        self,
+        selected_object_id: ProteusID,
+        document_id: ProteusID,
+        navigate: bool,
+        scroll_behavior: QTreeWidget.ScrollHint,
     ) -> None:
         """
         Update the document tree when an object is selected. Look for the
@@ -569,6 +573,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
             # Select the item
             self.setCurrentItem(tree_item)
+            self.scrollToItem(tree_item, scroll_behavior)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_sort_children
@@ -685,7 +690,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             # NOTE: Parent will always be an Object. Project cannot be selected
             #       as parent to trigger CHANGE_OBJECT_POSITION event.
             parent_item: QTreeWidgetItem = self.tree_items[object_id].parent()
-            parent: Object = self._controller.get_element(parent_item.data(1, Qt.ItemDataRole.UserRole))
+            parent: Object = self._controller.get_element(
+                parent_item.data(1, Qt.ItemDataRole.UserRole)
+            )
             parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
 
             # Remove the item from the tree
@@ -919,34 +926,45 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             selected_item = self.currentItem()
             if selected_item and object_id:
                 new_parent_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
-                
+
                 # If object is not found it will raise an exception, this happens when
                 # the user has information in the clipboard that is not a valid object id
                 try:
-                    can_copy_into_parent = self._controller.check_clone_operation(object_id, new_parent_id)
+                    can_copy_into_parent = self._controller.check_clone_operation(
+                        object_id, new_parent_id
+                    )
 
                     if can_copy_into_parent:
                         self._controller.clone_object(object_id, new_parent_id)
                     else:
-                        object_name = self._controller.get_element(object_id).get_property(PROTEUS_NAME).value
+                        object_name = (
+                            self._controller.get_element(object_id)
+                            .get_property(PROTEUS_NAME)
+                            .value
+                        )
 
                         # If copy action is not allowed, show a message box
                         MessageBox.warning(
                             _("document_tree.paste_action.message_box.error.title"),
-                            _("document_tree.paste_action.message_box.error.text", object_name),
+                            _(
+                                "document_tree.paste_action.message_box.error.text",
+                                object_name,
+                            ),
                         )
 
                 except Exception as e:
-                    log.warning(f"Error pasting object '{object_id}' into parent '{new_parent_id}'. Error: {e}")
+                    log.warning(
+                        f"Error pasting object '{object_id}' into parent '{new_parent_id}'. Error: {e}"
+                    )
 
             return event.accept()
-        
+
         # ------------------------------------------------------------------
         # Default event
         # ------------------------------------------------------------------
 
         return super().keyPressEvent(event)
-    
+
     # ======================================================================
     # Index handling methods
     # TODO: Implement this as an abstract feature that can be enabled for
@@ -973,7 +991,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Calculate the section indexes
         self._calculate_section_indexes(top_level_object)
-
 
     # ----------------------------------------------------------------------
     # Method     : _calculate_section_indexes
@@ -1020,10 +1037,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             # Calculate the section index for the children
             self._calculate_section_indexes(child, acumulated_index=child_index)
 
-            
+
 # ======================================================================
 # Helper functions
 # ======================================================================
+
 
 # ----------------------------------------------------------------------
 # Function   : alpha_sequence
@@ -1039,4 +1057,4 @@ def alpha_sequence():
     """
     for length in itertools.count(1):
         for s in itertools.product(string.ascii_uppercase, repeat=length):
-            yield ''.join(s)
+            yield "".join(s)
