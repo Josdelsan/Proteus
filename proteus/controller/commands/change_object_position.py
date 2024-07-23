@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Union, List
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports

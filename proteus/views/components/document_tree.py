@@ -680,7 +680,17 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Item removal from tree ----------------
         if object_id in self.tree_items.keys():
+
+            # Update the old parent item color
+            # NOTE: Parent will always be an Object. Project cannot be selected
+            #       as parent to trigger CHANGE_OBJECT_POSITION event.
+            parent_item: QTreeWidgetItem = self.tree_items[object_id].parent()
+            parent: Object = self._controller.get_element(parent_item.data(1, Qt.ItemDataRole.UserRole))
+            parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
+
+            # Remove the item from the tree
             self._delete_tree_item(self.tree_items[object_id])
+            self._state_manager.deselect_object(object_id)
 
         # Item insertion in tree ----------------
         if object.parent.id in self.tree_items.keys():
@@ -688,8 +698,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
             # Update the parent item color
             # NOTE: Parent will always be an Object. Project cannot be selected
-            #       as parent to trigger ADD_OBJECT event. When adding an object
-            #       with Project as parent ADD_DOCUMENT event is triggered.
+            #       as parent to trigger CHANGE_OBJECT_POSITION event.
             parent: Object = self._controller.get_element(object.parent.id)
             parent_item.setForeground(0, TREE_ITEM_COLOR[parent.state])
 
@@ -702,8 +711,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             position: int = siblings.index(object)
 
             self._populate_tree(parent_item, object, position)
+            self._state_manager.set_current_object(object_id, self.document_id)
 
-            self.update_section_indexes()
+        self.update_section_indexes()
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
