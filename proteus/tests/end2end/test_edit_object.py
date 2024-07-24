@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem, QDialogButtonBox
+from PyQt6.QtWidgets import QTreeWidgetItem
 from PyQt6.QtCore import QPoint
 
 # --------------------------------------------------------------------------
@@ -59,8 +59,10 @@ def test_edit_object(app, object_name, document_name):
     It tests the following steps:
         - Select an existing object
         - Open the context menu and click the edit action
-        - Check the archetype was edited
-        - Check buttons are enabled
+
+    Checks:
+        - Object was edited
+        - Buttons are enabled
     
     NOTE: Do not double check the properties are updated in the dialog.
     This is tested in test_edit_document.py, this is focused on the
@@ -95,8 +97,8 @@ def test_edit_object(app, object_name, document_name):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
-    # Emit set current item, accessed in context menu
-    document_tree.setCurrentItem(tree_element)
+    # Click the object tree item
+    document_tree.itemPressed.emit(tree_element, 0)
 
     NAME_PROP = PROTEUS_NAME
     NEW_NAME = "new name"

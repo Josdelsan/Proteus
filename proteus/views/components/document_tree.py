@@ -183,7 +183,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         )
 
         # Connect click to object selection
-        self.itemClicked.connect(
+        self.itemPressed.connect(
             lambda item: self._state_manager.set_current_object(
                 object_id=item.data(1, Qt.ItemDataRole.UserRole),
                 document_id=self.document_id,

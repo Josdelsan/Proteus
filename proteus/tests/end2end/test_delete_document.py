@@ -47,9 +47,12 @@ def test_delete_document(app):
     Test the delete document use case. Delete the only document in an
     project. It tests the following steps:
         - Open the confirmation dialog
-        - Handle the dialog
-        - Check the document is deleted
-        - Check buttons state changed
+        - Confirm the dialog
+
+    Checks:
+        - Document is deleted
+        - Main menu buttons state
+        - State manager document and object
     """
     # --------------------------------------------
     # Arrange
@@ -103,7 +106,7 @@ def test_delete_document(app):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-     # Check documents container does not include the document
+     # Check documents container does not include the document -------------------------------------------
     documents_container = main_window.project_container.documents_container
     assert (
         documents_container.tabs.keys().__len__() == 0
@@ -115,6 +118,13 @@ def test_delete_document(app):
         tab_bar.count() == 0
     ), f"Documents container tab bar should not include any tab, number of tabs: '{tab_bar.count()}'"
 
+    # Check state manager current document and object are none -------------------------------------------
+    assert (
+        main_window._state_manager.get_current_document() is None
+    ), "Current document in state manager should be None"
+    assert (
+        main_window._state_manager.get_current_object() is None
+    ), "Current object in state manager should be None"
 
 
 def test_delete_document_contextmenu(app):
@@ -122,9 +132,12 @@ def test_delete_document_contextmenu(app):
     Test the delete document use case using the context menu button. Delete the only document in an
     project. It tests the following steps:
         - Open the confirmation dialog
-        - Handle the dialog
-        - Check the document is deleted
-        - Check buttons state changed
+        - Confirm the dialog
+
+    Checks:
+        - Document is deleted
+        - Main menu buttons state
+        - State manager document and object
     """
     # --------------------------------------------
     # Arrange
@@ -193,7 +206,7 @@ def test_delete_document_contextmenu(app):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-     # Check documents container does not include the document
+     # Check documents container does not include the document -------------------------------------------
     documents_container = main_window.project_container.documents_container
     assert (
         documents_container.tabs.keys().__len__() == 0
@@ -204,4 +217,12 @@ def test_delete_document_contextmenu(app):
     assert (
         tab_bar.count() == 0
     ), f"Documents container tab bar should not include any tab, number of tabs: '{tab_bar.count()}'"
+
+    # Check state manager current document and object are none -------------------------------------------
+    assert (
+        main_window._state_manager.get_current_document() is None
+    ), "Current document in state manager should be None"
+    assert (
+        main_window._state_manager.get_current_object() is None
+    ), "Current object in state manager should be None"
 

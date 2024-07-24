@@ -14,7 +14,6 @@
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -41,8 +40,10 @@ def test_edit_project(app):
     name and other properties. It tests the following steps:
         - Open the edit project dialog
         - Fill the form (name change)
-        - Check project name change
-        - Check dialog properties change
+
+    Checks:
+        - Project name change
+        - Dialog properties change
     """
     # --------------------------------------------
     # Arrange

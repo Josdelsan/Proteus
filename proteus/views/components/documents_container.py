@@ -223,6 +223,9 @@ class DocumentsContainer(QTabWidget, ProteusComponent):
 
         self.add_document(new_document, position)
 
+        # Set the current document to the new document
+        self._state_manager.set_current_document(new_document_id)
+
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_document
     # Description: Update the documents tab menu component when a document

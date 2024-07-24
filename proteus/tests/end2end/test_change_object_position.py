@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QTreeWidgetItem
-from PyQt6.QtCore import QPoint
+from PyQt6.QtCore import QPoint, Qt
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -50,7 +50,11 @@ def test_change_object_position_up(app):
     Test change object position up action. Steps:
         - Select object
         - Click on move up action
-        - Check object position
+
+    Checks:
+        - Main menu buttons state
+        - Object position
+        - Selected object in state manager
     """
     # --------------------------------------------
     # Arrange
@@ -68,7 +72,7 @@ def test_change_object_position_up(app):
         main_window.project_container.documents_container
     )
 
-    # Click the document tab
+    # Click the document
     tab = documents_container.tabs.get(DOCUMENT_ID)
     document_tab_index: int = documents_container.indexOf(tab)
     documents_container.currentChanged.emit(document_tab_index)
@@ -78,8 +82,9 @@ def test_change_object_position_up(app):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     tree_element: QTreeWidgetItem = document_tree.tree_items[OBJECT_ID]
-    # Emit set current item, accessed in context menu
-    document_tree.setCurrentItem(tree_element)
+
+    # Click the object in the tree
+    document_tree.itemPressed.emit(tree_element, 0)
 
     # Store tree element position relative to its siblings
     tree_element_position = document_tree.indexFromItem(tree_element).row()
@@ -111,12 +116,27 @@ def test_change_object_position_up(app):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check element position changed
+    # Check element position changed -------------------------------------------
     new_element_position = document_tree.indexFromItem(tree_element).row()
     assert tree_element_position - 1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"
         f"Expected position: {tree_element_position-1}"
+    )
+
+    # Check the element is the selected object in state manager ----------------
+    assert main_window._state_manager.get_current_object() == OBJECT_ID, (
+        "The moved object should be the selected object in the state manager"
+        f"Current object: {main_window._state_manager.get_current_object()}"
+        f"Expected object: {OBJECT_ID}"
+    )
+
+    # Check the tree element data (ProteusID) is the same as the selected object
+    current_element_data = document_tree.currentItem().data(1, Qt.ItemDataRole.UserRole)    
+    assert current_element_data == OBJECT_ID, (
+        "The tree element data should be the same as the selected object"
+        f"Current data: {current_element_data}"
+        f"Expected data: {OBJECT_ID}"
     )
 
 
@@ -125,7 +145,11 @@ def test_change_object_position_down(app):
     Test change object position down action. Steps:
         - Select object
         - Click on move down action
-        - Check object position
+
+    Checks:
+        - Main menu buttons state
+        - Object position
+        - Selected object in state manager
     """
     # --------------------------------------------
     # Arrange
@@ -153,8 +177,9 @@ def test_change_object_position_down(app):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     tree_element: QTreeWidgetItem = document_tree.tree_items[OBJECT_ID]
-    # Emit set current item, accessed in context menu
-    document_tree.setCurrentItem(tree_element)
+    
+    # Click the object in the tree
+    document_tree.itemPressed.emit(tree_element, 0)
 
     # Store tree element position relative to its siblings
     tree_element_position = document_tree.indexFromItem(tree_element).row()
@@ -187,10 +212,26 @@ def test_change_object_position_down(app):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check element position changed
+    # Check element position changed -------------------------------------------
     new_element_position = document_tree.indexFromItem(tree_element).row()
     assert tree_element_position + 1 != new_element_position, (
         "Element position should change when moved up"
         f"Current position: {new_element_position}"
         f"Expected position: {tree_element_position+1}"
     )
+
+    # Check the element is the selected object in state manager ----------------
+    assert main_window._state_manager.get_current_object() == OBJECT_ID, (
+        "The moved object should be the selected object in the state manager"
+        f"Current object: {main_window._state_manager.get_current_object()}"
+        f"Expected object: {OBJECT_ID}"
+    )
+
+    # Check the tree element data (ProteusID) is the same as the selected object
+    current_element_data = document_tree.currentItem().data(1, Qt.ItemDataRole.UserRole)    
+    assert current_element_data == OBJECT_ID, (
+        "The tree element data should be the same as the selected object"
+        f"Current data: {current_element_data}"
+        f"Expected data: {OBJECT_ID}"
+    )
+    

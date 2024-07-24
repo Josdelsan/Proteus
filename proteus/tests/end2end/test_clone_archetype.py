@@ -69,8 +69,11 @@ def test_clone_archetype(app, archetype_id, archetype_class, parent_name, docume
     object/document. It tests the following steps:
         - Select an existing object/document
         - Press the desired archetype button
-        - Check the archetype is cloned
-        - Check buttons are enabled
+
+    Checks:
+        - Archetype is cloned
+        - Buttons are enabled
+        - Selected object is correctly set and remains selected
     """
     # --------------------------------------------
     # Arrange
@@ -99,17 +102,7 @@ def test_clone_archetype(app, archetype_id, archetype_class, parent_name, docume
     # Click the object tree item
     document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[parent_id]
-    document_tree.itemClicked.emit(tree_element, 0)
-
-    # Check application state
-    # NOTE: This is done to detect StateManager inconsistencies and test correct behaviour
-    assert (
-        StateManager().get_current_document() == document_id
-    ), f"Current document must be '{document_id}' but it is '{StateManager().current_document}'"
-
-    assert (
-        StateManager().get_current_object() == parent_id
-    ), f"Current object must be '{parent_id}' but it is '{StateManager().current_object}'"
+    document_tree.itemPressed.emit(tree_element, 0)
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)
@@ -138,7 +131,7 @@ def test_clone_archetype(app, archetype_id, archetype_class, parent_name, docume
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document -----------------------
     assert (
         len(document_tree.tree_items) == old_objects_number + 1
     ), f"Number of objects in the document must be '{old_objects_number} + 1' but it is '{len(document_tree.tree_items)}'"
@@ -147,3 +140,12 @@ def test_clone_archetype(app, archetype_id, archetype_class, parent_name, docume
     assert (
         tree_element.childCount() == old_parent_children_number + 1
     ), f"Number of children in the parent tree item must be '{old_parent_children_number} + 1' but it is '{tree_element.childCount()}'"
+
+    # Check current document and object in state manager ---------------------
+    assert (
+        StateManager().get_current_document() == document_id
+    ), f"Current document must be '{document_id}' but it is '{StateManager().current_document}'"
+
+    assert (
+        StateManager().get_current_object() == parent_id
+    ), f"Current object must be '{parent_id}' but it is '{StateManager().current_object}'"

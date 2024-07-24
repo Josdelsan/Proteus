@@ -63,8 +63,11 @@ def test_delete_object(app, object_name, document_name):
     It tests the following steps:
         - Select an existing object
         - Open the context menu and click the delete action
-        - Check the archetype was deleted
-        - Check buttons are enabled
+
+    Checks:
+        - Object was deleted
+        - Main menu buttons state
+        - State manager current object is None
     """
     # --------------------------------------------
     # Arrange
@@ -95,8 +98,8 @@ def test_delete_object(app, object_name, document_name):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
-    # Emit set current item, accessed in context menu
-    document_tree.setCurrentItem(tree_element)
+    # Click on the tree item to select it
+    document_tree.itemPressed.emit(tree_element, 0)
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)
@@ -136,7 +139,7 @@ def test_delete_object(app, object_name, document_name):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document -------------------------
     assert (
         len(document_tree.tree_items) == old_objects_number - objects_deleted_number
     ), f"Number of objects in the document must be '{old_objects_number} - {objects_deleted_number}' but it is '{len(document_tree.tree_items)}'"
@@ -156,3 +159,13 @@ def test_delete_object(app, object_name, document_name):
     assert (
         object_state == ProteusState.DEAD
     ), f"Object with id '{object_id}' should be marked as DEAD in the service, but it is '{object_state}'"
+
+    # Check the current object in the state manager is None -------------------
+    assert (
+        main_window._state_manager.get_current_object() is None
+    ), f"Current object in the state manager should be None, but it is '{main_window._controller.current_object_id}'"
+
+    # Check current item from document tree is None
+    assert (
+        document_tree.currentItem() is None
+    ), f"Current item in the document tree should be None, but it is '{document_tree.currentItem()}'"

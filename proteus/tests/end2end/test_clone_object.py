@@ -57,8 +57,11 @@ def test_clone_object(app, object_name, document_name):
     It tests the following steps:
         - Select an existing object
         - Open the context menu and click the clone action
-        - Check the archetype is cloned
-        - Check buttons are enabled
+
+    Checks:
+        - Object is cloned
+        - Buttons are enabled
+        - Selected object is correctly set and remains selected
     """
     # --------------------------------------------
     # Arrange
@@ -89,8 +92,8 @@ def test_clone_object(app, object_name, document_name):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[document_id]
     tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
-    # Emit set current item, accessed in context menu
-    document_tree.setCurrentItem(tree_element)
+    # Click the object in the tree
+    document_tree.itemPressed.emit(tree_element, 0)
 
     # Store the old number of objects in the document
     old_objects_number = len(document_tree.tree_items)

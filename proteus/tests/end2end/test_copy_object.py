@@ -66,9 +66,13 @@ def test_copy_object_same_parent(app, object_name, document_name):
         - Select an existing object
         - Open the object context menu and click the copy action
         - Open the parent object context menu and click the paste action
-        - Check the archetype is copied
-        - Check buttons are enabled (save, undo)
-        - Check clipboard content
+
+    Checks:
+        - Object is copied
+        - Buttons are enabled (save, undo)
+        - Actions are enabled (copy, paste)
+        - Clipboard content is the object id
+        - Current selected object is the parent
     """
     # --------------------------------------------
     # Arrange
@@ -109,16 +113,16 @@ def test_copy_object_same_parent(app, object_name, document_name):
     old_parent_children_number = parent_element.childCount()
 
     # Calculate number of objects copied (including children)
-    object_to_copy_id: ProteusID = tree_element.data(1, Qt.ItemDataRole.UserRole)
-    object_to_copy: Object = main_window._controller.get_element(object_to_copy_id)
+    object_to_copy: Object = main_window._controller.get_element(object_id)
     objects_cloned_number = len(object_to_copy.get_ids())
 
     # --------------------------------------------
     # Act
     # --------------------------------------------
 
+    # Click the object in the tree
+    document_tree.itemPressed.emit(tree_element, 0)
     # Get element position and trigger context menu
-    document_tree.setCurrentItem(tree_element)
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     context_menu: ContextMenu = get_context_menu(
         lambda: document_tree.customContextMenuRequested.emit(element_position)
@@ -127,8 +131,10 @@ def test_copy_object_same_parent(app, object_name, document_name):
     # Click copy action
     context_menu.action_copy_object.trigger()
 
+    # Click the parent tree item
+    document_tree.itemPressed.emit(parent_element, 0)
+
     # Get parent element position and trigger context menu
-    document_tree.setCurrentItem(parent_element)
     parent_element_position: QPoint = document_tree.visualItemRect(
         parent_element
     ).center()
@@ -160,7 +166,7 @@ def test_copy_object_same_parent(app, object_name, document_name):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document --------------------------------------------
     assert (
         len(document_tree.tree_items) == old_objects_number + objects_cloned_number
     ), f"Number of objects in the document must be '{old_objects_number} + {objects_cloned_number}' but it is '{len(document_tree.tree_items)}'"
@@ -174,6 +180,17 @@ def test_copy_object_same_parent(app, object_name, document_name):
     assert (
         QApplication.clipboard().text() == object_id
     ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+
+    # Check current selected object is the parent --------------------------------------------
+    parent_id = parent_element.data(1, Qt.ItemDataRole.UserRole)
+    assert (
+        main_window._state_manager.get_current_object() == parent_id
+    ), f"Current selected object should be '{parent_id}' but it is '{main_window._state_manager.get_current_object()}'"
+
+    # Check document tree current item is the parent tree element
+    assert (
+        document_tree.currentItem() == parent_element
+    ), "Current item in the document tree should be the parent tree element"
 
     # --------------------------------------------
     # Clean up
@@ -212,9 +229,14 @@ def test_copy_object_different_parent(
         - Open the object context menu and click the copy action
         - Change the document tab if needed
         - Open the parent object context menu and click the paste action
-        - Check the archetype is copied
-        - Check buttons are enabled (save, undo)
-        - Check clipboard content
+    
+    Checks:
+        - Object is copied
+        - Buttons are enabled (save, undo)
+        - Actions are enabled (copy, paste)
+        - Clipboard content is the object id
+        - Current selected document is the parent document
+        - Current selected object is the parent
     """
     # --------------------------------------------
     # Arrange
@@ -259,16 +281,16 @@ def test_copy_object_different_parent(
     old_parent_children_number = parent_tree_element.childCount()
 
     # Calculate number of objects copied (including children)
-    object_to_copy_id: ProteusID = object_tree_element.data(1, Qt.ItemDataRole.UserRole)
-    object_to_copy: Object = main_window._controller.get_element(object_to_copy_id)
+    object_to_copy: Object = main_window._controller.get_element(object_id)
     objects_cloned_number = len(object_to_copy.get_ids())
 
     # --------------------------------------------
     # Act
     # --------------------------------------------
 
+    # Click the object in the tree
+    object_document_tree.itemPressed.emit(object_tree_element, 0)
     # Get element position and trigger context menu
-    object_document_tree.setCurrentItem(object_tree_element)
     element_position: QPoint = object_document_tree.visualItemRect(
         object_tree_element
     ).center()
@@ -284,8 +306,9 @@ def test_copy_object_different_parent(
     document_tab_index: int = documents_container.indexOf(tab)
     documents_container.currentChanged.emit(document_tab_index)
 
+    # Click the parent tree item
+    parent_document_tree.itemPressed.emit(parent_tree_element, 0)
     # Get parent element position and trigger context menu
-    parent_document_tree.setCurrentItem(parent_tree_element)
     parent_element_position: QPoint = parent_document_tree.visualItemRect(
         parent_tree_element
     ).center()
@@ -320,7 +343,7 @@ def test_copy_object_different_parent(
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document --------------------------------------------
     assert (
         len(parent_document_tree.tree_items)
         == old_objects_number + objects_cloned_number
@@ -335,6 +358,21 @@ def test_copy_object_different_parent(
     assert (
         QApplication.clipboard().text() == object_id
     ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+
+    # Check current selected document is the parent document --------------------------------------------
+    assert (
+        main_window._state_manager.get_current_document() == parent_document_id
+    ), f"Current selected document should be '{parent_document_id}' but it is '{main_window._state_manager.get_current_document()}'"
+
+    # Check current selected object is the parent
+    assert (
+        main_window._state_manager.get_current_object() == parent_id
+    ), f"Current selected object should be '{parent_id}' but it is '{main_window._state_manager.get_current_object()}'"
+
+    # Check document tree current item is the parent tree element
+    assert (
+        parent_document_tree.currentItem() == parent_tree_element
+    ), "Current item in the document tree should be the parent tree element"
 
     # --------------------------------------------
     # Clean up
@@ -358,9 +396,12 @@ def test_copy_object_ctrl_c_v_same_parent(
         - Select an existing object
         - Press ctrl+c
         - Open the parent object context menu and click the paste action
-        - Check the archetype is copied
-        - Check buttons are enabled (save, undo)
-        - Check clipboard content
+
+    Checks:
+        - Object is copied
+        - Buttons are enabled (save, undo)
+        - Clipboard content
+        - Current selected object is the parent
     """
     # --------------------------------------------
     # Arrange
@@ -399,8 +440,7 @@ def test_copy_object_ctrl_c_v_same_parent(
     old_parent_children_number = parent_element.childCount()
 
     # Calculate number of objects copied (including children)
-    object_to_copy_id: ProteusID = tree_element.data(1, Qt.ItemDataRole.UserRole)
-    object_to_copy: Object = main_window._controller.get_element(object_to_copy_id)
+    object_to_copy: Object = main_window._controller.get_element(object_id)
     objects_cloned_number = len(object_to_copy.get_ids())
 
     # --------------------------------------------
@@ -408,11 +448,11 @@ def test_copy_object_ctrl_c_v_same_parent(
     # --------------------------------------------
 
     # Ctrl+C the object
-    document_tree.setCurrentItem(tree_element)
+    document_tree.itemPressed.emit(tree_element, 0)
     qtbot.keySequence(document_tree, QKeySequence.StandardKey.Copy)
 
     # Ctrl+V in the parent
-    document_tree.setCurrentItem(parent_element)
+    document_tree.itemPressed.emit(parent_element, 0)
     qtbot.keySequence(document_tree, QKeySequence.StandardKey.Paste)
 
     # --------------------------------------------
@@ -430,7 +470,7 @@ def test_copy_object_ctrl_c_v_same_parent(
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document --------------------------------------------
     assert (
         len(document_tree.tree_items) == old_objects_number + objects_cloned_number
     ), f"Number of objects in the document must be '{old_objects_number} + {objects_cloned_number}' but it is '{len(document_tree.tree_items)}'"
@@ -444,6 +484,17 @@ def test_copy_object_ctrl_c_v_same_parent(
     assert (
         QApplication.clipboard().text() == object_id
     ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+
+    # Check current selected object is the parent --------------------------------------------
+    parent_id = parent_element.data(1, Qt.ItemDataRole.UserRole)
+    assert (
+        main_window._state_manager.get_current_object() == parent_id
+    ), f"Current selected object should be '{parent_id}' but it is '{main_window._state_manager.get_current_object()}'"
+
+    # Check document tree current item is the parent tree element
+    assert (
+        document_tree.currentItem() == parent_element
+    ), "Current item in the document tree should be the parent tree element"
 
     # --------------------------------------------
     # Clean up
@@ -479,9 +530,13 @@ def test_copy_object_ctrl_c_v_different_parent(
         - Press ctrl+c
         - Change the document tab if needed
         - Open the parent object context menu and click the paste action
-        - Check the archetype is copied
-        - Check buttons are enabled (save, undo)
-        - Check clipboard content
+
+    Checks:
+        - Object is copied
+        - Buttons are enabled (save, undo)
+        - Clipboard content
+        - Current selected document is the parent document
+        - Current selected object is the parent
     """
     # --------------------------------------------
     # Arrange
@@ -524,8 +579,7 @@ def test_copy_object_ctrl_c_v_different_parent(
     old_parent_children_number = parent_tree_element.childCount()
 
     # Calculate number of objects copied (including children)
-    object_to_copy_id: ProteusID = object_tree_element.data(1, Qt.ItemDataRole.UserRole)
-    object_to_copy: Object = main_window._controller.get_element(object_to_copy_id)
+    object_to_copy: Object = main_window._controller.get_element(object_id)
     objects_cloned_number = len(object_to_copy.get_ids())
 
     # --------------------------------------------
@@ -533,7 +587,7 @@ def test_copy_object_ctrl_c_v_different_parent(
     # --------------------------------------------
 
     # Ctrl+C the object
-    object_document_tree.setCurrentItem(object_tree_element)
+    object_document_tree.itemPressed.emit(object_tree_element, 0)
     qtbot.keySequence(object_document_tree, QKeySequence.StandardKey.Copy)
 
     # Change document tab
@@ -542,7 +596,7 @@ def test_copy_object_ctrl_c_v_different_parent(
     documents_container.currentChanged.emit(document_tab_index)
 
     # Ctrl+V in the parent
-    parent_document_tree.setCurrentItem(parent_tree_element)
+    parent_document_tree.itemPressed.emit(parent_tree_element, 0)
     qtbot.keySequence(parent_document_tree, QKeySequence.StandardKey.Paste)
 
     # --------------------------------------------
@@ -560,7 +614,7 @@ def test_copy_object_ctrl_c_v_different_parent(
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-    # Check the new number of objects in the document
+    # Check the new number of objects in the document --------------------------------------------
     assert (
         len(parent_document_tree.tree_items)
         == old_objects_number + objects_cloned_number
@@ -575,6 +629,21 @@ def test_copy_object_ctrl_c_v_different_parent(
     assert (
         QApplication.clipboard().text() == object_id
     ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+
+    # Check current selected document is the parent document --------------------------------------------
+    assert (
+        main_window._state_manager.get_current_document() == parent_document_id
+    ), f"Current selected document should be '{parent_document_id}' but it is '{main_window._state_manager.get_current_document()}'"
+
+    # Check current selected object is the parent
+    assert (
+        main_window._state_manager.get_current_object() == parent_id
+    ), f"Current selected object should be '{parent_id}' but it is '{main_window._state_manager.get_current_object()}'"
+
+    # Check document tree current item is the parent tree element
+    assert (
+        parent_document_tree.currentItem() == parent_tree_element
+    ), "Current item in the document tree should be the parent tree element"
 
     # --------------------------------------------
     # Clean up
@@ -596,6 +665,10 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
     It tests the following steps:
         - Set the clipboard content to an invalid value
         - Open the parent object context menu and check the paste action is disabled
+
+    Checks:
+        - Paste action is disabled
+        - Current selected object in document tree is correct
     """
     # --------------------------------------------
     # Arrange
@@ -633,7 +706,7 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
     # --------------------------------------------
 
     # Get parent element position and trigger context menu
-    document_tree.setCurrentItem(parent_tree_element)
+    document_tree.itemPressed.emit(parent_tree_element, 0)
     parent_element_position: QPoint = document_tree.visualItemRect(
         parent_tree_element
     ).center()
@@ -650,6 +723,11 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
         not parent_context_menu.action_paste_object.isEnabled()
     ), "Paste action should be disabled"
 
+    # Check the document tree current item is the parent tree element
+    assert (
+        document_tree.currentItem() == parent_tree_element
+    ), "Current item in the document tree should be the parent tree element"
+
     # --------------------------------------------
     # Clean up
     # --------------------------------------------
@@ -663,6 +741,8 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
     It tests the following steps:
         - Select an existing object
         - Open the object context menu and click the copy action
+
+    Checks:
         - Open the parent object context menu and check the paste action is disabled
           (invalid parent)
     """
@@ -702,11 +782,11 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
     # --------------------------------------------
 
     # Ctrl+C the object
-    document_tree.setCurrentItem(object_tree_element)
+    document_tree.itemPressed.emit(object_tree_element, 0)
     qtbot.keySequence(document_tree, QKeySequence.StandardKey.Copy)
 
     # Get parent element position and trigger context menu
-    document_tree.setCurrentItem(parent_tree_element)
+    document_tree.itemPressed.emit(parent_tree_element, 0)
     parent_element_position: QPoint = document_tree.visualItemRect(
         parent_tree_element
     ).center()
@@ -764,7 +844,7 @@ def test_copy_disable_for_document(app):
     # --------------------------------------------
 
     # Get element position and trigger context menu
-    document_tree.setCurrentItem(tree_element)
+    document_tree.itemPressed.emit(tree_element, 0)
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
     context_menu: ContextMenu = get_context_menu(
         lambda: document_tree.customContextMenuRequested.emit(element_position)
@@ -785,7 +865,7 @@ def test_copy_disable_for_document(app):
     QApplication.clipboard().clear()
 
 
-# TODO: Refactor this test to properly check app state
+# TODO: Find a more consistent way to check application state
 @pytest.mark.parametrize(
     "clipboard_content",
     [
@@ -838,7 +918,7 @@ def test_ignore_paste_ctrl_v_with_invalid_clipboard_content(
     # --------------------------------------------
 
     # Ctrl+V in the parent
-    document_tree.setCurrentItem(parent_tree_element)
+    document_tree.itemPressed.emit(parent_tree_element, 0)
     qtbot.keySequence(document_tree, QKeySequence.StandardKey.Paste)
 
     # --------------------------------------------
@@ -862,6 +942,8 @@ def test_paste_error_message_when_ctrl_v_in_invalid_parent(qtbot: QtBot, app):
         - Select an existing object
         - Press ctrl+c
         - Select an invalid parent and press ctrl+v
+
+    Checks:
         - An error message is shown
     """
     # --------------------------------------------
@@ -899,11 +981,11 @@ def test_paste_error_message_when_ctrl_v_in_invalid_parent(qtbot: QtBot, app):
     # --------------------------------------------
 
     # Ctrl+C the object
-    document_tree.setCurrentItem(object_tree_element)
+    document_tree.itemPressed.emit(object_tree_element, 0)
     qtbot.keySequence(document_tree, QKeySequence.StandardKey.Copy)
 
     # Ctrl+V in the parent
-    document_tree.setCurrentItem(parent_tree_element)
+    document_tree.itemPressed.emit(parent_tree_element, 0)
     error_dialog: MessageBox = get_dialog(
         lambda: qtbot.keySequence(document_tree, QKeySequence.StandardKey.Paste)
     )

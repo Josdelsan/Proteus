@@ -19,11 +19,11 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+
 # --------------------------------------------------------------------------
 # Third party imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QDialogButtonBox
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -50,7 +50,12 @@ def test_create_document(app):
     project. It tests the following steps:
         - Open the create document dialog
         - Create a new document
-        - Check the document was created
+
+    Checks:
+        - Main menu buttons state
+        - Document was created
+        - Document was selected
+        - No object is selected in the new document
     """
     # --------------------------------------------
     # Arrange
@@ -104,7 +109,7 @@ def test_create_document(app):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
-     # Check documents container includes the new document
+     # Check documents container includes the new document -------------------------------------------
     documents_container = main_window.project_container.documents_container
     assert (
         documents_container.tabs.keys().__len__() == 1
@@ -119,4 +124,13 @@ def test_create_document(app):
             document_tree.tree_items.keys().__len__() >= 1
         ), f"Document tree has not at least one tree item, number of tree items: '{document_tree.tree_items.keys().__len__()}'"
 
+    # Check the new document is selected -----------------------------------------------------------
+    assert (
+        main_window._state_manager.get_current_document() == list(documents_container.tabs.keys())[0]
+    ), "The new document is not the selected document in the state manager"
+
+    # Check no object is selected in the state manager
+    assert (
+        main_window._state_manager.get_current_object() is None
+    ), "No object should be selected in the new document"
 

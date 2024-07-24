@@ -59,10 +59,12 @@ def test_edit_document(app):
     """
     Test the edit document use case. Edit an existing document changing its
     name and acronym. It tests the following steps:
-        - Open the edit document dialog
+        - Open the edit document dialog (double click)
         - Fill the form (acronym change)
-        - Check the acronym changed in the tab
-        - Check dialog properties change
+
+    Checks:
+        - Acronym changed in the tab
+        - Dialog properties change
     """
     # --------------------------------------------
     # Arrange
@@ -145,8 +147,10 @@ def test_edit_document_contextmenu(app):
     name and acronym. It tests the following steps:
         - Open the edit document dialog
         - Fill the form (acronym change)
-        - Check the acronym changed in the tab
-        - Check dialog properties change
+
+    Checks:
+        - Acronym changed in the tab
+        - Dialog properties change
     """
     # --------------------------------------------
     # Arrange
@@ -177,7 +181,7 @@ def test_edit_document_contextmenu(app):
     # https://github.com/pytest-dev/pytest-qt/issues/195
     document_tree: DocumentTree = documents_container.tabs[DOCUMENT_ID]
     doc_tree_element: QTreeWidgetItem = document_tree.tree_items[DOCUMENT_ID]
-    document_tree.setCurrentItem(doc_tree_element)
+    document_tree.itemPressed.emit(doc_tree_element, 0)
 
     # Trigger context menu
     element_position: QPoint = document_tree.visualItemRect(doc_tree_element).center()
