@@ -960,10 +960,33 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             return event.accept()
 
         # ------------------------------------------------------------------
-        # Default event
+        # Enter key event
         # ------------------------------------------------------------------
+        # Open the properties dialog when the enter key is pressed
+        if event.key() == Qt.Key.Key_Return:
+            selected_item = self.currentItem()
+            if selected_item:
+                object_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
+                PropertyDialog.create_dialog(
+                    element_id=object_id, controller=self._controller
+                )
+            return event.accept()
 
-        return super().keyPressEvent(event)
+        # ------------------------------------------------------------------
+        # Default event (Handle current item changes)
+        # ------------------------------------------------------------------
+        # NOTE: currentItemChanged signal is not triggered when the current item
+        # changes using the keyboard.
+
+        previous_item = self.currentItem()
+        super().keyPressEvent(event)
+        current_item = self.currentItem()
+
+        if previous_item != current_item and current_item:
+            object_id = current_item.data(1, Qt.ItemDataRole.UserRole)
+            self._state_manager.set_current_object(object_id, self.document_id)
+
+        return event.accept()
 
     # ======================================================================
     # Index handling methods
