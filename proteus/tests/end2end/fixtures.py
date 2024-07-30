@@ -74,15 +74,19 @@ def app(qtbot: QtBot, mocker):
 
     mock_set_last_project_opened_method(mocker)
 
-    # Create the main window
+    # Create controller instance
     controller = Controller()
-    main_window = MainWindow(parent=None, controller=controller)
 
     # Initialize the clipboard. Manually set the controller to avoid the
     # retrieval of the previous controller instance used by the clipboard singleton
     Clipboard(controller)
     Clipboard()._controller = controller
     Clipboard().clear()
+
+    # Create the main window
+    main_window = MainWindow(parent=None, controller=controller)
+
+    
 
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()

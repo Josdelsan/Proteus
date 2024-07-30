@@ -71,6 +71,7 @@ def test_copy_object_same_parent(app, object_name, document_name):
     Checks:
         - Object is copied
         - Buttons are enabled (save, undo)
+        - Buttons are enabled (paste)
         - Actions are enabled (copy, paste)
         - Clipboard content is the object id
         - Current selected object is the parent
@@ -167,6 +168,11 @@ def test_copy_object_same_parent(app, object_name, document_name):
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
 
+    # Check main menu buttons state
+    assert (
+        main_window.main_menu.paste_button.isEnabled() == True
+    ), "Paste button should be enabled when clipboard has content and a valid parent is selected"
+
     # Check the new number of objects in the document --------------------------------------------
     assert (
         len(document_tree.tree_items) == old_objects_number + objects_cloned_number
@@ -229,6 +235,7 @@ def test_copy_object_different_parent(
     Checks:
         - Object is copied
         - Buttons are enabled (save, undo)
+        - Buttons are enabled (paste)
         - Actions are enabled (copy, paste)
         - Clipboard content is the object id
         - Current selected document is the parent document
@@ -338,6 +345,11 @@ def test_copy_object_different_parent(
         "Undo button state should change from DISABLED to ENABLED when an archetype is copied"
         f"Current state: {main_window.main_menu.undo_button.isEnabled()}"
     )
+
+    # Check main menu buttons state
+    assert (
+        main_window.main_menu.paste_button.isEnabled() == True
+    ), "Paste button should be enabled when clipboard has content and a valid parent is selected"
 
     # Check the new number of objects in the document --------------------------------------------
     assert (
@@ -648,6 +660,7 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
 
     Checks:
         - Paste action is disabled
+        - Main menu paste button is disabled
         - Current selected object in document tree is correct
     """
     # --------------------------------------------
@@ -704,6 +717,11 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
         not parent_context_menu.action_paste_object.isEnabled()
     ), "Paste action should be disabled"
 
+    # Check the main menu paste button is disabled
+    assert (
+        not main_window.main_menu.paste_button.isEnabled()
+    ), "Paste button should be disabled when clipboard content is not valid"
+
     # Check the document tree current item is the parent tree element
     assert (
         document_tree.currentItem() == parent_tree_element
@@ -716,11 +734,12 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
 
     It tests the following steps:
         - Select an existing object
-        - Open the object context menu and click the copy action
+        - Copy the object
 
     Checks:
         - Open the parent object context menu and check the paste action is disabled
           (invalid parent)
+        - Main menu paste button is disabled
     """
 
     # --------------------------------------------
@@ -779,10 +798,15 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
         not parent_context_menu.action_paste_object.isEnabled()
     ), "Paste action should be disabled"
 
+    # Check the main menu paste button is disabled
+    assert (
+        not main_window.main_menu.paste_button.isEnabled()
+    ), "Paste button should be disabled when the parent do not accept the object as descendant"
+
 
 def test_copy_disable_for_document(app):
     """
-    Test the copy object use case. Copy action is disabled for documents.
+    Test the copy object use case. Copy action and button is disabled for documents.
     """
     # --------------------------------------------
     # Arrange
@@ -829,6 +853,11 @@ def test_copy_disable_for_document(app):
     assert (
         not context_menu.action_copy_object.isEnabled()
     ), "Copy action should be disabled"
+
+    # Check the main menu copy button is disabled
+    assert (
+        not main_window.main_menu.copy_button.isEnabled()
+    ), "Copy button should be disabled"
 
 
 @pytest.mark.parametrize(

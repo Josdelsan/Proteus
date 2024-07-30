@@ -348,6 +348,84 @@ def info_button(parent: QWidget) -> QToolButton:
 
     return info_button
 
+def cut_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a cut button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    cut_button = QToolButton(parent)
+    cut_button.setMinimumWidth(55)
+
+    # Set file icon
+    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-cut")
+    cut_button.setIcon(button_icon)
+    cut_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    cut_button.setToolTip(_("cut_button.tooltip"))
+    cut_button.setStatusTip(_("cut_button.statustip"))
+
+    # Set text
+    cut_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    cut_button.setText(_("cut_button.text"))
+
+    # Set initial disabled value
+    cut_button.setEnabled(False)
+
+    return cut_button
+
+def copy_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a copy button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    copy_button = QToolButton(parent)
+    copy_button.setMinimumWidth(55)
+
+    # Set file icon
+    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-copy")
+    copy_button.setIcon(button_icon)
+    copy_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    copy_button.setToolTip(_("copy_button.tooltip"))
+    copy_button.setStatusTip(_("copy_button.statustip"))
+
+    # Set text
+    copy_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    copy_button.setText(_("copy_button.text"))
+
+    # Set initial disabled value
+    copy_button.setEnabled(False)
+
+    return copy_button
+
+def paste_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a paste button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    paste_button = QToolButton(parent)
+    paste_button.setMinimumWidth(55)
+
+    # Set file icon
+    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-paste")
+    paste_button.setIcon(button_icon)
+    paste_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    paste_button.setToolTip(_("paste_button.tooltip"))
+    paste_button.setStatusTip(_("paste_button.statustip"))
+
+    # Set text
+    paste_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    paste_button.setText(_("paste_button.text"))
+
+    # Set initial disabled value
+    paste_button.setEnabled(False)
+
+    return paste_button
+
 # --------------------------------------------------------------------------
 def button_group(buttons, section_name_code=None):
     # Create the main widget

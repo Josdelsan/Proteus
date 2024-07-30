@@ -20,7 +20,6 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
@@ -39,7 +38,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.application.configuration.config import Config
-from proteus.model import ProteusID, PROTEUS_ANY, PROJECT_FILE_NAME
+from proteus.model import ProteusID, PROJECT_FILE_NAME
 from proteus.model.object import Object
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.base_dialogs import MessageBox
@@ -58,6 +57,7 @@ from proteus.views.buttons import ArchetypeMenuButton
 from proteus.application.state_restorer import read_state_from_file, write_state_to_file
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.clipboard import Clipboard
 from proteus.application.events import (
     SelectObjectEvent,
     OpenProjectEvent,
@@ -110,6 +110,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.new_button: QToolButton = None
         self.open_button: QToolButton = None
         self.save_button: QToolButton = None
+        self.cut_button: QToolButton = None
+        self.copy_button: QToolButton = None
+        self.paste_button: QToolButton = None
         self.undo_button: QToolButton = None
         self.redo_button: QToolButton = None
         self.project_properties_button: QToolButton = None
@@ -318,6 +321,35 @@ class MainMenu(QDockWidget, ProteusComponent):
             "main_menu.button_group.document",
         )
         tab_layout.addWidget(document_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
+
+        # ---------
+        # Clipboard menu
+        # ---------
+        # Cut action
+        self.cut_button: QToolButton = buttons.cut_button(self)
+        self.cut_button.clicked.connect(
+            Clipboard().cut
+        )
+
+        # Copy action
+        self.copy_button: QToolButton = buttons.copy_button(self)
+        self.copy_button.clicked.connect(
+            Clipboard().copy
+        )
+
+        # Paste action
+        self.paste_button: QToolButton = buttons.paste_button(self)
+        self.paste_button.clicked.connect(
+            Clipboard().paste
+        )
+
+        # Add the buttons to the clipboard menu widget
+        clipboard_menu: QWidget = buttons.button_group(
+            [self.cut_button, self.copy_button, self.paste_button],
+            "main_menu.button_group.clipboard",
+        )
+        tab_layout.addWidget(clipboard_menu)
         tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
@@ -537,6 +569,11 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         :param selected_object_id: ID of the selected object.
         """
+
+        # --------------------
+        # Archetype buttons
+        # --------------------
+
         # If the selected object is None, disable all the archetype buttons
         if selected_object_id is None or selected_object_id == "":
             button: ArchetypeMenuButton = None
@@ -574,6 +611,13 @@ class MainMenu(QDockWidget, ProteusComponent):
 
                 # Enable or disable the archetype button
                 archetype_menu_button.setEnabled(enable)
+
+        # --------------------
+        # Clipboard buttons
+        # --------------------
+        self.cut_button.setEnabled(Clipboard().can_cut_and_copy())
+        self.copy_button.setEnabled(Clipboard().can_cut_and_copy())
+        self.paste_button.setEnabled(Clipboard().can_paste())
 
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project

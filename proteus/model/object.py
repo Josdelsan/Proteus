@@ -410,9 +410,8 @@ class Object(AbstractObject):
         ), f"Child {child} is not a valid PROTEUS object."
 
         # Check child is not the same object
-        assert (
-            child.id != self.id
-        ), f"Object cannot be its own child. {child.id} is the same as object id {self.id}."
+        if self.id == child.id:
+            return False
 
         # --------------------------------------------------------
         # Condition 1 - child accepted parents must be PROTEUS_ANY

@@ -18,6 +18,7 @@ main_menu.profile_label: "Loaded profile"
 # Fixed button groups
 main_menu.button_group.project: "Project"
 main_menu.button_group.document: "Document"
+main_menu.button_group.clipboard: "Clipboard"
 main_menu.button_group.action: "Action"
 main_menu.button_group.application: "Application"
 
@@ -65,6 +66,18 @@ settings_button.text: "Settings"
 information_button.statustip: "Information about the PROTEUS application"
 information_button.tooltip: "Information about the PROTEUS application"
 information_button.text: "About"
+
+cut_button.statustip: "Cut selected object"
+cut_button.tooltip: "Cut selected object"
+cut_button.text: "Cut"
+
+copy_button.statustip: "Copy selected object"
+copy_button.tooltip: "Copy selected object"
+copy_button.text: "Copy"
+
+paste_button.statustip: "Paste object from clipboard"
+paste_button.tooltip: "Paste object from clipboard"
+paste_button.text: "Paste"
 
 # ---------------------------------------------------------------------------
 # Main window

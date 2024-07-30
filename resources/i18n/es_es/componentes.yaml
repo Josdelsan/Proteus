@@ -18,6 +18,7 @@ main_menu.profile_label: "Perfil cargado"
 # Fixed button groups
 main_menu.button_group.project: "Proyecto"
 main_menu.button_group.document: "Documento"
+main_menu.button_group.clipboard: "Portapapeles"
 main_menu.button_group.action: "Acción"
 main_menu.button_group.application: "Aplicación"
 
@@ -65,6 +66,18 @@ settings_button.text: "Configuración"
 information_button.statustip: "Información sobre la aplicación PROTEUS"
 information_button.tooltip: "Información sobre la aplicación PROTEUS"
 information_button.text: "Acerca de"
+
+cut_button.statustip: "Cortar objeto seleccionado"
+cut_button.tooltip: "Cortar objeto seleccionado"
+cut_button.text: "Cortar"
+
+copy_button.statustip: "Copiar objeto seleccionado"
+copy_button.tooltip: "Copiar objeto seleccionado"
+copy_button.text: "Copiar"
+
+paste_button.statustip: "Pegar objeto del portapapeles"
+paste_button.tooltip: "Pegar objeto del portapapeles"
+paste_button.text: "Pegar"
 
 # ---------------------------------------------------------------------------
 # Main window

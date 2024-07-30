@@ -418,4 +418,81 @@ def test_cut_disable_for_document(app):
         not context_menu.action_cut_object.isEnabled()
     ), "Cut action should be disabled"
 
+    # Check the main menu cut button is disabled
+    assert (
+        not main_window.main_menu.cut_button.isEnabled()
+    ), "Cut button should be disabled"
 
+def test_cut_paste_disable_in_same_parent(qtbot: QtBot, app):
+    """
+    Test the cut paste object use case. Paste action is disabled when the
+    object is pasted in the same parent.
+
+    It tests the following steps:
+        - Select an existing object
+        - Cut the object
+
+    Checks:
+        - Open the parent object context menu and check the paste action is disabled
+          (invalid parent)
+        - Main menu paste button is disabled
+    """
+
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+    main_window: MainWindow = app
+
+    object_id = SampleData.get("simple_section")
+    document_id = SampleData.get("document_1")
+
+    load_project(main_window=main_window)
+
+    # Clear clipboard
+    Clipboard().clear()
+
+    # Get document container
+    documents_container: DocumentsContainer = (
+        main_window.project_container.documents_container
+    )
+
+    # Click the document tab
+    tab = documents_container.tabs.get(document_id)
+    document_tab_index: int = documents_container.indexOf(tab)
+    documents_container.currentChanged.emit(document_tab_index)
+
+    # Object tree element and parent tree element
+    document_tree: DocumentTree = documents_container.tabs[document_id]
+    object_tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
+    parent_tree_element: QTreeWidgetItem = object_tree_element.parent()
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+
+    # Ctrl+X the object
+    document_tree.itemPressed.emit(object_tree_element, 0)
+    qtbot.keySequence(document_tree, QKeySequence.StandardKey.Cut)
+
+    # Get parent element position and trigger context menu
+    document_tree.itemPressed.emit(parent_tree_element, 0)
+    parent_element_position: QPoint = document_tree.visualItemRect(
+        parent_tree_element
+    ).center()
+    parent_context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(parent_element_position)
+    )
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    # Check the paste action is disabled
+    assert (
+        not parent_context_menu.action_paste_object.isEnabled()
+    ), "Paste action should be disabled"
+
+    # Check the main menu paste button is disabled
+    assert (
+        not main_window.main_menu.paste_button.isEnabled()
+    ), "Paste button should be disabled when the parent do not accept the object move"

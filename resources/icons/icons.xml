@@ -47,5 +47,8 @@
         <icon key="redo" file="main_menu/redo.png" />
         <icon key="undo" file="main_menu/undo.png" />
         <icon key="info" file="main_menu/info-button.png" />
+        <icon key="clipboard-copy" file="context_menu/copy.png"/>
+        <icon key="clipboard-cut" file="context_menu/cut.png"/>
+        <icon key="clipboard-paste" file="context_menu/paste.png"/>
     </type>
 </icons>

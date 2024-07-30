@@ -104,13 +104,17 @@ class ProteusApplication:
         # Initial setup
         self.initial_setup()
 
-        # Create the main window
+        # Create the controller
         controller = Controller()
-        self.main_window = MainWindow(parent=None, controller=controller)
-        self.main_window.show()
 
         # Clipboard initialization
         Clipboard(controller)
+
+        # Create the main window
+        self.main_window = MainWindow(parent=None, controller=controller)
+        self.main_window.show()
+
+        
 
         # Load plugin components
         self.load_plugin_components()
