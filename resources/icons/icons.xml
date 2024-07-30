@@ -24,6 +24,7 @@
         <icon key="context-menu-delete" file="context_menu/delete-object-button.png"/>
         <icon key="context-menu-clone" file="context_menu/clone-object-button.png"/>
         <icon key="context-menu-copy" file="context_menu/copy.png"/>
+        <icon key="context-menu-cut" file="context_menu/cut.png"/>
         <icon key="context-menu-paste" file="context_menu/paste.png"/>
         <icon key="context-menu-up" file="context_menu/move-up-arrow.png"/>
         <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>

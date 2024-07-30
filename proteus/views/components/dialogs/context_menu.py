@@ -36,6 +36,7 @@ from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.clipboard import Clipboard
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
@@ -130,6 +131,7 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_delete_object = self._create_delete_action()
         self.action_clone_object = self._create_clone_action()
         self.action_copy_object = self._create_copy_action()
+        self.action_cut_object = self._create_cut_action()
         self.action_paste_object = self._create_paste_action()
         self.action_move_up_object, self.action_move_down_object = (
             self._create_move_up_down_actions()
@@ -148,6 +150,7 @@ class ContextMenu(QMenu, ProteusComponent):
         self.addSeparator()
 
         # Insert the copy and paste actions
+        self.addAction(self.action_cut_object)
         self.addAction(self.action_copy_object)
         self.addAction(self.action_paste_object)
 
@@ -259,13 +262,34 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the copy action.
         """
         action: QAction = QAction(_("document_tree.menu.action.copy"), self)
-        clipboard = QApplication.clipboard()
-        action.triggered.connect(lambda: clipboard.setText(self.element.id))
+        action.triggered.connect(Clipboard().copy)
         copy_icon = Icons().icon(ProteusIconType.App, "context-menu-copy")
         action.setIcon(copy_icon)
 
         # Disable the action if the element is a document
-        if PROTEUS_DOCUMENT in self.element.classes:
+        if not Clipboard().can_cut_and_copy():
+            action.setEnabled(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_cut_action
+    # Description: Create the cut action.
+    # Date       : 30/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_cut_action(self) -> QAction:
+        """
+        Create the cut action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.cut"), self)
+        action.triggered.connect(Clipboard().cut)
+        cut_icon = Icons().icon(ProteusIconType.App, "context-menu-cut")
+        action.setIcon(cut_icon)
+
+        # Disable the action if the element is a document
+        if not Clipboard().can_cut_and_copy():
             action.setEnabled(False)
 
         return action
@@ -283,24 +307,13 @@ class ContextMenu(QMenu, ProteusComponent):
         """
         action: QAction = QAction(_("document_tree.menu.action.paste"), self)
 
-        # Get object id from clipboard
-        clipboard = QApplication.clipboard()
-        object_id = clipboard.text()
-
-        # New parent id is the current element id
-        new_parent_id = self.element.id
-
         # Connect the action to the controller method
-        action.triggered.connect(lambda: self._controller.clone_object(object_id, new_parent_id))
+        action.triggered.connect(Clipboard().paste)
         paste_icon = Icons().icon(ProteusIconType.App, "context-menu-paste")
         action.setIcon(paste_icon)
 
-        # Disable the action if the object is not accepted by the parent
-        # If exception is raised it means the clipboard content is invalid id
-        try:
-            if not self._controller.check_clone_operation(object_id, new_parent_id):
-                action.setEnabled(False)
-        except Exception:
+        # Check if the object can be pasted
+        if not Clipboard().can_paste():
             action.setEnabled(False)
 
         return action
@@ -325,7 +338,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         action_move_up.triggered.connect(
             lambda: self._controller.change_object_position(
-                self.element.id, position_index - 1, self.element.parent.id
+                self.element.id, self.element.parent.id, position_index - 1
             )
         )
         move_up_icon = Icons().icon(ProteusIconType.App, "context-menu-up")
@@ -337,7 +350,7 @@ class ContextMenu(QMenu, ProteusComponent):
         )
         action_move_down.triggered.connect(
             lambda: self._controller.change_object_position(
-                self.element.id, position_index + 2, self.element.parent.id
+                self.element.id, self.element.parent.id, position_index + 2
             )
         )
         move_down_icon = Icons().icon(ProteusIconType.App, "context-menu-down")

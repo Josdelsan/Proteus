@@ -42,6 +42,17 @@ markdown_edit.preview: "Previsualizar"
 markdown_edit.edit: "Editar texto"
 
 # ---------------------------------------------------------------------------
+# Clipboard
+# ---------------------------------------------------------------------------
+
+clipboard.paste_action.message_box.empty_error.title: "Portapapeles vacío"
+clipboard.paste_action.message_box.empty_error.text: "El portapapeles está vacío, no hay ningún objeto para pegar."
+
+clipboard.paste_action.message_box.error.title: "Error al pegar objeto"
+clipboard.paste_action.message_box.error.text: "El objeto del portapapeles no ha podido ser pegado en el objeto padre seleccionado, compruebe que el objeto es aceptado por el objeto destino."
+
+
+# ---------------------------------------------------------------------------
 # App critical error
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS ha encontrado un error crítico"

@@ -18,20 +18,21 @@
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtWidgets import QTreeWidgetItem, QApplication
+from PyQt6.QtWidgets import QTreeWidgetItem
 from PyQt6.QtGui import QKeySequence
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, PROTEUS_NAME
+from proteus.model import PROTEUS_NAME
 from proteus.model.object import Object
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.documents_container import DocumentsContainer
 from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.base_dialogs import MessageBox
+from proteus.application.clipboard import Clipboard, ClipboardStatus
 from proteus.tests.fixtures import SampleData
 from proteus.tests.end2end.fixtures import (
     app,
@@ -85,7 +86,7 @@ def test_copy_object_same_parent(app, object_name, document_name):
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -178,8 +179,8 @@ def test_copy_object_same_parent(app, object_name, document_name):
 
     # Check the clipboard content is the object id
     assert (
-        QApplication.clipboard().text() == object_id
-    ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+        Clipboard()._clipboard == object_id
+    ), f"Clipboard content should be '{object_id}' but it is '{Clipboard()._clipboard}'"
 
     # Check current selected object is the parent --------------------------------------------
     parent_id = parent_element.data(1, Qt.ItemDataRole.UserRole)
@@ -192,11 +193,6 @@ def test_copy_object_same_parent(app, object_name, document_name):
         document_tree.currentItem() == parent_element
     ), "Current item in the document tree should be the parent tree element"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-
-    QApplication.clipboard().clear()
 
 
 @pytest.mark.parametrize(
@@ -229,7 +225,7 @@ def test_copy_object_different_parent(
         - Open the object context menu and click the copy action
         - Change the document tab if needed
         - Open the parent object context menu and click the paste action
-    
+
     Checks:
         - Object is copied
         - Buttons are enabled (save, undo)
@@ -251,7 +247,7 @@ def test_copy_object_different_parent(
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -356,8 +352,8 @@ def test_copy_object_different_parent(
 
     # Check the clipboard content is the object id
     assert (
-        QApplication.clipboard().text() == object_id
-    ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+        Clipboard()._clipboard == object_id
+    ), f"Clipboard content should be '{object_id}' but it is '{Clipboard()._clipboard}'"
 
     # Check current selected document is the parent document --------------------------------------------
     assert (
@@ -374,10 +370,6 @@ def test_copy_object_different_parent(
         parent_document_tree.currentItem() == parent_tree_element
     ), "Current item in the document tree should be the parent tree element"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-    QApplication.clipboard().clear()
 
 
 @pytest.mark.parametrize(
@@ -414,7 +406,7 @@ def test_copy_object_ctrl_c_v_same_parent(
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -482,8 +474,8 @@ def test_copy_object_ctrl_c_v_same_parent(
 
     # Check the clipboard content is the object id
     assert (
-        QApplication.clipboard().text() == object_id
-    ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+        Clipboard()._clipboard == object_id
+    ), f"Clipboard content should be '{object_id}' but it is '{Clipboard()._clipboard}'"
 
     # Check current selected object is the parent --------------------------------------------
     parent_id = parent_element.data(1, Qt.ItemDataRole.UserRole)
@@ -495,12 +487,6 @@ def test_copy_object_ctrl_c_v_same_parent(
     assert (
         document_tree.currentItem() == parent_element
     ), "Current item in the document tree should be the parent tree element"
-
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-
-    QApplication.clipboard().clear()
 
 
 @pytest.mark.parametrize(
@@ -551,7 +537,7 @@ def test_copy_object_ctrl_c_v_different_parent(
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Buttons that should change state when archetype is cloned
     save_button_state = main_window.main_menu.save_button.isEnabled()
@@ -627,8 +613,8 @@ def test_copy_object_ctrl_c_v_different_parent(
 
     # Check the clipboard content is the object id
     assert (
-        QApplication.clipboard().text() == object_id
-    ), f"Clipboard content should be '{object_id}' but it is '{QApplication.clipboard().text()}'"
+        Clipboard()._clipboard == object_id
+    ), f"Clipboard content should be '{object_id}' but it is '{Clipboard()._clipboard}'"
 
     # Check current selected document is the parent document --------------------------------------------
     assert (
@@ -645,17 +631,11 @@ def test_copy_object_ctrl_c_v_different_parent(
         parent_document_tree.currentItem() == parent_tree_element
     ), "Current item in the document tree should be the parent tree element"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-    QApplication.clipboard().clear()
-
 
 @pytest.mark.parametrize(
     "clipboard_content",
     [
         "",
-        "12 34",
         "true",
     ],
 )
@@ -680,10 +660,11 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
     document_id = SampleData.get("document_1")
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Set clipboard content
-    QApplication.clipboard().setText(clipboard_content)
+    Clipboard()._clipboard = clipboard_content
+    Clipboard()._status = ClipboardStatus.COPY
 
     # Get document container
     documents_container: DocumentsContainer = (
@@ -728,11 +709,6 @@ def test_paste_disable_when_clipboard_content_is_not_valid(app, clipboard_conten
         document_tree.currentItem() == parent_tree_element
     ), "Current item in the document tree should be the parent tree element"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-    QApplication.clipboard().clear()
-
 
 def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
     """
@@ -760,7 +736,7 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Get document container
     documents_container: DocumentsContainer = (
@@ -803,11 +779,6 @@ def test_paste_disable_for_invalid_parent(qtbot: QtBot, app):
         not parent_context_menu.action_paste_object.isEnabled()
     ), "Paste action should be disabled"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-    QApplication.clipboard().clear()
-
 
 def test_copy_disable_for_document(app):
     """
@@ -823,7 +794,7 @@ def test_copy_disable_for_document(app):
     document_id = SampleData.get("document_1")
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Get document container
     documents_container: DocumentsContainer = (
@@ -859,13 +830,7 @@ def test_copy_disable_for_document(app):
         not context_menu.action_copy_object.isEnabled()
     ), "Copy action should be disabled"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-    QApplication.clipboard().clear()
 
-
-# TODO: Find a more consistent way to check application state
 @pytest.mark.parametrize(
     "clipboard_content",
     [
@@ -874,7 +839,7 @@ def test_copy_disable_for_document(app):
         "true",
     ],
 )
-def test_ignore_paste_ctrl_v_with_invalid_clipboard_content(
+def test_paste_message_when_ctrl_v_with_empty_clipboard(
     qtbot: QtBot, app, clipboard_content
 ):
     """
@@ -892,12 +857,6 @@ def test_ignore_paste_ctrl_v_with_invalid_clipboard_content(
     load_project(main_window=main_window)
 
     document_id = SampleData.get("document_1")
-
-    # Clear clipboard
-    QApplication.clipboard().clear()
-
-    # Set clipboard content
-    QApplication.clipboard().setText(clipboard_content)
 
     # Get document container
     documents_container: DocumentsContainer = (
@@ -919,20 +878,23 @@ def test_ignore_paste_ctrl_v_with_invalid_clipboard_content(
 
     # Ctrl+V in the parent
     document_tree.itemPressed.emit(parent_tree_element, 0)
-    qtbot.keySequence(document_tree, QKeySequence.StandardKey.Paste)
+    info_dialog: MessageBox = get_dialog(
+        lambda: qtbot.keySequence(document_tree, QKeySequence.StandardKey.Paste)
+    )
 
     # --------------------------------------------
     # Assert
     # --------------------------------------------
 
-    # Check no popup window is shown
-    assert not QApplication.activeModalWidget(), "No popup window should be shown"
+    # Check the title of the info message
+    assert info_dialog.windowTitle() == _(
+        "clipboard.paste_action.message_box.empty_error.title"
+    ), f"Info message title should be '{_('clipboard.paste_action.message_box.empty_error.title')}' but it is '{info_dialog.windowTitle()}'"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-
-    QApplication.clipboard().clear()
+    # Check the info message
+    assert info_dialog.text() == _(
+        "clipboard.paste_action.message_box.empty_error.text"
+    ), f"Info message should be '{_('clipboard.paste_action.message_box.empty_error.text')}' but it is '{info_dialog.text()}'"
 
 
 def test_paste_error_message_when_ctrl_v_in_invalid_parent(qtbot: QtBot, app):
@@ -959,7 +921,7 @@ def test_paste_error_message_when_ctrl_v_in_invalid_parent(qtbot: QtBot, app):
     load_project(main_window=main_window)
 
     # Clear clipboard
-    QApplication.clipboard().clear()
+    Clipboard().clear()
 
     # Get document container
     documents_container: DocumentsContainer = (
@@ -1000,16 +962,11 @@ def test_paste_error_message_when_ctrl_v_in_invalid_parent(qtbot: QtBot, app):
 
     # Check the title of the error message
     assert error_dialog.windowTitle() == _(
-        "document_tree.paste_action.message_box.error.title", object_name
-    ), f"Error message title should be '{_('document_tree.paste_action.message_box.error.title', object_name)}' but it is '{error_dialog.windowTitle()}'"
+        "clipboard.paste_action.message_box.error.title", object_name
+    ), f"Error message title should be '{_('clipboard.paste_action.message_box.error.title', object_name)}' but it is '{error_dialog.windowTitle()}'"
 
     # Check the error message
     assert error_dialog.text() == _(
-        "document_tree.paste_action.message_box.error.text", object_name
-    ), f"Error message should be '{_('document_tree.paste_action.message_box.error.text', object_name)}' but it is '{error_dialog.text()}'"
+        "clipboard.paste_action.message_box.error.text", object_name
+    ), f"Error message should be '{_('clipboard.paste_action.message_box.error.text', object_name)}' but it is '{error_dialog.text()}'"
 
-    # --------------------------------------------
-    # Clean up
-    # --------------------------------------------
-
-    QApplication.clipboard().clear()

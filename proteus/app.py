@@ -38,6 +38,7 @@ from proteus.application.resources.icons import Icons
 from proteus.application.state_manager import StateManager
 from proteus.application.state_restorer import read_state_from_file
 from proteus.application.request_interceptor import WebEngineUrlRequestInterceptor
+from proteus.application.clipboard import Clipboard
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.base_dialogs import MessageBox
@@ -107,6 +108,9 @@ class ProteusApplication:
         controller = Controller()
         self.main_window = MainWindow(parent=None, controller=controller)
         self.main_window.show()
+
+        # Clipboard initialization
+        Clipboard(controller)
 
         # Load plugin components
         self.load_plugin_components()
@@ -268,7 +272,7 @@ class ProteusApplication:
                 MessageBox.critical(
                     _("main_menu.open_project.error.title"),
                     _("main_menu.open_project.error.text"),
-                    e,
+                    e.__str__(),
                 )
 
     # ==========================================================================

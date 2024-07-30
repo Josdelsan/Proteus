@@ -93,7 +93,7 @@ def test_change_object_position_command_redo(
     # Assert --------------------------
     # Check project service method is called once with the correct arguments
     sample_project_service.change_object_position.assert_called_once_with(
-        object_id, new_position, new_parent_id
+        object_id, new_parent_id, new_position
     )
 
 

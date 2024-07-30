@@ -334,19 +334,25 @@ class Controller:
     # ----------------------------------------------------------------------
     @proteus_action
     def change_object_position(
-        self, object_id: ProteusID, new_position: int, new_parent_id: ProteusID
+        self,
+        object_id: ProteusID,
+        new_parent_id: ProteusID,
+        new_position: int | None = None,
     ) -> None:
         """
         Change the position of an object given its id. It pushes the command
         to the command stack. If position is None, the object is moved to the
         end of the parent.
 
+        Raises an exception if the object_id or new_parent_id are invalid, or
+        the position change is not possible.
+
         Notify the frontend components when the command is executed passing
-        the object_id and object in DELETE_OBJECT and ADD_OBJECT events.
+        the object_id in ChangeObjectPositionEvent.
 
         :param object_id: The id of the object to change its position.
-        :param new_position: The new position of the object.
         :param new_parent_id: The new parent of the object.
+        :param new_position: The new position of the object.
         """
         # Check object_id is not None
         assert object_id is not None, "Object id can not be None"
@@ -370,6 +376,42 @@ class Controller:
                 new_parent_id=new_parent_id,
                 project_service=self._project_service,
             )
+        )
+
+    # ----------------------------------------------------------------------
+    # Method     : check_position_change
+    # Description: Check if the position change of an object is possible.
+    # Date       : 30/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def check_position_change(
+        self,
+        object_id: ProteusID,
+        parent_id: ProteusID,
+        new_position: int | None = None,
+    ) -> bool:
+        """
+        Check if the position change of an object is possible.
+
+        Returns True if the object can be moved to the new position in the
+        parent. Returns False otherwise.
+
+        :param object_id: The id of the object to change its position.
+        :param parent_id: The new parent of the object.
+        :param new_position: The new position of the object. If None, the
+                            object is moved to the end of the parent.
+        """
+        # Check object_id is not None
+        assert object_id is not None, "Object id can not be None"
+
+        # Check parent_id is not None
+        assert parent_id is not None, "Parent id can not be None"
+
+        return self._project_service.check_position_change(
+            object_id=object_id,
+            new_position=new_position,
+            new_parent_id=parent_id,
         )
 
     # ----------------------------------------------------------------------
@@ -410,7 +452,7 @@ class Controller:
         )
         # Call ProjectService method
         self._project_service.change_object_position(
-            document.id, new_position, self._project_service.project.id
+            document.id, self._project_service.project.id, new_position
         )
 
         # Notify that this action requires saving even if the command is not

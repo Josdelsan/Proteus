@@ -40,6 +40,7 @@ from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons
 from proteus.application.resources.plugins import Plugins
+from proteus.application.clipboard import Clipboard
 from proteus.controller.command_stack import Controller
 
 # --------------------------------------------------------------------------
@@ -74,7 +75,14 @@ def app(qtbot: QtBot, mocker):
     mock_set_last_project_opened_method(mocker)
 
     # Create the main window
-    main_window = MainWindow(parent=None, controller=Controller())
+    controller = Controller()
+    main_window = MainWindow(parent=None, controller=controller)
+
+    # Initialize the clipboard. Manually set the controller to avoid the
+    # retrieval of the previous controller instance used by the clipboard singleton
+    Clipboard(controller)
+    Clipboard()._controller = controller
+    Clipboard().clear()
 
     # Mock closeEvent to avoid the dialog asking for saving the project
     main_window.closeEvent = lambda event: event.accept()
@@ -144,6 +152,9 @@ def restore_app_singleton_instances():
     StateManager().current_document = None
     StateManager().current_object = {}
     StateManager().current_view = None
+
+    # Clipboard singleton is restored in the app fixture due
+    # to its dependency on the controller instance
 
 
 def mock_views_container(mocker):

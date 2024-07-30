@@ -392,7 +392,7 @@ def test_change_object_position_same_parent(
     new_parent = project_service._get_element_by_id(new_parent_id)
 
     # Act -----------------------------
-    project_service.change_object_position(object_id, new_position, new_parent_id)
+    project_service.change_object_position(object_id, new_parent_id, new_position)
 
     # Assert --------------------------
     # Check object appears in the new parent
@@ -474,7 +474,7 @@ def test_change_object_position_different_parent(
     new_parent = project_service._get_element_by_id(new_parent_id)
 
     # Act -----------------------------
-    project_service.change_object_position(object_id, new_position, new_parent_id)
+    project_service.change_object_position(object_id, new_parent_id, new_position)
 
     # Assert --------------------------
     # Check object appears in the new parent
@@ -553,7 +553,7 @@ def test_change_object_position_different_parent_none(
     new_parent = project_service._get_element_by_id(new_parent_id)
 
     # Act -----------------------------
-    project_service.change_object_position(object_id, new_position, new_parent_id)
+    project_service.change_object_position(object_id, new_parent_id, new_position)
 
     # Assert --------------------------
     # Check object appears in the new parent

@@ -51,6 +51,7 @@ from proteus.model.properties.code_property import ProteusCode
 from proteus.model.properties.property import Property
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.clipboard import Clipboard
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
@@ -807,7 +808,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                         f"Tree element with id {dropped_element_id} dropped below {target_index} insert in {target_index + 1} parent {parent_id}."
                     )
                     self._controller.change_object_position(
-                        dropped_element_id, target_index + 1, parent_id
+                        dropped_element_id, parent_id, target_index + 1
                     )
 
                 # If in the 25% of the top of the target item, then add the
@@ -820,7 +821,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                         f"Tree element with id {dropped_element_id} dropped above {target_index} insert in {target_index} parent {parent_id}."
                     )
                     self._controller.change_object_position(
-                        dropped_element_id, target_index, parent_id
+                        dropped_element_id, parent_id, target_index
                     )
 
                 # If in the middle of the target item, then add the dropped item
@@ -831,7 +832,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
                         f"Tree element with id {dropped_element_id} dropped inside {target_element_id} inserted at the end of the children list."
                     )
                     self._controller.change_object_position(
-                        dropped_element_id, None, target_element_id
+                        dropped_element_id, target_element_id
                     )
             # Catch exception in case the operation is forbidden
             except AssertionError as e:
@@ -895,68 +896,18 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         """
 
         # ------------------------------------------------------------------
-        # Copy event
+        # Clipboard events
         # ------------------------------------------------------------------
-        # Copy the selected item id to the clipboard (omit documents)
-        if event.matches(QKeySequence.StandardKey.Copy):
-
-            selected_item = self.currentItem()
-            # Filter if selected item is none
-            if selected_item:
-
-                object_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
-                object = self._controller.get_element(object_id)
-
-                # Filter documents
-                if not PROTEUS_DOCUMENT in object.classes:
-                    clipboard = QApplication.clipboard()
-                    clipboard.setText(object_id)
-
+        if event.matches(QKeySequence.StandardKey.Cut):
+            Clipboard().cut()
             return event.accept()
 
-        # ------------------------------------------------------------------
-        # Paste event
-        # ------------------------------------------------------------------
-        # Paste the copied item id as a child of the selected item
+        if event.matches(QKeySequence.StandardKey.Copy):
+            Clipboard().copy()
+            return event.accept()
+
         if event.matches(QKeySequence.StandardKey.Paste):
-            clipboard = QApplication.clipboard()
-            object_id = clipboard.text()
-
-            # Filter if clipboard is empty or selected item is none
-            selected_item = self.currentItem()
-            if selected_item and object_id:
-                new_parent_id = selected_item.data(1, Qt.ItemDataRole.UserRole)
-
-                # If object is not found it will raise an exception, this happens when
-                # the user has information in the clipboard that is not a valid object id
-                try:
-                    can_copy_into_parent = self._controller.check_clone_operation(
-                        object_id, new_parent_id
-                    )
-
-                    if can_copy_into_parent:
-                        self._controller.clone_object(object_id, new_parent_id)
-                    else:
-                        object_name = (
-                            self._controller.get_element(object_id)
-                            .get_property(PROTEUS_NAME)
-                            .value
-                        )
-
-                        # If copy action is not allowed, show a message box
-                        MessageBox.warning(
-                            _("document_tree.paste_action.message_box.error.title"),
-                            _(
-                                "document_tree.paste_action.message_box.error.text",
-                                object_name,
-                            ),
-                        )
-
-                except Exception as e:
-                    log.warning(
-                        f"Error pasting object '{object_id}' into parent '{new_parent_id}'. Error: {e}"
-                    )
-
+            Clipboard().paste()
             return event.accept()
 
         # ------------------------------------------------------------------

@@ -42,8 +42,18 @@ markdown_edit.preview: "Show preview"
 markdown_edit.edit: "Edit text"
 
 # ---------------------------------------------------------------------------
+# Clipboard
+# ---------------------------------------------------------------------------
+
+clipboard.paste_action.message_box.empty_error.title: "Empty clipboard"
+clipboard.paste_action.message_box.empty_error.text: "The clipboard is empty, there is no object to paste."
+
+clipboard.paste_action.message_box.error.title: "Error pasting object"
+clipboard.paste_action.message_box.error.text: "The clipboard object could not be pasted into the selected parent, check that the object is accepted by the target object."
+
+
+# ---------------------------------------------------------------------------
 # App critical error
 # ---------------------------------------------------------------------------
 app.critical_error.title: "PROTEUS has encountered a critical error"
 app.critical_error.text: "The application will be closed due to a critical error. For more information, check the log file: "
-

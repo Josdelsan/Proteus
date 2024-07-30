@@ -146,7 +146,7 @@ class TraceEdit(QWidget):
         # Free duplicates the item when dragging and dropping.
         self.list_widget.setMovement(QListWidget.Movement.Static)
         self.list_widget.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
-        
+
         self.list_widget.setSizePolicy(
             QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
@@ -162,9 +162,7 @@ class TraceEdit(QWidget):
 
         self.remove_button = QPushButton()
         self.remove_button.setEnabled(False)
-        remove_button_icon = Icons().icon(
-            ProteusIconType.App, "remove_trace_icon"
-        )
+        remove_button_icon = Icons().icon(ProteusIconType.App, "remove_trace_icon")
         self.remove_button.setIcon(remove_button_icon)
 
         # Create a layout for the buttons (vertically stacked)
@@ -221,7 +219,15 @@ class TraceEdit(QWidget):
         trace: ProteusID
         for trace in traces:
             # Get object from the id
-            object: Object = self.controller.get_element(element_id=trace)
+            try:
+                object: Object = self.controller.get_element(element_id=trace)
+            except Exception as e:
+                log.error(
+                    f"Consistency error, could not find traced object with id '{trace}', the trace will be ignored."
+                    "If the user saves the form, the trace will be deleted."
+                    f"Error message: {e}"
+                )
+                continue
 
             # Validate object type
             assert isinstance(
@@ -275,7 +281,7 @@ class TraceEdit(QWidget):
 
             # Add item to the QListWidget
             self.list_widget.addItem(trace_item)
-            
+
         self.tracesChanged.emit()
 
     # ----------------------------------------------------------------------
@@ -332,6 +338,7 @@ class TraceEdit(QWidget):
             self.add_button.setEnabled(False)
         else:
             self.add_button.setEnabled(True)
+
 
 # --------------------------------------------------------------------------
 # Class: TraceEditDialog
@@ -545,8 +552,12 @@ class TraceEditDialog(QDialog):
         if self.list_widget.count() == 0:
             self.list_widget.setDisabled(True)
 
-            classes_translations = [_(f"archetype.class.{_class}") for _class in self.accepted_classes]
-            self.error_label.setText(_("trace_edit_dialog.error_label.no_objects", classes_translations))
+            classes_translations = [
+                _(f"archetype.class.{_class}") for _class in self.accepted_classes
+            ]
+            self.error_label.setText(
+                _("trace_edit_dialog.error_label.no_objects", classes_translations)
+            )
             self.error_label.setHidden(False)
 
             self.name_filter_widget.setDisabled(True)

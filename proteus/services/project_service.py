@@ -225,9 +225,13 @@ class ProjectService:
 
             # Include object in source set of all its targets
             for target in targets:
-                # Check if the target is DEAD state
-                target_object: Object = self._get_element_by_id(target)
-                if target_object.state == ProteusState.DEAD:
+                # Check if the target is exists or is DEAD
+                try:
+                    target_object: Object = self._get_element_by_id(target)
+                    assert (
+                        target_object.state != ProteusState.DEAD
+                    ), f"Target object '{target}' is DEAD."
+                except:
                     log.error(
                         f"Found a Trace in object '{object.id}' targeting a DEAD object '{target}'. "
                         f"Target '{target}' will be ignored in load_traces_index method so it can be deleted. "
@@ -693,8 +697,8 @@ class ProjectService:
     def change_object_position(
         self,
         object_id: ProteusID,
-        new_position: int | None,
         new_parent_id: ProteusID,
+        new_position: int | None = None,
     ) -> None:
         """
         Changes the position of the object with the given id. If position is
@@ -702,8 +706,8 @@ class ProjectService:
         must be relative to non DEAD objects.
 
         :param object_id: Id of the object to change position.
-        :param new_position: New position of the object.
         :param new_parent: New parent of the object.
+        :param new_position: New position of the object.
         """
         # Check the object_id and new_parent are valid
         assert isinstance(object_id, str), f"Invalid object id {object_id}."
@@ -1017,9 +1021,7 @@ class ProjectService:
         )
 
         # Sort descendants by name
-        object.children.sort(
-            key=lambda_, reverse=reverse
-        )
+        object.children.sort(key=lambda_, reverse=reverse)
 
         # Update object state
         object.state = ProteusState.DIRTY
