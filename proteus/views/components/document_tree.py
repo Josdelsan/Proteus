@@ -202,7 +202,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         self.expandAll()
         self.setExpandsOnDoubleClick(False)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : subscribe
@@ -407,7 +407,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Update the tree item with the object information
         self._tree_item_setup(tree_item, object)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_save_project
@@ -484,7 +484,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Create the new item
         self._populate_tree(parent_item, new_object, position=position)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_delete_object
@@ -531,7 +531,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Set current item to None
         self._state_manager.deselect_object(object_id)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_select_object
@@ -657,7 +657,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Set the expanded state of the object and its children
         _set_expanded_state(parent_item, expanded_state_dict)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ----------------------------------------------------------------------
     # Method     : update_on_change_object_position
@@ -720,7 +720,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             self._populate_tree(parent_item, object, position)
             self._state_manager.set_current_object(object_id, self.document_id)
 
-        self.update_section_indexes()
+        self.update_indexes()
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
@@ -995,14 +995,14 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : update_section_indexes
+    # Method     : update_indexes
     # Description: Update the section indexes for all the sections in the
     #              document.
     # Date       : 12/07/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_section_indexes(self):
+    def update_indexes(self) -> None:
         """
         Update the section indexes for all the sections in the document.
 
@@ -1015,6 +1015,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Calculate the section indexes
         self._calculate_section_indexes(top_level_object)
 
+        # Calculate the appendix indexes
+        self._calculate_appendix_indexes(top_level_object)
+
     # ----------------------------------------------------------------------
     # Method     : _calculate_section_indexes
     # Description: Calculate the section indexes for all the sections in the
@@ -1023,12 +1026,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _calculate_section_indexes(self, object: Object, acumulated_index: str = ""):
+    def _calculate_section_indexes(self, object: Object, acumulated_index: str = "") -> None:
         """
         Calculate the section indexes for all the sections in the document.
-        Store the section indexes in the section_indexes dictionary. Uses
-        numeric indexes for the main sections and alphabetic indexes for the
-        appendix sections.
+        Uses numeric indexes for sections.
 
         Uses recursive calls to calculate the section indexes for all the
         nested sections.
@@ -1037,29 +1038,66 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         :param acumulated_index: The acumulated index for the object
         """
         numeric_index = 1
-        alpha_index = alpha_sequence()
-
+ 
         for child in object.get_descendants():
 
             # Skip if object is DEAD or not a section
             if child.state == ProteusState.DEAD or "section" not in child.classes:
                 continue
 
-            # Set the section index depending if it is an appendix
-            if child.get_property("is-appendix").value:
-                child_index = f"{acumulated_index}.{next(alpha_index)}"
+            # Set the section index
+            child_index = ""
+            if acumulated_index == "":
+                child_index = f"{str(numeric_index)}"
             else:
                 child_index = f"{acumulated_index}.{str(numeric_index)}"
-                numeric_index += 1
+            numeric_index += 1
 
             # Set the section index
             tree_element = self.tree_items[child.id]
             section_name = child.get_property(PROTEUS_NAME).value
-            tree_element.setText(0, f"{child_index[1:]} {section_name}")
+            tree_element.setText(0, f"{child_index} {section_name}")
 
             # Calculate the section index for the children
             self._calculate_section_indexes(child, acumulated_index=child_index)
 
+
+    # ----------------------------------------------------------------------
+    # Method     : _calculate_appendix_indexes
+    # Description: Calculate the appendix indexes for all the appendices in
+    #              the document.
+    # Date       : 29/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def _calculate_appendix_indexes(self, object: Object) -> None:
+        """
+        Calculate the appendix indexes for all the appendices in the document.
+        Uses alphabetic indexes for appendices.
+
+        Recursive calls are only necessary for the appendices children if there
+        are sections inside the appendices.
+
+        :param object: The object to calculate the appendix indexes
+        """
+        alpha_index = alpha_sequence()
+
+        for child in object.get_descendants():
+
+            # Skip if object is DEAD or not an appendix
+            if child.state == ProteusState.DEAD or "appendix" not in child.classes:
+                continue
+
+            # Set the appendix index
+            child_index = next(alpha_index)
+
+            # Set the appendix index
+            tree_element = self.tree_items[child.id]
+            appendix_name = child.get_property(PROTEUS_NAME).value
+            tree_element.setText(0, f"{child_index} {appendix_name}")
+
+            # Calculate the section index for the children
+            self._calculate_section_indexes(child, acumulated_index=child_index)
 
 # ======================================================================
 # Helper functions

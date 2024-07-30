@@ -6,6 +6,7 @@
         <icon key="paragraph" file="paragraph.png" />
         <icon key="glossary-item" file="glossary-item.png" />
         <icon key="section" file="section.png" />
+        <icon key="appendix" file="appendix.png" />
         <icon key="external-resource" file="external-resource.png" />
         <icon key="graphic-file" file="graphic-file.png" />
         <icon key="information-requirement" file="information-req.png" />

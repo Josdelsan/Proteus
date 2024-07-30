@@ -375,7 +375,7 @@ class Object(AbstractObject):
         ), f"Child is not accepted by {self.id}.           \
             Accepted children are {self.acceptedChildren}. \
             Child is class {child.classes}.                \
-            Accepted parents are {self.acceptedParents}."
+            Accepted parents by child are {child.acceptedParents}."
 
         # Add the child to the children list and set the parent
         self.children.insert(position, child)

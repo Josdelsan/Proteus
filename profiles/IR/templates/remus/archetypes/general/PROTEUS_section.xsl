@@ -24,9 +24,10 @@
     <!-- section template                              -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]">
+    <xsl:template match="object[@classes='section']">
         <!-- Nest level -->
         <xsl:param name="nest_level" select="1"/>
+        <xsl:param name="previous_index" select="''"/>
 
         <div id="{@id}"  data-proteus-id="{@id}">
 
@@ -42,51 +43,24 @@
 
             <!-- Calculate section index -->
             <xsl:variable name="section_index">
-                <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]" />
+                <xsl:number level="single" count="object[@classes='section']" />
             </xsl:variable>
-            
-            <xsl:element name="h{$header_level}">
-                <xsl:value-of select="$section_index"/>
-                <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
-            </xsl:element>
 
-            <!-- Apply templates to all section -->
-            <xsl:apply-templates select="children/object">
-                <!-- Provide nest level context to children -->
-                <xsl:with-param name="nest_level" select="$nest_level + 1"/>
-            </xsl:apply-templates>
-            
-        </div>
-    </xsl:template>
-
-    <!-- ============================================= -->
-    <!-- appendix template                             -->
-    <!-- ============================================= -->
-
-    <xsl:template match="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]">
-        <!-- Nest level -->
-        <xsl:param name="nest_level" select="1"/>
-
-        <div id="{@id}"  data-proteus-id="{@id}">
-
-            <!-- Calculate the normalized header level -->
-            <xsl:variable name="header_level">
+            <!-- Build the current index -->
+            <xsl:variable name="current_index">
+                <xsl:value-of select="$previous_index"/>
+                
                 <xsl:choose>
-                    <xsl:when test="$nest_level > 6">6</xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="$nest_level"/>
-                    </xsl:otherwise>
+                    <xsl:when test="$previous_index">
+                        <xsl:text>.</xsl:text>                        
+                    </xsl:when>
                 </xsl:choose>
-            </xsl:variable>
 
-            <!-- Calculate section index -->
-            <xsl:variable name="section_index">
-                <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]" format="A" />
+                <xsl:value-of select="$section_index"/>
             </xsl:variable>
             
             <xsl:element name="h{$header_level}">
-                <xsl:value-of select="$section_index"/>
+                <xsl:value-of select="$current_index"/>
                 <xsl:text> </xsl:text>
                 <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
             </xsl:element>
@@ -95,10 +69,12 @@
             <xsl:apply-templates select="children/object">
                 <!-- Provide nest level context to children -->
                 <xsl:with-param name="nest_level" select="$nest_level + 1"/>
+                <xsl:with-param name="previous_index" select="$current_index"/>
             </xsl:apply-templates>
             
         </div>
     </xsl:template>
+
 
     <!-- ============================================= -->
     <!-- section template in "toc" mode                -->
@@ -106,44 +82,40 @@
 
     <!-- A <ul> parent element is assumed              -->
 
-    <xsl:template match="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]" mode="toc">
+    <xsl:template match="object[@classes='section']" mode="toc">
+        <xsl:param name="previous_index" select="''"/>
+
         <!-- Calculate section index -->
         <xsl:variable name="section_index">
-            <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'false']]" />
+            <xsl:number level="single" count="object[@classes='section']" />
         </xsl:variable>
-        <li>
+
+        <!-- Build the current index -->
+        <xsl:variable name="current_index">
+            <xsl:value-of select="$previous_index"/>
+            
+            <xsl:choose>
+                <xsl:when test="$previous_index">
+                    <xsl:text>.</xsl:text>                        
+                </xsl:when>
+            </xsl:choose>
+
             <xsl:value-of select="$section_index"/>
+        </xsl:variable>
+
+        <li>
+            <xsl:value-of select="$current_index"/>
             <xsl:text> </xsl:text>
             <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/></a>
         </li>
         <xsl:if test="children/object[@classes='section']">
             <ul class="toc_list">
-                <xsl:apply-templates select="children/object[@classes='section']" mode="toc"/>
+                <xsl:apply-templates select="children/object[@classes='section']" mode="toc">
+                    <xsl:with-param name="previous_index" select="$current_index"/>
+                </xsl:apply-templates>
             </ul>
         </xsl:if>
     </xsl:template>
 
-    <!-- ============================================= -->
-    <!-- appendix template in "toc" mode               -->
-    <!-- ============================================= -->
-
-    <!-- A <ul> parent element is assumed              -->
-
-    <xsl:template match="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]" mode="toc">
-        <!-- Calculate section index -->
-        <xsl:variable name="section_index">
-            <xsl:number level="multiple" count="object[@classes='section' and properties/booleanProperty[@name = 'is-appendix' and text() = 'true']]" format="A" />
-        </xsl:variable>
-        <li>
-            <xsl:value-of select="$section_index"/>
-            <xsl:text> </xsl:text>
-            <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/></a>
-        </li>
-        <xsl:if test="children/object[@classes='section']">
-            <ul class="toc_list">
-                <xsl:apply-templates select="children/object[@classes='section']" mode="toc"/>
-            </ul>
-        </xsl:if>
-    </xsl:template>
 
 </xsl:stylesheet>

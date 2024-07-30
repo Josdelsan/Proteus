@@ -51,7 +51,7 @@
                 <nav id="toc" role="navigation">
                     <h1><xsl:text>Table of content</xsl:text></h1>
                     <ul class="toc_list toc_list_level_1">
-                        <xsl:apply-templates select="children/object[@classes='section']" mode="toc"/>
+                        <xsl:apply-templates select="children/object[@classes='section' or @classes='appendix']" mode="toc"/>
                     </ul>
                 </nav>
 

@@ -550,19 +550,30 @@ class MainMenu(QDockWidget, ProteusComponent):
             selected_object: Object = self._controller.get_element(selected_object_id)
 
             # Iterate over the archetype buttons
-            for archetype_class in self.archetype_buttons.keys():
-                # Get the archetype button
-                archetype_button: ArchetypeMenuButton = self.archetype_buttons[
-                    archetype_class
-                ]
+            for archetype_menu_button in self.archetype_buttons.values():
 
-                enable: bool = (
-                    archetype_class in selected_object.acceptedChildren
-                    or PROTEUS_ANY in selected_object.acceptedChildren
-                )
+                # Get the menu of the archetype button
+                archetype_menu: ArchetypesMenuDropdown = archetype_menu_button.menu()
+
+                # Iterate over the archetype list and check at least one
+                # archetype is accepted by the selected object
+                enable: bool = False
+                for archetype in archetype_menu._archetype_list:
+
+                    archetype_is_accepted: bool = selected_object.accept_descendant(
+                        archetype
+                    )
+
+                    # Enable or disable the archetype button
+                    if archetype_is_accepted:
+                        archetype_menu.actions[archetype.id].setEnabled(True)
+                    else:
+                        archetype_menu.actions[archetype.id].setEnabled(False)
+
+                    enable = enable or archetype_is_accepted
 
                 # Enable or disable the archetype button
-                archetype_button.setEnabled(enable)
+                archetype_menu_button.setEnabled(enable)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_open_project

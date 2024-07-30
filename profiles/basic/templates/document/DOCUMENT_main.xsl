@@ -23,6 +23,7 @@
     <xsl:include href="DOCUMENT_cover.xsl" />
     <xsl:include href="DOCUMENT_document.xsl" />
     <xsl:include href="PROTEUS_section.xsl" />
+    <xsl:include href="PROTEUS_appendix.xsl" />
     <xsl:include href="PROTEUS_paragraph.xsl" />
     <xsl:include href="PROTEUS_glossary_item.xsl" />
     <xsl:include href="PROTEUS_graphic_file.xsl" />

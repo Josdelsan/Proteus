@@ -22,7 +22,7 @@ from typing import Union, List, Dict
 # --------------------------------------------------------------------------
 
 from proteus.application.configuration.config import Config
-from proteus.model import ProteusID, PROTEUS_ANY, ProteusClassTag
+from proteus.model import ProteusID, PROTEUS_ANY, PROTEUS_DOCUMENT, ProteusClassTag
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_repository import ArchetypeRepository
@@ -217,6 +217,11 @@ class ArchetypeService:
     def get_first_level_object_archetypes(self) -> Dict[str, Dict[str, List[Object]]]:
         """
         Returns the list of first level object archetypes.
+
+        First level objects are those that accept as parent any object (:Proteus-any) or
+        a document (:Proteus-document).
+
+        :return: Dictionary of first level object archetypes by object class
         """
         # Copy the dict of object archetypes to pop second level objects
         archetypes: Dict[str, Dict[str, List[Object]]] = (
@@ -231,7 +236,10 @@ class ArchetypeService:
             for _class in archetypes[group].keys():
                 # Remove the second level objects
                 for object in archetypes[group][_class]:
-                    if PROTEUS_ANY not in object.acceptedParents:
+                    if (
+                        PROTEUS_ANY not in object.acceptedParents
+                        and PROTEUS_DOCUMENT not in object.acceptedParents
+                    ):
                         archetypes[group][_class].remove(object)
                         if len(archetypes[group][_class]) == 0:
                             empty_keys.append(_class)

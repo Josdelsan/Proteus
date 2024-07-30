@@ -39,6 +39,7 @@ from proteus.tests.end2end.fixtures import (
 # Item selection tests
 # --------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize(
     "object_name, document_name",
     [
@@ -104,7 +105,7 @@ def test_object_selection_when_pressed(app, object_name, document_name):
 def test_archetype_buttons_are_updated_on_object_selection(app):
     """
     Check that the archetype buttons are correctly updated when a new objects is selected.
-    Use a section (accepts any children) and a paragraph (accepts no children) to check the buttons
+    Use a document (accepts any children) and a paragraph (accepts no children) to check the buttons
     are correctly disabled/enabled.
     """
 
@@ -114,7 +115,6 @@ def test_archetype_buttons_are_updated_on_object_selection(app):
 
     main_window: MainWindow = app
 
-    section_id = SampleData.get("simple_section")
     paragraph_id = SampleData.get("simple_paragraph")
     document_id = SampleData.get("document_1")
 
@@ -125,7 +125,7 @@ def test_archetype_buttons_are_updated_on_object_selection(app):
         main_window.project_container.documents_container
     )
     document_tree: DocumentTree = documents_container.tabs[document_id]
-    section_tree_element: QTreeWidgetItem = document_tree.tree_items[section_id]
+    section_tree_element: QTreeWidgetItem = document_tree.tree_items[document_id]
     paragraph_tree_element: QTreeWidgetItem = document_tree.tree_items[paragraph_id]
 
     # --------------------------------------------
@@ -134,7 +134,7 @@ def test_archetype_buttons_are_updated_on_object_selection(app):
 
     # Click on the section tree element using the itemPressed signal
     document_tree.itemPressed.emit(section_tree_element, 0)
-    
+
     # Store buttons state
     archetype_buttons_state_when_section_selected = []
 
@@ -154,16 +154,75 @@ def test_archetype_buttons_are_updated_on_object_selection(app):
     # Assert
     # --------------------------------------------
 
-    # Check that the section buttons are enabled and the paragraph buttons are disabled
+    # Check that the document buttons are enabled and the paragraph buttons are disabled
     assert all(
         [
-            is_enabled_flag == True for is_enabled_flag in archetype_buttons_state_when_section_selected
+            is_enabled_flag == True
+            for is_enabled_flag in archetype_buttons_state_when_section_selected
         ]
     ), "There are disabled buttons when a section is selected"
 
     assert all(
         [
-            is_enabled_flag == False for is_enabled_flag in archetype_buttons_state_when_paragraph_selected
+            is_enabled_flag == False
+            for is_enabled_flag in archetype_buttons_state_when_paragraph_selected
         ]
     ), "There are enabled buttons when a paragraph is selected"
 
+
+def test_archetype_buttons_selective_update_on_section_selection(app):
+    """
+    Check that every archetype but appendix is available to clone when a section is selected.
+
+    # NOTE: This test is heavily dependent on the IR profile archetype list.
+    """
+
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+
+    main_window: MainWindow = app
+
+    section_id = SampleData.get("simple_section")
+    document_id = SampleData.get("document_1")
+
+    load_project(main_window=main_window)
+
+    # Get tree elements out of the document tree
+    documents_container: DocumentsContainer = (
+        main_window.project_container.documents_container
+    )
+    document_tree: DocumentTree = documents_container.tabs[document_id]
+    section_tree_element: QTreeWidgetItem = document_tree.tree_items[section_id]
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+
+    # Click on the section tree element using the itemPressed signal
+    document_tree.itemPressed.emit(section_tree_element, 0)
+
+    # Store buttons state
+    archetype_buttons_state_when_section_selected = []
+
+    for _, button in main_window.main_menu.archetype_buttons.items():
+        archetype_buttons_state_when_section_selected.append(button.isEnabled())
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    # Check that every archetype but one (appendix) is enabled
+    enabled_buttons_count = 0
+    for is_enabled_flag in archetype_buttons_state_when_section_selected:
+        if is_enabled_flag:
+            enabled_buttons_count += 1
+
+    assert (
+        enabled_buttons_count == len(archetype_buttons_state_when_section_selected) - 1
+    ), "There are more than one disabled button when a section is selected."
+
+    # Check that the appendix button is disabled
+    assert (
+        main_window.main_menu.archetype_buttons["appendix"].isEnabled() == False
+    ), "The appendix button is enabled when a section is selected."

@@ -35,6 +35,7 @@
     <xsl:include href="PROTEUS_document.xsl" />
 
     <xsl:include href="archetypes/general/PROTEUS_section.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_appendix.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_paragraph.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_glossary_item.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
