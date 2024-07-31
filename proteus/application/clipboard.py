@@ -32,6 +32,7 @@ from proteus.controller.command_stack import Controller
 from proteus.application.utils.abstract_meta import SingletonMeta
 from proteus.application.state_manager import StateManager
 from proteus.application.resources.translator import translate as _
+from proteus.application.events import ClipboardChangedEvent
 from proteus.views.components.dialogs.base_dialogs import MessageBox
 
 
@@ -85,6 +86,34 @@ class Clipboard(metaclass=SingletonMeta):
         self._controller: Controller = controller
         self._status: ClipboardStatus = ClipboardStatus.CLEAR
         
+    # --------------------------------------------------------------------------
+    # Getters
+    # --------------------------------------------------------------------------
+
+    def get_content(self) -> ProteusID | None:
+        """
+        Get the content of the clipboard.
+
+        Returns: The ProteusID of the object in the clipboard or None if the
+                 clipboard is empty or content invalid.
+        """
+        if self._status == ClipboardStatus.CLEAR:
+            return None
+        
+        try:
+            self._controller.get_element(self._clipboard)
+            return self._clipboard
+        except Exception as e:
+            log.error(f"Error while getting content of clipboard: {e}")
+            return None
+        
+    def get_status(self) -> ClipboardStatus:
+        """
+        Get the status of the clipboard.
+
+        Returns: The status of the clipboard.
+        """
+        return self._status
 
     # --------------------------------------------------------------------------
     # Clipboard operations
@@ -102,6 +131,8 @@ class Clipboard(metaclass=SingletonMeta):
         """
         Cut the current selected object to the clipboard. Check if the object
         exists in the project and if it is a valid object to be cut.
+
+        Notify clipboard changed event if the cut operation was successful.
 
         Returns: True if the cut operation was successful, False otherwise.
         """
@@ -121,6 +152,9 @@ class Clipboard(metaclass=SingletonMeta):
         self._clipboard = object_id
         self._status = ClipboardStatus.CUT
 
+        # Notify clipboard change
+        ClipboardChangedEvent().notify()
+
         return True
 
     # --------------------------------------------------------------------------
@@ -135,6 +169,8 @@ class Clipboard(metaclass=SingletonMeta):
         """
         Copy the current selected object to the clipboard. Check if the object
         exists in the project and if it is a valid object to be copied.
+
+        Notify clipboard changed event if the copy operation was successful.
 
         Returns: True if the copy operation was successful, False otherwise.
         """
@@ -153,6 +189,9 @@ class Clipboard(metaclass=SingletonMeta):
         self._clipboard = object_id
         self._status = ClipboardStatus.COPY
 
+        # Notify clipboard change
+        ClipboardChangedEvent().notify()
+
         return True
 
     # --------------------------------------------------------------------------
@@ -167,6 +206,8 @@ class Clipboard(metaclass=SingletonMeta):
         """
         Paste the object in the clipboard into the current select object. Check if
         the object in the clipboard exists and if the parent object exists.
+
+        Notify clipboard changed event if the paste operation was successful.
 
         If the object in the clipboard was copied, a clone operation is performed.
         If the object in the clipboard was cut, a move operation is performed and
@@ -235,6 +276,10 @@ class Clipboard(metaclass=SingletonMeta):
 
         self._clipboard = ProteusID("")
         self._status = ClipboardStatus.CLEAR
+
+        # Notify clipboard change
+        ClipboardChangedEvent().notify()
+
         return True
 
     def _paste_copy(self, object_id: ProteusID, parent_id: ProteusID) -> bool:
@@ -314,7 +359,9 @@ class Clipboard(metaclass=SingletonMeta):
     def can_paste(self) -> bool:
         """
         Check if the object in the clipboard can be pasted into the
-        current selected object.
+        current selected object. If there are inconsistencies in the clipboard
+        or the object cannot be pasted, the clipboard is cleared and clipboard
+        changed event is notified.
 
         Returns: True if the paste operation can be performed, False otherwise.
         """
@@ -325,9 +372,10 @@ class Clipboard(metaclass=SingletonMeta):
             return False
         
         # Check if the object in the clipboard exists in the project
-        if self._clipboard is None:
+        if self._clipboard == "" or self._clipboard is None:
             log.error("Clipboard is empty, changing to CLEAR status")
-            self._status = ClipboardStatus.CLEAR
+            # Clear inconsistent clipboard
+            self.clear()
             return False
 
         # Check if a parent object is selected
@@ -343,8 +391,8 @@ class Clipboard(metaclass=SingletonMeta):
             log.warning(
                 f"Error while checking if object with ProteusID '{self._clipboard}' can be pasted into '{parent_id}': {e}"
             )
-            self._status = ClipboardStatus.CLEAR
-            self._clipboard = ProteusID("")
+            # Clear inconsistent clipboard
+            self.clear()
             return False
 
         # Check the parent object is not in DEAD state
@@ -352,8 +400,8 @@ class Clipboard(metaclass=SingletonMeta):
             log.warning(
                 f"Object or parent object is in DEAD state, cannot be pasted. Object state: {object.state}, Parent state: {parent.state}"
             )
-            self._status = ClipboardStatus.CLEAR
-            self._clipboard = ProteusID("")
+            # Clear inconsistent clipboard
+            self.clear()
             return False
 
         # Check move and clone operations
@@ -372,6 +420,9 @@ class Clipboard(metaclass=SingletonMeta):
     def clear(self) -> None:
         """
         Clear the clipboard.
+
+        Notify clipboard changed event.
         """
         self._clipboard = ProteusID("")
         self._status = ClipboardStatus.CLEAR
+        ClipboardChangedEvent().notify()

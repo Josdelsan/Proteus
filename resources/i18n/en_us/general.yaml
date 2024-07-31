@@ -51,6 +51,9 @@ clipboard.paste_action.message_box.empty_error.text: "The clipboard is empty, th
 clipboard.paste_action.message_box.error.title: "Error pasting object"
 clipboard.paste_action.message_box.error.text: "The clipboard object could not be pasted into the selected parent, check that the object is accepted by the target object."
 
+clipboard.indicator.status.empty: "Clipboard empty"
+clipboard.indicator.status.copied: "Object copied: "
+clipboard.indicator.status.cut: "Object cut: "
 
 # ---------------------------------------------------------------------------
 # App critical error

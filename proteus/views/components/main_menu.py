@@ -65,6 +65,7 @@ from proteus.application.events import (
     CurrentDocumentChangedEvent,
     RequiredSaveActionEvent,
     StackChangedEvent,
+    ClipboardChangedEvent,
 )
 
 # Module configuration
@@ -487,6 +488,10 @@ class MainMenu(QDockWidget, ProteusComponent):
             - CURRENT DOCUMENT CHANGED -> update_on_select_object
             - REQUIRED SAVE ACTION -> update_on_required_save_action
             - CURRENT DOCUMENT CHANGED -> update_on_current_document_changed
+
+            - CLIPBOARD CHANGED -> update_on_clipboard_changed
+            - SELECT OBJECT -> update_on_clipboard_changed
+            - STACK CHANGED -> update_on_clipboard_changed
         """
         SaveProjectEvent().connect(self.update_on_save_project)
         OpenProjectEvent().connect(self.update_on_open_project)
@@ -494,6 +499,12 @@ class MainMenu(QDockWidget, ProteusComponent):
         StackChangedEvent().connect(self.update_on_stack_changed)
         RequiredSaveActionEvent().connect(self.update_on_required_save_action)
         CurrentDocumentChangedEvent().connect(self.update_on_current_document_changed)
+
+        # Events to update the clipboard buttons
+        ClipboardChangedEvent().connect(self.update_on_clipboard_changed)
+        SelectObjectEvent().connect(self.update_on_clipboard_changed)
+        StackChangedEvent().connect(self.update_on_clipboard_changed)
+
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -570,10 +581,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         :param selected_object_id: ID of the selected object.
         """
 
-        # --------------------
-        # Archetype buttons
-        # --------------------
-
         # If the selected object is None, disable all the archetype buttons
         if selected_object_id is None or selected_object_id == "":
             button: ArchetypeMenuButton = None
@@ -612,9 +619,23 @@ class MainMenu(QDockWidget, ProteusComponent):
                 # Enable or disable the archetype button
                 archetype_menu_button.setEnabled(enable)
 
-        # --------------------
-        # Clipboard buttons
-        # --------------------
+    # ----------------------------------------------------------------------
+    # Method     : update_on_clipboard_changed
+    # Description: Update the state of the clipboard buttons when the
+    #              clipboard changes.
+    # Date       : 31/07/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_on_clipboard_changed(self) -> None:
+        """
+        Update the state of the clipboard buttons when the clipboard
+        changes, enabling or disabling them depending on the state.
+
+        Triggered by: ClipboardChangedEvent, SelectObjectEvent, StackChangedEvent
+        """
+        # Triggered by stack changed event to prevent inconsistencies when
+        # undo or redo actions are performed
         self.cut_button.setEnabled(Clipboard().can_cut_and_copy())
         self.copy_button.setEnabled(Clipboard().can_cut_and_copy())
         self.paste_button.setEnabled(Clipboard().can_paste())

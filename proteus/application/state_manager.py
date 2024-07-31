@@ -102,6 +102,10 @@ class StateManager(metaclass=SingletonMeta):
         # Notify the current document has changed
         CurrentDocumentChangedEvent().notify(self.current_document, update_view)
 
+        # Force object selection on document change
+        current_object = self.get_current_object()
+        SelectObjectEvent().notify(current_object, document_id)
+
     # --------------------------------------------------------------------------
     # Method: get_current_document
     # Description: Returns the current document id.

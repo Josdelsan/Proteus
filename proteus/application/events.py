@@ -683,6 +683,37 @@ class StackChangedEvent(ProteusEvent):
 
 
 # --------------------------------------------------------------------------
+# Class: ClipboardChangedEvent
+# Description: Class for the clipboard changed event in the PROTEUS
+# Date: 31/07/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class ClipboardChangedEvent(ProteusEvent):
+    """
+    Event to handle the changes of the clipboard in the PROTEUS application.
+    """
+
+    signal = pyqtSignal()
+
+    def notify(self) -> None:
+        """
+        Notify the event that the clipboard has changed.
+        """
+        log.debug("Emitting CLIPBOARD CHANGED EVENT signal...")
+
+        self.signal.emit()
+
+    def connect(self, method: Callable[[], None]) -> None:
+        """
+        Connect a method to the clipboard changed event. The method should
+        take no arguments.
+
+        :param method: The method to connect to the event.
+        """
+        self.signal.connect(method)
+
+# --------------------------------------------------------------------------
 # Class: RequiredSaveActionEvent
 # Description: Class for the required save action event in the PROTEUS
 # Date: 31/12/2023

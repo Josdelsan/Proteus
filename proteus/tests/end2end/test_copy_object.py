@@ -51,6 +51,8 @@ from proteus.application.resources.translator import translate as _
 # End to end "copy object" tests
 # --------------------------------------------------------------------------
 
+# TODO: Check clipboard buttons consistency (mainly main menu buttons) when
+#       delete redo and undo actions are performed
 
 @pytest.mark.parametrize(
     "object_name, document_name",

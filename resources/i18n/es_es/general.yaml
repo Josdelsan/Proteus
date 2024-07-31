@@ -51,6 +51,9 @@ clipboard.paste_action.message_box.empty_error.text: "El portapapeles est√° vac√
 clipboard.paste_action.message_box.error.title: "Error al pegar objeto"
 clipboard.paste_action.message_box.error.text: "El objeto del portapapeles no ha podido ser pegado en el objeto padre seleccionado, compruebe que el objeto es aceptado por el objeto destino."
 
+clipboard.indicator.status.empty: "Clipboard empty"
+clipboard.indicator.status.copied: "Object copied: "
+clipboard.indicator.status.cut: "Object cut: "
 
 # ---------------------------------------------------------------------------
 # App critical error

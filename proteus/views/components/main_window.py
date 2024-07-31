@@ -18,7 +18,7 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox, QHBoxLayout, QLabel
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -32,11 +32,18 @@ from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.main_menu import MainMenu
 from proteus.views.components.project_container import ProjectContainer
-from proteus.application.events import SelectObjectEvent, OpenProjectEvent, ModifyObjectEvent
+from proteus.application.events import (
+    SelectObjectEvent,
+    OpenProjectEvent,
+    ModifyObjectEvent,
+    ClipboardChangedEvent,
+)
 from proteus.application.state_restorer import write_state_to_file
+from proteus.application.clipboard import Clipboard, ClipboardStatus
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
+
 
 # --------------------------------------------------------------------------
 # Class: MainWindow
@@ -108,6 +115,10 @@ class MainWindow(QMainWindow, ProteusComponent):
 
         # Create the status bar
         self.statusBar().showNormal()
+
+        # Create the clipboard indicator
+        self.clipboard_indicator = ClipboardIndicator(parent=self)
+        self.statusBar().addPermanentWidget(self.clipboard_indicator)
 
         log.info("Main window component created")
 
@@ -315,9 +326,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             # Show a confirmation dialog
             confirmation_dialog = QMessageBox()
             confirmation_dialog.setIcon(QMessageBox.Icon.Warning)
-            proteus_icon = Icons().icon(
-                ProteusIconType.App, "proteus_icon"
-            )
+            proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
             confirmation_dialog.setWindowIcon(proteus_icon)
             confirmation_dialog.setWindowTitle(_("main_window.exit_dialog.title"))
             confirmation_dialog.setText(_("main_window.exit_dialog.text"))
@@ -325,7 +334,7 @@ class MainWindow(QMainWindow, ProteusComponent):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             confirmation_dialog.button(QMessageBox.StandardButton.Yes).setText(
-            _("dialog.yes_button")
+                _("dialog.yes_button")
             )
             confirmation_dialog.button(QMessageBox.StandardButton.No).setText(
                 _("dialog.no_button")
@@ -338,3 +347,95 @@ class MainWindow(QMainWindow, ProteusComponent):
             confirmation_dialog.exec()
         else:
             close_without_saving()
+
+
+class ClipboardIndicator(QWidget, ProteusComponent):
+    """
+    Class that provides a visual indicator for the clipboard status.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Class constructor, invoke the parents class constructors, create
+        the component and connect update methods to the events.
+        """
+        super(ClipboardIndicator, self).__init__(*args, **kwargs)
+
+        # Create the component
+        self.create_component()
+
+        # Subscribe to events
+        self.subscribe()
+
+    def create_component(self) -> None:
+        """
+        Create the clipboard indicator component.
+        """
+
+        # Set the widget margins to zero
+        self.setContentsMargins(0, 0, 0, 0)
+
+        # Create the clipboard icon and message labels
+        self._clipboard_message_label = QLabel(_("clipboard.indicator.status.empty"))
+        self._object_icon_label = QLabel()
+        self._object_information_label = QLabel()
+
+        # Create icon label
+        self._clipboard_icon_label = QLabel()
+        icon = Icons().icon(ProteusIconType.App, "clipboard_icon")
+        self._clipboard_icon_label.setPixmap(icon.pixmap(16, 16))
+
+        # Create an horizontal layout
+        layout = QHBoxLayout()
+        layout.addWidget(self._clipboard_icon_label)
+        layout.addWidget(self._clipboard_message_label)
+        layout.addWidget(self._object_icon_label)
+        layout.addWidget(self._object_information_label)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+    def subscribe(self) -> None:
+        """
+        Subscribe the component to the events.
+
+        ClipboardIndicator component subscribes to the following events:
+            - CLIPBOARD CHANGED -> update_on_clipboard_changed
+        """
+
+        ClipboardChangedEvent().connect(self.update_on_clipboard_changed)
+
+    def update_on_clipboard_changed(self) -> None:
+        """
+        Update the clipboard indicator when the clipboard status changes.
+        It is used to show information about the current clipboard status
+        to the user.
+
+        Triggered by: ClipboardChangedEvent
+        """
+
+        # Get the clipboard status
+        clipboard_status = Clipboard().get_status()
+
+        if clipboard_status == ClipboardStatus.CLEAR:
+            self._clipboard_message_label.setText(_("clipboard.indicator.status.empty"))
+            self._object_information_label.setText("")
+            self._object_icon_label.clear()
+            return
+
+        # Retrieve clipboard content data
+        clipboard_content = Clipboard().get_content()
+        object = self._controller.get_element(clipboard_content)
+        object_name = object.get_property(PROTEUS_NAME).value
+        object_class = object.classes[-1]
+        object_icon = Icons().icon(ProteusIconType.Archetype, object_class)
+
+        # Update the status bar with the temporary message
+        if clipboard_status == ClipboardStatus.COPY:
+            self._clipboard_message_label.setText(
+                _("clipboard.indicator.status.copied")
+            )
+        elif clipboard_status == ClipboardStatus.CUT:
+            self._clipboard_message_label.setText(_("clipboard.indicator.status.cut"))
+
+        self._object_icon_label.setPixmap(object_icon.pixmap(16, 16))
+        self._object_information_label.setText(object_name)
