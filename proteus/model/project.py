@@ -26,6 +26,7 @@ import os
 import pathlib
 import shutil
 import logging
+import datetime
 from typing import List, MutableSet
 
 # --------------------------------------------------------------------------
@@ -47,14 +48,17 @@ from proteus.model import (
     ProteusID,
     PROJECT_FILE_NAME,
     PROTEUS_DOCUMENT,
+    PROTEUS_DATE,
     XSL_TEMPLATES_TAG,
     XLS_TEMPLATE_TAG,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
+from proteus.model.properties import DateProperty
 
 # if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
 from proteus.model.object import Object
+
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -137,7 +141,7 @@ class Project(AbstractObject):
         super().__init__(project_file_path)
 
         # Parse and load XML into memory
-        root: ET.Element = ET.parse(project_file_path).getroot()
+        root: ET._Element = ET.parse(project_file_path).getroot()
 
         # Check root tag is <project>
         assert (
@@ -230,13 +234,13 @@ class Project(AbstractObject):
         :param root: XML root element.
         """
         # Parse and load XML into memory
-        root: ET.Element = ET.parse(self.path).getroot()
+        root: ET._Element = ET.parse(self.path).getroot()
 
         # Check root is not None
         assert root is not None, f"Root element is not valid in {self.path}."
 
         # Load documents
-        documents_element: ET.Element = root.find(DOCUMENTS_TAG)
+        documents_element: ET._Element = root.find(DOCUMENTS_TAG)
 
         # Check whether it has documents
         assert (
@@ -245,7 +249,7 @@ class Project(AbstractObject):
 
         # Parse project's documents
         # TODO: check document_element tag is <document>
-        document_element: ET.Element
+        document_element: ET._Element
         for document_element in documents_element:
             document_id: ProteusID = document_element.attrib.get(ID_ATTRIBUTE, None)
 
@@ -267,7 +271,7 @@ class Project(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def load_xsl_templates(self, root: ET.Element) -> List[str]:
+    def load_xsl_templates(self, root: ET._Element) -> List[str]:
         """
         It loads a PROTEUS project's XSL templates from an XML root element.
 
@@ -277,7 +281,7 @@ class Project(AbstractObject):
         assert root is not None, f"Root element is not valid in {self.path}."
 
         # Load XSL templates
-        xsl_templates_element: ET.Element = root.find(XSL_TEMPLATES_TAG)
+        xsl_templates_element: ET._Element = root.find(XSL_TEMPLATES_TAG)
 
         # Check whether it has XSL templates
         assert (
@@ -285,7 +289,7 @@ class Project(AbstractObject):
         ), f"PROTEUS project file {self.path} does not have a <{XSL_TEMPLATES_TAG}> element."
 
         # Parse project's XSL templates
-        xsl_template_element: ET.Element
+        xsl_template_element: ET._Element
         xsl_templates: List[str] = []
         for xsl_template_element in xsl_templates_element:
             xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTRIBUTE, None)
@@ -380,7 +384,7 @@ class Project(AbstractObject):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def generate_xml(self) -> ET.Element:
+    def generate_xml(self) -> ET._Element:
         """
         It generates an XML element for the project.
         :return: an XML element for the project.
@@ -504,5 +508,35 @@ class Project(AbstractObject):
             cloned_project is not None
         ), f"Error loading the cloned project {target_dir}"
 
+        # Change all the :Proteus-date in the project to match the current date
+        update_date_recursive(cloned_project)
+        cloned_project.save_project()
+
         log.info(f"Project cloned successfully.")
         return cloned_project
+
+
+
+# ----------------------------------------------------------------------
+# Function   : update_date_recursive
+# Description: Update the date of the object and its descendants if a valid
+#              :Proteus-Date property is found.
+# Date       : 01/08/2024
+# Version    : 0.1
+# Author     : José María Delgado Sánchez
+# ----------------------------------------------------------------------
+def update_date_recursive(element: Object | Project) -> None:
+    """
+    Update the date of the object and its descendants if a valid
+    :Proteus-Date property is found.
+    """
+    # Update the date of the object
+    date_property = element.get_property(PROTEUS_DATE)
+    if isinstance(date_property, DateProperty):
+        current_date = datetime.date.today()
+        new_date_property = date_property.clone(current_date)
+        element.set_property(new_date_property)
+
+    # Update the date of the descendants
+    for descendant in element.get_descendants():
+        update_date_recursive(descendant)
