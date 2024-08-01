@@ -2,7 +2,6 @@
 <object id="33mMboh8kCKe" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
   <properties>
     <stringProperty name=":Proteus-name" category="general"><![CDATA[Modelos de procesos de negocio a implantar]]></stringProperty>
-    <booleanProperty name="is-appendix" category="general" tooltip="is-appendix">false</booleanProperty>
     <markdownProperty name="comments" category="general"><![CDATA[]]></markdownProperty>
   </properties>
   <children/>

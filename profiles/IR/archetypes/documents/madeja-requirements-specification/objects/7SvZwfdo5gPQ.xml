@@ -14,12 +14,12 @@
     <child id="8A5Sa2HUJWgL"/>
     <child id="5Xvf87GNZw2U"/>
     <child id="zKgiWwQ8Se2p"/>
-    <child id="YU6rSaZbkgKX"/>
-    <child id="5GMYdoxgKzjw"/>
-    <child id="3CrcibxKMAfV"/>
+    <child id="8DjnQrDLTiKv"/>
+    <child id="6aCLqauTcLey"/>
+    <child id="6iLUaPf9np92"/>
   </children>
   <traces>
-    <traceProperty name="prepared-for" acceptedTargets="organization" traceType=":Proteus-dependency"/>
-    <traceProperty name="prepared-by" acceptedTargets="organization" traceType=":Proteus-author"/>
+    <traceProperty name="prepared-for" category="dependencies" acceptedTargets="organization" traceType=":Proteus-dependency"/>
+    <traceProperty name="prepared-by" category="dependencies" acceptedTargets="organization" traceType=":Proteus-author"/>
   </traces>
 </object>
