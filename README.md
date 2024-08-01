@@ -1,11 +1,10 @@
 <div align = center>
 
-<img src="https://github.com/Josdelsan/proteus-tfg/assets/74303153/22db167f-c696-4f66-81ab-20250187eb99" width="100" />
+<img src="https://github.com/user-attachments/assets/936f4820-0017-4da3-a8de-901bccdaf952" width="100" />
 
 # PROTEUS
 
 </div>
-
 
 PROTEUS is a configurable tool for editing structured documents that can be applied in multiple domains, from software development to legal documents. The main concept in Proteus is the archetype, which is a project, document or object that is used to create others through cloning. It allows you to create preconfigured projects with the necessary documents, documents with already established structure and content, and objects in the documents with default values. Any concept that can be expressed in a conceptual model can become an archetype in Proteus. The archetypes are organized in archetype repositories, so that Proteus is actually a meta-tool since each repository configures Proteus with a set of archetypes specific to a specific domain.
 
