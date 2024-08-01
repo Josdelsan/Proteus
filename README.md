@@ -1,6 +1,6 @@
 <div align = center>
 
-<img src="https://github.com/user-attachments/assets/936f4820-0017-4da3-a8de-901bccdaf952" width="100" />
+<img src="https://github.com/Josdelsan/proteus-tfg/assets/74303153/22db167f-c696-4f66-81ab-20250187eb99" width="100" />
 
 # PROTEUS
 
@@ -13,7 +13,7 @@ In addition to archetypes, Proteus also offers the possibility of having differe
 XSLT templates, archetypes repositories and plugins are grouped in profiles. A profile completely change the behaviour of the application based on its content, preparing it for a domain specific task. Plugins enhance XSLT templates allowing complex operations using Python and accessing  backend functionalities. Change the profile from the configuration menu inside the application. Profiles may be included in the application or loaded from a directory.
 
 <div align = center>
-  <img src="https://github.com/Josdelsan/proteus-tfg/assets/74303153/3e598ba8-590d-4589-87df-0f1d0d97bcab" width="800" />
+  <img src="https://github.com/user-attachments/assets/936f4820-0017-4da3-a8de-901bccdaf952" width="800" />
 </div>
 
 ## License
