@@ -137,3 +137,6 @@ docs/
 
 # PySpellchecker build files
 spellchecker/
+
+# Visual Studio
+.vs/
