@@ -137,3 +137,4 @@ docs/
 
 # PySpellchecker build files
 spellchecker/
+/.proteus

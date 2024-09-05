@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="8DjnQrDLTiKv" classes="appendix" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-document">
+  <properties>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Acta de reuniones]]></stringProperty>
+    <markdownProperty name="comments" category="general"><![CDATA[]]></markdownProperty>
+  </properties>
+  <children/>
+  <traces/>
+</object>

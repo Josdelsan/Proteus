@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<object id="7SvZwfdo5gPQ" classes=":Proteus-document" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
+  <properties>
+    <stringProperty name=":Proteus-acronym" category="general"><![CDATA[ERS]]></stringProperty>
+    <stringProperty name=":Proteus-name" category="general"><![CDATA[Especifiación de Requisitos del Sistema]]></stringProperty>
+    <stringProperty name="version" category="general"><![CDATA[1.0]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="general">2000-12-31</dateProperty>
+    <markdownProperty name="description" category="details"><![CDATA[Especificación de Requisitos del Sistema formato MADEJA.]]></markdownProperty>
+    <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
+  </properties>
+  <children>
+    <child id="7JwEa6yNXrbg"/>
+    <child id="ErqW2s4dASb9"/>
+    <child id="8A5Sa2HUJWgL"/>
+    <child id="5Xvf87GNZw2U"/>
+    <child id="zKgiWwQ8Se2p"/>
+    <child id="8DjnQrDLTiKv"/>
+    <child id="6aCLqauTcLey"/>
+    <child id="6iLUaPf9np92"/>
+  </children>
+  <traces>
+    <traceProperty name="prepared-for" category="dependencies" acceptedTargets="organization" traceType=":Proteus-dependency"/>
+    <traceProperty name="prepared-by" category="dependencies" acceptedTargets="organization" traceType=":Proteus-author"/>
+  </traces>
+</object>
