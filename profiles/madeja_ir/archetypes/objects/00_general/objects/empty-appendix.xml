@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object id="empty-appendix" classes="appendix" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-document">
+  <properties>
+    <stringProperty name=":Proteus-name"><![CDATA[Empty appendix]]></stringProperty>
+    <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
+  </properties>
+  <children />
+  <traces />
+</object>

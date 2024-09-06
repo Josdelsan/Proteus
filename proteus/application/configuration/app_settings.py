@@ -31,6 +31,7 @@ from proteus.application.spellcheck import SpellCheckerWrapper
 # --------------------------------------------------------------------------
 
 CONFIG_FILE: str = "proteus.ini"
+DEFAULT_CONFIG_FILE: str = "proteus.default.ini"
 
 # Directories
 DIRECTORIES: str = "directories"
@@ -95,15 +96,15 @@ class AppSettings:
     def load(app_path: Path) -> "AppSettings":
         """
         Loads the user/app settings from the configuration file located in the
-        app directory. If the cwd is different from the app directory, creates
-        a copy of the configuration file in the cwd and loads the settings from
-        it.
+        execution directory. If the configuration file does not exist, it is
+        copied from the default configuration file located in the application
+        directory.
         """
-        config_file_path: Path = app_path / CONFIG_FILE
+        config_file_path: Path = app_path / DEFAULT_CONFIG_FILE
 
         assert (
             config_file_path.exists()
-        ), f"PROTEUS configuration file {CONFIG_FILE} does not exist in {app_path}!"
+        ), f"PROTEUS default configuration file {CONFIG_FILE} does not exist in {app_path}!"
 
         # Check for proteus.ini file where the application is executed
         # NOTE: This allows to change config in single executable app version

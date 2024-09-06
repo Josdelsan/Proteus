@@ -140,3 +140,12 @@ spellchecker/
 
 # Visual Studio
 .vs/
+
+# Proteus logs
+/.proteus
+*.log
+
+# Proteus user configuration files
+proteus.ini
+
+

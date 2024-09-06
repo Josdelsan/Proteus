@@ -20,7 +20,7 @@ XSLT templates, archetypes repositories and plugins are grouped in profiles. A p
 PROTEUS is licensed under the BSD 3-Clause "New" or "Revised" License. See [LICENSE](LICENSE) for more information.
 
 ## Installation
-PROTEUS is a Python application. It is developed using Python 3.10.7. It is recommended to use a virtual environment to install the application. The application dependencies are listed in the `requirements.txt` file. The application can be installed via `pip install -r requirements.txt`.
+PROTEUS is a Python application. It is developed using Python 3.11.x. It is recommended to use a virtual environment to install the application. The application dependencies are listed in the `requirements.txt` file. The application can be installed via `pip install -r requirements.txt`.
 
 ## Usage
 PROTEUS is executed via `python3 -m proteus` from the top-level application directory.
