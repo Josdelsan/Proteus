@@ -7,6 +7,16 @@
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/07 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'paragraph')]    -->
+<!-- since paragraph is a subclass of                         -->
+<!-- general-traceable-object.                                -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -19,13 +29,12 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-    
     <!-- =========================================================== -->
     <!-- paragraph template                                          -->
     <!-- =========================================================== -->
 
-    <xsl:template match="object[@classes='paragraph']">
-        <div id="{@id}"  data-proteus-id="{@id}">
+    <xsl:template match="object[contains(@classes,'paragraph')]">
+        <div id="{@id}" data-proteus-id="{@id}">
             <xsl:variable name="content" select="properties/markdownProperty[@name='text']"/>
             <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
 

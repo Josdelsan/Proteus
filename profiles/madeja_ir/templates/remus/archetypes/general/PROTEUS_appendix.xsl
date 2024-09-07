@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_section.xsl                            -->
+<!-- File    : PROTEUS_appendix.xsl                           -->
 <!-- Content : PROTEUS XSLT for subjects at US - appendix     -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/07/29                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/07 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'appendix')]     -->
+<!-- since appendix is a subclass of section, and its classes -->
+<!-- attribute is "section appendix".                         -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- nest_level -> nesting_level                              -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,24 +30,26 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
-
     <!-- ============================================= -->
     <!-- appendix template                             -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='appendix']">
-        <!-- Nest level -->
-        <xsl:param name="nest_level" select="1"/>
+    <!-- <xsl:template match="object[ends-with(@classes,'appendix')]"> -->
+    <xsl:template match="object[contains(@classes,'appendix')]">
+        <!-- Nesting level -->
+        <xsl:param name="nesting_level" select="1"/>
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+        <div id="{@id}" data-proteus-id="{@id}">
 
             <!-- Calculate appendix index -->
+            <!-- Should use ends-with     -->
             <xsl:variable name="appendix_index">
-                <xsl:number level="single" count="object[@classes='appendix']" format="A" />
+                <xsl:number  
+                    count="object[contains(@classes,'appendix')]"
+                    level="single" 
+                    format="A" />
             </xsl:variable>
-
-            
+ 
             <xsl:element name="h1">
                 <xsl:value-of select="$appendix_index"/>
                 <xsl:text> </xsl:text>
@@ -45,8 +58,8 @@
 
             <!-- Apply templates to all section passing the  -->
             <xsl:apply-templates select="children/object">
-                <!-- Provide nest level context to children -->
-                <xsl:with-param name="nest_level" select="$nest_level + 1"/>
+                <!-- Provide nesting level context to children -->
+                <xsl:with-param name="nesting_level" select="$nesting_level + 1"/>
                 <xsl:with-param name="previous_index" select="$appendix_index"/>
             </xsl:apply-templates>
             
@@ -59,19 +72,29 @@
 
     <!-- A <ul> parent element is assumed              -->
 
-    <xsl:template match="object[@classes='appendix']" mode="toc">
-        <!-- Calculate appendix index -->
-        <xsl:variable name="appendix_index">
-            <xsl:number level="single" count="object[@classes='appendix']" format="A" />
-        </xsl:variable>
+    <!-- <xsl:template match="object[ends-with(@classes,'appendix')]" mode="toc"> -->
+    <xsl:template match="object[contains(@classes,'appendix')]" mode="toc">
+
+            <!-- Calculate appendix index -->
+            <!-- Should use ends-with     -->
+            <xsl:variable name="appendix_index">
+                <xsl:number  
+                    count="object[contains(@classes,'appendix')]"
+                    level="single" 
+                    format="A" />
+            </xsl:variable>
+
+        <!-- Generate TOC entry -->
         <li>
             <xsl:value-of select="$appendix_index"/>
             <xsl:text> </xsl:text>
             <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/></a>
         </li>
-        <xsl:if test="children/object[@classes='section']">
+
+        <!-- Generate TOC entries for child sections -->
+        <xsl:if test="children/object[contains(@classes,'section')]">
             <ul class="toc_list">
-                <xsl:apply-templates select="children/object[@classes='section']" mode="toc">
+                <xsl:apply-templates select="children/object[contains(@classes,'section')]" mode="toc">
                     <xsl:with-param name="previous_index" select="$appendix_index"/>
                 </xsl:apply-templates>
             </ul>

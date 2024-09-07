@@ -3,7 +3,7 @@
   id="paragraph" 
   classes="general-traceable-object paragraph" 
   acceptedChildren=":Proteus-none" 
-  acceptedParents=":Proteus-document Section"
+  acceptedParents=":Proteus-document section"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Empty paragraph]]></stringProperty>

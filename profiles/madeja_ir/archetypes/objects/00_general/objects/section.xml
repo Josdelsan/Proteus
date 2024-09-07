@@ -3,7 +3,7 @@
   id="section" 
   classes="section" 
   acceptedChildren=":Proteus-any" 
-  acceptedParents=":Proteus-document Section"
+  acceptedParents=":Proteus-document section"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Ordinary section]]></stringProperty>

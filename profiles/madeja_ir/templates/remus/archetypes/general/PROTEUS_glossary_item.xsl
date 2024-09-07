@@ -2,10 +2,20 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_paragraph.xsl                          -->
-<!-- Content : PROTEUS XSLT for subjects at US - paragraph    -->
+<!-- Content : PROTEUS XSLT for subjects at US - glossary-item-->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/07 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'glossary-item')]-->
+<!-- since glossary-item is a subclass of                     -->
+<!-- general-traceable-object.                                -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -21,10 +31,10 @@
 >
     
     <!-- =========================================================== -->
-    <!-- paragraph template                                          -->
+    <!-- glossary-item template                                          -->
     <!-- =========================================================== -->
 
-    <xsl:template match="object[@classes='glossary-item']">
+    <xsl:template match="object[contains(@classes,'glossary-item')]">
   
         <div id="{@id}"  data-proteus-id="{@id}">
             <p>
