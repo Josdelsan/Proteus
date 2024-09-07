@@ -7,6 +7,15 @@
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/07 (Amador Durán)                      -->
+<!-- match for TOC must be object[contains(@classes,'section')]-->
+<!-- since appendix is a subclass of section.                 -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -51,7 +60,7 @@
                 <nav id="toc" role="navigation">
                     <h1><xsl:value-of select="$proteus:lang_TOC"/></h1>
                     <ul class="toc_list toc_list_level_1">
-                        <xsl:apply-templates select="children/object[@classes='section' or @classes='appendix']" mode="toc"/>
+                        <xsl:apply-templates select="children/object[contains(@classes,'section')]" mode="toc"/>
                     </ul>
                 </nav>
 
