@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object id="stakeholder" classes="stakeholder" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+<object 
+  id="stakeholder" 
+  classes="stakeholder" 
+  acceptedChildren=":Proteus-none" 
+>
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Stakeholder]]></stringProperty>
-    <dateProperty name=":Proteus-date">2000-12-31</dateProperty>
-    <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
-    <stringProperty name="role" category="details"><![CDATA[]]></stringProperty>
-    <enumProperty name="category" category="details" choices="nd customer developer user">nd</enumProperty>
+    <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
+    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
+    <stringProperty name="role" category="detail"><![CDATA[tbd]]></stringProperty>
+    <enumProperty name="category" category="detail" choices="tbd customer developer user">tbd</enumProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />
   <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
-    <traceProperty name="works-for" category="details" acceptedTargets="organization" traceType=":Proteus-works-for"/>
+    <traceProperty name="works-for" category="detail" acceptedTargets="organization" traceType=":Proteus-works-for"/>
   </traces>
 </object>

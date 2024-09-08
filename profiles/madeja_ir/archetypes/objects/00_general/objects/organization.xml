@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object id="organization" classes="organization" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+<object 
+  id="organization" 
+  classes="organization" 
+  acceptedChildren=":Proteus-none"
+>
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Organization]]></stringProperty>
-    <dateProperty name=":Proteus-date">2000-12-31</dateProperty>
-    <floatProperty name="version"><![CDATA[1.0]]></floatProperty>
-    <stringProperty name="address" category="details"><![CDATA[]]></stringProperty>
-    <stringProperty name="phone-number" category="details"><![CDATA[]]></stringProperty>
-    <stringProperty name="fax" category="details"><![CDATA[]]></stringProperty>
+    <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
+    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
+    <stringProperty name="address" category="detail"><![CDATA[Organization address]]></stringProperty>
+    <stringProperty name="phone-number" category="detail"><![CDATA[555 123 456]]></stringProperty>
+		<urlProperty name="web" category="detail"><![CDATA[https://www.organization.com]]></urlProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />
   <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
   </traces>
 </object>

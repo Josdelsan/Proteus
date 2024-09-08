@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object id="arch-link" classes="archetype-link" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+<object 
+  id="symbolic-link" 
+  classes="symbolic-link" 
+  acceptedChildren=":Proteus-none" 
+>
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Archetype symbolic link]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Symbolic link]]></stringProperty>
   </properties>
   <children />
   <traces>
-    <traceProperty name="link" category="general" acceptedTargets="paragraph graphic-file external-resource meeting organization stakeholder actor constraint functional-requirement non-functional-requirement objective use-case" traceType=":Proteus-dependency"/>
+    <traceProperty name="link" category="general" acceptedTargets=":Proteus-any" traceType=":Proteus-link"/>
+    <!--
+      <traceProperty name="link" category="general" acceptedTargets="paragraph graphic-file external-resource meeting organization stakeholder actor constraint functional-requirement non-functional-requirement objective use-case" traceType=":Proteus-dependency"/>
+    -->
   </traces>
 </object>

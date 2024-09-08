@@ -2,8 +2,7 @@
 <object 
   id="local-resource" 
   classes="general-traceable-object local-resource" 
-  acceptedChildren=":Proteus-none" 
-  acceptedParents=":Proteus-any"
+  acceptedChildren=":Proteus-none"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Local US logo]]></stringProperty>

@@ -11,6 +11,7 @@
 <!-- encoding="iso-8859-1" -> enconding="utf-8"               -->
 <!-- graphica_file -> local_resource                          -->
 <!-- external_resource -> remote_resource                     -->
+<!-- archetype_link -> symbolic_link                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -44,6 +45,11 @@
     <xsl:include href="archetypes/general/PROTEUS_glossary_item.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_local_resource.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_remote_resource.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_organization.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_stakeholder.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_meeting.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_symbolic_link.xsl" />
+    
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
@@ -52,10 +58,6 @@
     <xsl:include href="archetypes/software/PROTEUS_constraint.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_functional_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_nonfunctional_requirement.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_organization.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_stakeholder.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_meeting.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_archetype_link.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />

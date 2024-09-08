@@ -3,7 +3,6 @@
   id="glossary-item" 
   classes="general-traceable-object glossary-item" 
   acceptedChildren=":Proteus-none" 
-  acceptedParents=":Proteus-any"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Glossary item]]></stringProperty>

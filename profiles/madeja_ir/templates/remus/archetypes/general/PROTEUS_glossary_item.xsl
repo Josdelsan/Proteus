@@ -31,7 +31,7 @@
 >
     
     <!-- =========================================================== -->
-    <!-- glossary-item template                                          -->
+    <!-- glossary-item template                                      -->
     <!-- =========================================================== -->
 
     <xsl:template match="object[contains(@classes,'glossary-item')]">

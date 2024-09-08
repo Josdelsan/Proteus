@@ -2,7 +2,7 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_properties.xsl                         -->
-<!-- Content : PROTEUS XSLT for subjects at US - properties   -->
+<!-- Content : PROTEUS default XSLT for properties            -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/12/08                                     -->
 <!-- Version : 1.0                                            -->
@@ -19,8 +19,6 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
-
     <!-- ============================================= -->
     <!-- traceProperty                                 -->
     <!-- ============================================= -->

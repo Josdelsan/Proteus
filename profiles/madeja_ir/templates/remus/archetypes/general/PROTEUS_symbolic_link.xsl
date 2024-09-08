@@ -2,10 +2,21 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_actor.xsl                              -->
-<!-- Content : PROTEUS XSLT for subjects at US - actor        -->
+<!-- Content : PROTEUS default XSLT for symbolic links        -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/07                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/08 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'appendix')]     -->
+<!-- since appendix is a subclass of section, and its classes -->
+<!-- attribute is "section appendix".                         -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,12 +30,11 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================= -->
-    <!-- proteus:actor template                        -->
+    <!-- symbolic-link template                        -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='archetype-link']">
+    <xsl:template match="object[contains(@classes,'symbolic-link')]">
 
         <div id="{@id}" class="symbolic-link" data-proteus-id="{@id}">
             <!-- Select traceProperty named link -->

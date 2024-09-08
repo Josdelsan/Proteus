@@ -17,7 +17,7 @@
 
 archetype.category.general: "General"
 archetype.category.business_requirements: "Requisitos de cliente"
-archetype.category.software_requirements: "Requisitos software"
+archetype.category.software_requirements: "Requisitos de sistema/software"
 archetype.category.conceptual_modeling: "Modelado conceptual"
 
 # -----------------------------------------------------------------------
@@ -74,6 +74,7 @@ archetype.class.constraint: "Restricción"
 archetype.prop_category.general: "General"
 archetype.prop_category.details: "Detalles"
 archetype.prop_category.detail: "Detalle"
+archetype.prop_category.results: "Resultados"
 archetype.prop_category.comments: "Comentarios"
 archetype.prop_category.conditions: "Condiciones"
 archetype.prop_category.priority: "Prioridad"
