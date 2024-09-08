@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_external_resource                      -->
-<!-- Content : PROTEUS XSLT for subjects at US - ext resource -->
+<!-- File    : PROTEUS_local_resource.xsl                     -->
+<!-- Content : PROTEUS default XSLT for local_resource        -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/08 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'appendix')]     -->
+<!-- since appendix is a subclass of section, and its classes -->
+<!-- attribute is "section appendix".                         -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- graphic-file -> local-resource                           -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -21,15 +32,16 @@
 >
 
 <!-- ======================================================== -->
-<!-- External resource template                               -->
+<!-- local-resoure template                                   -->
 <!-- ======================================================== -->
 
-<xsl:template match="object[@classes='external-resource']">
+<xsl:template match="object[contains(@classes,'local-resource')]"> 
 
-    <div id="{@id}"  data-proteus-id="{@id}">
+    <div id="{@id}" data-proteus-id="{@id}">
+
         <div class="figure">
-            <!-- Get file link -->
-            <xsl:variable name="file-link" select="properties/urlProperty[@name='url']"/>
+            <!-- Get file name with extension -->
+            <xsl:variable name="file_name" select="properties/fileProperty[@name='file']"/>
 
             <!-- Get the image width percentage -->
             <xsl:variable name="image_width_percentage">
@@ -43,7 +55,7 @@
 
             <img class="figure_image">
                 <xsl:attribute name="src">
-                    <xsl:value-of select="$file-link" disable-output-escaping="yes"/>
+                    <xsl:value-of select="concat('assets:///', $file_name)" disable-output-escaping="no"/>
                 </xsl:attribute>
 
                 <xsl:attribute name="style">
@@ -59,7 +71,7 @@
                     <!-- level is needed to avoid restarting numbering in each section -->
                     <xsl:number
                         from="object[@classes=':Proteus-document']"
-                        count="object[@classes='external-resource'] | object[@classes='graphic-file']"
+                        count="object[contains(@classes,'remote-resource')] | object[contains(@classes,'local-resource')]"
                         level="any"/>:
                     <xsl:text> </xsl:text>
                 </span>
@@ -69,6 +81,7 @@
                     <xsl:with-param name="content" select="properties/markdownProperty[@name='description']"/>
                 </xsl:call-template>
             </p>
+
         </div>
     </div>
 

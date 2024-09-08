@@ -2,10 +2,15 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_main.xsl                               -->
-<!-- Content : PROTEUS XSLT for subjects at US - main file    -->
+<!-- Content : PROTEUS default XSLT main file                 -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/08 (Amador Durán)                      -->
+<!-- encoding="iso-8859-1" -> enconding="utf-8"               -->
+<!-- graphica_file -> local_resource                          -->
+<!-- external_resource -> remote_resource                     -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,12 +24,11 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- Output -->
     <xsl:output method="html"
         doctype-public="XSLT-compat"
         omit-xml-declaration="yes"
-        encoding="iso-8859-1"
+        encoding="utf-8"
         indent="yes"
     />
 
@@ -38,9 +42,9 @@
     <xsl:include href="archetypes/general/PROTEUS_appendix.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_paragraph.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_glossary_item.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_local_resource.xsl" />
+    <xsl:include href="archetypes/general/PROTEUS_remote_resource.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_graphic_file.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_external_resource.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />

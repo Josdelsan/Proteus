@@ -1,0 +1,12 @@
+Mejoras a hacer en Proteus
+--------------------------
+
+- Pestaña "Dependencias" antes de "Comentarios". Los comentarios deben ser la última pestaña.
+
+- ¿Se podrían integrar las <traceProperty> en <properties> y así controlar mejor el orden de las pestañas.
+
+- Se pueden poner auto-dependencias de un objeto consigo mismo.
+
+- ¿Unificar imagen-local e imagen-remota en un solo arquetipo?
+
+-

@@ -2,7 +2,7 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_paragraph.xsl                          -->
-<!-- Content : PROTEUS XSLT for subjects at US - paragraph    -->
+<!-- Content : PROTEUS default XSLT for paragraph             -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
