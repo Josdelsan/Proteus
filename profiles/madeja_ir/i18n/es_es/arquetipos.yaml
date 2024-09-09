@@ -35,7 +35,7 @@ archetype.class.remote-resource: "Recurso remoto"
 archetype.class.organization: "Organización"
 archetype.class.stakeholder: "Participante"
 archetype.class.meeting: "Reunión"
-archetype.class.archetype-link: "Enlace simbólico"
+archetype.class.symbolic-link: "Enlace simbólico"
 
 # Business Requirements category
 
