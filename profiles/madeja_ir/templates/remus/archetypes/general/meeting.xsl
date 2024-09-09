@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_meeting.xsl                            -->
-<!-- Content : PROTEUS XSLT for subjects at US - meeting      -->
+<!-- File    : meeting.xsl                                    -->
+<!-- Content : PROTEUS default XSLT for meeting               -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/12/08                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/09 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'meeting')]      -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,14 +28,13 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================= -->
-    <!-- proteus:actor template                        -->
+    <!-- meeting template                              -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='meeting']">
+    <xsl:template match="object[contains(@classes,'meeting')]">
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+        <div id="{@id}" data-proteus-id="{@id}">
             <table class="meeting remus_table">
 
                 <!-- Header -->

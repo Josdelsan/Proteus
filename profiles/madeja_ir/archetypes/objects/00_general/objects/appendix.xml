@@ -5,7 +5,7 @@
   acceptedChildren=":Proteus-any" 
   acceptedParents=":Proteus-document">
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Ordinary appendix]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Apéndice]]></stringProperty>
     <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
   </properties>
   <children />

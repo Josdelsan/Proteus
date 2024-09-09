@@ -5,10 +5,10 @@
   acceptedChildren=":Proteus-none" 
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Stakeholder]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Participante]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-    <stringProperty name="role" category="detail"><![CDATA[tbd]]></stringProperty>
+    <stringProperty name="role" category="detail"><![CDATA[]]></stringProperty>
     <enumProperty name="category" category="detail" choices="tbd customer developer user">tbd</enumProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>

@@ -39,16 +39,15 @@
     <xsl:include href="PROTEUS_cover.xsl" />
     <xsl:include href="PROTEUS_document.xsl" />
 
-    <xsl:include href="archetypes/general/PROTEUS_section.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_appendix.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_paragraph.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_glossary_item.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_local_resource.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_remote_resource.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_organization.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_stakeholder.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_meeting.xsl" />
-    <xsl:include href="archetypes/general/PROTEUS_symbolic_link.xsl" />
+    <xsl:include href="archetypes/general/section.xsl" />
+    <xsl:include href="archetypes/general/appendix.xsl" />
+    <xsl:include href="archetypes/general/paragraph.xsl" />
+    <xsl:include href="archetypes/general/glossary_item.xsl" />
+    <xsl:include href="archetypes/general/figure.xsl" />
+    <xsl:include href="archetypes/general/organization.xsl" />
+    <xsl:include href="archetypes/general/stakeholder.xsl" />
+    <xsl:include href="archetypes/general/meeting.xsl" />
+    <xsl:include href="archetypes/general/symbolic_link.xsl" />
     
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />

@@ -6,7 +6,7 @@
   acceptedParents=":Proteus-document section"
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Ordinary section]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Sección]]></stringProperty>
     <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
   </properties>
   

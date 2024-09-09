@@ -6,11 +6,7 @@
         <icon key="appendix" file="appendix.png" />
         <icon key="paragraph" file="paragraph.png" />
         <icon key="glossary-item" file="glossary-item.png" />
-        <icon key="local-resource" file="local-resource.png" />
-        <icon key="remote-resource" file="remote-resource.png" />
-        <!--
-        <icon key="graphic-file" file="graphic-file.png" />
-        -->
+        <icon key="figure" file="figure.png" />
         <icon key="stakeholder" file="stakeholder.png" />
         <icon key="organization" file="organization.png" />
         <icon key="meeting" file="meeting.png" />

@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object 
-  id="remote-resource" 
-  classes="general-traceable-object remote-resource" 
+  id="image" 
+  classes="general-traceable-object figure" 
   acceptedChildren=":Proteus-none"
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Remote US logo]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Figura local]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
+	  <fileProperty name="file" tooltip="file-info"><![CDATA[us-logo.jpg]]></fileProperty>
+		<urlProperty name="url"><![CDATA[]]></urlProperty>    
     <integerProperty name="width" tooltip="width-info">20</integerProperty>
-    <markdownProperty name="description" category="detail"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Logo de la Universidad de Sevilla]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
+
   <children />
+  
   <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>

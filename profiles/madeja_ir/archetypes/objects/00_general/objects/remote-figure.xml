@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object 
-  id="local-resource" 
-  classes="general-traceable-object local-resource" 
+  id="remote-resource" 
+  classes="general-traceable-object figure" 
   acceptedChildren=":Proteus-none"
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Local US logo]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Figura remota]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-	  <fileProperty name="file" tooltip="file-info"><![CDATA[us-logo.jpg]]></fileProperty>
+		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
     <integerProperty name="width" tooltip="width-info">20</integerProperty>
-    <markdownProperty name="description" category="details"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[Logo de la Universidad de Sevilla]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_appendix.xsl                           -->
+<!-- File    : appendix.xsl                                   -->
 <!-- Content : PROTEUS default XSLT for appendix              -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/07/29                                     -->

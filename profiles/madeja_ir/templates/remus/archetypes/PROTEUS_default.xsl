@@ -17,7 +17,7 @@
     <!-- Match any object -->
     <xsl:template match="object">
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+        <div id="{@id}" data-proteus-id="{@id}">
             <!-- Display properties in a table -->
             <table class="remus_table">
                 <tr style="background-color: powderblue;">

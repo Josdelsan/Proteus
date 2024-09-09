@@ -135,6 +135,7 @@
 <xsl:variable name="proteus:lang_code_postconditions">// postcondiciones</xsl:variable>
 <xsl:variable name="proteus:lang_code_exception">exception</xsl:variable>
 <xsl:variable name="proteus:lang_code_exceptions">// excepciones</xsl:variable>
+<xsl:variable name="proteus:lang_web">Sitio web</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

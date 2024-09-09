@@ -6,7 +6,7 @@
   acceptedParents=":Proteus-document section"
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Empty paragraph]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Párrafo]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <markdownProperty name="text" category="detail"><![CDATA[]]></markdownProperty>

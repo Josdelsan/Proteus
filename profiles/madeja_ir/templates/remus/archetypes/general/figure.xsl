@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_local_resource.xsl                     -->
-<!-- Content : PROTEUS default XSLT for local_resource        -->
+<!-- File    : figure.xsl                                     -->
+<!-- Content : PROTEUS default XSLT for figure                -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 <!-- Update  : 2024/09/08 (Amador Durán)                      -->
-<!-- match must be object[ends-with(@classes,'appendix')]     -->
-<!-- since appendix is a subclass of section, and its classes -->
-<!-- attribute is "section appendix".                         -->
+<!-- match must be object[ends-with(@classes,'figure')]       -->
 <!-- To check if an object is of a given class:               -->
 <!--    object[contains(@classes,class_name)]                 -->
 <!-- To check if an object is of a given final class:         -->
 <!--    object[ends-with(@classes,class_name)]                -->
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
-<!-- graphic-file -> local-resource                           -->
+<!-- graphic-file -> figure                                   -->
+<!-- external-resource -> figure                              -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -32,16 +31,19 @@
 >
 
 <!-- ======================================================== -->
-<!-- local-resoure template                                   -->
+<!-- figure template                                          -->
 <!-- ======================================================== -->
 
-<xsl:template match="object[contains(@classes,'local-resource')]"> 
+<xsl:template match="object[contains(@classes,'figure')]"> 
 
     <div id="{@id}" data-proteus-id="{@id}">
 
         <div class="figure">
             <!-- Get file name with extension -->
-            <xsl:variable name="file_name" select="properties/fileProperty[@name='file']"/>
+            <xsl:variable name="figure_path" select="properties/fileProperty[@name='file']"/>
+
+            <!-- Get file link -->
+            <xsl:variable name="figure_url" select="properties/urlProperty[@name='url']"/>
 
             <!-- Get the image width percentage -->
             <xsl:variable name="image_width_percentage">
@@ -53,9 +55,17 @@
                 </xsl:choose>
             </xsl:variable>
 
+            <!-- Generate <img> element -->
             <img class="figure_image">
                 <xsl:attribute name="src">
-                    <xsl:value-of select="concat('assets:///', $file_name)" disable-output-escaping="no"/>
+                    <xsl:choose>
+                        <xsl:when test="$figure_path">
+                            <xsl:value-of select="concat('assets:///', $figure_path)" disable-output-escaping="no"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="$figure_url" disable-output-escaping="yes"/>                        
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:attribute>
 
                 <xsl:attribute name="style">
@@ -63,6 +73,7 @@
                 </xsl:attribute>
             </img>
 
+            <!-- Generate figure caption -->
             <p class="figure_caption">
                 <span class="figure_caption_label">
                     <xsl:value-of select="$proteus:lang_figure"/>
@@ -71,12 +82,12 @@
                     <!-- level is needed to avoid restarting numbering in each section -->
                     <xsl:number
                         from="object[@classes=':Proteus-document']"
-                        count="object[contains(@classes,'remote-resource')] | object[contains(@classes,'local-resource')]"
+                        count="object[contains(@classes,'figure')]"
                         level="any"/>:
                     <xsl:text> </xsl:text>
                 </span>
                 
-                <!-- applying markdown -->
+                <!-- apply markdown -->
                 <xsl:call-template name="generate_markdown">
                     <xsl:with-param name="content" select="properties/markdownProperty[@name='description']"/>
                 </xsl:call-template>

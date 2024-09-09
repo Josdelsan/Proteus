@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_organization.xsl                       -->
-<!-- Content : PROTEUS XSLT for subjects at US - organization -->
+<!-- File    : organization.xsl                               -->
+<!-- Content : PROTEUS default XSLT organization              -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/12/07                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/09 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'organization')] -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,14 +28,13 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================= -->
-    <!-- proteus:organization template                 -->
+    <!-- organization template                         -->
     <!-- ============================================= -->
-<!--  -->
-    <xsl:template match="object[@classes='organization']">
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+    <xsl:template match="object[contains(@classes,'organization')]">
+
+        <div id="{@id}" data-proteus-id="{@id}">
             <table class="organization remus_table">
 
                 <!-- Header-->
@@ -48,10 +56,10 @@
                     <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
                 </xsl:call-template>
 
-                <!-- fax -->
+                <!-- web -->
                 <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"     select="$proteus:lang_fax"/>
-                    <xsl:with-param name="content"   select="properties/stringProperty[@name='fax']"/>
+                    <xsl:with-param name="label"     select="$proteus:lang_web"/>
+                    <xsl:with-param name="content"   select="properties/stringProperty[@name='web']"/>
                 </xsl:call-template>
 
                 <!-- Comments -->

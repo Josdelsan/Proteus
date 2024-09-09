@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_section.xsl                            -->
+<!-- File    : section.xsl                                    -->
 <!-- Content : PROTEUS default XSLT for section               -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/09 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'section')]      -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- NOTE: in this case, @classes='section' is kept to avoid  -->
+<!-- matching with appendix, whics is a subclass of section   -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,7 +29,6 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-    
     <!-- ============================================= -->
     <!-- section template                              -->
     <!-- ============================================= -->
@@ -116,6 +125,5 @@
             </ul>
         </xsl:if>
     </xsl:template>
-
 
 </xsl:stylesheet>

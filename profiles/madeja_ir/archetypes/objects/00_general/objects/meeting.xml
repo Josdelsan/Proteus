@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object id="meeting" classes="meeting" acceptedChildren=":Proteus-none" acceptedParents=":Proteus-any">
+<object 
+  id="meeting" 
+  classes="meeting" 
+  acceptedChildren=":Proteus-none" 
+>
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Meeting]]></stringProperty>
-    <dateProperty name=":Proteus-date" category="details">2000-12-31</dateProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Reunión]]></stringProperty>
+    <dateProperty name=":Proteus-date" category="details">2024-09-01</dateProperty>
     <timeProperty name="time" category="details">12:00:00</timeProperty>
     <stringProperty name="place" category="details"><![CDATA[]]></stringProperty>
     <markdownProperty name="results" category="results"><![CDATA[]]></markdownProperty>

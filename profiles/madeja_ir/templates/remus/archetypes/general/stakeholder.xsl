@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_stakeholder.xsl                        -->
-<!-- Content : PROTEUS XSLT for subjects at US - stakeholder  -->
+<!-- File    : stakeholder.xsl                                -->
+<!-- Content : PROTEUS default XSLT for stakeholder           -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/07                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/09 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'stakeholder')]  -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
+<!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,20 +28,19 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================= -->
-    <!-- proteus:stakeholder template                  -->
+    <!-- stakeholder template                          -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='stakeholder']">
+    <xsl:template match="object[contains(@classes,'stakeholder')]">
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+        <div id="{@id}" data-proteus-id="{@id}">
             <table class="stakeholder remus_table">
 
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
-                    <xsl:with-param name="label"   select="$proteus:lang_stakeholder"/>
-                    <xsl:with-param name="class"   select="'stakeholder'"/>
+                    <xsl:with-param name="label" select="$proteus:lang_stakeholder"/>
+                    <xsl:with-param name="class" select="'stakeholder'"/>
                 </xsl:call-template>
 
                 <!-- Organization -->

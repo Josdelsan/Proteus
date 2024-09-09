@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_actor.xsl                              -->
-<!-- Content : PROTEUS default XSLT for symbolic links        -->
+<!-- File    : symbolic_link.xsl                              -->
+<!-- Content : PROTEUS default XSLT for symbolic-link         -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/07                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
-<!-- Update  : 2024/09/08 (Amador Durán)                      -->
-<!-- match must be object[ends-with(@classes,'appendix')]     -->
-<!-- since appendix is a subclass of section, and its classes -->
-<!-- attribute is "section appendix".                         -->
+<!-- Update  : 2024/09/09 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'symbolic-link')]-->
 <!-- To check if an object is of a given class:               -->
 <!--    object[contains(@classes,class_name)]                 -->
 <!-- To check if an object is of a given final class:         -->
