@@ -993,7 +993,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         for child in object.get_descendants():
 
             # Skip if object is DEAD or not a section
-            if child.state == ProteusState.DEAD or "section" not in child.classes:
+            if child.state == ProteusState.DEAD or child.classes[-1] != 'section':
                 continue
 
             # Set the section index
@@ -1036,7 +1036,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         for child in object.get_descendants():
 
             # Skip if object is DEAD or not an appendix
-            if child.state == ProteusState.DEAD or "appendix" not in child.classes:
+            if child.state == ProteusState.DEAD or child.classes[-1] != 'appendix':
                 continue
 
             # Set the appendix index
