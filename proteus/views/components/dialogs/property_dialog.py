@@ -254,7 +254,7 @@ class PropertyDialog(ProteusDialog):
         """
         # Create the property input widget and label
         input_field_widget: PropertyInput = PropertyInputFactory.create(
-            prop, controller=self._controller
+            prop, element_id=self.element_id, controller=self._controller
         )
         input_label: QLabel = PropertyInputFactory.generate_label(prop)
 

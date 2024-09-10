@@ -787,7 +787,6 @@ def test_update_traces_discard_one_invalid_target(mocker, basic_project_service:
     ), f"Element state should be DIRTY"
 
 
-
 @pytest.mark.parametrize(
     "trace_list",
     [
@@ -907,6 +906,53 @@ def test_update_traces_negative_dead_object(
     # Cannot check CLEAN state because the element is tracing itself and it is a dead object
     # Anyways, if _load_traces_index is not called, the state should remain the same. It is
     # tested in previous tests.
+
+
+def test_update_traces_negative_self_tracing(
+    mocker,
+    basic_project_service: ProjectService,
+    mock_trace: Trace,
+):
+    """
+    Test the update_traces method with invalid traces parameters. The traces
+    contains a dead object.
+    """
+    # Arrange -------------------------
+    # A document tracing itself
+    mock_element = mocker.MagicMock(spec=Object)
+    mock_element.id = "id"
+    mock_element.traces = {}
+    mock_element.state = ProteusState.CLEAN
+    mock_element.classes = ["mock_class"]
+    mocker.patch.object(
+        basic_project_service, "_get_element_by_id", return_value=mock_element
+    )
+
+    mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
+
+    mock_trace.targets = ["id"]
+    trace_list = [mock_trace]
+
+    # Act -----------------------------
+    basic_project_service.update_traces("id", trace_list)
+
+
+    # Assert --------------------------
+    # Check mock_element traces are empty
+    assert (
+        len(mock_element.traces) == 0
+    ), f"Object traces should be empty but it is {mock_element.traces}"
+
+    # load_traces_index should not be called
+    assert (
+        basic_project_service._load_traces_index.call_count == 0
+    ), f"_load_traces_index should not be called"
+
+    # Element state should remain CLEAN
+    assert (
+        mock_element.state == ProteusState.CLEAN
+    ), f"Object state should be CLEAN but it is {mock_element.state}"
+
 
 
 # test_get_element_by_id ---------------------------------------------------

@@ -410,19 +410,20 @@ class ProjectService:
             valid_targets = trace.targets.copy()
             invalid_target_found_flag = False
 
-            # Check if there is a trace to a DEAD object or DOCUMENT to discard it
+            # Check if there is a trace to a DEAD object, DOCUMENT or the element itself to discard it
             for target_id in trace.targets:
                 try:
                     target = self._get_element_by_id(target_id)
                     if (
                         target.state == ProteusState.DEAD
                         or PROTEUS_DOCUMENT in target.classes
+                        or target_id == element_id
                     ):
                         valid_targets.remove(target_id)
                         invalid_target_found_flag = True
                         log.warning(
-                            f"Trace from object '{element_id}' to target '{target_id}' was discarded because it is a DOCUMENT or it has DEAD state."
-                            f"Target is state is {target.state} and classes are {target.classes}."
+                            f"Trace from object '{element_id}' to target '{target_id}' was discarded because it is a DOCUMENT, it has DEAD state or it is the same object. "
+                            f"Target is state is '{target.state}', target classes are '{target.classes}', target_id is '{target_id}' and element_id is '{element_id}'"
                         )
                 except Exception as e:
                     valid_targets.remove(target_id)

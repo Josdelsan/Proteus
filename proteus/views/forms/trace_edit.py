@@ -86,6 +86,7 @@ class TraceEdit(QWidget):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        element_id: ProteusID,
         controller: Controller = None,
         accepted_targets: List[ProteusClassTag] = [],
         limit: int = NO_TARGETS_LIMIT,
@@ -94,8 +95,16 @@ class TraceEdit(QWidget):
     ):
         """
         Object initialization.
+
+        :param element_id: ProteusID of the element that is being edited.
+        :param controller: Controller instance to get the objects.
+        :param accepted_targets: List of ProteusClassTag as accepted targets.
+        :param limit: Maximum number of targets allowed.
         """
         super().__init__(*args, **kwargs)
+
+        # Validate element_id
+        assert element_id is not None, "TraceEdit requires an element_id to be initialized."
 
         # Validate controller
         assert isinstance(
@@ -111,6 +120,7 @@ class TraceEdit(QWidget):
         ), f"TraceEdit requires an integer as limit. Limit argument is type {type(limit)}"
 
         # Arguments initialization
+        self.element_id: ProteusID = element_id
         self.controller: Controller = controller
         self.accepted_targets: List[ProteusClassTag] = accepted_targets
         self.limit: int = limit
@@ -260,6 +270,7 @@ class TraceEdit(QWidget):
         """
         # Create dialog
         trace: ProteusID = TraceEditDialog.create_dialog(
+            element_id=self.element_id,
             controller=self.controller,
             accepted_classes=self.accepted_targets,
             targets=self.traces(),
@@ -366,6 +377,7 @@ class TraceEditDialog(QDialog):
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        element_id: ProteusID,
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
         targets: List[ProteusID] = [],
@@ -374,6 +386,11 @@ class TraceEditDialog(QDialog):
     ):
         """
         Dialog initialization.
+
+        :param element_id: ProteusID of the element that is being edited.
+        :param controller: Controller instance to get the objects.
+        :param accepted_classes: List of ProteusClassTag as accepted classes.
+        :param targets: List of ProteusID as targets to discard.
         """
         super().__init__(*args, **kwargs)
 
@@ -404,6 +421,7 @@ class TraceEditDialog(QDialog):
         self.class_selector_combo: CheckComboBox = None
 
         # Initialize variables
+        self.edited_element_id: ProteusID = element_id
         self.selected_object: ProteusID = None
 
         # Create component
@@ -462,8 +480,8 @@ class TraceEditDialog(QDialog):
         classes_set = set()
         object: Object
         for object in objects:
-            # Skip objects that are already traced
-            if object.id in self.targets:
+            # Skip objects that are already traced or the object itself
+            if object.id in self.targets or object.id == self.edited_element_id:
                 continue
 
             # Create QListWidgetItem
@@ -495,7 +513,10 @@ class TraceEditDialog(QDialog):
             class_icon = Icons().icon(ProteusIconType.Archetype, _class)
 
             # Add item
-            self.class_selector_combo.addItem(class_name_tr, _class, True, class_icon)
+            if _class == PROTEUS_ANY:
+                self.class_selector_combo.addItem(class_name_tr, _class, True, class_icon)
+            else:
+                self.class_selector_combo.addItem(class_name_tr, _class, False, class_icon)
 
         # Connect activated signal
         self.class_selector_combo.activated.connect(self.update_list_widget)
@@ -694,6 +715,7 @@ class TraceEditDialog(QDialog):
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
+        element_id: ProteusID,
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
         targets: List[ProteusID] = [],
@@ -702,7 +724,7 @@ class TraceEditDialog(QDialog):
         Creates and executes the dialog.
         """
         # Create dialog
-        dialog = TraceEditDialog(controller, accepted_classes, targets)
+        dialog = TraceEditDialog(element_id, controller, accepted_classes, targets)
 
         # Execute dialog
         result = dialog.exec()

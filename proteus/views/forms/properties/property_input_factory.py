@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import QLabel, QSizePolicy
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import translate as _
 
@@ -116,7 +117,7 @@ class PropertyInputFactory:
     # ----------------------------------------------------------------------
     @staticmethod
     def create(
-        property: Union[Property, Trace], controller: Controller = None
+        property: Union[Property, Trace], element_id: ProteusID = None, controller: Controller = None
     ) -> PropertyInput:
         try:
             # Retrieve the input class for the given property type or trace
@@ -124,7 +125,7 @@ class PropertyInputFactory:
                 type(property)
             ]
             property_input: PropertyInput = property_input_class(
-                property, controller=controller
+                property, controller=controller, element_id=element_id
             )
             return property_input
         except KeyError:

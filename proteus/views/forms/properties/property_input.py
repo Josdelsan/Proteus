@@ -33,6 +33,7 @@ from PyQt6.QtWidgets import (
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
@@ -62,15 +63,16 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
     """
 
     def __init__(
-        self, property: Property | Trace, controller: Controller = None, *args, **kwargs
+        self, property: Property | Trace, controller: Controller = None, element_id: ProteusID = None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
 
-        # Initialize controller
+        # Initialize variables
         self.controller: Controller = controller
+        self.element_id: ProteusID = element_id
 
         # Initialize input widget by calling the abstract method
-        self.input: QWidget = self.create_input(property, controller)
+        self.input: QWidget = self.create_input(property, controller, element_id)
         self.property: Property | Trace = property
 
         # Create the component
