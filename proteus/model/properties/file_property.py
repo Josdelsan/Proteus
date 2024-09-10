@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import ClassVar
 from pathlib import Path
 import logging
+import re
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -90,12 +91,23 @@ class FileProperty(Property):
         It generates the value of the property for its XML element.
         """
 
-        _value = self.value
+        # XML 1.0 valid characters: https://www.w3.org/TR/xml/#charsets
+        # Remove any character that does not match this pattern
+        pattern = re.compile(
+            "["
+            "\U00000009\U0000000A\U0000000D"
+            "\U00000020-\U0000D7FF"
+            "\U0000E000-\U0000FFFD"
+            "\U00010000-\U0010FFFF"
+            "]+",
+            re.UNICODE,
+        )
+        sanitized_value = "".join(pattern.findall(self.value))
 
         # Check the value is not empty when required
         if self.required:
             assert not (
-                _value == None or _value == ""
+                sanitized_value == None or sanitized_value == ""
             ), f"fileProperty '{self.name}' is required but has no value"
 
-        return ET.CDATA(_value)
+        return ET.CDATA(sanitized_value)

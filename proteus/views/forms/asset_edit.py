@@ -88,6 +88,13 @@ class AssetEdit(QWidget):
         self.input = QLineEdit()
         self.input.setDisabled(True)
 
+        # Delete button
+        delete_button_icon: Path = Icons().icon(
+            ProteusIconType.App, "delete_file_input_icon"
+        )
+        self.delete_button = QPushButton()
+        self.delete_button.setIcon(delete_button_icon)
+
         # Browse button
         browse_button_icon: Path = Icons().icon(
             ProteusIconType.App, "browse_asset_icon"
@@ -98,12 +105,14 @@ class AssetEdit(QWidget):
         # Layout setup -----------------------------------------------------
         layout = QHBoxLayout()
         layout.addWidget(self.input)
+        layout.addWidget(self.delete_button)
         layout.addWidget(self.browse_button)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
         # Connect signals --------------------------------------------------
         self.browse_button.clicked.connect(self._open_file_dialog)
+        self.delete_button.clicked.connect(self.delete_input_button_clicked)
 
     # ----------------------------------------------------------------------
     # Method     : asset
@@ -170,7 +179,7 @@ class AssetEdit(QWidget):
         selected_file = file_dialog.getOpenFileName(
             self,
             caption=_('asset_edit.file_dialog.title'),
-            directory=assets_path.as_posix(),
+            directory=(assets_path / self.input.text()).as_posix(),
             filter=f"{_('asset_edit.file_dialog.filter')} (*.png *.jpeg *.jpg *.gif *.svg *.bmp *.ico *.tiff *.tif)",
         )
 
@@ -224,3 +233,16 @@ class AssetEdit(QWidget):
             # the project directory
             file_name = file_path.name
             self.input.setText(file_name)
+       
+    # ----------------------------------------------------------------------
+    # Method     : delete_input_button_clicked
+    # Description: Deletes the input text.
+    # Date       : 10/09/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def delete_input_button_clicked(self) -> None:
+        """
+        Deletes the input text.
+        """
+        self.input.clear()

@@ -564,6 +564,10 @@ class Object(AbstractObject):
             """
             Helper function that handles the asset cloning.
             """
+            # Skip if the asset property value is None or empty
+            if not asset_property.value:
+                return
+
             # Build the source assets path
             # Check if the cloned object is an archetype based on the project property
             source_assets_path: pathlib.Path = None
