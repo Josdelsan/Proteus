@@ -139,13 +139,21 @@
 <xsl:variable name="proteus:lang_code_exceptions">// exceptions</xsl:variable>
 <xsl:variable name="proteus:lang_web">Website</xsl:variable>
 
-<!-- PROTEUS enumerations dictionary (to be used with key)-->
-<xsl:variable name="proteus:enum_dict">
-    <enum name="tbd">To Be Determined</enum>
-    <enum name="customer">Customer</enum>
-    <enum name="developer">Developer</enum>
-    <enum name="user">User</enum>
-</xsl:variable>
+<!-- PROTEUS enumerations dictionary -->
+<!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
+<!-- tbd is not translated to be used as the universal TBD mark             -->
+<xsl:template name="enum_value">
+    <xsl:param name="key"/>
+    <xsl:choose>
+        <xsl:when test="$key = 'tbd'">tbd</xsl:when>
+        <xsl:when test="$key = 'customer'">Customer</xsl:when>
+        <xsl:when test="$key = 'developer'">Developer</xsl:when>
+        <xsl:when test="$key = 'user'">User</xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="$key"/><xsl:text>?</xsl:text>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
 
 <!-- ================== -->
 <!-- General L-patterns -->

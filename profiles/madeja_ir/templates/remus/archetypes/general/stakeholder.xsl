@@ -27,8 +27,6 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
-    xmlns:ext="http://exslt.org/common"
-    extension-element-prefixes="ext"
 >
     <!-- ============================================= -->
     <!-- stakeholder template                          -->
@@ -71,16 +69,18 @@
                     <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
-                <!-- Category -->
-                <xsl:variable name="category" select="properties/enumProperty[@name='category']"/>
-                <xsl:variable name="diccionario" select="$proteus:enum_dict" as="node()"/>
-                <tr>Categoría = "<xsl:value-of select="$category"/>" (<xsl:value-of select="$category/text()"/>)</tr>
-                <tr>Enum = "<xsl:value-of select="$diccionario"/>" </tr>
+                <!-- Category (enum property) -->
+                <xsl:variable name="category_key" select="properties/enumProperty[@name='category']"/>
+                <xsl:variable name="category_value">
+                    <xsl:call-template name="enum_value">
+                        <xsl:with-param name="key" select="$category_key"/>
+                    </xsl:call-template>                    
+                </xsl:variable>
+
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label" select="$proteus:lang_category"/>
-                    <!-- <xsl:with-param name="content" select="key('enum-dict', properties/enumProperty[@name='category'])"/> -->
-                    <!-- <xsl:with-param name="content" select="properties/enumProperty[@name='category']"/> -->
-                    <!-- <xsl:with-param name="content" select="$proteus:enum_dict/enum[@name=$category]/text()"/> -->
+                    <xsl:with-param name="content" select="$category_value"/>
+                    <xsl:with-param name="mandatory" select="true()"/>                    
                 </xsl:call-template>
 
                 <!-- Comments -->

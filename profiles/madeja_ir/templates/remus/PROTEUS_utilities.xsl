@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_document.xsl                           -->
-<!-- Content : PROTEUS XSLT for subjects at US - utilities    -->
+<!-- File    : PROTEUS_utilities.xsl                          -->
+<!-- Content : PROTEUS default XSLT - utilities               -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/09                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/10 (Amador Durán)                      -->
+<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
+<!-- limitations.                                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -18,8 +22,9 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
+    xmlns:exsl="http://exslt.org/common"
+    extension-element-prefixes="exsl"    
 >
-
     <!-- Base URL for icons -->
     <xsl:variable name="base_url_icons">templates:///remus/resources/images/</xsl:variable>
 
@@ -50,7 +55,6 @@
         
     </xsl:template>
 
-
     <!-- ============================================= -->
     <!-- generate_property_row template                -->
     <!-- ============================================= -->
@@ -70,11 +74,11 @@
                 </th>
                 <td colspan="{$span}">
                     <xsl:choose>
-                        <xsl:when test="not($nonempty_content)">
+                        <xsl:when test="not($nonempty_content) or normalize-space($content) = 'tbd'">
                             <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:apply-templates select="$content"/>
+                            <xsl:apply-templates select="exsl:node-set($content)"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </td>

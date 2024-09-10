@@ -22,6 +22,8 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
+    xmlns:exsl="http://exslt.org/common"
+    extension-element-prefixes="exsl"
 >
 
 <!-- Same as default in REM 1.2.2 -->
@@ -139,13 +141,21 @@
 <xsl:variable name="proteus:lang_code_exceptions">// excepciones</xsl:variable>
 <xsl:variable name="proteus:lang_web">Sitio web</xsl:variable>
 
-<!-- PROTEUS enumerations dictionary (to be used with key)-->
-<xsl:variable name="proteus:enum_dict">
-    <enum name="tbd">Por determinar</enum>
-    <enum name="customer">Cliente</enum>
-    <enum name="developer">Desarrollador</enum>
-    <enum name="user">Usuario</enum>
-</xsl:variable>
+<!-- PROTEUS enumerations dictionary -->
+<!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
+<!-- tbd is not translated to be used as the universal TBD mark             -->
+<xsl:template name="enum_value">
+    <xsl:param name="key"/>
+    <xsl:choose>
+        <xsl:when test="$key = 'tbd'">tbd</xsl:when>
+        <xsl:when test="$key = 'customer'">Cliente</xsl:when>
+        <xsl:when test="$key = 'developer'">Desarrollador</xsl:when>
+        <xsl:when test="$key = 'user'">Usuario</xsl:when>
+        <xsl:otherwise>
+            <xsl:text>¿</xsl:text><xsl:value-of select="$key"/><xsl:text>?</xsl:text>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->
