@@ -62,7 +62,7 @@ def sample_project_service():
         ("document_with_traced_objects"),
     ],
 )
-def test_delete_object_command_redo(
+def test_delete_document_command_redo(
     sample_project_service: ProjectService,
     document_name,
 ):
@@ -86,6 +86,7 @@ def test_delete_object_command_redo(
     object_and_children_ids = object.get_ids()
 
     # Find objects that are tracing the object or its children (sources)
+    # NOTE: Document should not be traced so this is necessary only for its children
     sources_ids = set()
     for target_id, sources in sample_project_service.traces_index.items():
         for source_id in sources:
@@ -160,7 +161,7 @@ def test_delete_object_command_redo(
         ("document_with_traced_objects"),
     ],
 )
-def test_delete_object_command_undo(
+def test_delete_document_command_undo(
     sample_project_service: ProjectService,
     document_name,
 ):

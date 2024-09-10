@@ -405,11 +405,46 @@ class ProjectService:
             element, (Object)
         ), f"Element with id {element_id} is not an object. Traces can only be added to objects"
 
+        discarded_traces = []
         for trace in traces:
-            element.traces[trace.name] = trace
+            valid_targets = trace.targets.copy()
+            invalid_target_found_flag = False
 
-        # If traces list is not empty
-        if traces:
+            # Check if there is a trace to a DEAD object or DOCUMENT to discard it
+            for target_id in trace.targets:
+                try:
+                    target = self._get_element_by_id(target_id)
+                    if (
+                        target.state == ProteusState.DEAD
+                        or PROTEUS_DOCUMENT in target.classes
+                    ):
+                        valid_targets.remove(target_id)
+                        invalid_target_found_flag = True
+                        log.warning(
+                            f"Trace from object '{element_id}' to target '{target_id}' was discarded because it is a DOCUMENT or it has DEAD state."
+                            f"Target is state is {target.state} and classes are {target.classes}."
+                        )
+                except Exception as e:
+                    valid_targets.remove(target_id)
+                    invalid_target_found_flag = True
+
+                    log.warning(
+                        f"Trace from object '{element_id}' to target '{target_id}' was discarded because error: {e}."
+                    )
+
+            # Set the new targets if necessary
+            if not valid_targets and invalid_target_found_flag:
+                discarded_traces.append(trace)
+                log.warning(
+                    f"Trace from object '{element_id}' to target '{trace.targets}' was discarded because all targets are DEAD or DOCUMENT."
+                )
+            elif len(valid_targets) < len(trace.targets):
+                element.traces[trace.name] = trace.clone(new_targets=valid_targets)
+            else:
+                element.traces[trace.name] = trace
+
+        # If traces list is not empty and not all traces were discarded, set element state to DIRTY
+        if traces and len(discarded_traces) < len(traces):
             # Reload traces index
             self._load_traces_index()
 
@@ -613,6 +648,8 @@ class ProjectService:
         Get the objects of the current project. They can be filtered by classes.
         If classes is empty, is None or contains :Proteus-any, return all objects.
 
+        This method does not return :Proteus-document objects.
+
         :param classes: List of classes to filter objects.
         :type classes: List[ProteusClassTag]
         :return: List of objects.
@@ -626,7 +663,11 @@ class ProjectService:
         if not classes or PROTEUS_ANY in classes:
             # Iterate over project index and drop project and dead objects
             for element in self.project_index.values():
-                if isinstance(element, Object) and element.state != ProteusState.DEAD:
+                if (
+                    isinstance(element, Object)
+                    and element.state != ProteusState.DEAD
+                    and PROTEUS_DOCUMENT not in element.classes
+                ):
                     objects.append(element)
 
         # else, filter objects by classes droping project and dead objects
@@ -634,7 +675,11 @@ class ProjectService:
             object: Object
             # Iterate over all objects in the project
             for object in self.project_index.values():
-                if object.state == ProteusState.DEAD or not isinstance(object, Object):
+                if (
+                    object.state == ProteusState.DEAD
+                    or not isinstance(object, Object)
+                    or PROTEUS_DOCUMENT in object.classes
+                ):
                     continue
 
                 # Get object classes

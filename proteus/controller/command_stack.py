@@ -630,6 +630,10 @@ class Controller:
     def get_objects(self, classes: List[ProteusClassTag] = []) -> List[Object]:
         """
         Get the objects of the current project. They can be filtered by classes.
+
+        This method does not return the documents of the project.
+
+        :param classes: List of classes to filter the objects.
         """
         log.info(f"Getting objects of current project with classes: {classes}")
         return self._project_service.get_objects(classes)
