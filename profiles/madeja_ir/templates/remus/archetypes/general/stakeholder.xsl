@@ -27,6 +27,8 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
+    xmlns:ext="http://exslt.org/common"
+    extension-element-prefixes="ext"
 >
     <!-- ============================================= -->
     <!-- stakeholder template                          -->
@@ -70,12 +72,16 @@
                 </xsl:call-template>
 
                 <!-- Category -->
-                <xsl:if test="properties/enumProperty[@name='category'] != 'nd'">
-                    <xsl:call-template name="generate_property_row">
-                        <xsl:with-param name="label"   select="$proteus:lang_category"/>
-                        <xsl:with-param name="content" select="properties/enumProperty[@name='category']"/>
-                    </xsl:call-template>
-                </xsl:if>
+                <xsl:variable name="category" select="properties/enumProperty[@name='category']"/>
+                <xsl:variable name="diccionario" select="$proteus:enum_dict" as="node()"/>
+                <tr>Categoría = "<xsl:value-of select="$category"/>" (<xsl:value-of select="$category/text()"/>)</tr>
+                <tr>Enum = "<xsl:value-of select="$diccionario"/>" </tr>
+                <xsl:call-template name="generate_property_row">
+                    <xsl:with-param name="label" select="$proteus:lang_category"/>
+                    <!-- <xsl:with-param name="content" select="key('enum-dict', properties/enumProperty[@name='category'])"/> -->
+                    <!-- <xsl:with-param name="content" select="properties/enumProperty[@name='category']"/> -->
+                    <!-- <xsl:with-param name="content" select="$proteus:enum_dict/enum[@name=$category]/text()"/> -->
+                </xsl:call-template>
 
                 <!-- Comments -->
                 <xsl:call-template name="generate_property_row">

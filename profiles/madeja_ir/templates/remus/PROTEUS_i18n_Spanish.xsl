@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- ========================================================= -->
-<!-- File    : PROTEUS_i18n_Spanish.xsl                        -->
-<!-- Content : PROTEUS XSLT for subjects at US - Spanish i18n  -->
-<!--           file                                            -->
-<!-- Author  : Amador Durán Toro                               -->
-<!--           José María Delgado Sánchez                      -->
-<!-- Date    : 2023/06/29                                      -->
-<!-- Version : 1.0                                             -->
-<!-- ========================================================= -->
+<!-- ======================================================== -->
+<!-- File    : PROTEUS_i18n_Spanish.xsl                       -->
+<!-- Content : PROTEUS XSLT translations for Spanish          -->
+<!-- Author  : Amador Durán Toro                              -->
+<!--           José María Delgado Sánchez                     -->
+<!-- Date    : 2023/06/29                                     -->
+<!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/10 (Amador Durán)                      -->
+<!-- Enumerations dictionary added.                           -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -136,6 +138,14 @@
 <xsl:variable name="proteus:lang_code_exception">exception</xsl:variable>
 <xsl:variable name="proteus:lang_code_exceptions">// excepciones</xsl:variable>
 <xsl:variable name="proteus:lang_web">Sitio web</xsl:variable>
+
+<!-- PROTEUS enumerations dictionary (to be used with key)-->
+<xsl:variable name="proteus:enum_dict">
+    <enum name="tbd">Por determinar</enum>
+    <enum name="customer">Cliente</enum>
+    <enum name="developer">Desarrollador</enum>
+    <enum name="user">Usuario</enum>
+</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

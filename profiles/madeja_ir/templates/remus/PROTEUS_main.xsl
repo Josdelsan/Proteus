@@ -33,6 +33,9 @@
         indent="yes"
     />
 
+    <!-- Enumerations dictionary declaration -->
+    <xsl:key name="enum-dict" match="enum" use="@name"/>
+
     <!-- Template includes -->
     <xsl:include href="PROTEUS_utilities.xsl" />
     <xsl:include href="PROTEUS_properties.xsl" />
