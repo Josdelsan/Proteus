@@ -17,6 +17,9 @@
 <!--    object[ends-with(@classes,class_name)]                -->
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/10 (Amador Durán)                      -->
+<!-- property "image" added to the archetype                  -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -37,11 +40,13 @@
   
         <div id="{@id}" class="glo" data-proteus-id="{@id}">
             <p>
+                <!-- Generate glossary item name -->
                 <strong>
                     <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
                     <xsl:text>: </xsl:text>
                 </strong>
 
+                <!-- Generate glossary item description -->
                 <xsl:variable name="description" select="properties/markdownProperty[@name='description']"/>
                 <xsl:variable name="nonempty_content" select="string-length(normalize-space($description)) > 0"/>
 
@@ -55,6 +60,33 @@
                         </xsl:call-template>
                     </xsl:otherwise>
                 </xsl:choose>
+
+                <!-- Get file name with extension (optional, it could be empty) -->
+                <xsl:variable name="image_path" select="properties/fileProperty[@name='image']"/>
+                
+                <!-- Get the image width percentage -->
+                <xsl:variable name="image_width_percentage">
+                    <xsl:choose>
+                        <xsl:when test="properties/integerProperty[@name='width']">
+                            <xsl:value-of select="properties/integerProperty[@name='width']"/>
+                        </xsl:when>
+                        <xsl:otherwise>50</xsl:otherwise>
+                    </xsl:choose>
+                </xsl:variable>
+
+                <!-- Generate <img> element (if any) -->
+                <xsl:if test="normalize-space($image_path)">
+                    <div>
+                        <img class="figure_image">
+                            <xsl:attribute name="src">
+                                <xsl:value-of select="concat('assets:///', $image_path)" disable-output-escaping="no"/>
+                            </xsl:attribute>
+                            <xsl:attribute name="style">
+                                <xsl:value-of select="concat('width:', $image_width_percentage, '%')"/>
+                            </xsl:attribute>
+                        </img>
+                    </div>
+                </xsl:if>
             </p>
         </div>
     </xsl:template>

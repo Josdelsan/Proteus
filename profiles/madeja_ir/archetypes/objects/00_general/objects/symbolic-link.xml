@@ -5,7 +5,7 @@
   acceptedChildren=":Proteus-none" 
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Symbolic link]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Enlace simbólico]]></stringProperty>
   </properties>
   <children />
   <traces>

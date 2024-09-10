@@ -5,11 +5,12 @@
   acceptedChildren=":Proteus-none" 
 >
   <properties>
-    <stringProperty name=":Proteus-name"><![CDATA[Glossary item]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Elemento de glosario]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <markdownProperty name="description" category="detail"><![CDATA[]]></markdownProperty>
-    <fileProperty name="image" tooltip="file-info" category="detail"><![CDATA[]]></fileProperty>    
+    <fileProperty name="image" category="detail" tooltip="file-info"><![CDATA[]]></fileProperty>
+    <integerProperty name="width" category="detail" tooltip="width-info">20</integerProperty>        
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
   <children />

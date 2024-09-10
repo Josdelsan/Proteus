@@ -59,7 +59,7 @@
             <img class="figure_image">
                 <xsl:attribute name="src">
                     <xsl:choose>
-                        <xsl:when test="$figure_path">
+                        <xsl:when test="normalize-space($figure_path)">
                             <xsl:value-of select="concat('assets:///', $figure_path)" disable-output-escaping="no"/>
                         </xsl:when>
                         <xsl:otherwise>
