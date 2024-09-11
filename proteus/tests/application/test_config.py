@@ -84,7 +84,7 @@ def test_config_load_settings_default_profile(mocker, app_settings: AppSettings)
         config.app_settings.default_view == "dummy_view"
     ), f"Expected default view: 'dummy_view', Actual: {config.app_settings.default_view}"
     assert (
-        "dummy_profile" in config.listed_profiles
+        "dummy_profile" in config.listed_profiles.keys()
     ), f"Expected 'dummy_profile' in listed profiles, Actual: {config.listed_profiles}"
     assert (
         config.app_settings.using_default_profile
@@ -146,7 +146,7 @@ def test_config_load_settings_default_profile_selected_profile_not_found(
     # Assert
     # ------------------
     assert (config.app_settings.selected_profile != "non_existent_profile") and (
-        config.app_settings.selected_profile == config.listed_profiles[0]
+        config.app_settings.selected_profile == list(config.listed_profiles.keys())[0]
     ), f"Expected selected profile: 'profile_valid_min', Actual: {config.app_settings.selected_profile}"
 
 

@@ -23,6 +23,7 @@
 
 import os
 import datetime
+from typing import Dict
 from pathlib import Path
 from dataclasses import dataclass, replace
 import logging
@@ -40,7 +41,10 @@ from PyQt6 import QtCore
 
 import proteus
 from proteus.application.configuration.app_settings import AppSettings
-from proteus.application.configuration.profile_settings import ProfileSettings
+from proteus.application.configuration.profile_settings import (
+    ProfileSettings,
+    ProfileBasicMetadata,
+)
 from proteus.application.utils.abstract_meta import SingletonMeta
 from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.application import (
@@ -74,11 +78,9 @@ class Config(metaclass=SingletonMeta):
     # App settings copy (store user changes)
     app_settings_copy: AppSettings = None
 
-    # Listed profiles
-    # NOTE: They are stored as lowercase strings. Validation is not
-    # performed to avoid loading all the profiles. We assume built-in
-    # profiles must be valid.
-    listed_profiles: list[str] = None
+    # Profiles
+    listed_profiles: Dict[str, ProfileBasicMetadata] = None
+    current_profile_metadata: ProfileBasicMetadata = None
 
     def __post_init__(self):
         """
@@ -115,28 +117,27 @@ class Config(metaclass=SingletonMeta):
         self.app_settings = AppSettings.load(proteus.PROTEUS_APP_PATH)
 
         # List profiles directories available
-        self.listed_profiles = [
-            path.name
-            for path in self.app_settings.profiles_directory.glob("*")
-            if path.is_dir()
-        ]
+        self.listed_profiles = ProfileBasicMetadata.list_profiles(
+            self.app_settings.profiles_directory
+        )
 
         # If the selected profile is not available, use the first listed profile
-        if not self.app_settings.selected_profile in self.listed_profiles:
+        if not self.app_settings.selected_profile in self.listed_profiles.keys():
             log.error(
                 f"Selected profile '{self.app_settings.selected_profile}' is not available in the profiles directory. Using listed profiles instead."
             )
-            self.app_settings.selected_profile = self.listed_profiles[0]
+            self.app_settings.selected_profile = list(self.listed_profiles.keys())[0]
 
         # Select correct profile path (custom or default)
-        profile_path: Path = (
-            self.app_settings.profiles_directory / self.app_settings.selected_profile
-        )
+        profile_path: Path = self.listed_profiles[
+            self.app_settings.selected_profile
+        ].profile_path
         if not self.app_settings.using_default_profile:
             profile_path = self.app_settings.custom_profile_path
 
         # Try to load the profile settings
         try:
+            self.current_profile_metadata = ProfileBasicMetadata.load(profile_path)
             self.profile_settings = ProfileSettings.load(profile_path)
         except Exception as e:
             log.error(f"Error loading profile settings from {profile_path}. Error: {e}")
@@ -150,10 +151,15 @@ class Config(metaclass=SingletonMeta):
                 log.warning(
                     "Custom profile is not valid. Using default profile instead."
                 )
+                self.current_profile_metadata = self.listed_profiles[
+                    self.app_settings.selected_profile
+                ]
+
                 self.profile_settings = ProfileSettings.load(
                     self.app_settings.profiles_directory
                     / self.app_settings.selected_profile
                 )
+
                 self.app_settings.using_default_profile = True
 
         # Validate settings using profile information

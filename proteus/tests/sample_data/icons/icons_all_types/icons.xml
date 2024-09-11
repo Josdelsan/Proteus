@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <icons>
     <type name="document" default="dummy.jpg"/>
-    <type name="profile" default="dummy.jpg"/>
     <type name="archetype" default="dummy.jpg">
         <icon key=":Proteus-document" file="archetypes/document.png" />
     </type>

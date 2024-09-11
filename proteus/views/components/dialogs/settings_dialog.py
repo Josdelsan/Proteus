@@ -18,7 +18,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QVBoxLayout,
     QLabel,
@@ -34,7 +34,10 @@ from PyQt6.QtWidgets import (
 
 from proteus.application.spellcheck import SpellCheckerWrapper
 from proteus.application.configuration.config import Config
-from proteus.application.configuration.profile_settings import ProfileSettings
+from proteus.application.configuration.profile_settings import (
+    ProfileSettings,
+    ProfileBasicMetadata,
+)
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import Translator, translate as _
@@ -258,13 +261,14 @@ class SettingsDialog(ProteusDialog):
 
         # Profiles combo box --------------------------------------
         self.profile_combo: QComboBox = QComboBox()
-        for profile in Config().listed_profiles:
-            self.profile_combo.addItem(
-                _(f"profiles.{profile}", alternative_text=profile), profile
-            )
+
+        profile_id: str
+        profile_metadata: ProfileBasicMetadata
+        for profile_id, profile_metadata in Config().listed_profiles.items():
+            self.profile_combo.addItem(profile_metadata.name, profile_id)
             self.profile_combo.setItemIcon(
                 self.profile_combo.count() - 1,
-                Icons().icon(ProteusIconType.Profile, profile),
+                QIcon(profile_metadata.image.as_posix()),
             )
 
         self.profile_combo.setCurrentIndex(
@@ -276,13 +280,13 @@ class SettingsDialog(ProteusDialog):
         # Description label
         self.profile_description_label: QLabel = QLabel()
         self.profile_description_label.setWordWrap(True)
+        self.profile_description_label.setStyleSheet("color: black; font-style: italic")
 
         # Update the description label when the combo box changes
+        # NOTE: Profile metadata is never internationalized
         self.profile_combo.currentIndexChanged.connect(
-            lambda: self._update_description_label(
-                self.profile_combo,
-                "profiles.description",
-                self.profile_description_label,
+            lambda: self.profile_description_label.setText(
+                Config().listed_profiles[self.profile_combo.currentData()].description
             )
         )
         self.profile_combo.currentIndexChanged.emit(self.profile_combo.currentIndex())
@@ -337,7 +341,7 @@ class SettingsDialog(ProteusDialog):
     def create_profile_specific_settings_box(self) -> QGroupBox:
         """
         Create the profile specific settings group box that contains the
-        the selected default view and the selected archetype repository.
+        the selected default view.
         """
         # View layout
         layout: QVBoxLayout = QVBoxLayout()

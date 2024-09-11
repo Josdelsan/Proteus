@@ -118,7 +118,7 @@ class AppSettings:
             shutil.copy(config_file_path, config_file_exec_path)
 
         config_parser: ConfigParser = ConfigParser()
-        config_parser.read(config_file_exec_path)
+        config_parser.read(config_file_exec_path, encoding="utf-8")
 
         # Variable to store init file path
         # This is required to avoid loosing track if cwd changes
@@ -348,7 +348,7 @@ class AppSettings:
         )
 
 
-        with open(self.settings_file_path, "w") as config_file:
+        with open(self.settings_file_path, "w", encoding="utf-8") as config_file:
             self.config_parser.write(config_file)
 
         log.info(f"Settings saved to {self.settings_file_path}.")

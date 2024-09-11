@@ -50,7 +50,6 @@ class ProteusIconType(StrEnum):
     App = "app"
     MainMenu = "main_menu"
     Archetype = "archetype"
-    Profile = "profile"
     Document = "document"
 
 
@@ -152,6 +151,7 @@ class Icons(metaclass=SingletonMeta):
             default_icon: str = type_tag.attrib.get("default", None)
             if default_icon is not None:
                 type_dictionary[DEFAULT_ICON_KEY] = icons_path / default_icon
+            else:
                 log.warning(
                     f"Default icon not found for icon type '{type_name}'. This could crash the application. Check {icons_path.as_posix()} file."
                 )

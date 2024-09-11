@@ -19,6 +19,7 @@ from pathlib import Path
 # Third-party library imports
 # --------------------------------------------------------------------------
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
@@ -175,7 +176,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # --------------------
         # Profile information
         # --------------------
-        selected_profile = Config().app_settings.selected_profile
+        profile_metadata = Config().current_profile_metadata
 
         profile_information: QWidget = QWidget()
         profile_information.setObjectName("profile_information")
@@ -185,7 +186,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         profile_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         icon_label: QLabel = QLabel()
-        profile_icon = Icons().icon(ProteusIconType.Profile, selected_profile)
+        profile_icon = QIcon(profile_metadata.image.as_posix())
         # The pixmap will keep the aspect ratio of the original image and will be
         # restricted to the minimum of the width and height values, in this case
         # the maximun height will be 32 pixels like the menu bar buttons. 2000 is
@@ -194,7 +195,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         profile_name: QLabel = QLabel(
-            _(f"profiles.{selected_profile}", alternative_text=selected_profile)
+            profile_metadata.name
         )
         profile_name.setWordWrap(True)
         profile_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -225,8 +226,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Add widgets to the container layout
         container_layout.addWidget(self.tab_widget)
 
-        if Config().app_settings.using_default_profile:
-            container_layout.addWidget(profile_information)
+        container_layout.addWidget(profile_information)
 
         # Set the container as the widget of the dock widget
         self.setWidget(container)

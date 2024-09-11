@@ -86,16 +86,16 @@ def test_icons_load_icons_all_types(icons_object: Icons):
 
     icons_object.load_icons(PROTEUS_SAMPLE_ICONS_PATH / "icons_all_types")
     assert (
-        len(icons_object._icons_paths) == 5
-    ), f"Expected 5 icons types but '{len(icons_object._icons_paths)}' were found in the 'icons.xml' file"
+        len(icons_object._icons_paths) == 4
+    ), f"Expected 4 icons types but '{len(icons_object._icons_paths)}' were found in the 'icons.xml' file"
 
     icons: List[Path] = []
     for icon_type in icons_object._icons_paths:
         icons.extend(icons_object._icons_paths[icon_type])
 
     assert (
-        len(icons) == 5
-    ), f"Expected 5 icons but '{len(icons)}' were found in the 'icons.xml' file"
+        len(icons) == 4
+    ), f"Expected 4 icons but '{len(icons)}' were found in the 'icons.xml' file"
 
 
 def test_icons_load_icons_empty(icons_object: Icons):

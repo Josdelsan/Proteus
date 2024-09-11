@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------
 
 import logging
-from typing import List
+from typing import List, Dict
 from pathlib import Path
 from dataclasses import dataclass
 from configparser import ConfigParser
@@ -24,6 +24,7 @@ from configparser import ConfigParser
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.model.template import Template
 from proteus.model.archetype_repository import ArchetypeRepository
 
@@ -44,6 +45,12 @@ I18N_DIRECTORY: str = "i18n_directory"
 # User editable settings
 PREFERENCES: str = "preferences"
 PREFERENCE_DEFAULT_VIEW: str = "default_view"
+
+# Information
+INFORMATION: str = "information"
+NAME: str = "name"
+DESCRIPTION: str = "description"
+IMAGE: str = "image"
 
 
 # logging configuration
@@ -77,7 +84,7 @@ class ProfileSettings:
 
     # --------------------------------------------------------------------------
     # Method: load
-    # Description: Load user settings from the configuration file
+    # Description: Load profile settings from the configuration file
     # Date: 15/03/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
@@ -95,7 +102,7 @@ class ProfileSettings:
         ), f"PROTEUS profile configuration file {CONFIG_FILE} does not exist in {profile_path}!"
 
         config_parser: ConfigParser = ConfigParser()
-        config_parser.read(config_file_path)
+        config_parser.read(config_file_path, encoding="utf-8")
 
         settings_file_path: Path = config_file_path
 
@@ -255,4 +262,131 @@ class ProfileSettings:
             raise e
 
 
+@dataclass
+class ProfileBasicMetadata:
+    """
+    Profile basic metadata class. Do not load any information apart from the name, description and image.
+    """
+
+    # General purpose variables
+    profile_path: Path = None
+    settings_file_path: Path = None
+    config_parser: ConfigParser = None
+
+    # Profile metadata
+    name: str = None
+    description: str = None
+    image: Path = None
+
+    # --------------------------------------------------------------------------
+    # Method: load
+    # Description: Load profile basic metadata from the configuration file
+    # Date: 11/09/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def load(profile_path: Path) -> "ProfileBasicMetadata":
+        """
+        Loads the profile basic metadata from the configuration file located in the
+        profile directory. If the file does not exist, error is raised.
+
+        :param profile_path: Path to the profile directory.
+        """
+        config_file_path: Path = profile_path / CONFIG_FILE
+
+        assert (
+            config_file_path.exists()
+        ), f"PROTEUS profile configuration file {CONFIG_FILE} does not exist in {profile_path}!"
+
+        config_parser: ConfigParser = ConfigParser()
+        config_parser.read(config_file_path, encoding="utf-8")
+
+        settings_file_path: Path = config_file_path
+
+        log.info(f"Loading basic metadata from {settings_file_path}...")
+
+        profile_metadata = ProfileBasicMetadata(
+            profile_path=profile_path,
+            settings_file_path=settings_file_path,
+            config_parser=config_parser,
+        )
+
+        profile_metadata._load_information()
+
+        return profile_metadata
+    
+    # --------------------------------------------------------------------------
+    # Method: _load_information
+    # Description: Load profile information from the configuration file
+    # Date: 11/09/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def _load_information(self) -> None:
+        """
+        Load profile information from the configuration file.
+        """
+        # information section
+        information = self.config_parser[INFORMATION]
+
+        self.name = information[NAME]
+        self.description = information[DESCRIPTION]
+        image_relative_path = information[IMAGE]
+
+        assert (
+            self.name is not None and self.name != ""
+        ), f"Profile name is not defined in '{self.settings_file_path}'!"
+
+        assert (
+            image_relative_path is not None and image_relative_path != ""
+        ), f"Profile image is not defined in '{self.settings_file_path}'!"
         
+        if self.description is None or self.description == "":
+            log.warning(f"Profile description is not defined in '{self.settings_file_path}'!")
+            self.description = ""
+
+        self.image = self.profile_path / image_relative_path
+
+        assert (
+            self.image.exists()
+        ), f"Profile image '{image_relative_path}' does not exist in profile '{self.profile_path}'!"
+
+
+        log.info(f"Profile information loaded from {self.settings_file_path}.")
+        log.info(f"{self.name = }")
+        log.info(f"{self.description = }")
+        log.info(f"{self.image = }")
+
+
+    # --------------------------------------------------------------------------
+    # Method: list_profiles
+    # Description: List the profiles available in the profiles directory
+    # Date: 11/09/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def list_profiles(profiles_directory: Path) -> Dict[str, "ProfileBasicMetadata"]:
+        """
+        List the profiles available in the profiles directory. If profile metadata
+        cannot be loaded correctly, it is ignored.
+
+        :param profiles_directory: Path to the profiles directory.
+        :return: Dictionary with the profile name as key and the profile metadata as value.
+        """
+        
+        assert (
+            profiles_directory.exists()
+        ), f"PROTEUS profiles directory {profiles_directory} does not exist!"
+
+        listed_profiles = dict()
+
+        for profile_dir in profiles_directory.iterdir():
+            try:
+                profile_metadata = ProfileBasicMetadata.load(profile_dir)
+                listed_profiles[profile_dir.name] = profile_metadata
+            except Exception as e:
+                log.error(f"Could not load profile metadata from {profile_dir}. It will be ignored. Error: {e}")
+
+        return listed_profiles
