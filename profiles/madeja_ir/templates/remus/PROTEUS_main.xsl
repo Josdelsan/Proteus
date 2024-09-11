@@ -48,7 +48,11 @@
     <xsl:include href="archetypes/general/stakeholder.xsl" />
     <xsl:include href="archetypes/general/meeting.xsl" />
     <xsl:include href="archetypes/general/symbolic_link.xsl" />
-    
+
+    <xsl:include href="archetypes/madeja/strength.xsl" />
+    <xsl:include href="archetypes/madeja/weakness.xsl" />
+    <xsl:include href="archetypes/madeja/PROTEUS_user_story.xsl" />
+
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
@@ -62,9 +66,6 @@
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_business_actor.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_business_process.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_strength.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_weakness.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_user_story.xsl" />
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

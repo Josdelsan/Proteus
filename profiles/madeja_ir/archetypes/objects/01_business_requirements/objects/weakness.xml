@@ -7,11 +7,11 @@
   
   <properties>
     <codeProperty name=":Proteus-code" category="general" inmutable="true">
-      <prefix><![CDATA[WEAK-]]></prefix>
+      <prefix><![CDATA[DEBI-]]></prefix>
       <number>001</number>
       <suffix><![CDATA[]]></suffix>
     </codeProperty>
-    <stringProperty name=":Proteus-name"><![CDATA[Weakness]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Debilidad]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-02</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <markdownProperty name="description" category="details"><![CDATA[]]></markdownProperty>
@@ -23,6 +23,6 @@
   <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
-    <traceProperty name="dependencies" category="dependencies" acceptedTargets="business-requirement glossary-item" traceType=":Proteus-dependency"/>
+    <traceProperty name="dependencies" category="dependencies" acceptedTargets="general-traceable-object business-requirement" traceType=":Proteus-dependency"/>
   </traces>
 </object>

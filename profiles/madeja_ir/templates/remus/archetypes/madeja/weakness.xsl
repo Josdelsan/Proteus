@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_weakness.xsl                           -->
-<!-- Content : PROTEUS XSLT for subjects at US - weakness     -->
+<!-- File    : weakness.xsl                                   -->
+<!-- Content : PROTEUS default XSLT for weakness              -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/05/28                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/11 (Amador Durán)                      -->
+<!-- match must be object[ends-with(@classes,'weakness')]     -->
+<!-- To check if an object is of a given class:               -->
+<!--    object[contains(@classes,class_name)]                 -->
+<!-- To check if an object is of a given final class:         -->
+<!--    object[ends-with(@classes,class_name)]                -->
+<!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,14 +27,13 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================= -->
-    <!-- proteus:weakness template                     -->
+    <!-- weakness template                             -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[@classes='madeja weakness']">
+    <xsl:template match="object[contains(@classes,'weakness')]">
 
-        <div id="{@id}"  data-proteus-id="{@id}">
+        <div id="{@id}" data-proteus-id="{@id}">
             <table class="madeja_object remus_table">
 
                 <!-- Header, version, authors and sources -->

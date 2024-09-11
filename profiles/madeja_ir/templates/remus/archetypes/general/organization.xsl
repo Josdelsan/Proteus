@@ -50,16 +50,16 @@
                     <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
-                <!-- phone-number -->
+                <!-- Phone number -->
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"     select="$proteus:lang_telephone"/>
                     <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
                 </xsl:call-template>
 
-                <!-- web -->
+                <!-- Web -->
                 <xsl:call-template name="generate_property_row">
                     <xsl:with-param name="label"     select="$proteus:lang_web"/>
-                    <xsl:with-param name="content"   select="properties/stringProperty[@name='web']"/>
+                    <xsl:with-param name="content"   select="properties/urlProperty[@name='web']"/>
                 </xsl:call-template>
 
                 <!-- Comments -->
