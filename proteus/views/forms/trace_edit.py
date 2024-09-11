@@ -543,6 +543,13 @@ class TraceEditDialog(QDialog):
             | QDialogButtonBox.StandardButton.Cancel
         )
 
+        self.button_box.button(QDialogButtonBox.StandardButton.Save).setText(
+            _("dialog.save_button")
+        )
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setText(
+            _("dialog.reject_button")
+        )
+
         # Filter layout
         filter_layout = QHBoxLayout()
         filter_layout.addWidget(self.class_selector_combo)
