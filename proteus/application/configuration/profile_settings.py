@@ -24,7 +24,7 @@ from configparser import ConfigParser
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.resources.icons import Icons, ProteusIconType
+import proteus
 from proteus.model.template import Template
 from proteus.model.archetype_repository import ArchetypeRepository
 
@@ -331,16 +331,23 @@ class ProfileBasicMetadata:
         information = self.config_parser[INFORMATION]
 
         self.name = information[NAME]
-        self.description = information[DESCRIPTION]
-        image_relative_path = information[IMAGE]
+
+        try:
+            self.description = information[DESCRIPTION]
+        except Exception as e:
+            log.error(f"Could not load profile description from {self.settings_file_path}. Error: {e}")
+            self.description = ""
+
+        try:
+            image_relative_path = information[IMAGE]
+        except Exception as e:
+            log.error(f"Could not load profile image from {self.settings_file_path}. Error: {e}")
+            image_relative_path = ""
 
         assert (
             self.name is not None and self.name != ""
         ), f"Profile name is not defined in '{self.settings_file_path}'!"
 
-        assert (
-            image_relative_path is not None and image_relative_path != ""
-        ), f"Profile image is not defined in '{self.settings_file_path}'!"
         
         if self.description is None or self.description == "":
             log.warning(f"Profile description is not defined in '{self.settings_file_path}'!")
@@ -348,10 +355,9 @@ class ProfileBasicMetadata:
 
         self.image = self.profile_path / image_relative_path
 
-        assert (
-            self.image.exists()
-        ), f"Profile image '{image_relative_path}' does not exist in profile '{self.profile_path}'!"
-
+        if not self.image.is_file():
+            log.warning(f"Profile image {self.image} is not a valid file. Using default image instead.")
+            self.image = proteus.PROTEUS_APP_PATH / "resources" / "default.png"
 
         log.info(f"Profile information loaded from {self.settings_file_path}.")
         log.info(f"{self.name = }")

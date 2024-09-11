@@ -285,9 +285,7 @@ class SettingsDialog(ProteusDialog):
         # Update the description label when the combo box changes
         # NOTE: Profile metadata is never internationalized
         self.profile_combo.currentIndexChanged.connect(
-            lambda: self.profile_description_label.setText(
-                Config().listed_profiles[self.profile_combo.currentData()].description
-            )
+            lambda: self._update_profile_description_label()
         )
         self.profile_combo.currentIndexChanged.emit(self.profile_combo.currentIndex())
 
@@ -366,11 +364,7 @@ class SettingsDialog(ProteusDialog):
 
         # Update the description label when the combo box changes
         self.default_view_combo.currentIndexChanged.connect(
-            lambda: self._update_description_label(
-                self.default_view_combo,
-                "xslt_templates.description",
-                self.view_description_label,
-            )
+            lambda: self._update_xslt_template_description_label()
         )
         self.default_view_combo.currentIndexChanged.emit(
             self.default_view_combo.currentIndex()
@@ -562,30 +556,55 @@ class SettingsDialog(ProteusDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
-    # Method     : _update_description_label
+    # Method     : _update_xslt_templtate_description_label
     # Description: Update the description label with the description.
     # Date       : 22/03/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _update_description_label(
-        self, combobox: QComboBox, translation_code: str, description_label: QLabel
-    ) -> None:
+    def _update_xslt_template_description_label(self) -> None:
         """
         Update the description label with the description found using the translation code
         and the combo box current data.
         """
-        profile_name: str = combobox.currentData()
-        if profile_name:
+        profile_id: str = self.default_view_combo.currentData()
+        if profile_id:
             description: str = _(
-                f"{translation_code}.{profile_name}", alternative_text=""
+                f"xslt_templates.description.{profile_id}", alternative_text=""
             )
             if description == "":
-                description_label.setStyleSheet("color: red; font-style: italic")
-                description_label.setText(_("settings_dialog.descriptions.empty"))
+                self.view_description_label.setStyleSheet(
+                    "color: red; font-style: italic"
+                )
+                self.view_description_label.setText(
+                    _("settings_dialog.descriptions.empty")
+                )
             else:
-                description_label.setStyleSheet("color: black; font-style: italic")
-                description_label.setText(description)
+                self.view_description_label.setStyleSheet(
+                    "color: black; font-style: italic"
+                )
+                self.view_description_label.setText(description)
+
+    def _update_profile_description_label(self) -> None:
+        """
+        Update the profile description label with the description found using the translation code
+        and the combo box current data.
+        """
+        profile_id: str = self.profile_combo.currentData()
+        if profile_id:
+            description: str = Config().listed_profiles[profile_id].description
+            if description == "":
+                self.profile_description_label.setStyleSheet(
+                    "color: red; font-style: italic"
+                )
+                self.profile_description_label.setText(
+                    _("settings_dialog.descriptions.empty")
+                )
+            else:
+                self.profile_description_label.setStyleSheet(
+                    "color: black; font-style: italic"
+                )
+                self.profile_description_label.setText(description)
 
     # ======================================================================
     # Dialog static methods (create and show the form window)
