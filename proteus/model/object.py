@@ -256,10 +256,10 @@ class Object(AbstractObject):
         # Load children
         children: ET._Element = root.find(CHILDREN_TAG)
 
-        # Check whether it has children
-        assert (
-            children is not None
-        ), f"PROTEUS object file {self.id} does not have a <{CHILDREN_TAG}> element."
+        # If <children> element is not found, ignore children
+        if children is None:
+            self._children = []
+            return
 
         # Parse object's children
         child: ET._Element
@@ -294,6 +294,7 @@ class Object(AbstractObject):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
+    # TODO: This method will be removed in the future. It is kept for backward compatibility.
     def load_traces(self, root: ET._Element) -> None:
         """
         It loads a PROTEUS object's traces from an XML root element.
@@ -306,6 +307,8 @@ class Object(AbstractObject):
 
         # If <traces> element is not found, ignore traces
         if traces_element is not None:
+            self.state = ProteusState.DIRTY # Force dirty state
+
             # Find <traceProperty> elements
             trace_property_elements: List[ET._Element] = traces_element.findall(
                 TRACE_PROPERTY_TAG

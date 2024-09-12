@@ -243,9 +243,9 @@ class Project(AbstractObject):
         documents_element: ET._Element = root.find(DOCUMENTS_TAG)
 
         # Check whether it has documents
-        assert (
-            documents_element is not None
-        ), f"PROTEUS project file {self.path} does not have a <{DOCUMENTS_TAG}> element."
+        if documents_element is None:
+            self._documents = []
+            return
 
         # Parse project's documents
         # TODO: check document_element tag is <document>
