@@ -6,10 +6,8 @@
     <floatProperty name="version" category="general">1.0</floatProperty>
     <markdownProperty name="text" category="details"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id felis vel justo semper congue placerat eu diam. Nam non odio sodales, volutpat velit quis, ultricies elit. Vestibulum ex ipsum, dapibus id leo et, placerat egestas enim. In in hendrerit lorem. Ut malesuada at dui sit amet molestie. Pellentesque tempus est vel eros fringilla lobortis.]]></markdownProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-  </properties>
-  <children/>
-  <traces>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency"/>
-  </traces>
+  </properties>
+  <children/>
 </object>

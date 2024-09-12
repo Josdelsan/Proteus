@@ -213,9 +213,9 @@ def test_generate_project_xml(
     )
 
     # Act -----------------------------
-    document_xml: ET._Element = basic_project_service.generate_project_xml()
+    project_xml: ET._Element = basic_project_service.generate_project_xml()
     project_xml_string: bytes = ET.tostring(
-        document_xml, xml_declaration=False, encoding="unicode", pretty_print=False
+        project_xml, xml_declaration=False, encoding="unicode", pretty_print=False
     )
 
 

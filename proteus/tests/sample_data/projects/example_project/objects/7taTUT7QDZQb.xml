@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <object id="7taTUT7QDZQb" classes="software-requirement objective" acceptedChildren="objective" acceptedParents=":Proteus-any">
   <properties>
-    <codeProperty name=":Proteus-code" category="general" inmutable="true"><prefix><![CDATA[OBJ-]]></prefix><number>0002</number><suffix><![CDATA[]]></suffix></codeProperty>
+    <codeProperty name=":Proteus-code" category="general" inmutable="true"><prefix><![CDATA[OBJ-]]></prefix><number>002</number><suffix><![CDATA[]]></suffix></codeProperty>
     <stringProperty name=":Proteus-name" category="general"><![CDATA[Objective DL 1]]></stringProperty>
     <dateProperty name=":Proteus-date" category="general">2023-11-21</dateProperty>
     <floatProperty name="version" category="general">1.0</floatProperty>
@@ -11,12 +11,10 @@
     <enumProperty name="development-status" category="priority" choices="developing pending">developing</enumProperty>
     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
   </properties>
   <children>
     <child id="6LPnGTZvF3Gq"/>
   </children>
-  <traces>
-    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
-    <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
-  </traces>
 </object>

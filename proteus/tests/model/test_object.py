@@ -243,31 +243,6 @@ def test_load_children(test_object: Object, request):
         Children in object: {test_object_children_ids}"
 
 
-def test_load_traces(sample_object: Object):
-    """
-    Test Object load_traces method
-    """
-    # Get root element of the xml file
-    root: ET.Element = fixtures.get_root(sample_object.path)
-
-    # Get traces of the xml file and store them in a list
-    traces = root.find("traces")
-    traces_list: list = []
-    for trace in traces:
-        traces_list.append(trace.attrib[NAME_ATTRIBUTE])
-
-    # Call method to load traces
-    sample_object.load_traces(root)
-
-    # Check that Object contains all the traces of the xml
-    test_object_traces_name = [trace_name for trace_name in sample_object.properties.keys()]
-    assert all(
-        trace in test_object_traces_name for trace in traces_list
-    ), f"Object does not contain all the traces of the xml file.                 \
-        Traces in xml file: {traces_list}                                       \
-        Traces in object: {test_object_traces_name}"
-
-
 def test_generate_xml(sample_object: Object):
     """
     Test Object generate_xml method
