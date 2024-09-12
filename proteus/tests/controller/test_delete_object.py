@@ -23,7 +23,7 @@ import pytest
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
-from proteus.model.trace import Trace
+from proteus.model.properties import TraceProperty
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.application.state_manager import StateManager
@@ -100,15 +100,15 @@ def test_delete_object_command_redo(
 
     # Store a copy of sources traces before the command execution
     # Just copy the traces that are tracing the object or its children
-    sources_traces_before: Dict[ProteusID, dict] = {}
+    sources_traces_before: Dict[ProteusID, Dict[ProteusID, TraceProperty]] = {}
     for source_id in sources_ids:
-        source_dict: Dict[ProteusID, Trace] = {}
+        source_dict: Dict[ProteusID, TraceProperty] = {}
         source = sample_project_service._get_element_by_id(source_id)
-        for trace_name, trace in source.traces.items():
+        for trace in source.get_traces():
             # Check if the trace is tracing the object or its children
-            common_ids = [id for id in trace.targets if id in object_and_children_ids]
+            common_ids = [id for id in trace.value if id in object_and_children_ids]
             if len(common_ids) > 0:
-                source_dict[trace_name] = trace
+                source_dict[trace.name] = trace
         sources_traces_before[source_id] = source_dict
 
     # Act -----------------------------
@@ -143,13 +143,13 @@ def test_delete_object_command_redo(
         for trace_name, trace in traces.items():
             # Get source trace
             source = sample_project_service._get_element_by_id(source_id)
-            source_updated_trace = source.traces[trace_name]
-            assert len(source_updated_trace.targets) < len(
-                trace.targets
+            source_updated_trace = source.get_property(trace_name)
+            assert len(source_updated_trace.value) < len(
+                trace.value
             ), f"Updated trace {trace_name} of source {source_id} must have less targets than before \
-                (before: {len(trace.targets)}, after: {len(source_updated_trace.targets)}) \
-                Current targets: {source_updated_trace.targets} \
-                Previous targets: {trace.targets}\
+                (before: {len(trace.value)}, after: {len(source_updated_trace.value)}) \
+                Current targets: {source_updated_trace.value} \
+                Previous targets: {trace.value}\
                 Ids: {object_and_children_ids}"
 
     # Check deselect object has been called
@@ -223,15 +223,15 @@ def test_delete_object_command_undo(
 
     # Store a copy of sources traces before the command execution
     # Just copy the traces that are tracing the object or its children
-    sources_traces_before: Dict[ProteusID, dict] = {}
+    sources_traces_before: Dict[ProteusID, Dict[ProteusID, TraceProperty]] = {}
     for source_id in sources_ids:
-        source_dict: Dict[ProteusID, Trace] = {}
+        source_dict: Dict[ProteusID, TraceProperty] = {}
         source = sample_project_service._get_element_by_id(source_id)
-        for trace_name, trace in source.traces.items():
+        for trace in source.get_traces():
             # Check if the trace is tracing the object or its children
-            common_ids = [id for id in trace.targets if id in object_and_children_ids]
+            common_ids = [id for id in trace.value if id in object_and_children_ids]
             if len(common_ids) > 0:
-                source_dict[trace_name] = trace
+                source_dict[trace.name] = trace
         sources_traces_before[source_id] = source_dict
 
     # Act -----------------------------
@@ -266,10 +266,10 @@ def test_delete_object_command_undo(
         for trace_name, trace in traces.items():
             # Get source trace
             source = sample_project_service._get_element_by_id(source_id)
-            source_updated_trace = source.traces[trace_name]
-            assert source_updated_trace.targets == trace.targets, f"Updated trace {trace_name} of source {source_id} must be the same as before redo \
-                (before: {trace.targets}, after: {source_updated_trace.targets}) \
-                Current targets: {source_updated_trace.targets} \
-                Previous targets: {trace.targets}\
+            source_updated_trace = source.get_property(trace_name)
+            assert source_updated_trace.value == trace.value, f"Updated trace {trace_name} of source {source_id} must be the same as before redo \
+                (before: {trace.value}, after: {source_updated_trace.value}) \
+                Current targets: {source_updated_trace.value} \
+                Previous targets: {trace.value}\
                 Ids: {object_and_children_ids}"
             

@@ -22,8 +22,7 @@ import pytest
 
 from proteus.model import ProteusID
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import Property
-from proteus.model.trace import Trace
+from proteus.model.properties import Property, TraceProperty
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.services.project_service import ProjectService
@@ -60,12 +59,12 @@ def mock_object(mocker):
         object_mock.properties[p.name] = p
 
     # Create mock traces
-    trace_1 = mocker.MagicMock(spec=Trace)
+    trace_1 = mocker.MagicMock(spec=TraceProperty)
     trace_1.name = "trace_1"
-    trace_2 = mocker.MagicMock(spec=Trace)
+    trace_2 = mocker.MagicMock(spec=TraceProperty)
     trace_2.name = "trace_2"
     for t in [trace_1, trace_2]:
-        object_mock.traces[t.name] = t
+        object_mock.properties[t.name] = t
 
     return object_mock
 
@@ -80,7 +79,6 @@ def mock_project_service(mocker, mock_object):
     project_service_mock = mocker.MagicMock(spec=ProjectService)
     project_service_mock._get_element_by_id.return_value = mock_object
     project_service_mock.update_properties.return_value = None
-    project_service_mock.update_traces.return_value = None
 
     return project_service_mock
 
@@ -120,9 +118,6 @@ def test_update_properties_command_init_empty_properties(
     assert (
         update_properties_command.new_properties == []
     ), f"The new properties list should be empty but it is {update_properties_command.new_properties}"
-    assert (
-        update_properties_command.new_traces == []
-    ), f"The new traces list should be empty but it is {update_properties_command.new_traces}"
 
     # Check _get_element_by_id has been called once with the provided id
     mock_project_service._get_element_by_id.assert_called_once_with(
@@ -146,7 +141,7 @@ def test_update_properties_command_init(mocker, mock_object, mock_project_servic
     # found in the object and 'replaced'
     property_1 = mocker.MagicMock(spec=Property)
     property_1.name = "property_1"
-    trace_1 = mocker.MagicMock(spec=Trace)
+    trace_1 = mocker.MagicMock(spec=TraceProperty)
     trace_1.name = "trace_1"
 
     # New properties (and traces) list
@@ -167,11 +162,8 @@ def test_update_properties_command_init(mocker, mock_object, mock_project_servic
 
     # Check that the new properties and traces are the ones provided
     assert update_properties_command.new_properties == [
-        property_1
-    ], f"The new properties list should be {property_1} but it is {update_properties_command.new_properties}"
-    assert update_properties_command.new_traces == [
-        trace_1
-    ], f"The new traces list should be {trace_1} but it is {update_properties_command.new_traces}"
+        property_1, trace_1
+    ], f"The new properties list should be {[property_1, trace_1]} but it is {update_properties_command.new_properties}"
 
     # Check _get_element_by_id has been called once with the provided id
     mock_project_service._get_element_by_id.assert_called_once_with(
@@ -185,11 +177,8 @@ def test_update_properties_command_init(mocker, mock_object, mock_project_servic
 
     # Check that the old properties and traces are the ones provided
     assert update_properties_command.old_properties == [
-        mock_object.properties["property_1"]
-    ], f"The old properties list should be {mock_object.properties['property_1']} but it is {update_properties_command.old_properties}"
-    assert update_properties_command.old_traces == [
-        mock_object.traces["trace_1"]
-    ], f"The old traces list should be {mock_object.traces['trace_1']} but it is {update_properties_command.old_traces}"
+        mock_object.properties["property_1"], mock_object.properties["trace_1"]
+    ], f"The old properties list should be '{[property_1, trace_1]}' but it is {update_properties_command.old_properties}"
 
 
 def test_update_properties_command_redo(mocker, mock_object, mock_project_service):
@@ -213,9 +202,6 @@ def test_update_properties_command_redo(mocker, mock_object, mock_project_servic
     # Assert ---------------------
     # Check that the project service update_properties method has been called once
     mock_project_service.update_properties.assert_called_once_with(mock_object.id, [])
-
-    # Check that the project service update_traces method has been called once
-    mock_project_service.update_traces.assert_called_once_with(mock_object.id, [])
 
     # Check that the event manager notify method has been called once with the correct event
     ModifyObjectEvent().notify.assert_called_once_with(mock_object.id)
@@ -245,10 +231,6 @@ def test_update_properties_command_undo(mocker, mock_object, mock_project_servic
         mock_object.id, update_properties_command.old_properties
     )
 
-    # Check that the project service update_traces method has been called once
-    mock_project_service.update_traces.assert_called_once_with(
-        mock_object.id, update_properties_command.old_traces
-    )
 
     # Check that the event manager notify method has been called once with the correct event
     ModifyObjectEvent().notify.assert_called_once_with(mock_object.id)
@@ -266,7 +248,6 @@ def test_update_properties_command_redo_project(mocker, mock_project_service):
     project_mock = mocker.MagicMock(spec=Project)
     project_mock.id = ProteusID("dummy_id")
     project_mock.properties = {}
-    project_mock.traces = {}
     # Project state
     project_mock.state = ProteusState.CLEAN
 
@@ -289,9 +270,6 @@ def test_update_properties_command_redo_project(mocker, mock_project_service):
     # Check that the project service update_properties method has been called once
     mock_project_service.update_properties.assert_called_once_with(project_mock.id, [])
 
-    # Check that the project service update_traces method has not been called
-    mock_project_service.update_traces.assert_not_called()
-
     # Check that the event manager notify method has been called once with the correct event
     ModifyObjectEvent().notify.assert_called_once_with(project_mock.id)
 
@@ -308,7 +286,6 @@ def test_update_properties_command_undo_project(mocker, mock_project_service):
     project_mock = mocker.MagicMock(spec=Project)
     project_mock.id = ProteusID("dummy_id")
     project_mock.properties = {}
-    project_mock.traces = {}
     # Project state
     project_mock.state = ProteusState.CLEAN
 
@@ -332,9 +309,6 @@ def test_update_properties_command_undo_project(mocker, mock_project_service):
     mock_project_service.update_properties.assert_called_once_with(
         project_mock.id, update_properties_command.old_properties
     )
-
-    # Check that the project service update_traces method has not been called
-    mock_project_service.update_traces.assert_not_called()
 
     # Check that the event manager notify method has been called once with the correct event
     ModifyObjectEvent().notify.assert_called_once_with(project_mock.id)

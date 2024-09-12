@@ -23,13 +23,16 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model.trace import Trace, NO_TARGETS_LIMIT
-from proteus.model import (
+from proteus.model.properties.trace_property import TraceProperty, NO_TARGETS_LIMIT
+from proteus.model.properties import (
+    PropertyFactory,
     TRACE_TAG,
     TRACE_PROPERTY_TAG,
     DEFAULT_TRACE_NAME,
     DEFAULT_TRACE_CATEGORY,
     DEFAULT_TRACE_TYPE,
+)
+from proteus.model import (
     TARGET_ATTRIBUTE,
     NAME_ATTRIBUTE,
     CATEGORY_ATTRIBUTE,
@@ -67,20 +70,22 @@ def create_trace_element(
     # Add attributes
     trace_element.set(NAME_ATTRIBUTE, name)
     trace_element.set(CATEGORY_ATTRIBUTE, category)
+
+    if tooltip is not None:
+        trace_element.set(TOOLTIP_ATTRIBUTE, tooltip)
+
     trace_element.set(ACCEPTED_TARGETS_ATTRIBUTE, accepted_targets)
     trace_element.set(TRACE_TYPE_ATTRIBUTE, trace_type)
+
+    # Max_targets attributes
+    if max_targets is not None:
+        trace_element.set(MAX_TARGETS_NUMBER_ATTRIBUTE, str(max_targets))
+
     # Add dummy subelemnts
     for dummy_target in dummy_targets:
         target_element = ET.SubElement(trace_element, TRACE_TAG)
         target_element.set(TARGET_ATTRIBUTE, dummy_target)
         target_element.set(TRACE_TYPE_ATTRIBUTE, trace_type)
-
-    # Otionally add tooltip and max_targets attributes
-    if max_targets is not None:
-        trace_element.set(MAX_TARGETS_NUMBER_ATTRIBUTE, str(max_targets))
-
-    if tooltip is not None:
-        trace_element.set(TOOLTIP_ATTRIBUTE, tooltip)
 
     return trace_element
 
@@ -162,7 +167,7 @@ def test_trace_creation(
         tooltip,
         max_targets_number,
     )
-    trace = Trace.create(trace_element)
+    trace: TraceProperty = PropertyFactory.create(trace_element)
 
     # Assert --------------------------
     # Check trace attributes
@@ -179,8 +184,8 @@ def test_trace_creation(
         trace.type == expected_trace_type
     ), f"Trace type '{trace.type}' does not match expected type '{expected_trace_type}'"
     assert (
-        trace.targets == expected_targets
-    ), f"Trace targets '{trace.targets}' do not match expected targets '{expected_targets}'"
+        trace.value == expected_targets
+    ), f"Trace targets '{trace.value}' do not match expected targets '{expected_targets}'"
     assert (
         trace.tooltip == expected_tooltip
     ), f"Trace tooltip '{trace.tooltip}' does not match expected tooltip '{expected_tooltip}'"
@@ -207,11 +212,11 @@ def test_trace_clone(old_targets: List, new_targets: List):
     # Arrange -------------------------
     # Create trace from XML element
     trace_element = create_trace_element(old_targets)
-    trace = Trace.create(trace_element)
+    trace: TraceProperty = PropertyFactory.create(trace_element)
 
     # Act -----------------------------
     # Clone trace
-    cloned_trace = trace.clone(new_targets)
+    cloned_trace: TraceProperty = trace.clone(new_targets)
 
     # Assert --------------------------
     # Check trace attributes
@@ -228,8 +233,8 @@ def test_trace_clone(old_targets: List, new_targets: List):
         cloned_trace.type == trace.type
     ), f"Cloned trace type '{cloned_trace.type}' does not match original type '{trace.type}'"
     assert (
-        cloned_trace.targets == new_targets
-    ), f"Cloned trace targets '{cloned_trace.targets}' do not match new targets '{new_targets}'"
+        cloned_trace.value == new_targets
+    ), f"Cloned trace targets '{cloned_trace.value}' do not match new targets '{new_targets}'"
 
     # Check ProteusTrace objects ids are different after cloning
     assert id(cloned_trace) != id(trace), (
@@ -254,7 +259,7 @@ def test_generate_xml(targets):
     # Arrange -------------------------
     # Create trace from XML element
     trace_element = create_trace_element(targets)
-    trace = Trace.create(trace_element)
+    trace: TraceProperty = PropertyFactory.create(trace_element)
 
     # Act -----------------------------
     # Generate XML element
@@ -290,8 +295,8 @@ def test_generate_xml(targets):
         for target_element in generated_trace_element
     ]
     assert (
-        generated_targets == trace.targets
-    ), f"Generated trace targets '{generated_targets}' do not match expected targets '{trace.targets}'"
+        generated_targets == trace.value
+    ), f"Generated trace targets '{generated_targets}' do not match expected targets '{trace.value}'"
 
 
 @pytest.mark.parametrize(
@@ -308,7 +313,7 @@ def test_generate_xml_max_targets_number(max_targets_number):
     trace_element = create_trace_element(
         dummy_target_list, max_targets=max_targets_number
     )
-    trace = Trace.create(trace_element)
+    trace: TraceProperty = PropertyFactory.create(trace_element)
 
     # Act -----------------------------
     # Generate XML element

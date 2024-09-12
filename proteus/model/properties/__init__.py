@@ -56,9 +56,9 @@
 # - Refactor module 'property' into package 'properties'.
 # ==========================================================================
 
+from proteus.model import PROTEUS_DEPENDENCY
 
 # Constants
-
 BOOLEAN_PROPERTY_TAG    = str('booleanProperty')
 STRING_PROPERTY_TAG     = str('stringProperty')
 DATE_PROPERTY_TAG       = str('dateProperty')
@@ -71,12 +71,14 @@ URL_PROPERTY_TAG        = str('urlProperty')
 FILE_PROPERTY_TAG       = str('fileProperty')
 CLASSLIST_PROPERTY_TAG  = str('classListProperty')
 CODE_PROPERTY_TAG       = str('codeProperty')
+TRACE_PROPERTY_TAG      = str('traceProperty')
 
 CLASS_TAG               = str('class')
 PREFIX_TAG              = str('prefix')
 NUMBER_TAG              = str('number')
 SUFFIX_TAG              = str('suffix')
 CHOICES_ATTRIBUTE       = str('choices')
+TRACE_TAG               = str('trace')
 
 DEFAULT_NAME            = str('unnamed')
 DEFAULT_CATEGORY        = str('general')
@@ -84,9 +86,16 @@ DEFAULT_CATEGORY        = str('general')
 DATE_FORMAT             = str('%Y-%m-%d')
 TIME_FORMAT             = str('%H:%M:%S')
 
+# Default values
+DEFAULT_TRACE_NAME     = str('trace')
+DEFAULT_TRACE_CATEGORY = str('dependencies')
+DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
+
+NO_TARGETS_LIMIT = -1
+
 
 # Making classes available at the package level
-# Note: This must be below the constants definition
+# NOTE: This must be below the constants definition
 #       to avoid circular imports
 
 from proteus.model.properties.property import Property
@@ -104,3 +113,4 @@ from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 from proteus.model.properties.code_property import CodeProperty
+from proteus.model.properties.trace_property import TraceProperty

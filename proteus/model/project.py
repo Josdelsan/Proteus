@@ -53,7 +53,7 @@ from proteus.model import (
     XLS_TEMPLATE_TAG,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import DateProperty
+from proteus.model.properties import DateProperty, TraceProperty
 
 # if 'proteus.model.object' in sys.modules:
 #    from proteus.model.object import Object
@@ -152,7 +152,7 @@ class Project(AbstractObject):
         self.id = ProteusID(root.attrib[ID_ATTRIBUTE])
 
         # Load project's properties using superclass method
-        super().load_properties(root)
+        self.load_properties(root)
 
         # Project's ids, this variable is set in get_ids method
         self._ids: MutableSet[ProteusID] = None
@@ -262,6 +262,33 @@ class Project(AbstractObject):
             object = Object.load(document_id, self)
             object.parent = self
             self.documents.append(object)
+
+    # ----------------------------------------------------------------------
+    # Method     : load_properties
+    # Description: It loads the properties of a PROTEUS project using an
+    #              XML root element <project>.
+    # Date       : 12/09/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+
+    def load_properties(self, root: ET._Element) -> None:
+        """
+        It loads a PROTEUS project's properties from an XML root element.
+
+        :param root: XML root element.
+        :type root: ET._Element
+        """
+        # Load properties
+        super().load_properties(root)
+
+        # Ignore traceProperties if present
+        for property_name, property in self.properties.items():
+            if isinstance(property, TraceProperty):
+                log.warning(
+                    f"TraceProperty '{property_name}' found in Project file. Projects do not support traces properties. Ignoring it."
+                )
+                self.properties.pop(property_name)
 
     # ----------------------------------------------------------------------
     # Method     : load_xsl_templates

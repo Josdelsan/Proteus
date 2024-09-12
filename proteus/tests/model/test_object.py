@@ -38,7 +38,7 @@ from proteus.model import (
 )
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
-from proteus.model.trace import Trace
+from proteus.model.properties import TraceProperty
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_repository import ArchetypeRepository
@@ -260,17 +260,12 @@ def test_load_traces(sample_object: Object):
     sample_object.load_traces(root)
 
     # Check that Object contains all the traces of the xml
-    test_object_traces_name = [trace_name for trace_name in sample_object.traces.keys()]
+    test_object_traces_name = [trace_name for trace_name in sample_object.properties.keys()]
     assert all(
         trace in test_object_traces_name for trace in traces_list
     ), f"Object does not contain all the traces of the xml file.                 \
         Traces in xml file: {traces_list}                                       \
         Traces in object: {test_object_traces_name}"
-
-    # Check that all traces are Trace object
-    assert all(
-        isinstance(trace, Trace) for trace in sample_object.traces.values()
-    ), "Not all traces are of type Trace"
 
 
 def test_generate_xml(sample_object: Object):
@@ -349,9 +344,9 @@ def test_clone_object(
 
     # Check traces are cloned
     assert (
-        test_object_to_clone.traces.keys() == new_object.traces.keys()
-    ), f"Traces were not cloned. Expected: {test_object_to_clone.traces.keys()} \
-        Actual: {new_object.traces.keys()}"
+        test_object_to_clone.get_traces() == new_object.get_traces()
+    ), f"Traces were not cloned. Expected: {test_object_to_clone.get_traces()} \
+        Actual: {new_object.get_traces()}"
 
     # Check the children are in the new object
     # NOTE: This will not work if we clone an object into itself

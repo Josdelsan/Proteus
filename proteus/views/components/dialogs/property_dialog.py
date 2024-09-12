@@ -37,8 +37,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.trace import Trace
-from proteus.model.properties import Property, MarkdownProperty
+from proteus.model.properties import Property, MarkdownProperty, TraceProperty
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import translate as _
 from proteus.views.forms.properties.property_input import PropertyInput
@@ -62,14 +61,9 @@ log = logging.getLogger(__name__)  # Logger
 class PropertyDialog(ProteusDialog):
     """
     Class for the PROTEUS application properties form component. It is used
-    to display the properties an traces of an element in a form. Properties
-    and traces are grouped by categories in tabs. Each property and trace
-    is displayed in a widget that is created using the PropertyInputFactory
-    class.
-
-    NOTE: Properties and Traces are different concepts in PROTEUS, but they
-    are handle the same in the GUI. This is to simplify the user experience
-    creating just one form to display both properties and traces.
+    to display the properties of an element in a form. Properties are grouped
+    by categories in tabs. Each property is displayed in a widget that is
+    created using the PropertyInputFactory class.
     """
 
     # ----------------------------------------------------------------------
@@ -85,11 +79,8 @@ class PropertyDialog(ProteusDialog):
         Class constructor, invoke the parents class constructors and create
         the component.
 
-        Store the element id, reference to the element whose properties and
-        traces will be displayed, and the PropertyInput widgets in a dictionary.
-
-        Flag project_dialog is used to avoid handling traces in the project
-        form.
+        Store the element id, reference to the element whose properties will
+        be displayed, and the PropertyInput widgets in a dictionary.
 
         :param element_id: The id of the element to edit.
         """
@@ -120,13 +111,12 @@ class PropertyDialog(ProteusDialog):
         Create the dialog component. This method is called from the constructor.
 
         It creates a vertical layout where a tab widget is added. Each tab contains
-        a form layout with the PropertyInput widgets for each category (properties
-        and traces).
+        a form layout with the PropertyInput widgets for each category (properties).
 
         Store the input widgets in a dictionary to get the values when the form
         is accepted.
 
-        Creation is dinamic, depending on the properties and traces of the element.
+        Creation is dynamic, depending on the properties of the element.
         """
 
         # Retrieve properties and traces --------------------------------
@@ -136,16 +126,13 @@ class PropertyDialog(ProteusDialog):
         )
 
         # Get the object's properties dictionary
-        properties_dict: Dict[str, Union[Property, Trace]] = (
+        properties_dict: Dict[str, Property] = (
             self.object.properties.copy()
         )
 
         main_obj_class: str
         icon_type: ProteusIconType
         try:
-            # Merge object's traces with properties dict
-            properties_dict.update(self.object.traces)
-
             # Get the main object class to set the icon
             main_obj_class = self.object.classes[-1]
             icon_type = ProteusIconType.Archetype
@@ -156,9 +143,7 @@ class PropertyDialog(ProteusDialog):
 
             main_obj_class = "proteus_icon"
             icon_type = ProteusIconType.App
-            # Check if the object is a project to set the flag
-            # This is used to avoid handling traces in the project form
-            self.project_dialog = True
+
 
         # Dialog settings (icon is set later) ---------------------------
         self.sizeHint = lambda: QSize(500, 300)
@@ -223,7 +208,7 @@ class PropertyDialog(ProteusDialog):
     # ======================================================================
 
     def create_category_widgets(
-        self, properties_dict: Dict[str, Union[Property, Trace]]
+        self, properties_dict: Dict[str, Property]
     ) -> Dict[str, QWidget]:
         """
         Create the category widgets tabs for the properties and traces available
@@ -233,7 +218,7 @@ class PropertyDialog(ProteusDialog):
         category_widgets: Dict[str, QWidget] = {}
 
         # Iterate over the properties and create widgets for each category
-        prop: Property | Trace = None
+        prop: Property = None
         for prop in properties_dict.values():
 
             # Create a QWidget for the category if it doesn't exist
@@ -247,7 +232,7 @@ class PropertyDialog(ProteusDialog):
         return category_widgets
 
     def add_row_to_category_widget(
-            self, category_widget: QWidget, prop: Union[Property, Trace]
+            self, category_widget: QWidget, prop: Property
     ) -> None:
         """
         Add a row to the category widget with the property input widget and label.
@@ -262,7 +247,7 @@ class PropertyDialog(ProteusDialog):
         category_layout: QFormLayout = category_widget.layout()
 
         # Traces and MarkdownProperty are wrapped in a group box
-        if isinstance(prop, (Trace, MarkdownProperty)):
+        if isinstance(prop, (TraceProperty, MarkdownProperty)):
             group_box: QGroupBox = QGroupBox()
             group_box.setTitle(input_label.text())
             group_box_layout: QVBoxLayout = QVBoxLayout()
@@ -310,12 +295,10 @@ class PropertyDialog(ProteusDialog):
         later.
         """
         # Empty dictionary to hold the properties to update
-        update_list: List[Union[Property, Trace]] = []
+        update_list: List[Property] = []
 
         # Get the original object properties (and merge with traces if needed)
         properties_dict: Dict[str, Property] = self.object.properties.copy()
-        if not self.project_dialog:
-            properties_dict.update(self.object.traces)
 
         # Boolean property to check if there are errors
         form_has_errors: bool = False
@@ -337,15 +320,12 @@ class PropertyDialog(ProteusDialog):
             new_prop_value: Any = input_widget.get_value()
 
             # Get the original property and its value
-            original_prop: Union[Property, Trace] = properties_dict[prop_name]
-            if isinstance(original_prop, Trace):
-                original_prop_value: list = original_prop.targets
-            else:
-                original_prop_value: Any = original_prop.value
+            original_prop: Property = properties_dict[prop_name]
+            original_prop_value: Any = original_prop.value
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
-                cloned_property: Union[Property, Trace] = original_prop.clone(
+                cloned_property: Property = original_prop.clone(
                     new_prop_value
                 )
                 update_list.append(cloned_property)

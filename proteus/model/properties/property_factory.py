@@ -13,6 +13,7 @@
 # --------------------------------------------------------------------------
 
 import logging
+from typing import List
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -24,6 +25,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID, PROTEUS_ANY
 from proteus.model import ProteusClassTag
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
@@ -37,6 +39,7 @@ from proteus.model.properties.enum_property import EnumProperty
 from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
+from proteus.model.properties.trace_property import TraceProperty
 from proteus.model.properties.code_property import CodeProperty, ProteusCode
 
 from proteus.model import (
@@ -45,15 +48,21 @@ from proteus.model import (
     REQUIRED_ATTRIBUTE,
     INMUTABLE_ATTRIBUTE,
     TOOLTIP_ATTRIBUTE,
+    TARGET_ATTRIBUTE,
+    TRACE_TYPE_ATTRIBUTE,
+    ACCEPTED_TARGETS_ATTRIBUTE,
+    MAX_TARGETS_NUMBER_ATTRIBUTE,
 )
 
 from proteus.model.properties import (
     CLASS_TAG,
-    DEFAULT_CATEGORY,
     CHOICES_ATTRIBUTE,
     PREFIX_TAG,
     NUMBER_TAG,
     SUFFIX_TAG,
+    TRACE_TAG,
+    NO_TARGETS_LIMIT,
+    DEFAULT_TRACE_TYPE,
 )
 
 # logging configuration
@@ -89,6 +98,7 @@ class PropertyFactory:
         UrlProperty.element_tagname: UrlProperty,
         ClassListProperty.element_tagname: ClassListProperty,
         CodeProperty.element_tagname: CodeProperty,
+        TraceProperty.element_tagname: TraceProperty,
     }
 
     @classmethod
@@ -111,7 +121,7 @@ class PropertyFactory:
         name = element.attrib.get(NAME_ATTRIBUTE)
 
         # Get category (checked in property constructors)
-        category = element.attrib.get(CATEGORY_ATTRIBUTE, DEFAULT_CATEGORY)
+        category = element.attrib.get(CATEGORY_ATTRIBUTE)
 
         # Get required (checked in property constructors)
         required_str = element.attrib.get(REQUIRED_ATTRIBUTE, "false")
@@ -138,6 +148,21 @@ class PropertyFactory:
             number = element.find(NUMBER_TAG).text
             suffix = element.find(SUFFIX_TAG).text
             value = ProteusCode(prefix, number, suffix)
+        elif property_class is TraceProperty:
+            traces = list()
+
+            for trace in element.findall(TRACE_TAG):
+                target: ProteusID = trace.attrib.get(TARGET_ATTRIBUTE)
+
+                if target is None:
+                    log.warning(
+                        f"PROTEUS trace '{name}' has a trace without a target -> ignoring it"
+                    )
+                    continue
+
+                traces.append(target)
+
+            value = traces
         else:
             # Value could be empty
             value = str(element.text)
@@ -150,6 +175,27 @@ class PropertyFactory:
             choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
             return EnumProperty(
                 name, category, value, tooltip, required, inmutable, choices
+            )
+        
+        # Special case: traceProperty
+        if property_class is TraceProperty:
+            # We need to collect its trace type, max targets number and accepted targets
+            trace_type = element.attrib.get(TRACE_TYPE_ATTRIBUTE, DEFAULT_TRACE_TYPE)
+
+            accepted_targets: List | None = element.attrib.get(
+                ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
+            ).split()
+            
+            try:
+                max_targets_number: int = int(element.attrib.get(MAX_TARGETS_NUMBER_ATTRIBUTE, NO_TARGETS_LIMIT))
+            except ValueError:
+                log.warning(
+                    f"PROTEUS propertyTrace '{name}' has a max targets number that is not an integer -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
+                )
+                max_targets_number = NO_TARGETS_LIMIT
+
+            return TraceProperty(
+                name, category, value, tooltip, required, inmutable, accepted_targets, trace_type, max_targets_number
             )
 
         # Ordinary case: rest of property classes

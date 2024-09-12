@@ -34,8 +34,7 @@ DOCUMENTS_TAG      = str('documents')
 CHILD_TAG          = str('child')
 CHILDREN_TAG       = str('children')
 TRACES_TAG         = str('traces')
-TRACE_PROPERTY_TAG = str('traceProperty')
-TRACE_TAG          = str('trace')
+
 XSL_TEMPLATES_TAG  = str('xsl-templates')
 XLS_TEMPLATE_TAG   = str('xsl-template')
 
@@ -78,10 +77,6 @@ PROTEUS_AUTHOR              = str(':Proteus-author')
 PROTEUS_INFORMATION_SOURCE  = str(':Proteus-information-source')
 PROTEUS_WORKS_FOR           = str(':Proteus-works-for')
 
-# Default values
-DEFAULT_TRACE_NAME     = str('trace')
-DEFAULT_TRACE_CATEGORY = str('dependencies')
-DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 
 # Name prefix for cloned objects
 COPY_OF = str('archetype.copy-of')

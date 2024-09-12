@@ -30,7 +30,7 @@ from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import translate as _
 
 # Properties imports
-from proteus.model.trace import Trace, NO_TARGETS_LIMIT
+from proteus.model.properties import NO_TARGETS_LIMIT
 from proteus.model.properties.property import Property
 from proteus.model.properties.string_property import StringProperty
 from proteus.model.properties.boolean_property import BooleanProperty
@@ -44,6 +44,7 @@ from proteus.model.properties.file_property import FileProperty
 from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 from proteus.model.properties.code_property import CodeProperty
+from proteus.model.properties.trace_property import TraceProperty
 
 # Property input imports
 from proteus.views.forms.properties.trace_input import TraceInput
@@ -92,8 +93,8 @@ class PropertyInputFactory:
     """
 
     # Map of property types to input creation functions
-    property_input_map: Dict[Union[Property, Trace], PropertyInput] = {
-        Trace: TraceInput,
+    property_input_map: Dict[Property, PropertyInput] = {
+        TraceProperty: TraceInput,
         StringProperty: StringPropertyInput,
         DateProperty: DatePropertyInput,
         TimeProperty: TimePropertyInput,
@@ -117,7 +118,7 @@ class PropertyInputFactory:
     # ----------------------------------------------------------------------
     @staticmethod
     def create(
-        property: Union[Property, Trace], element_id: ProteusID = None, controller: Controller = None
+        property: Property, element_id: ProteusID = None, controller: Controller = None
     ) -> PropertyInput:
         try:
             # Retrieve the input class for the given property type or trace
@@ -142,7 +143,7 @@ class PropertyInputFactory:
     # TODO: Consider implementing this method in PropertyInput class in order
     # to allow custom label generation for each property class. Future feature.
     @staticmethod
-    def generate_label(property: Union[Property, Trace]) -> QLabel:
+    def generate_label(property: Property) -> QLabel:
         """
         Generates the label for the given property. The label is generated
         using the property name and checking if the property is marked as
@@ -166,7 +167,12 @@ class PropertyInputFactory:
         label.setMaximumHeight(font_metrics.height())
 
         # Check if the property is required
-        if isinstance(property, Property):
+    
+        if isinstance(property, TraceProperty):
+            if property.max_targets_number != NO_TARGETS_LIMIT:
+                max_label = _("property_input.max_targets_label")
+                name = f"{name} ( {max_label} {property.max_targets_number} )"
+        else:
             if property.required:
 
                 # Add the * to the name
@@ -179,10 +185,6 @@ class PropertyInputFactory:
 
                 # Set the tooltip
                 label.setToolTip(_("property_input.required_tooltip"))
-        elif isinstance(property, Trace):
-            if property.max_targets_number != NO_TARGETS_LIMIT:
-                max_label = _("property_input.max_targets_label")
-                name = f"{name} ( {max_label} {property.max_targets_number} )"
 
         # Set the label text
         label.setText(name)

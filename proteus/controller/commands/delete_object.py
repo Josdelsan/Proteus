@@ -27,7 +27,7 @@ from PyQt6.QtGui import QUndoCommand
 
 from proteus.model import ProteusID
 from proteus.model.object import Object
-from proteus.model.trace import Trace
+from proteus.model.properties import TraceProperty
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.application.state_manager import StateManager
@@ -77,8 +77,8 @@ class DeleteObjectCommand(QUndoCommand):
             ).state
 
         # Atributed related to traces management
-        self.new_sources_traces: Dict[ProteusID, List[Trace]] = {}
-        self.old_sources_traces: Dict[ProteusID, List[Trace]] = {}
+        self.new_sources_traces: Dict[ProteusID, List[TraceProperty]] = {}
+        self.old_sources_traces: Dict[ProteusID, List[TraceProperty]] = {}
         self.old_sources_states: Dict[ProteusID, ProteusState] = {}
         self.calculate_traces_changes()
 
@@ -111,7 +111,7 @@ class DeleteObjectCommand(QUndoCommand):
 
         # Update the traces that where pointing to the object or its children
         for source in self.new_sources_traces.keys():
-            self.project_service.update_traces(source, self.new_sources_traces[source])
+            self.project_service.update_properties(source, self.new_sources_traces[source])
 
             # Emit MODIFY_OBJECT event
             # update_view flag prevents the view to be updated every time a source is modified
@@ -151,7 +151,7 @@ class DeleteObjectCommand(QUndoCommand):
         # NOTE: We assume that old_sources_traces and old_sources_states have the same keys
         for source in self.old_sources_traces.keys():
             # Update the traces
-            self.project_service.update_traces(source, self.old_sources_traces[source])
+            self.project_service.update_properties(source, self.old_sources_traces[source])
 
             # Restore the old state of the source object
             source_object: Object = self.project_service._get_element_by_id(source)
@@ -200,19 +200,19 @@ class DeleteObjectCommand(QUndoCommand):
                 self.old_sources_states[source] = source_object.state
 
                 # Iterate over the traces to find the traces that point to the target object
-                trace: Trace
-                new_traces: List[Trace] = []
-                old_traces: List[Trace] = []
-                for trace in source_object.traces.values():
+                trace: TraceProperty
+                new_traces: List[TraceProperty] = []
+                old_traces: List[TraceProperty] = []
+                for trace in source_object.get_traces():
                     # If the target is found in the trace, create the new trace and store the old one
-                    if target in trace.targets:
+                    if target in trace.value:
                         # Store the old trace
                         old_traces.append(trace)
 
                         # Create the new trace
-                        new_targets: List = trace.targets.copy()
+                        new_targets: List = trace.value.copy()
                         new_targets.remove(target)
-                        new_trace: Trace = trace.clone(new_targets)
+                        new_trace: TraceProperty = trace.clone(new_targets)
                         new_traces.append(new_trace)
 
                 # Store the new and old traces in the dictionaries

@@ -2,16 +2,20 @@
 # File: trace.py
 # Description: PROTEUS trace
 # Date: 23/10/2023
-# Version: 0.3
+# Version: 0.4
 # Author: José María Delgado Sánchez
+# ==========================================================================
+# Author: José María Delgado Sánchez
+# Date: 12/09/2024
+# Description: Trace now inherits from Property
 # ==========================================================================
 
 # --------------------------------------------------------------------------
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from dataclasses import dataclass, replace, field
-from typing import List, AnyStr
+from dataclasses import dataclass, field
+from typing import List, ClassVar
 import logging
 
 # --------------------------------------------------------------------------
@@ -24,54 +28,50 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model.properties.property import Property
 from proteus.model import (
     ProteusID,
     ProteusClassTag,
     NAME_ATTRIBUTE,
-    CATEGORY_ATTRIBUTE,
     TARGET_ATTRIBUTE,
-    TOOLTIP_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
-    TRACE_PROPERTY_TAG,
     TRACE_TYPE_ATTRIBUTE,
+    PROTEUS_ANY,
+)
+from proteus.model.properties import (
+    TRACE_PROPERTY_TAG,
     TRACE_TAG,
+    NO_TARGETS_LIMIT,
+    DEFAULT_TRACE_TYPE,
     DEFAULT_TRACE_NAME,
     DEFAULT_TRACE_CATEGORY,
-    DEFAULT_TRACE_TYPE,
-    PROTEUS_ANY,
 )
 
 # logging configuration
 log = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------
-# Constants
-# --------------------------------------------------------------------------
-NO_TARGETS_LIMIT = -1
 
 # --------------------------------------------------------------------------
 # Class: Trace
 # Description: Dataclass for PROTEUS traces
 # Date: 23/10/2023
-# Version: 0.1
+# Version: 0.2
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class Trace:
+class TraceProperty(Property):
     """
     Class for PROTEUS traces.
     """
 
     # dataclass instance attributes
-    name: str = str(DEFAULT_TRACE_NAME)
-    category: str = str(DEFAULT_TRACE_CATEGORY)
+    element_tagname: ClassVar[str] = TRACE_PROPERTY_TAG
     acceptedTargets: List[ProteusClassTag] = field(default_factory=list)
-    tooltip: str = str()
     type: str = str(DEFAULT_TRACE_TYPE)
-    targets: List[ProteusID] = field(default_factory=list)
+    value: List[ProteusID] = field(default_factory=list)  # targets
     max_targets_number: int = NO_TARGETS_LIMIT
 
     # --------------------------------------------------------------------------
@@ -118,9 +118,9 @@ class Trace:
             object.__setattr__(self, "type", DEFAULT_TRACE_TYPE)
 
         # Value validation
-        if not isinstance(self.targets, list):
+        if not isinstance(self.value, list):
             log.warning(
-                f"PROTEUS trace '{self.name}' must have a list of targets -> assigning an empty list"
+                f"PROTEUS trace '{self.name}' must have a list of targets (value) -> assigning an empty list"
             )
             # self.targets = list() cannot be used when frozen=True
             object.__setattr__(self, "targets", list())
@@ -132,39 +132,19 @@ class Trace:
             #     f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
             # )
 
-
             # self.max_targets_number = NO_TARGETS_LIMIT cannot be used when frozen=True
             object.__setattr__(self, "max_targets_number", NO_TARGETS_LIMIT)
 
         # Ignore targets if max targets number is NO_TARGETS_LIMIT
         if (
             self.max_targets_number != NO_TARGETS_LIMIT
-            and len(self.targets) > self.max_targets_number
+            and len(self.value) > self.max_targets_number
         ):
             log.warning(
                 f"PROTEUS trace '{self.name}' has more targets than the max targets number -> ignoring leftover targets"
             )
             # self.targets = self.targets[:self.max_targets_number] cannot be used when frozen=True
-            object.__setattr__(self, "targets", self.targets[: self.max_targets_number])
-
-    # --------------------------------------------------------------------------
-    # Method: clone
-    # Description: It clones the trace with new targets if it is not None.
-    # Date: 23/10/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def clone(self, new_targets: List = None) -> "Trace":
-        """
-        It clones the trace with new targets if it is not None.
-        The new targets must be provided as a list of ProteusID.
-        :param new_targets: new targets for the trace.
-        :return: a copy of the trace with the new targets.
-        """
-        if new_targets is None:
-            return replace(self)
-
-        return replace(self, targets=new_targets)
+            object.__setattr__(self, "value", self.value[: self.max_targets_number])
 
     # --------------------------------------------------------------------------
     # Method: generate_xml
@@ -177,10 +157,8 @@ class Trace:
         """
         This template method generates the XML element for the trace.
         """
-        # Create trace property tag and set its attributes
-        trace_property_element: ET._Element = ET.Element(TRACE_PROPERTY_TAG)
-        trace_property_element.set(NAME_ATTRIBUTE, self.name)
-        trace_property_element.set(CATEGORY_ATTRIBUTE, self.category)
+        trace_property_element: ET._Element = super().generate_xml()
+
         trace_property_element.set(
             ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets)
         )
@@ -192,90 +170,25 @@ class Trace:
                 MAX_TARGETS_NUMBER_ATTRIBUTE, str(self.max_targets_number)
             )
 
-        # Create tooltip tag and set its attribute
-        if self.tooltip and self.tooltip != "":
-            trace_property_element.set(TOOLTIP_ATTRIBUTE, self.tooltip)
-
-        # Create each trace tag and set its attribute
-        for target in self.targets:
-            trace_element: ET._Element = ET.Element(TRACE_TAG)
-            trace_element.set(TARGET_ATTRIBUTE, target)
-            trace_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
-            trace_property_element.append(trace_element)
-
         return trace_property_element
 
     # --------------------------------------------------------------------------
-    # Method: create (class method)
-    # Description: It creates a trace from an XML element.
-    # Date: 23/10/2023
+    # Method: generate_xml_value
+    # Description: Generates the value of the property for its XML element.
+    # Date: 12/09/2024
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    @classmethod
-    def create(cls, trace_property_element: ET._Element) -> "Trace":
+    def generate_xml_value(self, property_element: ET._Element) -> str | ET.CDATA | None:
         """
-        It creates a trace from an XML element.
-
-        :param element: XML element with the trace.
-        :return: Trace object.
+        Generates the value of the property for its XML element. Creates each trace tag and sets its attribute.
         """
-        # Get name
-        name: AnyStr | None = trace_property_element.attrib.get(
-            NAME_ATTRIBUTE, DEFAULT_TRACE_NAME
-        )
+        # Create each trace tag and set its attribute
+        for target in self.value:
+            trace_element: ET._Element = ET.SubElement(property_element, TRACE_TAG)
+            trace_element.set(TARGET_ATTRIBUTE, target)
+            trace_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
 
-        # Get category
-        category: AnyStr | None = trace_property_element.attrib.get(
-            CATEGORY_ATTRIBUTE, DEFAULT_TRACE_CATEGORY
-        )
-
-        # Get accepted targets
-        accepted_targets: List | None = trace_property_element.attrib.get(
-            ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
-        ).split()
-
-        # Get max targets number
-        max_number_attribute = trace_property_element.attrib.get(
-            MAX_TARGETS_NUMBER_ATTRIBUTE, NO_TARGETS_LIMIT
-        )
-        try:
-            max_targets_number: int = int(max_number_attribute)
-        except ValueError:
-            log.warning(
-                f"PROTEUS trace '{name}' has a max targets number that is not an integer -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
-            )
-            max_targets_number = NO_TARGETS_LIMIT
-
-        # Get tooltip
-        tooltip: AnyStr | None = trace_property_element.attrib.get(
-            TOOLTIP_ATTRIBUTE, str()
-        )
-
-        # Get type
-        type: AnyStr | None = trace_property_element.attrib.get(
-            TRACE_TYPE_ATTRIBUTE, DEFAULT_TRACE_TYPE
-        )
-
-        # Get targets
-        traces = list()
-        for trace in trace_property_element.findall(TRACE_TAG):
-            target: ProteusID = trace.attrib.get(TARGET_ATTRIBUTE)
-
-            if target is None:
-                log.warning(
-                    f"PROTEUS trace '{name}' has a trace without a target -> ignoring it"
-                )
-                continue
-
-            traces.append(target)
-
-        return cls(
-            name=name,
-            category=category,
-            targets=traces,
-            acceptedTargets=accepted_targets,
-            tooltip=tooltip,
-            type=type,
-            max_targets_number=max_targets_number,
-        )
+        # Returning None avoid the XML to be printed in a single line
+        # https://lxml.de/FAQ.html#why-doesn-t-the-pretty-print-option-reformat-my-xml-output
+        return None

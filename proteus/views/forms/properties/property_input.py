@@ -37,7 +37,6 @@ from proteus.model import ProteusID
 from proteus.controller.command_stack import Controller
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
-from proteus.model.trace import Trace
 from proteus.application.utils.abstract_meta import AbstractObjectMeta
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
@@ -63,7 +62,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
     """
 
     def __init__(
-        self, property: Property | Trace, controller: Controller = None, element_id: ProteusID = None, *args, **kwargs
+        self, property: Property, controller: Controller = None, element_id: ProteusID = None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
 
@@ -73,7 +72,7 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
 
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller, element_id)
-        self.property: Property | Trace = property
+        self.property: Property = property
 
         # Create the component
         self.create_component()

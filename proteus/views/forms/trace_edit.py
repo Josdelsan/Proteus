@@ -45,7 +45,7 @@ from proteus.model import (
     PROTEUS_ANY,
 )
 from proteus.model.object import Object
-from proteus.model.trace import NO_TARGETS_LIMIT
+from proteus.model.properties.trace_property import NO_TARGETS_LIMIT
 from proteus.model.properties.property import Property
 from proteus.model.properties.code_property import ProteusCode
 from proteus.controller.command_stack import Controller

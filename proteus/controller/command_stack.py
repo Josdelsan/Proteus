@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Set, Dict, Union
+from typing import List, Set, Dict
 from pathlib import Path
 import logging
 
@@ -48,7 +48,6 @@ from proteus.application.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.properties import Property
-from proteus.model.trace import Trace
 from proteus.model.template import Template
 
 from proteus.application.configuration.config import Config
@@ -182,7 +181,7 @@ class Controller:
     # ----------------------------------------------------------------------
     @proteus_action
     def update_properties(
-        self, element_id: ProteusID, new_properties: List[Union[Property, Trace]]
+        self, element_id: ProteusID, new_properties: List[Property]
     ) -> None:
         """
         Update the properties (and traces) of an element given its id.
@@ -207,10 +206,10 @@ class Controller:
             new_properties, list
         ), f"New properties must be a list. New properties: {new_properties}"
 
-        # Check new properties are type of Property or Trace
+        # Check new properties are type of Property
         assert all(
-            isinstance(property, (Property, Trace)) for property in new_properties
-        ), f"New properties must be type of Property or Trace. New properties: {new_properties}"
+            isinstance(property, Property) for property in new_properties
+        ), f"New properties must be type of Property. New properties: {new_properties}"
 
         # Push the command to the command stack
         self._push(
@@ -703,7 +702,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_element(self, element_id: ProteusID) -> Union[Object, Project]:
+    def get_element(self, element_id: ProteusID) -> Project | Object:
         """
         Get the element given its id.
 
@@ -721,7 +720,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_current_project(self) -> Union[Project, None]:
+    def get_current_project(self) -> Project | None:
         """
         Get the id of the current project.
 
@@ -1043,7 +1042,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_archetype_by_id(self, archetype_id) -> Union[Object, Project]:
+    def get_archetype_by_id(self, archetype_id) -> Object | Project:
         """
         Get archetype by id.
         """

@@ -16,6 +16,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+import logging
 from enum import Enum
 from typing import Type, List, MutableSet
 from abc import ABC, abstractmethod
@@ -32,18 +33,14 @@ import lxml.etree as ET
 
 from proteus.model import (
     ProteusID,
-    ID_ATTRIBUTE,
     NAME_ATTRIBUTE,
     PROPERTIES_TAG,
-    PROJECT_TAG,
-    OBJECT_TAG,
-    DOCUMENTS_TAG,
-    DOCUMENT_TAG,
-    CHILDREN_TAG,
-    CHILD_TAG,
 )
 from proteus.model.properties import Property, PropertyFactory
 
+
+# logging configuration
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Class: ProteusStates
@@ -120,19 +117,19 @@ class AbstractObject(ABC):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def load_properties(self, root: ET.Element) -> None:
+    def load_properties(self, root: ET._Element) -> None:
         """
         It loads a PROTEUS abstract object's properties from an XML root element.
 
         :param root: the XML root element.
-        :type root: ET.Element
+        :type root: ET._Element
         """
 
         # Check root is not None
         assert root is not None, f"Root element is not valid in {self.path}."
 
         # Find the <properties> element
-        properties_element: ET.Element = root.find(PROPERTIES_TAG)
+        properties_element: ET._Element = root.find(PROPERTIES_TAG)
 
         # Check whether it has <properties>
         assert (
@@ -140,7 +137,7 @@ class AbstractObject(ABC):
         ), f"PROTEUS file {self.path} does not have a <{PROPERTIES_TAG}> element."
 
         # Parse properties
-        property_element: ET.Element
+        property_element: ET._Element
         for property_element in properties_element:
             property_name: str = property_element.attrib.get(NAME_ATTRIBUTE, None)
             # Check whether the property has a name
@@ -149,7 +146,13 @@ class AbstractObject(ABC):
             ), f"PROTEUS file {self.path} includes an unnamed property."
 
             # Add the property to the properties dictionary
-            self.properties[property_name] = PropertyFactory.create(property_element)
+            property: Property = PropertyFactory.create(property_element)
+            if property is not None:
+                self.properties[property_name] = property
+            else:
+                log.error(
+                    f"Property {property_name} could not be created from {self.path}."
+                )
 
     # ----------------------------------------------------------------------
     # Method     : get_property
@@ -225,7 +228,7 @@ class AbstractObject(ABC):
     # Author     : Amador Durán Toro
     # ----------------------------------------------------------------------
 
-    def generate_xml_properties(self, parent_element: ET.Element) -> ET.Element:
+    def generate_xml_properties(self, parent_element: ET._Element) -> ET._Element:
         """
         Generate xml property function. It generates an ET.Element from the properties of an abstract object
         (Object and Project).

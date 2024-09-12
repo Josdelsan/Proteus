@@ -36,7 +36,7 @@ from proteus.model.properties import \
     Property,                      \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
-    CHOICES_ATTRIBUTE,                   \
+    CHOICES_ATTRIBUTE,             \
     CLASS_TAG,                     \
     PropertyFactory
 

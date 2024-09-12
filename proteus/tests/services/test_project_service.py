@@ -24,11 +24,10 @@ from lxml import etree as ET
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID, PROTEUS_ANY, PROTEUS_DOCUMENT
-from proteus.model.trace import Trace
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import Property
+from proteus.model.properties import Property, TraceProperty
 from proteus.services.project_service import ProjectService
 from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.tests.fixtures import SampleData
@@ -83,7 +82,7 @@ def mock_trace(mocker):
     """
     It returns a mock trace.
     """
-    return mocker.MagicMock(spec=Trace)
+    return mocker.MagicMock(spec=TraceProperty)
 
 # --------------------------------------------------------------------------
 # Integration tests
@@ -112,8 +111,8 @@ def test_load_project(project_service: ProjectService):
     # Get project traced objects ids
     def get_traced_ids(object: Object):
         traced_ids = set()
-        for trace in object.traces.values():
-            traced_ids.update(set(trace.targets))
+        for trace in object.get_traces():
+            traced_ids.update(set(trace.value))
         for child in object.get_descendants():
             traced_ids.update(get_traced_ids(child))
         return traced_ids
@@ -163,15 +162,15 @@ def test_get_object_structure(project_service: ProjectService):
     """
     # Act -----------------------------
     # Get object structure
-    object_structure: Dict[ProteusID, List] = project_service.get_object_structure(
+    object_structure: Dict[Object, List] = project_service.get_object_structure(
         SAMPLE_OBJECT_ID
     )
 
     # Post-actions --------------------
     # Get object
-    object: ProteusID = list(object_structure.keys())[0]
+    object: Object = list(object_structure.keys())[0]
     # Get object children
-    object_children: List[ProteusID] = set(object.children)
+    object_children: List[Object] = set(object.children)
     # Get object structure children ids
     children_dicts: List[Dict] = object_structure[object]
     object_structure_children: List[ProteusID] = set(
@@ -664,51 +663,8 @@ def test_update_properties_negative(
     ), f"set_property should not be called"
 
 
-def test_update_traces(mocker, basic_project_service: ProjectService):
-    """
-    Test the update_traces method.
-    """
-    # Arrange -------------------------
-    # Mock _load_traces_index method
-    mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
 
-    # Create object and mock the _get_element_by_id method
-    mock_element = mocker.MagicMock(spec=Object)
-    mock_element.state = ProteusState.CLEAN
-    mock_element.classes = ["mock_class"]
-    mock_element.traces = {}
-    mocker.patch.object(
-        basic_project_service, "_get_element_by_id", return_value=mock_element
-    )
-
-    # Create trace and mock name variable value
-    mock_trace = mocker.MagicMock(spec=Trace)
-    mock_trace.name = "mock_trace_name"
-    mock_trace.targets = ["target_1", "target_2"]
-
-    # Act -----------------------------
-    basic_project_service.update_traces("id", [mock_trace])
-
-    # Assert --------------------------
-    # Check that _load_traces_index is called
-    assert (
-        basic_project_service._load_traces_index.call_count == 1
-    ), f"_load_traces_index should be called once"
-
-    # Check that _get_element_by_id is called three times (one for the object and two for the targets)
-    assert (
-        basic_project_service._get_element_by_id.call_count == 3
-    ), f"_get_element_by_id should be called once"
-
-    # Check that the trace is added to the object
-    assert (
-        mock_element.traces["mock_trace_name"] == mock_trace
-    ), f"Trace should be added to the object"
-
-    # Check mock_element state is updated
-    assert mock_element.state == ProteusState.DIRTY, f"Object state should be DIRTY"
-
-def test_update_traces_discard_one_invalid_target(mocker, basic_project_service: ProjectService, mock_trace: Trace):
+def test_update_traces_properties_discard_one_invalid_target(mocker, basic_project_service: ProjectService, mock_trace: TraceProperty):
     """
     Test the update_traces method with one trace that has invalid targets, only the valid target should be added.
     """
@@ -718,23 +674,23 @@ def test_update_traces_discard_one_invalid_target(mocker, basic_project_service:
     mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
 
     # Valid target object
-    valid_target_mock = mocker.MagicMock(spec=Object)
+    valid_target_mock: Object = mocker.MagicMock(spec=Object)
     valid_target_mock.id = "valid_target_id"
     valid_target_mock.state = ProteusState.CLEAN
     valid_target_mock.classes = ["mock_class"]
 
     # Invalid target object
-    invalid_target_mock = mocker.MagicMock(spec=Object)
+    invalid_target_mock: Object = mocker.MagicMock(spec=Object)
     invalid_target_mock.id = "invalid_target_id"
     invalid_target_mock.state = ProteusState.DEAD
     invalid_target_mock.classes = ["mock_class"]
 
     # Create object
-    mock_element = mocker.MagicMock(spec=Object)
+    mock_element: Object = mocker.MagicMock(spec=Object)
     mock_element.id = "element_id"
     mock_element.state = ProteusState.CLEAN
     mock_element.classes = ["mock_class"]
-    mock_element.traces = {}
+    mocker.patch.object(mock_element, "set_property", return_value=None)
 
     # Mock the _get_element_by_id method
     def get_element_by_id_side_effect(id):
@@ -756,18 +712,26 @@ def test_update_traces_discard_one_invalid_target(mocker, basic_project_service:
 
     # Set valid and invalid targets
     mock_trace.name = "mock_trace_name"
-    mock_trace.targets = ["valid_target_id", "invalid_target_id"]
-    mocker.patch.object(mock_trace, "clone", return_value=mock_trace)
+    mock_trace.value = ["valid_target_id", "invalid_target_id"]
+
+    mock_element.properties = {mock_trace.name: mock_trace}
+
+    # Copy mock_trace
+    mock_trace_clone: TraceProperty = mocker.MagicMock(spec=TraceProperty)
+    mock_trace_clone.name = "mock_trace_name"
+    mock_trace_clone.value = ["valid_target_id"]
+
+    mocker.patch.object(mock_trace, "clone", return_value=mock_trace_clone)
 
     # Act -----------------------------
-    basic_project_service.update_traces("element_id", [mock_trace])
+    basic_project_service.update_properties("element_id", [mock_trace])
 
     # Assert --------------------------
 
     # Check that the trace is added to the object
     # Since trace is cloned, we check the name
     assert (
-        "mock_trace_name" in mock_element.traces
+        "mock_trace_name" in mock_element.properties
     ), f"Trace should be added to the object"
 
     # Check that the clone method was called with just valid target
@@ -775,17 +739,17 @@ def test_update_traces_discard_one_invalid_target(mocker, basic_project_service:
         mock_trace.clone.called_once_with(targets=["valid_target_id"])
     ), f"clone method should be called once"
 
+    # Check that the set_property method was called with the cloned trace
+    assert (
+        mock_element.set_property.called_once_with(mock_trace_clone)
+    ), f"set_property method should be called once"
 
     # Check that load_traces_index is called
     assert (
         basic_project_service._load_traces_index.call_count == 1
     ), f"_load_traces_index should be called once"
 
-    # Check element state is updated
-    assert (
-        mock_element.state == ProteusState.DIRTY
-    ), f"Element state should be DIRTY"
-
+    # Element state is not checked since it is set_property responsibility to update it
 
 @pytest.mark.parametrize(
     "trace_list",
@@ -800,7 +764,7 @@ def test_update_traces_discard_one_invalid_target(mocker, basic_project_service:
 )
 def test_update_traces_negative_invalid_elements_in_traces_list(
     mocker,
-    trace_list,
+    trace_list: List[TraceProperty],
     basic_project_service: ProjectService,
 ):
     """
@@ -811,7 +775,7 @@ def test_update_traces_negative_invalid_elements_in_traces_list(
 
     # Act | Assert --------------------
     with pytest.raises(AssertionError):
-        basic_project_service.update_traces("id", trace_list)
+        basic_project_service.update_properties("id", trace_list)
 
     # Check that the _get_element_by_id method is not called
     assert (
@@ -822,7 +786,7 @@ def test_update_traces_negative_invalid_elements_in_traces_list(
 def test_update_traces_negative_document_trace(
     mocker,
     basic_project_service: ProjectService,
-    mock_trace: Trace,
+    mock_trace: TraceProperty,
 ):
     """
     Test the update_traces method with invalid traces parameters. The traces
@@ -830,8 +794,8 @@ def test_update_traces_negative_document_trace(
     """
     # Arrange -------------------------
     # A document tracing itself
-    mock_element = mocker.MagicMock(spec=Object)
-    mock_element.traces = {}
+    mock_element: Object = mocker.MagicMock(spec=Object)
+    mock_element.properties = {}
     mock_element.state = ProteusState.CLEAN
     mock_element.classes = [PROTEUS_DOCUMENT]
     mocker.patch.object(
@@ -840,18 +804,18 @@ def test_update_traces_negative_document_trace(
 
     mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
 
-    mock_trace.targets = ["id"]
+    mock_trace.value = ["id"]
     trace_list = [mock_trace]
 
     # Act -----------------------------
-    basic_project_service.update_traces("id", trace_list)
+    basic_project_service.update_properties("id", trace_list)
 
 
     # Assert --------------------------
-    # Check mock_element traces are empty
+    # Check mock_element properties are empty
     assert (
-        len(mock_element.traces) == 0
-    ), f"Object traces should be empty but it is {mock_element.traces}"
+        len(mock_element.properties) == 0
+    ), f"Object properties should be empty but it is {mock_element.properties}"
 
     # load_traces_index should not be called
     assert (
@@ -867,7 +831,7 @@ def test_update_traces_negative_document_trace(
 def test_update_traces_negative_dead_object(
     mocker,
     basic_project_service: ProjectService,
-    mock_trace: Trace,
+    mock_trace: TraceProperty,
 ):
     """
     Test the update_traces method with invalid traces parameters. The traces
@@ -875,8 +839,8 @@ def test_update_traces_negative_dead_object(
     """
     # Arrange -------------------------
     # A document tracing itself
-    mock_element = mocker.MagicMock(spec=Object)
-    mock_element.traces = {}
+    mock_element: Object = mocker.MagicMock(spec=Object)
+    mock_element.properties = {}
     mock_element.state = ProteusState.DEAD
     mock_element.classes = ["mock_class"]
     mocker.patch.object(
@@ -885,18 +849,18 @@ def test_update_traces_negative_dead_object(
 
     mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
 
-    mock_trace.targets = ["id"]
+    mock_trace.value = ["id"]
     trace_list = [mock_trace]
 
     # Act -----------------------------
-    basic_project_service.update_traces("id", trace_list)
+    basic_project_service.update_properties("id", trace_list)
 
 
     # Assert --------------------------
-    # Check mock_element traces are empty
+    # Check mock_element properties are empty
     assert (
-        len(mock_element.traces) == 0
-    ), f"Object traces should be empty but it is {mock_element.traces}"
+        len(mock_element.properties) == 0
+    ), f"Object properties should be empty but it is {mock_element.properties}"
 
     # load_traces_index should not be called
     assert (
@@ -911,7 +875,7 @@ def test_update_traces_negative_dead_object(
 def test_update_traces_negative_self_tracing(
     mocker,
     basic_project_service: ProjectService,
-    mock_trace: Trace,
+    mock_trace: TraceProperty,
 ):
     """
     Test the update_traces method with invalid traces parameters. The traces
@@ -919,9 +883,9 @@ def test_update_traces_negative_self_tracing(
     """
     # Arrange -------------------------
     # A document tracing itself
-    mock_element = mocker.MagicMock(spec=Object)
+    mock_element: Object = mocker.MagicMock(spec=Object)
     mock_element.id = "id"
-    mock_element.traces = {}
+    mock_element.properties = {}
     mock_element.state = ProteusState.CLEAN
     mock_element.classes = ["mock_class"]
     mocker.patch.object(
@@ -930,18 +894,18 @@ def test_update_traces_negative_self_tracing(
 
     mocker.patch.object(basic_project_service, "_load_traces_index", return_value=None)
 
-    mock_trace.targets = ["id"]
+    mock_trace.value = ["id"]
     trace_list = [mock_trace]
 
     # Act -----------------------------
-    basic_project_service.update_traces("id", trace_list)
+    basic_project_service.update_properties("id", trace_list)
 
 
     # Assert --------------------------
     # Check mock_element traces are empty
     assert (
-        len(mock_element.traces) == 0
-    ), f"Object traces should be empty but it is {mock_element.traces}"
+        len(mock_element.properties) == 0
+    ), f"Object traces should be empty but it is {mock_element.properties}"
 
     # load_traces_index should not be called
     assert (

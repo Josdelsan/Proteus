@@ -39,8 +39,7 @@ from proteus.model import (
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import Property
-from proteus.model.trace import Trace
+from proteus.model.properties import Property, TraceProperty
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -220,8 +219,8 @@ class ProjectService:
             if object.id == self.project.id or object.state == ProteusState.DEAD:
                 continue
             # Iterate over object's traces
-            for trace in object.traces.values():
-                targets.update(trace.targets)
+            for trace in object.get_traces():
+                targets.update(trace.value)
 
             # Include object in source set of all its targets
             for target in targets:
@@ -372,46 +371,18 @@ class ProjectService:
             element, (Object, Project)
         ), f"Element with id {element_id} is not an object or project."
 
-        for property in properties:
-            element.set_property(property)
-
-    # ----------------------------------------------------------------------
-    # Method     : update_traces
-    # Description: Updates the object traces.
-    # Date       : 26/10/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def update_traces(self, element_id: ProteusID, traces: List[Trace]) -> None:
-        """
-        Updates the object traces.
-
-        :param element_id: Id of the object.
-        :param traces: List of traces to update.
-        """
-        # Check traces is a list
-        assert isinstance(traces, list), "Traces must be a list."
-
-        # Check traces are Trace objects
-        assert all(
-            isinstance(trace, Trace) for trace in traces
-        ), "Traces must be Trace objects."
-
-        # Get element by id
-        element = self._get_element_by_id(element_id)
-
-        # Check element is an object or project
-        assert isinstance(
-            element, (Object)
-        ), f"Element with id {element_id} is not an object. Traces can only be added to objects"
-
+        # Discard TraceProperties that are not valid
         discarded_traces = []
+        new_traces = []
+        traces: List[TraceProperty] = [
+            property for property in properties if isinstance(property, TraceProperty)
+        ]
         for trace in traces:
-            valid_targets = trace.targets.copy()
+            valid_targets = trace.value.copy()
             invalid_target_found_flag = False
 
             # Check if there is a trace to a DEAD object, DOCUMENT or the element itself to discard it
-            for target_id in trace.targets:
+            for target_id in trace.value:
                 try:
                     target = self._get_element_by_id(target_id)
                     if (
@@ -422,7 +393,7 @@ class ProjectService:
                         valid_targets.remove(target_id)
                         invalid_target_found_flag = True
                         log.warning(
-                            f"Trace from object '{element_id}' to target '{target_id}' was discarded because it is a DOCUMENT, it has DEAD state or it is the same object. "
+                            f"TraceProperty '{trace.name}' from object '{element_id}' to target '{target_id}' was discarded because it is a DOCUMENT, it has DEAD state or it is the same object. "
                             f"Target is state is '{target.state}', target classes are '{target.classes}', target_id is '{target_id}' and element_id is '{element_id}'"
                         )
                 except Exception as e:
@@ -437,21 +408,25 @@ class ProjectService:
             if not valid_targets and invalid_target_found_flag:
                 discarded_traces.append(trace)
                 log.warning(
-                    f"Trace from object '{element_id}' to target '{trace.targets}' was discarded because all targets are DEAD or DOCUMENT."
+                    f"Trace from object '{element_id}' to target '{trace.value}' was discarded because all targets are DEAD or DOCUMENT."
                 )
-            elif len(valid_targets) < len(trace.targets):
-                element.traces[trace.name] = trace.clone(new_targets=valid_targets)
-            else:
-                element.traces[trace.name] = trace
+            elif len(valid_targets) < len(trace.value):
+                modified_trace = trace.clone(new_targets=valid_targets)
+                new_traces.append(modified_trace)
+                discarded_traces.append(trace)
 
-        # If traces list is not empty and not all traces were discarded, set element state to DIRTY
-        if traces and len(discarded_traces) < len(traces):
-            # Reload traces index
+        # Pop discarded traces from properties list and add new traces
+        for trace in discarded_traces:
+            properties.remove(trace)
+
+        properties.extend(new_traces)
+
+        for property in properties:
+            element.set_property(property)
+
+        # If TraceProperties were modified, update traces index
+        if len([p for p in properties if isinstance(p, TraceProperty)]) > 0:
             self._load_traces_index()
-
-            # Set element state to DIRTY if current state is CLEAN
-            if element.state == ProteusState.CLEAN:
-                element.state = ProteusState.DIRTY
 
     # ----------------------------------------------------------------------
     # Method     : save_project

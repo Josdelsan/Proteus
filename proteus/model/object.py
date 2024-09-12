@@ -56,15 +56,13 @@ from proteus.model import (
     OBJECTS_REPOSITORY,
     CHILD_TAG,
     TRACES_TAG,
-    TRACE_PROPERTY_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
     COPY_OF,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property, FileProperty, DateProperty
-from proteus.model.properties.code_property import ProteusCode, CodeProperty
-from proteus.model.trace import Trace
+from proteus.model.properties import Property, PropertyFactory, FileProperty, DateProperty, CodeProperty, TraceProperty, TRACE_PROPERTY_TAG
+from proteus.model.properties.code_property import ProteusCode
 from proteus.application.resources.translator import translate as _
 
 
@@ -203,8 +201,8 @@ class Object(AbstractObject):
         super().load_properties(root)
 
         # Load object's traces
-        self.traces: dict[str, Trace] = dict[str, Trace]()
-        self.load_traces(root=root)
+        # TODO: Remove. This is kept for backward compatibility
+        self.load_traces(root)
 
         # Children list (will be loaded on demand)
         self._children: List[Object] = None
@@ -307,10 +305,6 @@ class Object(AbstractObject):
         traces_element: ET._Element = root.find(TRACES_TAG)
 
         # If <traces> element is not found, ignore traces
-        # TODO: Consider raising an exception. Now is prepared to avoid breaking
-        #       the system when loading old objects and simplifing the archetypes
-        #       creation to the user.
-        self.traces: dict[str, Trace] = dict[str, Trace]()
         if traces_element is not None:
             # Find <traceProperty> elements
             trace_property_elements: List[ET._Element] = traces_element.findall(
@@ -327,8 +321,8 @@ class Object(AbstractObject):
                     trace_name is not None
                 ), f"PROTES file {self.path} includes an unnamed trace."
 
-                trace: Trace = Trace.create(trace_property_element)
-                self.traces[trace_name] = trace
+                trace: TraceProperty = PropertyFactory.create(trace_property_element)
+                self.properties[trace_name] = trace
 
     # ----------------------------------------------------------------------
     # Method     : get_descendants
@@ -472,12 +466,22 @@ class Object(AbstractObject):
             child_element = ET.SubElement(children_element, CHILD_TAG)
             child_element.set(ID_ATTRIBUTE, child.id)
 
-        # Create <traces> element
-        traces_element = ET.SubElement(object_element, TRACES_TAG)
-        for trace in self.traces.values():
-            traces_element.append(trace.generate_xml())
-
         return object_element
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_traces
+    # Description: It returns a list with all the traces properties of an object.
+    # Date       : 12/09/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traces(self) -> List[TraceProperty]:
+        """
+        It returns a list with all the traces properties of an object.
+        :return: list with all the traces properties of an object.
+        """
+        # Return the list with all the traces properties of an object
+        return [property for property in self.properties.values() if isinstance(property, TraceProperty)]
 
     # ----------------------------------------------------------------------
     # Method     : clone_object
@@ -658,10 +662,9 @@ class Object(AbstractObject):
         # Object base clonation
         # -------------------------------------------------------
         # We use standart clone instead of deepcopy to avoid unnecessary copies of project and children
-        # This improves performance but It is necessary to manually deepcopy properties and traces
+        # This improves performance but It is necessary to manually deepcopy properties
         new_object = copy.copy(self)
         new_object.properties = copy.deepcopy(self.properties)
-        new_object.traces = copy.deepcopy(self.traces)
 
         # Reset children
         new_object._children = []
@@ -744,12 +747,12 @@ class Object(AbstractObject):
         :param ids_map: Dictionary with the ids of the objects that have been cloned and their new ids.
         """
         # Iterate over traces
-        for trace in object.traces.values():
+        for trace in self.get_traces():
             # Variable to store possible new targets list
             new_targets: List[ProteusID] = []
 
             # Iterate over targets
-            for target in trace.targets:
+            for target in trace.value:
                 # If the target is in the conversion map, add the new id
                 if target in ids_map:
                     new_targets.append(ids_map[target])
@@ -763,9 +766,9 @@ class Object(AbstractObject):
                     )
 
             # If new_targets is different from the original targets, update the trace
-            if new_targets != trace.targets:
-                new_trace: Trace = trace.clone(new_targets)
-                object.traces[trace.name] = new_trace
+            if new_targets != trace.value:
+                new_trace: TraceProperty = trace.clone(new_targets)
+                object.set_property(new_trace)
 
         # Iterate over children
         for child in object.children:
