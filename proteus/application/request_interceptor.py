@@ -16,6 +16,7 @@ import os
 import socket
 from socketserver import ThreadingMixIn
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib.parse import unquote
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -109,7 +110,7 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
                 )
 
             # Build the file path
-            file_path = f"{resource_directory}/{resource_path}"
+            file_path = f"{resource_directory}/{unquote(resource_path)}"
 
             # Check if the file exists
             if os.path.exists(file_path):
