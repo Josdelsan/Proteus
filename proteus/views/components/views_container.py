@@ -17,7 +17,7 @@ import logging
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QByteArray, QUrl
+from PyQt6.QtCore import Qt, QByteArray, QUrl, QSize
 from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
@@ -218,7 +218,11 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Set layout, add tab
         # NOTE: Tabs are added in the same order as the browsers are stored,
         #       always at the end.
-        self.addTab(browser, _(tab_code_name, alternative_text=xslt_name))
+        tab_index = self.addTab(browser, _(tab_code_name, alternative_text=xslt_name))
+
+        icon = Icons().icon(ProteusIconType.App, "view_icon")
+        self.setTabIcon(tab_index, icon)
+        self.setIconSize(QSize(32, 32))
 
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser

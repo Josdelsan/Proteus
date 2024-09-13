@@ -18,6 +18,7 @@
         <icon key="inmutable-property-edit-enabled" file="lock-open.png"/>
         <icon key="inmutable-property-edit-disabled" file="lock-close.png"/>
         <icon key="clipboard_icon" file="clipboard.png"/>
+        <icon key="view_icon" file="view.png"/>
 
         <icon key="context-menu-edit" file="context_menu/edit-properties-button.png"/>
         <icon key="context-menu-delete" file="context_menu/delete-object-button.png"/>
