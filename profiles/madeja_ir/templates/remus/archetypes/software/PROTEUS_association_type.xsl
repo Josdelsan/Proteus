@@ -154,7 +154,7 @@
 
         <!-- Include roles -->
         <xsl:for-each select="$roles">
-            <xsl:for-each select="traces/traceProperty[@name = 'base-type']/trace">
+            <xsl:for-each select="properties/traceProperty[@name = 'base-type']/trace">
                 <xsl:variable name="targetId" select="@target" />
                 <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
                 <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />

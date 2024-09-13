@@ -170,13 +170,13 @@
 
         <xsl:call-template name="generate_trace_row">
             <xsl:with-param name="label"   select="$proteus:lang_authors"/>
-            <xsl:with-param name="content" select="traces/traceProperty[@name='created-by']"/>
+            <xsl:with-param name="content" select="properties/traceProperty[@name='created-by']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
         <xsl:call-template name="generate_trace_row">
             <xsl:with-param name="label"   select="$proteus:lang_sources"/>
-            <xsl:with-param name="content" select="traces/traceProperty[@name='source']"/>
+            <xsl:with-param name="content" select="properties/traceProperty[@name='source']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
     </xsl:template>

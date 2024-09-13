@@ -86,7 +86,7 @@
         </span>
 
         <!-- Supertype -->
-        <xsl:variable name="supertype-trace" select="traces/traceProperty[@name='supertype']/trace"/>
+        <xsl:variable name="supertype-trace" select="properties/traceProperty[@name='supertype']/trace"/>
         <xsl:if test="$supertype-trace">
             <span class="keyword {$css_class_declaration}"> specializes </span>
             <span class="class_name {$css_class_declaration}">
@@ -192,7 +192,7 @@
         </xsl:choose>
 
         <!-- Trace handling -->
-        <xsl:variable name="base-type-trace" select="traces/traceProperty[@name='base-type']/trace"/>
+        <xsl:variable name="base-type-trace" select="properties/traceProperty[@name='base-type']/trace"/>
         <xsl:if test="$base-type-trace">
             <xsl:for-each select="$base-type-trace">
                 <xsl:variable name="targetId" select="@target" />

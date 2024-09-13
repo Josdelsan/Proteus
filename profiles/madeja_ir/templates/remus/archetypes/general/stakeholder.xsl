@@ -44,7 +44,7 @@
                 </xsl:call-template>
 
                 <!-- Organization -->
-                <xsl:variable name="organization_content" select="traces/traceProperty[@name='works-for']" />
+                <xsl:variable name="organization_content" select="properties/traceProperty[@name='works-for']" />
                 <xsl:choose>
                     <xsl:when test="$organization_content/trace">
                         <xsl:call-template name="generate_trace_row">
