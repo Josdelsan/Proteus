@@ -150,6 +150,7 @@
 <!-- PROTEUS enumerations dictionary -->
 <!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
 <!-- tbd is not translated to be used as the universal TBD mark             -->
+<!-- TODO: simplify using EXSLT node-set() as used for property lables below-->
 <xsl:template name="enum_value">
     <xsl:param name="key"/>
     <xsl:choose>
@@ -164,6 +165,7 @@
 </xsl:template>
 
 <!-- PROTEUS property labels dictionary -->
+<!-- TODO: move this variable to a language-independent file -->
 <xsl:variable name="property_labels_dictionary">
   <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
   <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
