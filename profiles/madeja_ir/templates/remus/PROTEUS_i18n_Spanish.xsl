@@ -2,7 +2,7 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_i18n_Spanish.xsl                       -->
-<!-- Content : PROTEUS XSLT translations for Spanish          -->
+<!-- Content : PROTEUS XSLT labels for Spanish          -->
 <!-- Author  : Amador Durán Toro                              -->
 <!--           José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/29                                     -->
@@ -10,6 +10,11 @@
 <!-- ======================================================== -->
 <!-- Update  : 2024/09/10 (Amador Durán)                      -->
 <!-- Enumerations dictionary added.                           -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Property lables dictionary added.                        -->
+<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
+<!-- limitations.                                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -140,10 +145,12 @@
 <xsl:variable name="proteus:lang_code_exception">exception</xsl:variable>
 <xsl:variable name="proteus:lang_code_exceptions">// excepciones</xsl:variable>
 <xsl:variable name="proteus:lang_web">Sitio web</xsl:variable>
+<xsl:variable name="proteus:lang_empty_paragraph">Párrafo vacío</xsl:variable>
 
 <!-- PROTEUS enumerations dictionary -->
 <!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
 <!-- tbd is not translated to be used as the universal TBD mark             -->
+<!-- TODO: simplify using EXSLT node-set() as used for property lables below-->
 <xsl:template name="enum_value">
     <xsl:param name="key"/>
     <xsl:choose>
@@ -156,6 +163,22 @@
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
+
+<!-- PROTEUS property labels dictionary -->
+<!-- TODO: move this variable to a language-independent file -->
+<xsl:variable name="property_labels_dictionary">
+  <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
+  <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
+  <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
+  <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
+  <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
+  <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
+  <!-- ... other labels ... -->
+</xsl:variable>
+
+<!-- This is needed because of limitations of XSLT 1.0 -->
+<!-- Note the use of the node-set() extension function -->
+<xsl:variable name="property_labels" select="exsl:node-set($property_labels_dictionary)"/>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

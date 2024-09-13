@@ -6,12 +6,8 @@
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Enlace simbólico]]></stringProperty>
+    <traceProperty name="link" category="general" acceptedTargets=":Proteus-any" traceType=":Proteus-link"/>    
   </properties>
+
   <children />
-  <traces>
-    <traceProperty name="link" category="general" acceptedTargets=":Proteus-any" traceType=":Proteus-link"/>
-    <!--
-      <traceProperty name="link" category="general" acceptedTargets="paragraph graphic-file external-resource meeting organization stakeholder actor constraint functional-requirement non-functional-requirement objective use-case" traceType=":Proteus-dependency"/>
-    -->
-  </traces>
 </object>

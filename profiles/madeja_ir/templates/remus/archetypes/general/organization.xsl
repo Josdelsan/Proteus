@@ -16,6 +16,15 @@
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties.                                           -->
+<!-- Use a parametrized template to iterate over the ordinary -->
+<!-- properties and generate a row for each them in a similar -->
+<!-- way to the default template.                             -->
+<!-- ======================================================== -->
+
+<!-- TODO: how can we know if a property is mandatory?        -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -33,7 +42,6 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[contains(@classes,'organization')]">
-
         <div id="{@id}" data-proteus-id="{@id}">
             <table class="organization remus_table">
 
@@ -43,30 +51,17 @@
                     <xsl:with-param name="class"   select="'organization'"/>
                 </xsl:call-template>
 
-                <!-- Address -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"     select="$proteus:lang_address"/>
-                    <xsl:with-param name="content"   select="properties/stringProperty[@name='address']"/>
-                    <xsl:with-param name="mandatory" select="true()"/>
-                </xsl:call-template>
+                <xsl:variable name="excluded_properties">:Proteus-name,:Proteus-date,version</xsl:variable>
+                <xsl:variable name="mandatory_properties">address</xsl:variable>
 
-                <!-- Phone number -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"     select="$proteus:lang_telephone"/>
-                    <xsl:with-param name="content"   select="properties/stringProperty[@name='phone-number']"/>
-                </xsl:call-template>
-
-                <!-- Web -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"     select="$proteus:lang_web"/>
-                    <xsl:with-param name="content"   select="properties/urlProperty[@name='web']"/>
-                </xsl:call-template>
-
-                <!-- Comments -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                </xsl:call-template>
+                <!-- Generate rows for all ordinary properties -->
+                <xsl:for-each select="properties/*[not(contains($excluded_properties,@name))]">
+                    <xsl:call-template name="generate_property_row">
+                        <xsl:with-param name="label"     select="$property_labels/label[@key = current()/@name]"/>
+                        <xsl:with-param name="content"   select="."/>
+                        <xsl:with-param name="mandatory" select="contains($mandatory_properties,current()/@name)"/>
+                    </xsl:call-template>
+                </xsl:for-each>
 
             </table>
         </div>

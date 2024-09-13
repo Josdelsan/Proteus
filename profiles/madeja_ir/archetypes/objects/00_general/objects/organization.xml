@@ -11,11 +11,10 @@
     <stringProperty name="address" category="detail"><![CDATA[Dirección de la organization]]></stringProperty>
     <stringProperty name="phone-number" category="detail"><![CDATA[555 123 456]]></stringProperty>
 		<urlProperty name="web" category="detail"><![CDATA[https://www.organizacion.com]]></urlProperty>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>    
+    <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
+
   <children />
-  <traces>
-    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
-    <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
-  </traces>
 </object>

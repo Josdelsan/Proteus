@@ -9,15 +9,14 @@
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
 	  <fileProperty name="file" tooltip="file-info"><![CDATA[]]></fileProperty>
+    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>    
 		<urlProperty name="url"><![CDATA[https://www.us.es/sites/default/files/2019-05/marca-US-principal.jpg]]></urlProperty>
     <integerProperty name="width" tooltip="width-info">20</integerProperty>
     <markdownProperty name="description" category="detail"><![CDATA[Logo de la Universidad de Sevilla]]></markdownProperty>
-    <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
-  </properties>
-  <children />
-  <traces>
-    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <traceProperty name="dependencies" category="dependencies" acceptedTargets="general-traceable-object" traceType=":Proteus-dependency"/>
-  </traces>
+    <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
+  </properties>
+
+  <children />
 </object>

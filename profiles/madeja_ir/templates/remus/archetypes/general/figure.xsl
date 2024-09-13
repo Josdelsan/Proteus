@@ -17,6 +17,10 @@
 <!-- graphic-file -> figure                                   -->
 <!-- external-resource -> figure                              -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties                                            -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
