@@ -3,10 +3,11 @@
   id="appendix" 
   classes="section appendix" 
   acceptedChildren=":Proteus-any" 
-  acceptedParents=":Proteus-document">
+  acceptedParents=":Proteus-document"
+>
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Apéndice]]></stringProperty>
     <markdownProperty name="comments"><![CDATA[]]></markdownProperty>	
   </properties>
-  <children />
+
 </object>

@@ -19,7 +19,7 @@
 <!-- ======================================================== -->
 <!-- Update  : 2024/09/13 (Amador Durán)                      -->
 <!-- Review after integration of trace properties in the list -->
-<!-- of properties                                            -->
+<!-- of properties.                                           -->
 <!-- It shows "empty paragraph" when the paragraph has no text-->
 <!-- ======================================================== -->
 
@@ -43,20 +43,20 @@
             <xsl:variable name="content" select="properties/markdownProperty[@name='text']"/>
             <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
 
-            <xsl:choose>
-                <xsl:when test="not($nonempty_content)">
-                    [<span class="tbd">
-                        <xsl:value-of select="$proteus:lang_empty_paragraph"/> 
-                    </span>]
-                </xsl:when>
-                <xsl:otherwise>
-                    <p>
+            <p>
+                <xsl:choose>
+                    <xsl:when test="not($nonempty_content)">
+                        [<span class="tbd">
+                            <xsl:value-of select="$proteus:lang_empty_paragraph"/> 
+                        </span>]
+                    </xsl:when>
+                    <xsl:otherwise>
                         <xsl:call-template name="generate_markdown">
                             <xsl:with-param name="content" select="$content"/>
                         </xsl:call-template>
-                    </p>
-                </xsl:otherwise>
-            </xsl:choose>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </p>
         </div>
     </xsl:template>
 

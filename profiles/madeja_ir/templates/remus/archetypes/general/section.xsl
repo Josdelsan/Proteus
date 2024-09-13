@@ -19,7 +19,9 @@
 <!-- ======================================================== -->
 <!-- Update  : 2024/09/13 (Amador Durán)                      -->
 <!-- Review after integration of trace properties in the list -->
-<!-- of properties                                            -->
+<!-- of properties.                                           -->
+<!-- No need to apply markdown to the section title, HTML     -->
+<!-- headers ignore formatting.                               -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -72,10 +74,14 @@
                 <xsl:value-of select="$section_index"/>
             </xsl:variable>
             
+            <!-- Get section title -->
+            <xsl:variable name="title" select="properties/stringProperty[@name=':Proteus-name']"/>
+
+            <!-- Generate header element -->
             <xsl:element name="h{$header_level}">
                 <xsl:value-of select="$current_index"/>
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
+                <xsl:value-of select="$title"/>
             </xsl:element>
 
             <!-- Apply templates to all section children -->
@@ -87,7 +93,6 @@
             
         </div>
     </xsl:template>
-
 
     <!-- ============================================= -->
     <!-- section template in "toc" mode                -->
@@ -116,11 +121,17 @@
             <xsl:value-of select="$section_index"/>
         </xsl:variable>
 
+        <!-- Get section title -->
+        <xsl:variable name="title" select="properties/stringProperty[@name=':Proteus-name']"/>
+
+        <!-- Generate TOC item element -->
         <li>
             <xsl:value-of select="$current_index"/>
             <xsl:text> </xsl:text>
-            <a href="#{@id}"><xsl:apply-templates select="properties/stringProperty[@name=':Proteus-name']"/></a>
+            <a href="#{@id}"><xsl:value-of select="$title"/></a>
         </li>
+
+        <!-- Generate TOC items for child sections (if any) -->
         <xsl:if test="children/object[@classes='section']">
             <ul class="toc_list">
                 <xsl:apply-templates select="children/object[@classes='section']" mode="toc">

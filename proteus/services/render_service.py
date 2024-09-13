@@ -31,7 +31,6 @@ from proteus.application.configuration.config import Config
 # logging configuration
 log = logging.getLogger(__name__)
 
-
 FUNCTION_NAMESPACE = "http://proteus.us.es/utils"
 NAMESPACE_PREFIX = "proteus-utils"
 
@@ -169,7 +168,9 @@ class RenderService:
 
             # NOTE: Comment this line to make XSLT debugging easier
             # Store the transformation object for future use
-            self._transformations[template_name] = transform
+            
+            # Line temporarily commented for XSLT development (Amador)
+            # self._transformations[template_name] = transform
 
         return transform
 

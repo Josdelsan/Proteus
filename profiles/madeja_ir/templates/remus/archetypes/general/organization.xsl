@@ -51,7 +51,10 @@
                     <xsl:with-param name="class"   select="'organization'"/>
                 </xsl:call-template>
 
+                <!-- List of excluded properties (not shown) -->
                 <xsl:variable name="excluded_properties">:Proteus-name,:Proteus-date,version</xsl:variable>
+                
+                <!-- List of mandatory properties (shown even if they are empty)-->
                 <xsl:variable name="mandatory_properties">address</xsl:variable>
 
                 <!-- Generate rows for all ordinary properties -->

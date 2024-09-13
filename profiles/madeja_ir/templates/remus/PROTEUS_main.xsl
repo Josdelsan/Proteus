@@ -13,6 +13,9 @@
 <!-- external_resource -> remote_resource                     -->
 <!-- archetype_link -> symbolic_link                          -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/08 (Amador Durán)                      -->
+<!-- Document loop simplified.                                -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -69,11 +72,7 @@
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>
-        <xsl:for-each select="documents">
-            <xsl:if test="object[@id=$currentDocumentId]">
-                <xsl:apply-templates select="object[@id=$currentDocumentId]"/>
-            </xsl:if>
-        </xsl:for-each>
+        <xsl:apply-templates select="documents/object[@id=$currentDocumentId]"/>
     </xsl:template>
 
 </xsl:stylesheet>
