@@ -17,6 +17,10 @@
 <!-- NOTE: in this case, @classes='section' is kept to avoid  -->
 <!-- matching with appendix, whics is a subclass of section   -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties                                            -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -34,8 +38,8 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[@classes='section']">
-        <!-- Nest level -->
-        <xsl:param name="nest_level" select="1"/>
+        <!-- Nesting level -->
+        <xsl:param name="nesting_level" select="1"/>
         <xsl:param name="previous_index" select="''"/>
 
         <div id="{@id}"  data-proteus-id="{@id}">
@@ -43,9 +47,9 @@
             <!-- Calculate the normalized header level -->
             <xsl:variable name="header_level">
                 <xsl:choose>
-                    <xsl:when test="$nest_level > 6">6</xsl:when>
+                    <xsl:when test="$nesting_level > 6">6</xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="$nest_level"/>
+                        <xsl:value-of select="$nesting_level"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
@@ -74,10 +78,10 @@
                 <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
             </xsl:element>
 
-            <!-- Apply templates to all section -->
+            <!-- Apply templates to all section children -->
             <xsl:apply-templates select="children/object">
-                <!-- Provide nest level context to children -->
-                <xsl:with-param name="nest_level" select="$nest_level + 1"/>
+                <!-- Provide nesting level context to children -->
+                <xsl:with-param name="nesting_level" select="$nesting_level + 1"/>
                 <xsl:with-param name="previous_index" select="$current_index"/>
             </xsl:apply-templates>
             

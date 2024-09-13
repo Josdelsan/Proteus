@@ -20,6 +20,10 @@
 <!-- Update  : 2024/09/10 (Amador Durán)                      -->
 <!-- property "image" added to the archetype                  -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties                                            -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -37,7 +41,6 @@
     <!-- =========================================================== -->
 
     <xsl:template match="object[contains(@classes,'glossary-item')]">
-  
         <div id="{@id}" class="glo" data-proteus-id="{@id}">
             <p>
                 <!-- Generate glossary item name -->

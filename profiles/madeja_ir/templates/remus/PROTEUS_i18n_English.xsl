@@ -11,6 +11,11 @@
 <!-- Update  : 2024/09/10 (Amador Durán)                      -->
 <!-- Enumerations dictionary added.                           -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Property lables dictionary added.                        -->
+<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
+<!-- limitations.                                             -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -138,6 +143,7 @@
 <xsl:variable name="proteus:lang_code_exception">exception</xsl:variable>
 <xsl:variable name="proteus:lang_code_exceptions">// exceptions</xsl:variable>
 <xsl:variable name="proteus:lang_web">Website</xsl:variable>
+<xsl:variable name="proteus:lang_empty_paragraph">Empty paragraph</xsl:variable>
 
 <!-- PROTEUS enumerations dictionary -->
 <!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
@@ -154,6 +160,21 @@
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
+
+<!-- PROTEUS property labels dictionary -->
+<xsl:variable name="property_labels_dictionary">
+  <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
+  <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
+  <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
+  <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
+  <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
+  <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
+  <!-- ... other labels ... -->
+</xsl:variable>
+
+<!-- This is needed because of limitations of XSLT 1.0 -->
+<!-- Note the use of the node-set() extension function -->
+<xsl:variable name="property_labels" select="exsl:node-set($property_labels_dictionary)"/>
 
 <!-- ================== -->
 <!-- General L-patterns -->

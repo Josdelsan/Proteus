@@ -17,6 +17,11 @@
 <!--    object[ends-with(@classes,class_name)]                -->
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties                                            -->
+<!-- It shows "empty paragraph" when the paragraph has no text-->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -40,7 +45,9 @@
 
             <xsl:choose>
                 <xsl:when test="not($nonempty_content)">
-                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                    [<span class="tbd">
+                        <xsl:value-of select="$proteus:lang_empty_paragraph"/> 
+                    </span>]
                 </xsl:when>
                 <xsl:otherwise>
                     <p>

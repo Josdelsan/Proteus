@@ -18,6 +18,10 @@
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- nest_level -> nesting_level                              -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
+<!-- Review after integration of trace properties in the list -->
+<!-- of properties                                            -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -56,7 +60,7 @@
                 <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/><xsl:apply-templates select="name"/>
             </xsl:element>
 
-            <!-- Apply templates to all section passing the  -->
+            <!-- Apply templates to all appendix children -->
             <xsl:apply-templates select="children/object">
                 <!-- Provide nesting level context to children -->
                 <xsl:with-param name="nesting_level" select="$nesting_level + 1"/>
