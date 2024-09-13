@@ -55,11 +55,11 @@
                     <xsl:text> </xsl:text>
 
                     <xsl:choose>
-                        <xsl:when test="not(traces/traceProperty[@name='prepared-for']/trace)">
+                        <xsl:when test="not(properties/traceProperty[@name='prepared-for']/trace)">
                             <p class="tbd">?</p>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:apply-templates select="traces/traceProperty[@name='prepared-for']" mode="paragraph"/>
+                            <xsl:apply-templates select="properties/traceProperty[@name='prepared-for']" mode="paragraph"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </div>
@@ -69,11 +69,11 @@
                     <xsl:text> </xsl:text>
 
                     <xsl:choose>
-                        <xsl:when test="not(traces/traceProperty[@name='prepared-by']/trace)">
+                        <xsl:when test="not(properties/traceProperty[@name='prepared-by']/trace)">
                             <p class="tbd">?</p>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:apply-templates select="traces/traceProperty[@name='prepared-by']" mode="paragraph"/>
+                            <xsl:apply-templates select="properties/traceProperty[@name='prepared-by']" mode="paragraph"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </div>

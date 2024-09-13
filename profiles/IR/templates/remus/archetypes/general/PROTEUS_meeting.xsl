@@ -57,7 +57,7 @@
                 <!-- Attenders -->
                 <xsl:call-template name="generate_trace_row">
                     <xsl:with-param name="label"   select="$proteus:lang_attenders"/>
-                    <xsl:with-param name="content" select="traces/traceProperty[@name='attenders']"/>
+                    <xsl:with-param name="content" select="properties/traceProperty[@name='attenders']"/>
                     <xsl:with-param name="mandatory" select="true()"/>
                 </xsl:call-template>
 
