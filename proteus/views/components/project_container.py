@@ -86,6 +86,7 @@ class ProjectContainer(QWidget, ProteusComponent):
         (DocumentsContainer and ViewsContainer) and add them to an splitter
         widget.
         """
+
         # Create project container layout
         tab_layout: QHBoxLayout = QHBoxLayout(self)
 
@@ -120,6 +121,8 @@ class ProjectContainer(QWidget, ProteusComponent):
 
         # Add splitter with tree and render to tab layout
         tab_layout.addWidget(splitter)
+        tab_layout.setContentsMargins(0, 0, 0, 0)
+        tab_layout.setSpacing(0)
         self.setLayout(tab_layout)
 
         log.info("Project container component created")

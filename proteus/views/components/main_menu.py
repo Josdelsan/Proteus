@@ -193,6 +193,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # an arbitrary value to ensure the image is not stretched.
         icon_label.setPixmap(profile_icon.pixmap(2000, 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
 
         profile_name: QLabel = QLabel(
             profile_metadata.name
@@ -220,7 +221,8 @@ class MainMenu(QDockWidget, ProteusComponent):
         container: QWidget = QWidget()
         container.setObjectName("main_menu_container")
         container_layout: QHBoxLayout = QHBoxLayout()
-        container_layout.setContentsMargins(0, 0, 10, 1)
+        container_layout.setContentsMargins(0, 0, 0, 1)
+        container_layout.setSpacing(0)
         container.setLayout(container_layout)
 
         # Add widgets to the container layout

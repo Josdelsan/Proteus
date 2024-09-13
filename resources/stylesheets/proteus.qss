@@ -262,11 +262,11 @@ QCheckBox:pressed {
     background-color: lightcyan;
 }
 
+/* ========================================================================= */
+/* DocumentContainer component                                               */
+/* ========================================================================= */
 
-/* Profile information icon (menu) */
-#profile_information {
-    min-width: 100px;
-}
+
 
 /* ========================================================================= */
 /* DocumentTree component                                                    */
@@ -276,23 +276,43 @@ QCheckBox:pressed {
     border: 0;
 }
 
+
+
 /* ========================================================================= */
 /* ProjectContainer component                                                */
 /* ========================================================================= */
 /* QWidget subclass */
 
 #ProjectContainer QSplitter::handle {
-    width: 2px;
-    border: 1px solid slategray;
-    background-color: slategray;
+    border-left: 1px solid slategray;
+    border-right: 1px solid slategray;
+
+    background-color: #f1f1f1;
 }
 
+#ProjectContainer QSplitter::handle:horizontal {
+    width: 2px;
+}
 
 
 /* ========================================================================= */
 /* MainMenu component                                                        */
 /* ========================================================================= */
 /* QDockWidget subclass */
+
+/* Profile information icon (menu) */
+#MainMenu #profile_information {
+    min-width: 140px;
+    border-left: 1px solid slategray;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+
+#MainMenu QTabWidget::pane{
+    margin-right: 0px;
+    padding-right: 0px;
+}
 
 /* Menu bottom border */
 #MainMenu #main_menu_container {
@@ -325,6 +345,7 @@ QCheckBox:pressed {
 }
 #MainMenu #archetype_button_group { background-color: transparent; }
 
+
 /* Archetype menu buttons -------------------------------------------------- */
 #archetype_menu_button {
     margin-right: 0.5em;
@@ -355,6 +376,13 @@ QCheckBox:pressed {
 
 #archetype_menu_button::menu-button:disabled {
     /* border-left: 1px dashed #e1e1e1; */
+}
+
+/* ========================================================================= */
+/* Views container                                                           */
+/* ========================================================================= */
+#ViewsContainer QTabBar::tab{
+    min-height: 32px;
 }
 
 /* ========================================================================= */
