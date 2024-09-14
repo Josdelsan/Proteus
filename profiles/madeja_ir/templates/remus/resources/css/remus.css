@@ -45,9 +45,9 @@ td {
   padding-top: 0.5em;
   padding-left: 0.5em;
   padding-right: 0.5em;
+  padding-bottom: 0.25em;
 
   background-color: rgb(250, 250, 250);
-
 }
 
 /* printing */
@@ -332,6 +332,7 @@ table.remus_table div.remus_comments p {
 }
 
 /* lists inside tables */
+table.remus_table td ul.traces,
 table.remus_table td ul.stakeholders,
 table.remus_table td ul.subobjectives,
 table.remus_table td ul.specific_data,

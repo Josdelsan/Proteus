@@ -13,8 +13,14 @@
 <!-- external_resource -> remote_resource                     -->
 <!-- archetype_link -> symbolic_link                          -->
 <!-- ======================================================== -->
-<!-- Update  : 2024/09/08 (Amador Durán)                      -->
+<!-- Update  : 2024/09/13 (Amador Durán)                      -->
 <!-- Document loop simplified.                                -->
+<!-- Added dictionaries and keys for property and enum labels -->
+<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
+<!-- limitations.                                             -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/14 (Amador Durán)                      -->
+<!-- key() does not work on variables in lxml.                -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -27,6 +33,8 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
+    xmlns:exsl="http://exslt.org/common"
+    extension-element-prefixes="exsl"
 >
     <!-- Output -->
     <xsl:output method="html"
@@ -35,6 +43,60 @@
         encoding="utf-8"
         indent="yes"
     />
+
+    <!-- Language independent dictionaries -->
+    <!-- NOTE: that would not be necessary in XSLT 2.0, -->
+    <!-- where variable names can be computed online    -->
+
+    <!-- PROTEUS property labels dictionary -->
+    <xsl:variable name="property_labels_dictionary">
+        <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
+        <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>          
+        <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
+        <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>                
+        <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
+        <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
+        <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>          
+        <label key="sources"><xsl:value-of select="$proteus:lang_sources"/></label>
+        <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
+        <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
+        <label key="works-for"><xsl:value-of select="$proteus:lang_organization"/></label>
+        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
+        <label key="time"><xsl:value-of select="$proteus:lang_time"/></label>
+        <label key="place"><xsl:value-of select="$proteus:lang_place"/></label>
+        <label key="attenders"><xsl:value-of select="$proteus:lang_attenders"/></label>
+        <label key="results"><xsl:value-of select="$proteus:lang_results"/></label>
+    </xsl:variable>
+
+    <!-- This is needed because of limitations of XSLT 1.0 -->
+    <!-- Note the use of the node-set() extension function -->
+    <!-- Usage: <xsl:value-of select="$property-labels/label[@key=@name])"/> -->
+    <xsl:variable name="property_labels" select="exsl:node-set($property_labels_dictionary)"/>
+
+    <!-- Define the key for property labels                           -->
+    <!-- WARINIG: it is useless, always returns nothing               -->
+    <!-- Using $property_labels/label in key's match is not allowed.  -->
+    <!-- Usage: <xsl:value-of select="key('property-label', @name)"/> -->
+    <!-- <xsl:key name="property-label" match="label" use="@key"/>    -->
+
+    <!-- PROTEUS enumeration labels dictionary -->
+    <xsl:variable name="enum_labels_dictionary">
+        <label key="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></label>
+        <label key="customer"><xsl:value-of select="$proteus:lang_customer"/></label>
+        <label key="developer"><xsl:value-of select="$proteus:lang_developer"/></label>
+        <label key="user"><xsl:value-of select="$proteus:lang_user"/></label>
+    </xsl:variable>
+
+    <!-- This is needed because of limitations of XSLT 1.0 -->
+    <!-- Note the use of the node-set() extension function -->
+    <xsl:variable name="enum_labels" select="exsl:node-set($enum_labels_dictionary)"/>
+
+    <!-- Define the key for enum labels                           -->
+    <!-- WARINIG: it is useless, always returns nothing           -->
+    <!-- Using $enum_labels/label in key's match is not allowed.  -->
+    <!-- Usage: <xsl:value-of select="key('enum-label', @name)"/> -->
+    <!-- <xsl:key name="enum-label" match="label" use="@key"/>    -->
 
     <!-- Template includes -->
     <xsl:include href="PROTEUS_utilities.xsl" />

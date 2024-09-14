@@ -19,12 +19,13 @@
 <!-- Update  : 2024/09/13 (Amador Durán)                      -->
 <!-- Review after integration of trace properties in the list -->
 <!-- of properties.                                           -->
-<!-- Use a parametrized template to iterate over the ordinary -->
-<!-- properties and generate a row for each them in a similar -->
-<!-- way to the default template.                             -->
+<!-- Simplification using excluded and mandatory property     -->
+<!-- list and property and enum dictionaries using key().     -->
 <!-- ======================================================== -->
-
-<!-- TODO: how can we know if a property is mandatory?        -->
+<!-- Update  : 2024/09/14 (Amador Durán)                      -->
+<!-- key() does not work on variables in lxml.                -->
+<!-- Code simplification.                                     -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -51,18 +52,21 @@
                     <xsl:with-param name="class"   select="'organization'"/>
                 </xsl:call-template>
 
+                <!-- By wrapping both the list and the current property name with commas, -->
+                <!-- we ensure we're matching whole names and not partial strings.        -->
+                <!-- This was suggested by Claude AI.                                     -->
+
                 <!-- List of excluded properties (not shown) -->
-                <xsl:variable name="excluded_properties">:Proteus-name,:Proteus-date,version</xsl:variable>
+                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,created-by,sources</xsl:variable>
                 
                 <!-- List of mandatory properties (shown even if they are empty)-->
-                <xsl:variable name="mandatory_properties">address</xsl:variable>
+                <xsl:variable name="mandatory_properties">,address,</xsl:variable>
 
-                <!-- Generate rows for all ordinary properties -->
-                <xsl:for-each select="properties/*[not(contains($excluded_properties,@name))]">
+                <!-- Generate rows for all ordinary properties                         -->
+                <!-- Each property can be accessed as current() in the called template -->
+                <xsl:for-each select="properties/*[not(contains($excluded_properties,concat(',', @name, ',')))]">
                     <xsl:call-template name="generate_property_row">
-                        <xsl:with-param name="label"     select="$property_labels/label[@key = current()/@name]"/>
-                        <xsl:with-param name="content"   select="."/>
-                        <xsl:with-param name="mandatory" select="contains($mandatory_properties,current()/@name)"/>
+                        <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
                     </xsl:call-template>
                 </xsl:for-each>
 

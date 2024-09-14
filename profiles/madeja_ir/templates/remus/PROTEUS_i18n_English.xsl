@@ -2,19 +2,11 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_i18n_English.xsl                       -->
-<!-- Content : PROTEUS XSLT translations for English          -->
+<!-- Content : PROTEUS default XSLT translations for English  -->
 <!-- Author  : Amador Durán Toro                              -->
 <!--           José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/29                                     -->
 <!-- Version : 1.0                                            -->
-<!-- ======================================================== -->
-<!-- Update  : 2024/09/10 (Amador Durán)                      -->
-<!-- Enumerations dictionary added.                           -->
-<!-- ======================================================== -->
-<!-- Update  : 2024/09/13 (Amador Durán)                      -->
-<!-- Property lables dictionary added.                        -->
-<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
-<!-- limitations.                                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -144,46 +136,23 @@
 <xsl:variable name="proteus:lang_code_exceptions">// exceptions</xsl:variable>
 <xsl:variable name="proteus:lang_web">Website</xsl:variable>
 <xsl:variable name="proteus:lang_empty_paragraph">Empty paragraph</xsl:variable>
+<xsl:variable name="proteus:lang_email">Email</xsl:variable>
 
-<!-- PROTEUS enumerations dictionary -->
-<!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
-<!-- tbd is not translated to be used as the universal TBD mark             -->
-<!-- TODO: simplify using EXSLT node-set() as used for property lables below-->
-<xsl:template name="enum_value">
-    <xsl:param name="key"/>
-    <xsl:choose>
-        <xsl:when test="$key = 'tbd'">tbd</xsl:when>
-        <xsl:when test="$key = 'customer'">Customer</xsl:when>
-        <xsl:when test="$key = 'developer'">Developer</xsl:when>
-        <xsl:when test="$key = 'user'">User</xsl:when>
-        <xsl:otherwise>
-            <xsl:value-of select="$key"/><xsl:text>?</xsl:text>
-        </xsl:otherwise>
-    </xsl:choose>
-</xsl:template>
+<xsl:variable name="proteus:lang">en</xsl:variable>
+<xsl:variable name="proteus:lang_part">Part</xsl:variable>
+<xsl:variable name="proteus:lang_warnings">Warnings</xsl:variable>
+<xsl:variable name="proteus:lang_abstract">abstract</xsl:variable>
+<xsl:variable name="proteus:lang_TBD_expanded">To Be Determined</xsl:variable>
 
-<!-- PROTEUS property labels dictionary -->
-<!-- TODO: move this variable to a language-independent file -->
-<xsl:variable name="property_labels_dictionary">
-  <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
-  <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
-  <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
-  <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
-  <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
-  <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
-  <!-- ... other labels ... -->
-</xsl:variable>
-
-<!-- This is needed because of limitations of XSLT 1.0 -->
-<!-- Note the use of the node-set() extension function -->
-<xsl:variable name="property_labels" select="exsl:node-set($property_labels_dictionary)"/>
+<xsl:variable name="proteus:lang_customer">Customer</xsl:variable>
+<xsl:variable name="proteus:lang_developer">Developer</xsl:variable>
+<xsl:variable name="proteus:lang_user">User</xsl:variable>
 
 <!-- ================== -->
 <!-- General L-patterns -->
 <!-- ================== -->
 
 <xsl:variable name="proteus:lang_the_system_shall">The system shall</xsl:variable>
-<xsl:variable name="proteus:lang_TBD_expanded">To be determined</xsl:variable>
 
 <!-- ===================== -->
 <!-- L-patterns for actors -->
@@ -196,7 +165,6 @@
 <!-- ======================================= -->
 
 <xsl:variable name="proteus:lang_irq_lp_01">The system shall store the information corresponding to</xsl:variable>
-
 <xsl:variable name="proteus:lang_irq_lp_02">More specifically:</xsl:variable>
 
 <!-- ======================================= -->

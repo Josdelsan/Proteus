@@ -8,11 +8,12 @@
     <stringProperty name=":Proteus-name"><![CDATA[Organización]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-    <stringProperty name="address" category="detail"><![CDATA[Dirección de la organization]]></stringProperty>
+    <stringProperty name="address" category="detail"><![CDATA[Dirección de la organización]]></stringProperty>
     <stringProperty name="phone-number" category="detail"><![CDATA[555 123 456]]></stringProperty>
+    <stringProperty name="email" category="detail"><![CDATA[correo@organización.com]]></stringProperty>    
 		<urlProperty name="web" category="detail"><![CDATA[https://www.organizacion.com]]></urlProperty>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>    
-    <traceProperty name="source" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
+    <traceProperty name="sources" category="dependencies" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
 

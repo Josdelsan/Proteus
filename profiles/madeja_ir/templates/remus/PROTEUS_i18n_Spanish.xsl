@@ -2,19 +2,11 @@
 
 <!-- ======================================================== -->
 <!-- File    : PROTEUS_i18n_Spanish.xsl                       -->
-<!-- Content : PROTEUS XSLT labels for Spanish          -->
+<!-- Content : PROTEUS default translations for Spanish       -->
 <!-- Author  : Amador Durán Toro                              -->
 <!--           José María Delgado Sánchez                     -->
 <!-- Date    : 2023/06/29                                     -->
 <!-- Version : 1.0                                            -->
-<!-- ======================================================== -->
-<!-- Update  : 2024/09/10 (Amador Durán)                      -->
-<!-- Enumerations dictionary added.                           -->
-<!-- ======================================================== -->
-<!-- Update  : 2024/09/13 (Amador Durán)                      -->
-<!-- Property lables dictionary added.                        -->
-<!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
-<!-- limitations.                                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -27,8 +19,6 @@
     xmlns:proteus="http://proteus.us.es"
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
-    xmlns:exsl="http://exslt.org/common"
-    extension-element-prefixes="exsl"
 >
 
 <!-- Same as default in REM 1.2.2 -->
@@ -146,46 +136,23 @@
 <xsl:variable name="proteus:lang_code_exceptions">// excepciones</xsl:variable>
 <xsl:variable name="proteus:lang_web">Sitio web</xsl:variable>
 <xsl:variable name="proteus:lang_empty_paragraph">Párrafo vacío</xsl:variable>
+<xsl:variable name="proteus:lang_email">Correo-e</xsl:variable>
 
-<!-- PROTEUS enumerations dictionary -->
-<!-- This is the only way to do it in XSLT 1.0 as implemented in lxml 4.9.3 -->
-<!-- tbd is not translated to be used as the universal TBD mark             -->
-<!-- TODO: simplify using EXSLT node-set() as used for property lables below-->
-<xsl:template name="enum_value">
-    <xsl:param name="key"/>
-    <xsl:choose>
-        <xsl:when test="$key = 'tbd'">tbd</xsl:when>
-        <xsl:when test="$key = 'customer'">Cliente</xsl:when>
-        <xsl:when test="$key = 'developer'">Desarrollador</xsl:when>
-        <xsl:when test="$key = 'user'">Usuario</xsl:when>
-        <xsl:otherwise>
-            <xsl:text>¿</xsl:text><xsl:value-of select="$key"/><xsl:text>?</xsl:text>
-        </xsl:otherwise>
-    </xsl:choose>
-</xsl:template>
+<xsl:variable name="proteus:lang">es</xsl:variable>
+<xsl:variable name="proteus:lang_part">Parte</xsl:variable>
+<xsl:variable name="proteus:lang_warnings">Avisos</xsl:variable>
+<xsl:variable name="proteus:lang_abstract">abstracto</xsl:variable>
+<xsl:variable name="proteus:lang_TBD_expanded">Por determinar</xsl:variable>
 
-<!-- PROTEUS property labels dictionary -->
-<!-- TODO: move this variable to a language-independent file -->
-<xsl:variable name="property_labels_dictionary">
-  <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
-  <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>  
-  <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
-  <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
-  <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
-  <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
-  <!-- ... other labels ... -->
-</xsl:variable>
-
-<!-- This is needed because of limitations of XSLT 1.0 -->
-<!-- Note the use of the node-set() extension function -->
-<xsl:variable name="property_labels" select="exsl:node-set($property_labels_dictionary)"/>
+<xsl:variable name="proteus:lang_customer">Cliente</xsl:variable>
+<xsl:variable name="proteus:lang_developer">Desarrollador</xsl:variable>
+<xsl:variable name="proteus:lang_user">Usuario</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->
 <!-- ==================== -->
 
 <xsl:variable name="proteus:lang_the_system_shall">El sistema deberá</xsl:variable>
-<xsl:variable name="proteus:lang_TBD_expanded">Por determinar</xsl:variable>
 
 <!-- ======================= -->
 <!-- Patrones-L para actores -->
@@ -198,7 +165,6 @@
 <!-- ========================================= -->
 
 <xsl:variable name="proteus:lang_irq_lp_01">El sistema deberá almacenar la información correspondiente a</xsl:variable>
-
 <xsl:variable name="proteus:lang_irq_lp_02">En concreto:</xsl:variable>
 
 <!-- ========================================== -->

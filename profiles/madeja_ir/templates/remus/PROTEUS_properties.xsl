@@ -8,7 +8,11 @@
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 <!-- Update  : 2024/09/11 (Amador Durán)                      -->
-<!-- new template for urlProperty                             -->
+<!-- New template for urlProperty                             -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/09/14 (Amador Durán)                      -->
+<!-- Improvements in template for urlProperty.                -->
+<!-- New template for enum property.                          -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -28,15 +32,16 @@
 
     <!-- List mode -->
     <xsl:template match="traceProperty">
-        <ul class="stakeholders">
+        <ul class="traces">
             <xsl:for-each select="trace">
-                <xsl:variable name="targetId" select="@target" />
-                <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
+                <xsl:variable name="target_id" select="@target" />
+                <xsl:variable name="target_object" select="//object[@id=$target_id]" />
+                <xsl:variable name="target_name" select="$target_object/properties/stringProperty[@name=':Proteus-name']" />                
 
-                <xsl:if test="$targetObject">
+                <xsl:if test="$target_object">
                     <li>
-                        <a href="#{$targetId}" onclick="selectAndNavigate(`{$targetId}`, event)">
-                            <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                        <a href="#{$target_id}" onclick="selectAndNavigate(`{$target_id}`, event)">
+                            <xsl:value-of select="$target_name"/>
                         </a>
                     </li>
                 </xsl:if>
@@ -46,14 +51,16 @@
 
     <!-- Paragraph mode -->
     <xsl:template match="traceProperty" mode="paragraph">
+        %%traceProperty <xsl:value-of select="@name"/>%%
         <xsl:for-each select="trace">
-            <xsl:variable name="targetId" select="@target" />
-            <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
+            <xsl:variable name="target_id" select="@target" />
+            <xsl:variable name="target_object" select="//object[@id=$target_id]" />
+            <xsl:variable name="target_name" select="$target_object/properties/stringProperty[@name=':Proteus-name']" />                
 
-            <xsl:if test="$targetObject">
+            <xsl:if test="$target_object">
                 <p>
-                    <a href="#{$targetId}" onclick="selectAndNavigate(`{$targetId}`, event)">
-                        <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+                    <a href="#{$target_id}" onclick="selectAndNavigate(`{$target_id}`, event)">
+                        <xsl:value-of select="$target_name"/>
                     </a>
                 </p>
             </xsl:if>
@@ -77,6 +84,14 @@
     <xsl:template match="urlProperty">
         <xsl:variable name="href" select="."/>
         <a href="{$href}"><xsl:value-of select="$href"/></a>
+    </xsl:template>
+
+    <!-- ============================================= -->
+    <!-- enumProperty                                  -->
+    <!-- ============================================= -->
+
+    <xsl:template match="enumProperty">
+        <xsl:value-of select="$enum_labels/label[@key=current()/text()]"/>
     </xsl:template>
 
 </xsl:stylesheet>

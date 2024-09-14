@@ -2,12 +2,14 @@
 
 <!-- ========================================================= -->
 <!-- File    : template_en_US.xsl                              -->
-<!-- Content : PROTEUS XSLT for subjects at US - Spanish main  -->
-<!--           file                                            -->
+<!-- Content : PROTEUS default XSLT English (main file)        -->
 <!-- Author  : Amador Durán Toro                               -->
 <!--           José María Delgado Sánchez                      -->
 <!-- Date    : 2023/06/29                                      -->
 <!-- Version : 1.0                                             -->
+<!-- ========================================================= -->
+<!-- Update  : 2024/09/13 (Amador Durán)                       -->
+<!-- Variable declaration moved to i18n document.              -->
 <!-- ========================================================= -->
 
 <!-- ======================================================== -->
@@ -27,16 +29,6 @@
 <!-- ======================================================== -->
 
 <xsl:import href="PROTEUS_i18n_English.xsl"/>
-
-<!-- ======================================================== -->
-<!-- Localized PROTEUS-specific strings                       -->
-<!-- ======================================================== -->
-
-<xsl:variable name="proteus:lang">en</xsl:variable>
-<xsl:variable name="proteus:lang_part">Part</xsl:variable>
-<xsl:variable name="proteus:lang_warnings">Warnings</xsl:variable>
-<xsl:variable name="proteus:lang_abstract">abstract</xsl:variable>
-<xsl:variable name="proteus:lang_TBD_expanded">To Be Determined</xsl:variable>
 
 <!-- ======================================================== -->
 <!-- Include main XSLT file                                   -->

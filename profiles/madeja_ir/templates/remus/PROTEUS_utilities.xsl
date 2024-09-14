@@ -59,26 +59,33 @@
     <!-- generate_property_row template                -->
     <!-- ============================================= -->
 
+    <!-- current() is the property element being processed -->
+
     <xsl:template name="generate_property_row">
-        <xsl:param name="label" />
-        <xsl:param name="content" />
+        <xsl:param name="label" select="$property_labels/label[@key=current()/@name]"/>
+        <!-- <xsl:param name="content" select="current()//text()"/> -->
         <xsl:param name="mandatory" select="false()"/>
+        <xsl:param name="alternative"/>
         <xsl:param name="span" select="1"/>
 
-        <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
+        <xsl:variable name="hasContent"  select="string-length(current()//text()) > 0"/>
+        <xsl:variable name="hasChildren" select="boolean(current()/*)"/>
 
-        <xsl:if test="$nonempty_content or $mandatory">
+        <xsl:if test="$hasContent or $hasChildren or $mandatory">
             <tr>
                 <th>
                     <xsl:value-of select="$label"/>
                 </th>
                 <td colspan="{$span}">
                     <xsl:choose>
-                        <xsl:when test="not($nonempty_content) or normalize-space($content) = 'tbd'">
+                        <xsl:when test="(not($hasContent) and not($hasChildren)) or normalize-space(current()) = 'tbd'">
                             <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
                         </xsl:when>
+                        <xsl:when test="$alternative">
+                            <span class="alternative"><xsl:value-of select="$alternative"/></span>
+                        </xsl:when>
                         <xsl:otherwise>
-                            <xsl:apply-templates select="exsl:node-set($content)"/>
+                            <xsl:apply-templates select="current()"/>
                         </xsl:otherwise>
                     </xsl:choose>
                 </td>

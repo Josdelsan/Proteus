@@ -16,6 +16,9 @@
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- archetype-link -> symbolic-link                          -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/14 (Amador Durán)                      -->
+<!-- Code simplification.                                     -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -36,51 +39,29 @@
 
         <div id="{@id}" data-proteus-id="{@id}">
             <table class="meeting remus_table">
-
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="$proteus:lang_meeting"/>
                     <xsl:with-param name="class"   select="'meeting'"/>
                 </xsl:call-template>
 
-                <!-- Date -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_date"/>
-                    <xsl:with-param name="content" select="properties/dateProperty[@name=':Proteus-date']"/>
-                </xsl:call-template>
+                <!-- By wrapping both the list and the current property name with commas, -->
+                <!-- we ensure we're matching whole names and not partial strings.        -->
+                <!-- This was suggested by Claude AI (https://claude.ai/).                -->
 
-                <!-- Time -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_time"/>
-                    <xsl:with-param name="content" select="properties/timeProperty[@name='time']"/>
-                </xsl:call-template>
+                <!-- List of excluded properties (not shown or shown as a special case) -->
+                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,created-by,</xsl:variable>
+                
+                <!-- List of mandatory properties (shown even if they are empty)-->
+                <xsl:variable name="mandatory_properties">,date,time,place,attenders,results,</xsl:variable>
 
-                <!-- Place -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_place"/>
-                    <xsl:with-param name="content" select="properties/stringProperty[@name='place']"/>
-                    <xsl:with-param name="mandatory" select="true()"/>
-                </xsl:call-template>
-
-                <!-- Attenders -->
-                <xsl:call-template name="generate_trace_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_attenders"/>
-                    <xsl:with-param name="content" select="properties/traceProperty[@name='attenders']"/>
-                    <xsl:with-param name="mandatory" select="true()"/>
-                </xsl:call-template>
-
-                <!-- Results -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_results"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='results']"/>
-                    <xsl:with-param name="mandatory" select="true()"/>
-                </xsl:call-template>
-
-                <!-- Comments -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                </xsl:call-template>
+                <!-- Generate rows for all ordinary properties                         -->
+                <!-- Each property can be accessed as current() in the called template -->
+                <xsl:for-each select="properties/*[not(contains($excluded_properties,concat(',', @name, ',')))]">
+                    <xsl:call-template name="generate_property_row">
+                        <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
+                    </xsl:call-template>
+                </xsl:for-each>
 
             </table>
         </div>
