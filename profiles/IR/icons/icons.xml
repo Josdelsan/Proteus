@@ -28,6 +28,7 @@
         <icon key="association-type" file="association-type.png" />
         <icon key="association-role" file="association-role.png" />
         <icon key="traceability-matrix" file="traceability-matrix.png" />
+        <icon key="business-objective" file="business-objective.png" />
         <icon key="business-process" file="business-process.png" />
         <icon key="business-actor" file="business-actor.png" />
         <icon key="weakness" file="weakness.png" />
