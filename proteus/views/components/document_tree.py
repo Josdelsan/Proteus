@@ -977,7 +977,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _calculate_section_indexes(self, object: Object, acumulated_index: str = "") -> None:
+    def _calculate_section_indexes(
+        self, object: Object, acumulated_index: str = ""
+    ) -> None:
         """
         Calculate the section indexes for all the sections in the document.
         Uses numeric indexes for sections.
@@ -989,11 +991,15 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         :param acumulated_index: The acumulated index for the object
         """
         numeric_index = 1
- 
+
         for child in object.get_descendants():
 
             # Skip if object is DEAD or not a section
-            if child.state == ProteusState.DEAD or child.classes[-1] != 'section':
+            if (
+                child.state == ProteusState.DEAD
+                or child.classes[-1] != "section"
+                or child.id not in self.tree_items
+            ):
                 continue
 
             # Set the section index
@@ -1011,7 +1017,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
             # Calculate the section index for the children
             self._calculate_section_indexes(child, acumulated_index=child_index)
-
 
     # ----------------------------------------------------------------------
     # Method     : _calculate_appendix_indexes
@@ -1036,7 +1041,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         for child in object.get_descendants():
 
             # Skip if object is DEAD or not an appendix
-            if child.state == ProteusState.DEAD or child.classes[-1] != 'appendix':
+            if (
+                child.state == ProteusState.DEAD
+                or child.classes[-1] != "appendix"
+                or child.id not in self.tree_items
+            ):
                 continue
 
             # Set the appendix index
@@ -1049,6 +1058,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
             # Calculate the section index for the children
             self._calculate_section_indexes(child, acumulated_index=child_index)
+
 
 # ======================================================================
 # Helper functions
