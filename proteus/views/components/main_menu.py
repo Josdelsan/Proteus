@@ -193,7 +193,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         # an arbitrary value to ensure the image is not stretched.
         icon_label.setPixmap(profile_icon.pixmap(2000, 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
+
 
         profile_name: QLabel = QLabel(
             profile_metadata.name
@@ -438,18 +438,30 @@ class MainMenu(QDockWidget, ProteusComponent):
             archetype_button: ArchetypeMenuButton = ArchetypeMenuButton(
                 self, object_class
             )
-            # NOTE: This could be achieved using 'InstantPopup' mode, but it
-            #       is a visual design decision
-            archetype_button.setPopupMode(
-                QToolButton.ToolButtonPopupMode.MenuButtonPopup
-            )
-            archetype_button.setMenu(
-                ArchetypesMenuDropdown(
-                    controller=self._controller,
-                    archetype_list=object_archetypes_by_class[object_class],
+
+            # Set single button if there is only one archetype
+            archetype_list: List[Object] = object_archetypes_by_class[object_class]
+
+            if len(archetype_list) == 1:
+                archetype_button.clicked.connect(
+                    lambda action, archetype_id=archetype_list[0].id: self._controller.create_object(
+                    archetype_id, parent_id=self._state_manager.get_current_object()
                 )
-            )
-            archetype_button.clicked.connect(archetype_button.showMenu)
+                )
+                archetype_button.single_archetype_mode(archetype_list[0])
+            elif len(archetype_list) > 1:
+                # NOTE: This could be achieved using 'InstantPopup' mode, but it
+                #       is a visual design decision
+                archetype_button.setPopupMode(
+                    QToolButton.ToolButtonPopupMode.MenuButtonPopup
+                )
+                archetype_button.setMenu(
+                    ArchetypesMenuDropdown(
+                        controller=self._controller,
+                        archetype_list=archetype_list,
+                    )
+                )
+                archetype_button.clicked.connect(archetype_button.showMenu)
 
             # Add the archetype button to the archetype buttons dictionary
             self.archetype_buttons[object_class] = archetype_button
@@ -598,28 +610,35 @@ class MainMenu(QDockWidget, ProteusComponent):
             # Iterate over the archetype buttons
             for archetype_menu_button in self.archetype_buttons.values():
 
-                # Get the menu of the archetype button
-                archetype_menu: ArchetypesMenuDropdown = archetype_menu_button.menu()
-
-                # Iterate over the archetype list and check at least one
-                # archetype is accepted by the selected object
-                enable: bool = False
-                for archetype in archetype_menu._archetype_list:
-
+                # Handle single archetype buttons
+                if archetype_menu_button.contains_only_one_archetype:
                     archetype_is_accepted: bool = selected_object.accept_descendant(
-                        archetype
+                        archetype_menu_button.archetype
                     )
+                    archetype_menu_button.setEnabled(archetype_is_accepted)
+                else:
+                    # Get the menu of the archetype button
+                    archetype_menu: ArchetypesMenuDropdown = archetype_menu_button.menu()
+
+                    # Iterate over the archetype list and check at least one
+                    # archetype is accepted by the selected object
+                    enable: bool = False
+                    for archetype in archetype_menu._archetype_list:
+
+                        archetype_is_accepted: bool = selected_object.accept_descendant(
+                            archetype
+                        )
+
+                        # Enable or disable the archetype button
+                        if archetype_is_accepted:
+                            archetype_menu.actions[archetype.id].setEnabled(True)
+                        else:
+                            archetype_menu.actions[archetype.id].setEnabled(False)
+
+                        enable = enable or archetype_is_accepted
 
                     # Enable or disable the archetype button
-                    if archetype_is_accepted:
-                        archetype_menu.actions[archetype.id].setEnabled(True)
-                    else:
-                        archetype_menu.actions[archetype.id].setEnabled(False)
-
-                    enable = enable or archetype_is_accepted
-
-                # Enable or disable the archetype button
-                archetype_menu_button.setEnabled(enable)
+                    archetype_menu_button.setEnabled(enable)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_clipboard_changed

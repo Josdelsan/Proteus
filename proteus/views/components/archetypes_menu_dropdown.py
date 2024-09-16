@@ -104,7 +104,7 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
 
             clone_action.setIcon(icon)
             clone_action.triggered.connect(
-                lambda checked, arg=archetype.id: self._controller.create_object(
+                lambda action, arg=archetype.id: self._controller.create_object(
                     archetype_id=arg, parent_id=self._state_manager.get_current_object()
                 )
             )

@@ -35,6 +35,7 @@ from PyQt6.QtCore import Qt, QSize
 
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.model import ProteusClassTag
+from proteus.model.object import Object
 from proteus.application.resources.translator import translate as _
 
 
@@ -520,6 +521,10 @@ class ArchetypeMenuButton(QToolButton):
     def __init__(self, parent: QWidget, object_class: ProteusClassTag) -> None:
         super().__init__(parent)
 
+        # No menu variables
+        self.archetype: Object = None
+        self.contains_only_one_archetype: bool = False
+
         # Button settings
         self.setObjectName("archetype_menu_button")
         
@@ -550,3 +555,10 @@ class ArchetypeMenuButton(QToolButton):
         text_width = max(text_width, 90) # Minimum width
         text_width = int(text_width*0.9) if text_width > 160 else text_width # Scale adjustment
         self.setMinimumWidth(text_width)
+
+    def single_archetype_mode(self, archetype: Object) -> None:
+        """
+        Sets the button to single archetype mode, disabling the dropdown menu.
+        """
+        self.contains_only_one_archetype = True
+        self.archetype = archetype
