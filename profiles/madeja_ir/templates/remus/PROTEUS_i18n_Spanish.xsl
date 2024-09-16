@@ -147,6 +147,8 @@
 <xsl:variable name="proteus:lang_customer">Cliente</xsl:variable>
 <xsl:variable name="proteus:lang_developer">Desarrollador</xsl:variable>
 <xsl:variable name="proteus:lang_user">Usuario</xsl:variable>
+<xsl:variable name="proteus:lang_strength">Fortaleza</xsl:variable>
+<xsl:variable name="proteus:lang_weakness">Debilidad</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

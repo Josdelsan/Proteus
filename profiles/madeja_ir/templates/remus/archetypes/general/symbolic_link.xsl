@@ -35,7 +35,7 @@
     <xsl:template match="object[contains(@classes,'symbolic-link')]">
         <div id="{@id}" class="symbolic-link" data-proteus-id="{@id}">
             <!-- Select traceProperty named link -->
-            <xsl:variable name="traces" select="properties/traceProperty[@name='link']/trace" />
+            <xsl:variable name="traces" select="properties/*[@name='link']/trace" />
 
             <!-- Iterate over trace tags -->
             <xsl:for-each select="$traces">

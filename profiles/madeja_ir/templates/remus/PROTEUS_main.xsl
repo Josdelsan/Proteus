@@ -50,10 +50,12 @@
 
     <!-- PROTEUS property labels dictionary -->
     <xsl:variable name="property_labels_dictionary">
+        <label key=":Proteus-date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>          
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>        
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>                
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
@@ -114,9 +116,11 @@
     <xsl:include href="archetypes/general/meeting.xsl" />
     <xsl:include href="archetypes/general/symbolic_link.xsl" />
 
-    <xsl:include href="archetypes/madeja/strength.xsl" />
-    <xsl:include href="archetypes/madeja/weakness.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_user_story.xsl" />
+    <xsl:include href="archetypes/business_analysis/strength.xsl" />
+    <xsl:include href="archetypes/business_analysis/weakness.xsl" />
+    <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />
+    <xsl:include href="archetypes/business_analysis/PROTEUS_business_actor.xsl" />
+    <xsl:include href="archetypes/business_analysis/PROTEUS_business_process.xsl" />
 
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
@@ -129,8 +133,6 @@
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_business_actor.xsl" />
-    <xsl:include href="archetypes/madeja/PROTEUS_business_process.xsl" />
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

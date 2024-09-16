@@ -75,7 +75,7 @@
             </xsl:variable>
             
             <!-- Get section title -->
-            <xsl:variable name="title" select="properties/stringProperty[@name=':Proteus-name']"/>
+            <xsl:variable name="title" select="properties/*[@name=':Proteus-name']"/>
 
             <!-- Generate header element -->
             <xsl:element name="h{$header_level}">

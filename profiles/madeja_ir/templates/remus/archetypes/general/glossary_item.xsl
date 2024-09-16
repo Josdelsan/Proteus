@@ -45,12 +45,12 @@
             <p>
                 <!-- Generate glossary item name -->
                 <strong>
-                    <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
+                    <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
                     <xsl:text>: </xsl:text>
                 </strong>
 
                 <!-- Generate glossary item description -->
-                <xsl:variable name="description" select="properties/markdownProperty[@name='description']"/>
+                <xsl:variable name="description" select="properties/*[@name='description']"/>
                 <xsl:variable name="nonempty_content" select="string-length(normalize-space($description)) > 0"/>
 
                 <xsl:choose>
@@ -65,13 +65,13 @@
                 </xsl:choose>
 
                 <!-- Get file name with extension (optional, it could be empty) -->
-                <xsl:variable name="image_path" select="properties/fileProperty[@name='image']"/>
+                <xsl:variable name="image_path" select="properties/*[@name='image']"/>
                 
                 <!-- Get the image width percentage -->
                 <xsl:variable name="image_width_percentage">
                     <xsl:choose>
-                        <xsl:when test="properties/integerProperty[@name='width']">
-                            <xsl:value-of select="properties/integerProperty[@name='width']"/>
+                        <xsl:when test="properties/*[@name='width']">
+                            <xsl:value-of select="properties/*[@name='width']"/>
                         </xsl:when>
                         <xsl:otherwise>50</xsl:otherwise>
                     </xsl:choose>

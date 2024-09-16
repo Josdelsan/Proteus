@@ -147,6 +147,8 @@
 <xsl:variable name="proteus:lang_customer">Customer</xsl:variable>
 <xsl:variable name="proteus:lang_developer">Developer</xsl:variable>
 <xsl:variable name="proteus:lang_user">User</xsl:variable>
+<xsl:variable name="proteus:lang_strength">Strength</xsl:variable>
+<xsl:variable name="proteus:lang_weakness">Weakness</xsl:variable>
 
 <!-- ================== -->
 <!-- General L-patterns -->

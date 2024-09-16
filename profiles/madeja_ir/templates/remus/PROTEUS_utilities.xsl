@@ -11,6 +11,11 @@
 <!-- Use of EXSLT node-set function to overcome some XLST 1.0 -->
 <!-- limitations.                                             -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/16 (Amador Durán)                      -->
+<!-- generate_software_requirement_expanded_header ->         -->
+<!-- generate_expanded_header and simplified.                 -->
+<!-- generate_version_row simplified.                         -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -97,6 +102,8 @@
     <!-- generate_trace_row template                   -->
     <!-- ============================================= -->
 
+    <!-- Check for use, probably unused -->
+
     <xsl:template name="generate_trace_row">
         <xsl:param name="label" />
         <xsl:param name="content" />
@@ -124,12 +131,14 @@
     <!-- generate_header template                      -->
     <!-- ============================================= -->
 
+    <!-- current() is the property element being processed -->
+
     <xsl:template name="generate_header">
-        <xsl:param name="class" />
-        <xsl:param name="name"  select="properties/stringProperty[@name=':Proteus-name']"/>
+        <xsl:param name="label"/>
+        <xsl:param name="class" select="default"/>
+        <xsl:param name="name"  select="properties/*[@name=':Proteus-name']"/>
         <xsl:param name="icon"  select="concat($class,'.png')"/>
         <xsl:param name="postfix"/>
-        <xsl:param name="label"/>
         <xsl:param name="span"  select="1"/>
 
         <thead>
@@ -148,29 +157,41 @@
     </xsl:template>
 
     <!-- ============================================= -->
-    <!-- generate_software_requirement_header template -->
+    <!-- generate_version_date_row template            -->
     <!-- ============================================= -->
 
-    <xsl:template name="generate_software_requirement_expanded_header">
+
+    <!-- ================================= -->
+    <!-- generate_expanded_header template -->
+    <!-- ================================= -->
+
+    <!-- Check for use, probably unused -->
+
+    <!-- current() is the property element being processed -->
+
+    <xsl:template name="generate_expanded_header">
         <xsl:param name="class" select="default"/>
-        <xsl:param name="name"  select="properties/stringProperty[@name=':Proteus-name']"/>
+        <xsl:param name="name"  select="properties/*[@name=':Proteus-name']"/>
+        <xsl:param name="icon"  select="concat($class,'.png')"/>        
         <xsl:param name="postfix"/>
         <xsl:param name="span"  select="1"/>
 
         <xsl:variable name="label">
-            <xsl:value-of select="properties/codeProperty[@name = ':Proteus-code']/prefix" />
-            <xsl:value-of select="properties/codeProperty[@name = ':Proteus-code']/number" />
-            <xsl:value-of select="properties/codeProperty[@name = ':Proteus-code']/suffix" />
+            <xsl:value-of select="properties/*[@name = ':Proteus-code']/prefix" />
+            <xsl:value-of select="properties/*[@name = ':Proteus-code']/number" />
+            <xsl:value-of select="properties/*[@name = ':Proteus-code']/suffix" />
         </xsl:variable>
 
         <xsl:call-template name="generate_header">
             <xsl:with-param name="class"   select="$class"/>
             <xsl:with-param name="name"    select="$name"/>
+            <xsl:with-param name="icon"    select="$icon"/>            
             <xsl:with-param name="label"   select="$label"/>
             <xsl:with-param name="postfix" select="$postfix"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
+        <!--
         <xsl:call-template name="generate_version_row">
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
@@ -186,6 +207,7 @@
             <xsl:with-param name="content" select="properties/traceProperty[@name='source']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
+        -->
     </xsl:template>
 
 
@@ -197,16 +219,18 @@
     <!-- generate_version_row template                 -->
     <!-- ============================================= -->
 
+    <!-- current() is the property element being processed -->
+
     <xsl:template name="generate_version_row">
-        <xsl:param name="label"     select="$proteus:lang_version"/>
-        <xsl:param name="span"      select="1"/>
+        <xsl:param name="label" select="$proteus:lang_version"/>
+        <xsl:param name="span"  select="1"/>
 
         <tr>
             <th><xsl:value-of select="$label"/></th>
             <td colspan="{$span}">
-                <xsl:value-of select="properties/floatProperty[@name='version']" />
+                <xsl:value-of select="properties/*[@name='version']" />
                 <xsl:text> (</xsl:text>
-                <xsl:value-of select="properties/dateProperty[@name=':Proteus-date']" />
+                <xsl:value-of select="properties/*[@name=':Proteus-date']" />
                 <xsl:text>)</xsl:text>
             </td>
         </tr>

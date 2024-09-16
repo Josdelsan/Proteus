@@ -95,7 +95,7 @@
             </xsl:variable>
 
         <!-- Get appendix title -->
-        <xsl:variable name="title" select="properties/stringProperty[@name=':Proteus-name']"/>
+        <xsl:variable name="title" select="properties/*[@name=':Proteus-name']"/>
 
         <!-- Generate TOC item element -->
         <li>

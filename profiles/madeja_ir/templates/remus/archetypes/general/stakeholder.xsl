@@ -68,7 +68,7 @@
 
                 <!-- Generate row for organization (works-for)                           -->
                 <!-- This trace property must show 'freelance' when empty (special case) -->
-                <xsl:variable name="organization_property" select="exsl:node-set(properties/traceProperty[@name='works-for'])" />
+                <xsl:variable name="organization_property" select="exsl:node-set(properties/*[@name='works-for'])" />
                 <xsl:variable name="is_freelance" select="not($organization_property/trace)"/>
 
                 <xsl:for-each select="properties/traceProperty[@name='works-for']">

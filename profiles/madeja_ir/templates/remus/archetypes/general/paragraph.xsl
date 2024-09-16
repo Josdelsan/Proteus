@@ -40,7 +40,7 @@
 
     <xsl:template match="object[contains(@classes,'paragraph')]">
         <div id="{@id}" data-proteus-id="{@id}">
-            <xsl:variable name="content" select="properties/markdownProperty[@name='text']"/>
+            <xsl:variable name="content" select="properties/*[@name='text']"/>
             <xsl:variable name="nonempty_content" select="string-length(normalize-space($content)) > 0"/>
 
             <p>

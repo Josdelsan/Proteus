@@ -15,6 +15,9 @@
 <!--    object[ends-with(@classes,class_name)]                -->
 <!-- PROBLEM: XSLT 1.0 does not include ends-with             -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/09/16 (Amador Durán)                      -->
+<!-- Code simplification.                                     -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -32,33 +35,38 @@
     <!-- ============================================= -->
 
     <xsl:template match="object[contains(@classes,'strength')]">
-
         <div id="{@id}" data-proteus-id="{@id}">
+
             <table class="madeja_object remus_table">
-
-                <!-- Header, version, authors and sources -->
-                <xsl:call-template name="generate_software_requirement_expanded_header">
-                    <xsl:with-param name="label"   select="properties/codeProperty[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'madejaStrength'"/>
+                <!-- Header -->
+                <xsl:call-template name="generate_header">
+                    <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
+                    <xsl:with-param name="class"   select="'strength'"/>
                 </xsl:call-template>
 
-                <!-- Description -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"     select="$proteus:lang_description"/>
-                    <xsl:with-param name="content"   select="properties/markdownProperty[@name='description']"/>
-                    <xsl:with-param name="mandatory" select="true()"/>
-                </xsl:call-template>
+                <!-- Version row -->
+                <xsl:call-template name="generate_version_row"/>
 
-                <!-- Priority rows -->
-                <xsl:call-template name="generate_priority_rows"/>
+                <!-- By wrapping both the list and the current property name with commas, -->
+                <!-- we ensure we're matching whole names and not partial strings.        -->
+                <!-- This was suggested by Claude AI.                                     -->
 
-                <!-- Comments -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                </xsl:call-template>
-            </table>
+                <!-- List of excluded properties (not shown) -->
+                <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,</xsl:variable>
+                
+                <!-- List of mandatory properties (shown even if they are empty)-->
+                <xsl:variable name="mandatory_properties">,description,</xsl:variable>
+
+                <!-- Generate rows for all ordinary properties                         -->
+                <!-- Each property can be accessed as current() in the called template -->
+                <xsl:for-each select="properties/*[not(contains($excluded_properties,concat(',', @name, ',')))]">
+                    <xsl:call-template name="generate_property_row">
+                        <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
+                    </xsl:call-template>
+                </xsl:for-each>
+            </table>                
         </div>
+
     </xsl:template>
 
 </xsl:stylesheet>

@@ -44,16 +44,16 @@
 
         <div class="figure">
             <!-- Get file name with extension -->
-            <xsl:variable name="figure_path" select="properties/fileProperty[@name='file']"/>
+            <xsl:variable name="figure_path" select="properties/*[@name='file']"/>
 
             <!-- Get file link -->
-            <xsl:variable name="figure_url" select="properties/urlProperty[@name='url']"/>
+            <xsl:variable name="figure_url" select="properties/*[@name='url']"/>
 
             <!-- Get the image width percentage -->
             <xsl:variable name="image_width_percentage">
                 <xsl:choose>
-                    <xsl:when test="properties/integerProperty[@name='width']">
-                        <xsl:value-of select="properties/integerProperty[@name='width']"/>
+                    <xsl:when test="properties/*[@name='width']">
+                        <xsl:value-of select="properties/*[@name='width']"/>
                     </xsl:when>
                     <xsl:otherwise>50</xsl:otherwise>
                 </xsl:choose>
@@ -93,7 +93,7 @@
                 
                 <!-- apply markdown -->
                 <xsl:call-template name="generate_markdown">
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='description']"/>
+                    <xsl:with-param name="content" select="properties/*[@name='description']"/>
                 </xsl:call-template>
             </p>
 

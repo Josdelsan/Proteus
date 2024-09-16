@@ -16,7 +16,7 @@
 # -----------------------------------------------------------------------
 
 archetype.category.general: "General"
-archetype.category.business_requirements: "Business Requirements"
+archetype.category.business_analysis: "Business Analysis"
 archetype.category.software_requirements: "System/Software Requirements"
 archetype.category.conceptual_modeling: "Conceptual Modeling"
 
