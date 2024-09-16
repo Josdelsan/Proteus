@@ -113,6 +113,8 @@ ENV/
 env.bak/
 venv.bak/
 proteus_env/
+*env/
+*venv/
 
 # Spyder project settings
 .spyderproject

@@ -407,7 +407,19 @@ class Object(AbstractObject):
         ), f"Child {child} is not a valid PROTEUS object."
 
         # Check child is not the same object
-        if self.id == child.id:
+        if child.id is self.id:
+            return False
+        
+        # Check the object branch does not contain the child already
+        # as parent
+        def get_parents(obj: Object) -> List[ProteusID]:
+            parents = []
+            if obj.parent is not None and isinstance(obj.parent, Object):
+                parents.append(obj.parent.id)
+                parents.extend(get_parents(obj.parent))
+            return parents
+        
+        if child.id in get_parents(self):
             return False
 
         # --------------------------------------------------------
