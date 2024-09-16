@@ -42,7 +42,6 @@ class AbstractObjectMeta(type(QObject), type(ABC)):
 
     pass
 
-
 # --------------------------------------------------------------------------
 # Class: SingletonMeta
 # Description: Metaclass for Singleton classes
@@ -54,8 +53,8 @@ class SingletonMeta(type):
     """
     Metaclass for Singleton classes. It is used to create a singleton class.
 
-    Thread-safe implementation. Do not instantiate a singleton class inside
-    the __init__ method of another singleton class. It will cause a deadlock.
+    Thread-safe implementation. WARNING, DO NOT instantiate a singleton class
+    inside the __init__ method of another singleton class. It will cause a deadlock.
     """
 
     _instances = {}         # Instances
@@ -73,3 +72,11 @@ class SingletonMeta(type):
                 instance = super().__call__(*args, **kwargs)
                 cls._instances[cls] = instance
         return cls._instances[cls]
+    
+
+class AbstractObjectSingletonMeta(AbstractObjectMeta, SingletonMeta):
+    """
+    Metaclass for QObject singleton abstract class. It is used to create a singleton
+    abstract class that inherits from QObject and ABC.
+    """
+    pass

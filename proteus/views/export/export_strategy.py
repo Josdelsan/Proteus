@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -34,7 +34,7 @@ from proteus.controller.command_stack import Controller
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ExportStrategy(QObject, ABC, metaclass=AbstractObjectMeta):
+class ExportStrategy(QObject, metaclass=AbstractObjectMeta):
     """
     Abstract class for the PROTEUS application export strategy.
 

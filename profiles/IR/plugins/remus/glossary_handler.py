@@ -127,11 +127,11 @@ class GlossaryHandler(ProteusComponent):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def __init__(self, parent):
+    def __init__(self, parent, *args, **kwargs) -> None:
         """
         It initializes the glossary handler.
         """
-        super().__init__(parent)
+        super(GlossaryHandler, self).__init__(parent, *args, **kwargs)
 
         # Subscribe to the events
         OpenProjectEvent().connect(self.update_on_project_open)

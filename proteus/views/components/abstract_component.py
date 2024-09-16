@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 import logging
-from abc import ABC
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -39,7 +38,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class ProteusComponent(QObject, ABC, metaclass=AbstractObjectMeta):
+class ProteusComponent(QObject, metaclass=AbstractObjectMeta):
     """
     ProteusComponent abstract class. It is the base class for all the
     components in the PROTEUS application.

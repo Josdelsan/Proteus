@@ -10,10 +10,9 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from threading import Lock
 import logging
 from typing import Callable
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,7 +26,7 @@ from PyQt6.QtWidgets import QTreeWidget
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.application.utils.abstract_meta import AbstractObjectMeta
+from proteus.application.utils.abstract_meta import AbstractObjectSingletonMeta
 from proteus.model import ProteusID
 
 # logging configuration
@@ -41,12 +40,7 @@ log = logging.getLogger(__name__)
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-# TODO: In order to keep things simple, This class singleton implementation
-# is in the class itself and do not use utils.abstract_meta.SingletonMeta
-# This would require to mix SingletonMeta and AbstractObjectMeta, which is
-# may lead to unexpected behavior. Consider if it is necessary to refactor
-# this class.
-class ProteusEvent(QObject, ABC, metaclass=AbstractObjectMeta):
+class ProteusEvent(QObject, metaclass=AbstractObjectSingletonMeta):
     """
     Abstract class for the events in the PROTEUS application. It defines the
     basic interface that every event must implement.
@@ -64,43 +58,6 @@ class ProteusEvent(QObject, ABC, metaclass=AbstractObjectMeta):
     could be created as a normal class without using ProteusEvent abstract
     class and PyQt functionality, although it is recommended for consistency.
     """
-
-    # Singleton instance
-    __instance = None
-    __lock = Lock()  # Lock for thread safety
-
-    # --------------------------------------------------------------------------
-    # Method: __new__
-    # Description: Singleton constructor for ProteusEvent class.
-    # Date: 31/12/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __new__(cls, *args, **kwargs):
-        """
-        Creates a singleton instance of the class.
-        """
-        if not cls.__instance:
-            cls.__instance = super(ProteusEvent, cls).__new__(cls)
-            cls.__instance._initialized = False
-        return cls.__instance
-
-    # --------------------------------------------------------------------------
-    # Method: __init__
-    # Description: Initializes the singleton instance of the class.
-    # Date: 31/12/2023
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def __init__(self):
-        """
-        Initializes the singleton instance of the class.
-        """
-        with self.__class__.__lock:
-            if self._initialized:
-                return
-            super().__init__()
-            self._initialized = True
 
     # --------------------------------------------------------------------------
     # Method: notify (abstract)

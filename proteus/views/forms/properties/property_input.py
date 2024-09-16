@@ -12,7 +12,7 @@
 
 import logging
 from datetime import date
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)  # Logger
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
+class PropertyInput(QWidget, metaclass=AbstractObjectMeta):
     """
     Property input widget that wraps a property input widget. Adds a label
     to display errors and a checkbox to edit the inmutable property if the
