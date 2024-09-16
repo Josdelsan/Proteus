@@ -68,7 +68,14 @@ class DeleteDocumentCommand(QUndoCommand):
         # Command attributes
         self.before_clone_parent_state: ProteusState = None
         self.document: Object = self.project_service._get_element_by_id(document_id)
-        self.old_document_state: ProteusState = self.document.state
+        self.old_object_states: Dict[ProteusID, ProteusState] = {}
+
+        # Populate the old_object_states dictionary
+        for id in self.document.get_ids():
+            self.old_object_states[id] = self.project_service._get_element_by_id(
+                id
+            ).state
+
         self.old_position: int = self.document.parent.get_descendants().index(
             self.document
         )
@@ -94,7 +101,9 @@ class DeleteDocumentCommand(QUndoCommand):
         self.setText(f"Mark as DEAD document {self.document.id}")
 
         # Change the state of the cloned document and his children to FRESH
-        self.project_service.change_state(self.document.id, ProteusState.DEAD)
+        for id in self.document.get_ids():
+            object: Object = self.project_service._get_element_by_id(id)
+            object.state = ProteusState.DEAD
 
         # Modify the parent state depending on its current state
         self.before_clone_parent_state: ProteusState = self.document.parent.state
@@ -133,8 +142,10 @@ class DeleteDocumentCommand(QUndoCommand):
         # Set undo text
         self.setText(f"Revert delete document {self.document.id}")
 
-        # Change the state of the cloned document and his children to the old state
-        self.project_service.change_state(self.document.id, self.old_document_state)
+        # Change the state of the deleted document and his children to the old state
+        for id in self.document.get_ids():
+            object: Object = self.project_service._get_element_by_id(id)
+            object.state = self.old_object_states[id]
 
         # Set the parent state to the old state
         self.document.parent.state = self.before_clone_parent_state

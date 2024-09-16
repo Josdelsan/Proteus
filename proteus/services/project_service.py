@@ -472,36 +472,6 @@ class ProjectService:
 
         return False
 
-    # ----------------------------------------------------------------------
-    # Method     : change_state_recursive
-    # Description: Changes the state of the object with the given id and
-    #              all its children recursively.
-    # Date       : 06/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def change_state(self, object_id: ProteusID, new_state: ProteusState) -> None:
-        """
-        Changes the state of the object with the given id and all its children
-        recursively.
-
-        :param object_id: Id of the object to change state.
-        :param new_state: New state of the object.
-        """
-
-        # Private helper function
-        def _change_state(object: Object, new_state: ProteusState) -> None:
-            # Change state of object
-            object.state = new_state
-
-            # Change state of children
-            for child in object.get_descendants():
-                _change_state(child, new_state)
-
-        # Get object using helper method
-        object = self._get_element_by_id(object_id)
-
-        _change_state(object, new_state)
 
     # ----------------------------------------------------------------------
     # Method     : get_object_structure

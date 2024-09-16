@@ -97,7 +97,9 @@ class DeleteObjectCommand(QUndoCommand):
         self.setText(f"Mark as DEAD object {self.object.id}")
 
         # Change the state of the cloned object and his children to FRESH
-        self.project_service.change_state(self.object.id, ProteusState.DEAD)
+        for id in self.object.get_ids():
+            object: Object = self.project_service._get_element_by_id(id)
+            object.state = ProteusState.DEAD
 
         # Modify the parent state depending on its current state
         self.before_delete_parent_state = self.object.parent.state
@@ -139,7 +141,7 @@ class DeleteObjectCommand(QUndoCommand):
         # Set undo text
         self.setText(f"Revert delete object {self.object.id}")
 
-        # Change the state of the cloned object and his children to the old state
+        # Change the state of the deleted object and his children to the old state
         for id in self.object.get_ids():
             object: Object = self.project_service._get_element_by_id(id)
             object.state = self.old_object_states[id]

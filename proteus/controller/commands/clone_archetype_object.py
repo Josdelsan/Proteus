@@ -10,6 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
+from typing import Set
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -77,6 +78,11 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         self.after_clone_parent_state: ProteusState = None
         self.cloned_object: Object = None
 
+        # This will help to redo the command if the operation was already performed
+        # in order to avoid setting FRESH state to cloned object children that are 
+        # were not part of the original clone operation.
+        self.cloned_objects_list: Set[ProteusID] = set()
+
     # ----------------------------------------------------------------------
     # Method     : redo
     # Description: Redo the command, cloning the archetype object.
@@ -112,14 +118,18 @@ class CloneArchetypeObjectCommand(QUndoCommand):
                 self.archetype_id, parent, project
             )
 
+            # Get the list of cloned objects in this operation
+            self.cloned_objects_list = self.cloned_object.get_ids()
+
             # Save the parent state after clone
             self.after_clone_parent_state = parent.state
         else:
             # Set redo text
             self.setText(f"Mark as ALIVE cloned object {self.cloned_object.id}")
 
-            # Change the state of the cloned object and his children to FRESH
-            self.project_service.change_state(self.cloned_object.id, ProteusState.FRESH)
+            # Change the state of the cloned object and his original children to FRESH
+            for id in self.cloned_objects_list:
+                self.project_service._get_element_by_id(id).state = ProteusState.FRESH
 
             # Set the parent state to the state after clone stored in the first redo
             parent = self.project_service._get_element_by_id(self.parent_id)
@@ -142,8 +152,9 @@ class CloneArchetypeObjectCommand(QUndoCommand):
         # Set undo text
         self.setText(f"Mark as DEAD cloned object {self.cloned_object.id}")
 
-        # Change the state of the cloned object and his children to DEAD
-        self.project_service.change_state(self.cloned_object.id, ProteusState.DEAD)
+        # Change the state of the cloned object and his original children to DEAD
+        for id in self.cloned_objects_list:
+            self.project_service._get_element_by_id(id).state = ProteusState.DEAD
 
         # Set the parent state to the old state
         parent = self.project_service._get_element_by_id(self.parent_id)
