@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<object id="3D3PHcDsJPa5" classes="section" acceptedChildren=":Proteus-any" acceptedParents=":Proteus-any">
-  <properties>
-    <stringProperty name=":Proteus-name" category="general"><![CDATA[Pros y contras de la situación actual]]></stringProperty>
-    <markdownProperty name="comments" category="general"><![CDATA[]]></markdownProperty>
-  </properties>
-  <children/>
-  <traces/>
-</object>
