@@ -6,22 +6,28 @@ echo PROTEUS: v1.0.0-alpha.1
 @REM Initialize variables
 set python_executable=
 
-@REM Check if 'python' is installed
-python --version >nul 2>&1
+@REM Check if 'python3.11' is installed
+python3.11 --version >nul 2>&1
 if not errorlevel 1 (
-    set python_executable=python
-)
-
-@REM Check if 'python3' is installed
-python3 --version >nul 2>&1
-if not errorlevel 1 (
-    set python_executable=python3
+    set python_executable=python3.11
+) else (
+    @REM Check if 'python' is installed
+    python --version >nul 2>&1
+    if not errorlevel 1 (
+        set python_executable=python
+    ) else (
+        @REM Check if 'python3' is installed
+        python3 --version >nul 2>&1
+        if not errorlevel 1 (
+            set python_executable=python3
+        )
+    )
 )
 
 @REM Check if either 'python' or 'python3' is installed
 if "%python_executable%"=="" (
-    echo PROTEUS: Neither 'python' nor 'python3' is installed on your system.
-    echo PROTEUS: Please install Python and try running this script again. Recommended version: 3.10.7
+    echo PROTEUS: Neither 'python', 'python3', nor 'python3.11' was found on your system.
+    echo PROTEUS: Please install Python and try running this script again. Recommended version: 3.11.x
     pause
     exit /b 1
 )
@@ -80,6 +86,6 @@ if %errorlevel% NEQ 0 (
 
 @REM Run the application in the background so the console can be closed
 echo PROTEUS: Running the application...
-call %python_executable% -m proteus
+call python -m proteus
 
 endlocal
