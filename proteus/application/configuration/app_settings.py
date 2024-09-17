@@ -49,6 +49,7 @@ SETTING_SELECTED_PROFILE: str = "selected_profile"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
 SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
 SETTING_OPEN_PROJECT_ON_STARTUP: str = "open_project_on_startup"
+SETTING_XSLT_DEBUG_MODE: str = "xslt_debug_mode"
 
 # User session data
 SESSION: str = "session"
@@ -84,6 +85,7 @@ class AppSettings:
     using_default_profile: bool = None
     custom_profile_path: Path = None
     open_project_on_startup: bool = None
+    xslt_debug_mode: bool = False
 
     # --------------------------------------------------------------------------
     # Method: load
@@ -231,6 +233,10 @@ class AppSettings:
         # Load project on startup ------------------------
         self.open_project_on_startup = settings.getboolean(SETTING_OPEN_PROJECT_ON_STARTUP, False)
 
+        # XSLT debug mode ------------------------
+        self.xslt_debug_mode = settings.getboolean(SETTING_XSLT_DEBUG_MODE, False)
+
+    
         log.info(f"Loaded app user settings from {self.settings_file_path}.")
         log.info(f"{self.language = }")
         log.info(f"{self.default_view = }")
@@ -238,6 +244,7 @@ class AppSettings:
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
         log.info(f"{self.open_project_on_startup = }")
+        log.info(f"{self.xslt_debug_mode = }")
 
     # --------------------------------------------------------------------------
     # Method: _validate_profile_path

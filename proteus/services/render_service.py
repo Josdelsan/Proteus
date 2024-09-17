@@ -166,11 +166,9 @@ class RenderService:
             # Create the transformer from the xsl file
             transform = ET.XSLT(ET.parse(entrypoint.as_posix()))
 
-            # NOTE: Comment this line to make XSLT debugging easier
             # Store the transformation object for future use
-            
-            # Line temporarily commented for XSLT development (Amador)
-            # self._transformations[template_name] = transform
+            if Config().app_settings.xslt_debug_mode is False:
+                self._transformations[template_name] = transform
 
         return transform
 
