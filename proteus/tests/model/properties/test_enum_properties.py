@@ -68,7 +68,7 @@ def test_enum_properties(name, category, value, choices, expected_value, expecte
     assert(property.value    == expected_value  )
     assert(property.choices  == expected_choices)
     if property.value:
-        assert(property.value in property.get_choices_as_set())
+        assert(property.value in property.get_choices_as_list())
     assert(
         ET.tostring(property.generate_xml()).decode() ==
         f'<{property_tag} name="{name}" category="{category}" choices="{expected_choices}">{expected_value}</{property_tag}>'
@@ -102,7 +102,7 @@ def test_enum_properties(name, category, value, choices, expected_value, expecte
         expected_value = new_value
         expected_choices = new_value
     # value, choices, value not in choices in original property
-    elif new_value not in property.get_choices_as_set():
+    elif new_value not in property.get_choices_as_list():
         expected_value = property.choices.split()[0]
         expected_choices = property.choices
     # value, choices, value in choices        
@@ -116,7 +116,7 @@ def test_enum_properties(name, category, value, choices, expected_value, expecte
     assert(evolved_property.value    == expected_value  )    
     assert(evolved_property.choices  == expected_choices)
     if evolved_property.value:
-        assert(evolved_property.value in evolved_property.get_choices_as_set())
+        assert(evolved_property.value in evolved_property.get_choices_as_list())
     assert(
         ET.tostring(evolved_property.generate_xml()).decode() ==
         f'<{property_tag} name="{name}" category="{category}" choices="{expected_choices}">{expected_value}</{property_tag}>'

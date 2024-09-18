@@ -94,7 +94,7 @@ class EnumProperty(Property):
 
         # Validate value (choices are not empty)
         try:
-            if self.value not in self.get_choices_as_set():
+            if self.value not in self.get_choices_as_list():
                 raise ValueError
         except ValueError:
             log.warning(f"Enum property '{self.name}': invalid value -> assigning first choice '{_choices[0]}'")
@@ -103,14 +103,14 @@ class EnumProperty(Property):
             object.__setattr__(self, 'value', _choices[0])
             return
 
-    def get_choices_as_set(self) -> set[str]:
+    def get_choices_as_list(self) -> list[str]:
         """
-        It generates a set of strings from the space-separated 
+        It generates a list of strings from the space-separated 
         string with the enumerated choices.
-        :return: set of strings with the enumerated choices.
+        :return: list of strings with the enumerated choices.
         """
         # use split() without arguments to get an empty list if string is empty
-        return set( str(self.choices).split() )
+        return str(self.choices).split()
 
     def generate_xml_value(self, property_element:ET._Element) -> str | ET.CDATA:
         """

@@ -90,7 +90,7 @@ class EnumPropertyInput(PropertyInput):
         Creates the input widget based on QComboBox.
         """
         input: QComboBox = QComboBox()
-        choices = property.get_choices_as_set()
+        choices = property.get_choices_as_list()
         # Add choices translated
         for choice in choices:
             input.addItem(
