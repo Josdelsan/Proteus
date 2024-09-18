@@ -26,6 +26,7 @@ archetype.category.conceptual_modeling: "Conceptual Modeling"
 
 # General category
 
+archetype.class.general-traceable-object: "General object"
 archetype.class.paragraph: "Paragraph"
 archetype.class.appendix: "Appendix"
 archetype.class.glossary-item: "Glossary item"
@@ -105,7 +106,7 @@ archetype.enum_choices.set: "Set"
 archetype.enum_choices.simple: "Simple"
 archetype.enum_choices.sequence: "Sequence"
 archetype.enum_choices.bag: "Bag"
-  
+
 # -----------------------------------------------------------------------
 # Archetype tooltips
 # -----------------------------------------------------------------------
@@ -116,7 +117,7 @@ archetype.tooltip.file-info: "Select a graphic file from your local system to co
 archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
 archetype.tooltip.is-abstract: "This entity class type is an abstract class."
 archetype.tooltip.is-derived: "This association is a derived association."
-  
+
 # -----------------------------------------------------------------------
 # Archetype property names
 # -----------------------------------------------------------------------
@@ -177,3 +178,5 @@ archetype.prop_name.so-that: "So that ..."
 archetype.prop_name.web: "Website"
 archetype.prop_name.image: "Image"
 archetype.prop_name.email: "E-mail"
+archetype.prop_name.diagram: "Diagram"
+archetype.prop_name.priority: "Priority"

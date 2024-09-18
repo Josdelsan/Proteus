@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<object 
-  id="meeting" 
-  classes="meeting" 
-  acceptedChildren=":Proteus-none" 
+<object
+  id="meeting"
+  classes="meeting"
+  acceptedChildren=":Proteus-none"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Reunión]]></stringProperty>
     <dateProperty name=":Proteus-date" category="detail">2024-09-01</dateProperty>
-    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>    
+    <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
-    <dateProperty name="date" category="detail"></dateProperty>
+    <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <timeProperty name="time" category="detail">12:00:00</timeProperty>
     <stringProperty name="place" category="detail"><![CDATA[]]></stringProperty>
     <traceProperty name="attenders" category="detail" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>

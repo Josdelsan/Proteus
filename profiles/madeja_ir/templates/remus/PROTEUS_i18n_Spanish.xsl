@@ -149,6 +149,7 @@
 <xsl:variable name="proteus:lang_user">Usuario</xsl:variable>
 <xsl:variable name="proteus:lang_strength">Fortaleza</xsl:variable>
 <xsl:variable name="proteus:lang_weakness">Debilidad</xsl:variable>
+<xsl:variable name="proteus:lang_diagram">Diagrama</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

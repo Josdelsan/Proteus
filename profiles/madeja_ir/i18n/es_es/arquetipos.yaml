@@ -26,6 +26,7 @@ archetype.category.conceptual_modeling: "Modelado conceptual"
 
 # Categoría general
 
+archetype.class.general-traceable-object: "Objeto general"
 archetype.class.paragraph: "Párrafo"
 archetype.class.appendix: "Apéndice"
 archetype.class.glossary-item: "Elemento de glosario"
@@ -79,7 +80,7 @@ archetype.prop_category.conditions: "Condiciones"
 archetype.prop_category.priority: "Prioridad"
 archetype.prop_category.description: "Descripción"
 archetype.prop_category.dependencies: "Dependencias"
-  
+
 # -----------------------------------------------------------------------
 # Opciones de enumerados
 # -----------------------------------------------------------------------
@@ -104,7 +105,7 @@ archetype.enum_choices.set: "Conjunto"
 archetype.enum_choices.simple: "Simple"
 archetype.enum_choices.sequence: "Secuencia"
 archetype.enum_choices.bag: "Multiconjunto"
-  
+
 # -----------------------------------------------------------------------
 # Mensajes de ayuda
 # -----------------------------------------------------------------------
@@ -176,3 +177,5 @@ archetype.prop_name.so-that: "Para ..."
 archetype.prop_name.web: "Sitio web"
 archetype.prop_name.image: "Imagen"
 archetype.prop_name.email: "Correo-e"
+archetype.prop_name.diagram: "Diagrama"
+archetype.prop_name.priority: "Prioridad"

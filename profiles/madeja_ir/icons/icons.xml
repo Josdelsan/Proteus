@@ -10,10 +10,13 @@
         <icon key="stakeholder" file="stakeholder.png" />
         <icon key="organization" file="organization.png" />
         <icon key="meeting" file="meeting.png" />
-        <icon key="symbolic-link" file="symbolic-link.png" />        
+        <icon key="symbolic-link" file="symbolic-link.png" />
 
         <icon key="strength" file="strength.png" />
         <icon key="weakness" file="weakness.png" />
+        <icon key="business-actor" file="business-actor.png" />
+        <icon key="business-process" file="business-process.png" />
+        <icon key="user-story" file="user-story.png" />
 
         <icon key="actor" file="actor.png" />
         <icon key="information-requirement" file="information-req.png" />
@@ -31,8 +34,5 @@
         <icon key="association-type" file="association-type.png" />
         <icon key="association-role" file="association-role.png" />
         <icon key="traceability-matrix" file="traceability-matrix.png" />
-        <icon key="business-process" file="business-process.png" />
-        <icon key="business-actor" file="business-actor.png" />
-        <icon key="user-story" file="user-story.png" />
     </type>
 </icons>

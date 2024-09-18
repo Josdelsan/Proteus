@@ -56,6 +56,7 @@
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>        
+        <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>                
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>                
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
@@ -118,9 +119,9 @@
 
     <xsl:include href="archetypes/business_analysis/strength.xsl" />
     <xsl:include href="archetypes/business_analysis/weakness.xsl" />
-    <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />
-    <xsl:include href="archetypes/business_analysis/PROTEUS_business_actor.xsl" />
-    <xsl:include href="archetypes/business_analysis/PROTEUS_business_process.xsl" />
+    <xsl:include href="archetypes/business_analysis/business_actor.xsl" />      
+    <xsl:include href="archetypes/business_analysis/business_process.xsl" />
+    <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />    
 
     <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />

@@ -2,7 +2,7 @@
 
 <!-- ======================================================== -->
 <!-- File    : strength.xsl                                   -->
-<!-- Content : PROTEUS default XSLT strength                  -->
+<!-- Content : PROTEUS default XSLT for strength              -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/05/28                                     -->
 <!-- Version : 1.0                                            -->
