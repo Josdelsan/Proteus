@@ -1,0 +1,187 @@
+# ==========================================================================
+# File: en_us.yaml
+# Description: Default repository archetypes translations
+# Date: 02/02/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# Update: 04/09/2024 (Amador Durán)
+# Check before release for RE course
+# --------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# Archetype categories (toolbar tabs)
+# -----------------------------------------------------------------------
+
+archetype.category.general: "General"
+archetype.category.business_analysis: "Business Analysis"
+archetype.category.software_requirements: "System/Software Requirements"
+archetype.category.conceptual_modeling: "Conceptual Modeling"
+
+# -----------------------------------------------------------------------
+# Archetype classes
+# -----------------------------------------------------------------------
+
+# General category
+
+archetype.class.general-traceable-object: "General object"
+archetype.class.paragraph: "Paragraph"
+archetype.class.appendix: "Appendix"
+archetype.class.glossary-item: "Glossary item"
+archetype.class.section: "Section"
+archetype.class.figure: "Figure"
+archetype.class.remote-resource: "Remote resource"
+archetype.class.organization: "Organization"
+archetype.class.stakeholder: "Stakeholder"
+archetype.class.meeting: "Meeting"
+archetype.class.symbolic-link: "Symbolic link"
+
+# Business Requirements category
+
+archetype.class.strength: "Strength"
+archetype.class.weakness: "Weakness"
+archetype.class.business-process: "Business process"
+archetype.class.business-actor: "Business actor"
+archetype.class.business-objective: "Business objective"
+archetype.class.user-story: "User story"
+
+# Software Requirements category
+
+archetype.class.objective: "Objective"
+archetype.class.information-requirement: "Information requirement"
+archetype.class.specific-data: "Specific data"
+archetype.class.actor: "System actor"
+archetype.class.use-case: "Use case"
+archetype.class.use-case-step: "Use case step"
+archetype.class.functional-requirement: "Functional requirement"
+archetype.class.non-functional-requirement: "Non-functional requirement"
+archetype.class.business-rule: "Business rule"
+archetype.class.traceability-matrix: "Traceability matrix"
+
+# Conceptual Modeling category
+
+archetype.class.entity-class: "Entity class"
+archetype.class.attribute: "Attribute"
+archetype.class.association: "Association"
+archetype.class.role: "Role"
+archetype.class.constraint: "Constraint"
+
+# -----------------------------------------------------------------------
+# Archetype property categories
+# -----------------------------------------------------------------------
+
+archetype.prop_category.general: "General"
+archetype.prop_category.details: "Details"
+archetype.prop_category.detail: "Detail"
+archetype.prop_category.results: "Results"
+archetype.prop_category.comments: "Comments"
+archetype.prop_category.conditions: "Conditions"
+archetype.prop_category.priority: "Priority"
+archetype.prop_category.description: "Description"
+archetype.prop_category.dependencies: "Dependencies"
+
+# -----------------------------------------------------------------------
+# Archetype enum choices
+# -----------------------------------------------------------------------
+
+archetype.enum_choices.tbd: "To Be Determined"
+archetype.enum_choices.developer: "Developer"
+archetype.enum_choices.user: "User"
+archetype.enum_choices.customer: "Customer"
+archetype.enum_choices.vital: "Vital"
+archetype.enum_choices.important: "Important"
+archetype.enum_choices.immediately: "Immediately"
+archetype.enum_choices.pressure: "Pressure"
+archetype.enum_choices.developing: "Developing"
+archetype.enum_choices.pending: "Pending"
+archetype.enum_choices.critical: "Critical"
+archetype.enum_choices.high: "High"
+archetype.enum_choices.medium: "Medium"
+archetype.enum_choices.low: "Low"
+archetype.enum_choices.optional: "Optional"
+archetype.enum_choices.variable: "Variable"
+archetype.enum_choices.constant: "Constant"
+archetype.enum_choices.derived: "Derived"
+archetype.enum_choices.set: "Set"
+archetype.enum_choices.simple: "Simple"
+archetype.enum_choices.sequence: "Sequence"
+archetype.enum_choices.bag: "Bag"
+
+# -----------------------------------------------------------------------
+# Archetype tooltips
+# -----------------------------------------------------------------------
+
+archetype.tooltip.is-appendix: "Check if it is an appendix."
+archetype.tooltip.is-glossary: "Check if it is a glossary item."
+archetype.tooltip.file-info: "Select a graphic file from your local system to copy it to the assets folder."
+archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
+archetype.tooltip.is-abstract: "This entity class type is an abstract class."
+archetype.tooltip.is-derived: "This association is a derived association."
+
+# -----------------------------------------------------------------------
+# Archetype property names
+# -----------------------------------------------------------------------
+
+archetype.prop_name.name: "Name"
+archetype.prop_name.version: "Version"
+archetype.prop_name.role: "Role"
+archetype.prop_name.date: "Date"
+archetype.prop_name.author: "Author"
+archetype.prop_name.comments: "Comments"
+archetype.prop_name.description: "Description"
+archetype.prop_name.specificdata: "Specific data"
+archetype.prop_name.precondition: "Precondition"
+archetype.prop_name.postcondition: "Postcondition"
+archetype.prop_name.text: "Text"
+archetype.prop_name.url: "URL"
+archetype.prop_name.file: "File"
+archetype.prop_name.created-by: "Authors"
+archetype.prop_name.dependencies: "Dependencies"
+archetype.prop_name.is-appendix: "Appendix"
+archetype.prop_name.is-glossary: "Glossary item"
+archetype.prop_name.address: "Address"
+archetype.prop_name.phone-number: "Phone number"
+archetype.prop_name.fax: "Fax"
+archetype.prop_name.category: "Category"
+archetype.prop_name.organization: "Organization"
+archetype.prop_name.attenders: "Attenders"
+archetype.prop_name.time: "Time"
+archetype.prop_name.place: "Place"
+archetype.prop_name.results: "Results"
+archetype.prop_name.importance: "Importance"
+archetype.prop_name.urgency: "Urgency"
+archetype.prop_name.development-status: "Status"
+archetype.prop_name.stability: "Stability"
+archetype.prop_name.source: "Source"
+archetype.prop_name.sources: "Sources"
+archetype.prop_name.works-for: "Works for"
+archetype.prop_name.prepared-by: "Prepared by"
+archetype.prop_name.prepared-for: "Prepared for"
+archetype.prop_name.width: "Width (%)"
+archetype.prop_name.link: "Link"
+archetype.prop_name.col-classes: "Columns of the matrix"
+archetype.prop_name.row-classes: "Rows of the matrix"
+archetype.prop_name.is-abstract: "Abstract"
+archetype.prop_name.is-derived: "Derived"
+archetype.prop_name.natural-lang: "Natural language"
+archetype.prop_name.obj-constraint-lang: "Constraint language"
+archetype.prop_name.base-type: "Base type"
+archetype.prop_name.supertype: "Supertype"
+archetype.prop_name.type: "Type"
+archetype.prop_name.multiplicity-lower-bound: "Lower bound"
+archetype.prop_name.multiplicity-upper-bound: "Upper bound"
+archetype.prop_name.kind-of-property: "Kind of property"
+archetype.prop_name.init-value: "Initial value"
+archetype.prop_name.as-role: "As a ..."
+archetype.prop_name.i-want-to: "I want to ..."
+archetype.prop_name.so-that: "So that ..."
+archetype.prop_name.web: "Website"
+archetype.prop_name.image: "Image"
+archetype.prop_name.email: "E-mail"
+archetype.prop_name.diagram: "Diagram"
+archetype.prop_name.importance: "Importance"
+archetype.prop_name.urgency: "Urgency"
+archetype.prop_name.priority: "Priority"
+archetype.prop_name.participates-in: "Participates in"
