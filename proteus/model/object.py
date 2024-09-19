@@ -200,10 +200,6 @@ class Object(AbstractObject):
         # Load object's properties using superclass method
         super().load_properties(root)
 
-        # Load object's traces
-        # TODO: Remove. This is kept for backward compatibility
-        self.load_traces(root)
-
         # Children list (will be loaded on demand)
         self._children: List[Object] = None
 
@@ -285,47 +281,6 @@ class Object(AbstractObject):
             object.parent = self
 
             self.children.append(object)
-
-    # ----------------------------------------------------------------------
-    # Method     : load_traces
-    # Description: It loads the traces of a PROTEUS object using an
-    #              XML root element <object>.
-    # Date       : 23/10/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    # TODO: This method will be removed in the future. It is kept for backward compatibility.
-    def load_traces(self, root: ET._Element) -> None:
-        """
-        It loads a PROTEUS object's traces from an XML root element.
-        """
-        # Check root is not None
-        assert root is not None, f"Root element is not valid in {self.path}."
-
-        # Find <traces> element
-        traces_element: ET._Element = root.find(TRACES_TAG)
-
-        # If <traces> element is not found, ignore traces
-        if traces_element is not None:
-            self.state = ProteusState.DIRTY # Force dirty state
-
-            # Find <traceProperty> elements
-            trace_property_elements: List[ET._Element] = traces_element.findall(
-                TRACE_PROPERTY_TAG
-            )
-
-            # Create a Trace object for each <traceProperty> element
-            trace_property_element: ET._Element
-            for trace_property_element in trace_property_elements:
-                trace_name: str = trace_property_element.attrib.get(NAME_ATTRIBUTE)
-
-                # Check if trace name is None
-                assert (
-                    trace_name is not None
-                ), f"PROTES file {self.path} includes an unnamed trace."
-
-                trace: TraceProperty = PropertyFactory.create(trace_property_element)
-                self.properties[trace_name] = trace
 
     # ----------------------------------------------------------------------
     # Method     : get_descendants
