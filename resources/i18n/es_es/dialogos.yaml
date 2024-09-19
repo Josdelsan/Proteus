@@ -69,14 +69,14 @@ new_project_dialog.title: "Crear nuevo proyecto"
 
 # Page 1
 new_project_dialog.archetype.title: "Seleccionar arquetipo de proyecto"
-new_project_dialog.archetype.subtitle: "Seleccione el arquetipo de proyecto para crear un nuevo proyecto. El proyecto será un clon del arquetipo seleccionado."
+new_project_dialog.archetype.subtitle: "Seleccione el arquetipo de proyecto para crear un nuevo proyecto. El nuevo proyecto será un clon del arquetipo seleccionado."
 new_project_dialog.archetype.select_archetype: "Seleccionar arquetipo"
 new_project_dialog.archetype.description: "Descripción proporcionada por el arquetipo seleccionado:"
 new_project_dialog.error.no_archetype_selected: "Debe seleccionar un arquetipo de proyecto válido"
 
 # Page 2
 new_project_dialog.path.title: "Seleccionar ruta de proyecto"
-new_project_dialog.path.subtitle: "Seleccione la ruta donde se creará el proyecto."
+new_project_dialog.path.subtitle: "Seleccione la ruta donde se creará la carpeta del nuevo proyecto."
 new_project_dialog.error.invalid_path: "Por favor, seleccione una ruta de proyecto válida"
 
 # Page 3
@@ -155,10 +155,17 @@ export_dialog.export_html.error.folder_exists: "Ya existe una carpeta con ese no
 # ---------------------------------------------------------------------------
 # Information dialog
 # ---------------------------------------------------------------------------
-information_dialog.title: "Proteus información"
-information_dialog.description.text: "PROTEUS es una herramienta para la gestión de proyectos de propósito general. Se basa en el concepto de Arquetipos. El usuario crea elementos clonando objetos existentes llamados arquetipos para crear nuevos objetos. Los arquetipos son definidos por el administrador de la aplicación. La aplicación ha sido desarrollada por la Universidad de Sevilla."
-information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
-information_dialog.terms_of_use.text: "Este software no recopila ninguna información personal. El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. Los autores no son responsables de ningún daño causado por el uso de este software."
+information_dialog.title: "Información sobre Proteus"
+information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados. 
+Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos. 
+Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios. 
+Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes. 
+Esta versión es principalmente la evolución de los resultados del Proyecto Fin de Carrera de José María Delgado."
+information_dialog.license.text: "Esta aplicacion se distribuyen bajo la licencia BSD 3-Clause 'New' or 'Revised'."
+information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal. 
+El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. 
+Los autores no son responsables de ningún daño causado por el uso de este software.
+Sevilla, Septiembre de 2024."
 
 # ---------------------------------------------------------------------------
 # Trace edit dialog

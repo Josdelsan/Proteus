@@ -6,5 +6,5 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-xslt_templates.default: "Default template"
-xslt_templates.description.default: "Default template for the IR course"
+xslt_templates.default: "Vista por defecto"
+xslt_templates.description.default: "Vista por defecto para la asignatura IR"

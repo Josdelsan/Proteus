@@ -70,14 +70,14 @@ new_project_dialog.title: "Create new project"
 
 # Page 1
 new_project_dialog.archetype.title: "Select project archetype"
-new_project_dialog.archetype.subtitle: "Select the project archetype to create a new project. The project will be a clone of the selected archetype."
+new_project_dialog.archetype.subtitle: "Select the project archetype to create a new project. The new project will be a clone of the selected archetype."
 new_project_dialog.archetype.select_archetype: "Select archetype"
 new_project_dialog.archetype.description: "Description provided by the selected archetype:"
 new_project_dialog.error.no_archetype_selected: "Please select a valid project archetype"
 
 # Page 2
 new_project_dialog.path.title: "Select project path"
-new_project_dialog.path.subtitle: "Select the path where the project will be created."
+new_project_dialog.path.subtitle: "Select the path where the folder of the new project will be created."
 new_project_dialog.error.invalid_path: "Please select a valid project path"
 
 # Page 3
@@ -156,9 +156,15 @@ export_dialog.export_html.error.folder_exists: "The folder already exists, selec
 # Information dialog
 # ---------------------------------------------------------------------------
 information_dialog.title: "Proteus information"
-information_dialog.description.text: "PROTEUS is a tool for general purpose projects management. It is based on the concept of Archetypes. The user create elements cloning existing objects called archetypes to create new objects. The archetypes are defined by the administrator of the application. The application was developed by the University of Seville."
-information_dialog.license.text: "BSD 3-Clause 'New' or 'Revised' License"
-information_dialog.terms_of_use.text: "This software do not collect any personal information. The software is provided 'as is', without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software."
+information_dialog.description.text: "Proteus is an archetype-based editor for structured documents. 
+An archetype is an off-the-shelf object, document or project that can be cloned as needed to create new ones. 
+Archetypes are organized into profiles, that can be developed for different domains. 
+This application has been developed at the University of Seville (Andalusia, Spain) under the supervision of Professor Amador Durán and with the effort of several students. 
+This version is mainly the evolution of the results of the End-Of-Degree project of José María Delgado."
+information_dialog.license.text: "This application is distributed under the BSD 3-Clause 'New' or 'Revised' License."
+information_dialog.terms_of_use.text: "This application do not collect any personal information. The software is provided 'as is', 
+without warranty of any kind, use it at your own risk. The authors are not responsible for any damage caused by the use of this software. 
+Seville, September 2024."
 
 # ---------------------------------------------------------------------------
 # Trace edit dialog
