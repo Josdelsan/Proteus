@@ -80,7 +80,7 @@ def test_create_project(app):
 
     # Page 1
     page1: ArchetypePage = dialog.currentPage()
-    combo_index = page1.archetype_combo.findData("MADEJA-IR")
+    combo_index = page1.archetype_combo.findData("MADEJA-RE")
     page1.archetype_combo.setCurrentIndex(combo_index)
     dialog.next()
 

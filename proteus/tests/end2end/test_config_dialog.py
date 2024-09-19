@@ -246,7 +246,7 @@ def test_config_dialog_change_profile(app, app_settings: AppSettings):
     # --------------------------------------------
 
     # Change settings
-    new_profile = "madeja_ir_english"
+    new_profile = "madeja_ir_spanish"
 
     # Open config dialog
     dialog: SettingsDialog = get_dialog(settings_button.click)
