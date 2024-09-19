@@ -49,7 +49,7 @@ from proteus.tests.fixtures import SampleData
 
 # NOTE: This is a sample project that is used for testing purposes.
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
-ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "profiles/IR/archetypes/"
+ARCHETYPE_REPOSITORY_PATH = PROTEUS_APP_PATH / "profiles/madeja_ir_spanish/archetypes/"
 
 # --------------------------------------------------------------------------
 # Fixtures and helpers
@@ -111,7 +111,7 @@ def cloned_project(sample_project: Project) -> Generator[Project, None, None]:
     "path",
     [
         SAMPLE_PROJECT_PATH / PROJECT_FILE_NAME,
-        ARCHETYPE_REPOSITORY_PATH / "projects" / "madeja" / "project.xml",
+        ARCHETYPE_REPOSITORY_PATH / "projects" / "arquetipo-proyecto-madeja" / "project.xml",
     ],
 )
 def test_init(path):
