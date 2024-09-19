@@ -132,8 +132,10 @@
     <xsl:include href="archetypes/business_analysis/business_objective.xsl" />
     <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />
 
-    <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
+
+    <!--
+    <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
@@ -143,6 +145,7 @@
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
+    -->
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>
