@@ -38,7 +38,7 @@ from proteus.tests.fixtures import SampleData
 
 SAMPLE_PROJECT_PATH = PROTEUS_SAMPLE_PROJECTS_PATH / "example_project"
 SAMPLE_PARENT_ID = SampleData.get("simple_section")
-SAMPLE_ARCHETYPE_ID = "empty-paragraph"
+SAMPLE_ARCHETYPE_ID = "paragraph"
 
 
 @pytest.fixture

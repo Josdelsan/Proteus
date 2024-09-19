@@ -101,7 +101,8 @@ class NewProjectDialog(QWizard, ProteusComponent):
 
             name = self.field("name")
             path = self.field("path")
-            archetype = project_archetypes[self.field("archetype") - 1].id
+            index = self.field("archetype")
+            archetype = project_archetypes[index - 1].id
 
             super().accept()
             self._controller.create_project(archetype, name, path)
@@ -131,9 +132,9 @@ class ArchetypePage(QWizardPage):
 
         # Archetype Combobox
         self.archetype_combo = QComboBox()
-        self.archetype_combo.addItem(_("new_project_dialog.archetype.select_archetype"))
+        self.archetype_combo.addItem(_("new_project_dialog.archetype.select_archetype"), None)
         for archetype in archetypes:
-            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value)
+            self.archetype_combo.addItem(archetype.get_property(PROTEUS_NAME).value, archetype.id)
 
         self.registerField("archetype*", self.archetype_combo)
 

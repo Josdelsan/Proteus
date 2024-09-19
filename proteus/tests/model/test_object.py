@@ -82,7 +82,7 @@ def sample_archetype_document() -> Object:
     archetype_list: list[Object] = ArchetypeRepository.load_document_archetypes(
         Config().profile_settings.archetypes_directory
     )
-    return archetype_list[0]
+    return archetype_list[1] #Known archetype document with multiple children
 
 
 @pytest.fixture
