@@ -224,7 +224,7 @@ def test_config_dialog_change_settings(app, app_settings: AppSettings):
         == app_settings_copy.default_view
     ), f"Default view settings was not correctly saved. It is {new_app_settings.default_view} but should be {new_default_view} | app: {app_settings_copy.default_view}"
 
-@pytest.mark.skip("Temporary disabled because test data changed")
+
 def test_config_dialog_change_profile(app, app_settings: AppSettings):
     """
     Opens the config dialog and changes the profile settings. Then checks if
@@ -246,7 +246,7 @@ def test_config_dialog_change_profile(app, app_settings: AppSettings):
     # --------------------------------------------
 
     # Change settings
-    new_profile = "basic"
+    new_profile = "madeja_ir_english"
 
     # Open config dialog
     dialog: SettingsDialog = get_dialog(settings_button.click)
@@ -322,7 +322,7 @@ def test_config_dialog_change_profile(app, app_settings: AppSettings):
         == app_settings_copy.using_default_profile
     ), f"Using default profile settings was not correctly saved. It is '{new_app_settings.using_default_profile}' but should be 'True' | app: {app_settings_copy.using_default_profile}"
 
-@pytest.mark.skip("Temporary disabled because test data changed")
+
 def test_config_dialog_change_custom_profile(app, app_settings: AppSettings):
     """
     Opens the config dialog and changes the custom profile settings. Then checks if
@@ -344,7 +344,7 @@ def test_config_dialog_change_custom_profile(app, app_settings: AppSettings):
     # --------------------------------------------
 
     # Change settings
-    new_custom_profile_path = Config().app_settings.profiles_directory / "basic"
+    new_custom_profile_path = Config().app_settings.profiles_directory / "madeja_ir_english"
 
     # Open config dialog
     dialog: SettingsDialog = get_dialog(settings_button.click)

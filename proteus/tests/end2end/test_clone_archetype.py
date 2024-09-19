@@ -40,28 +40,28 @@ from proteus.tests.end2end.fixtures import app, load_project
 # --------------------------------------------------------------------------
 # TODO: Tests archetype cloning from context menu (use case steps, objectives, etc.)
 
-@pytest.mark.skip("Temporary disabled because test data changed")
+
 @pytest.mark.parametrize(
     "archetype_id, archetype_class, parent_name, document_name",
     [
         (
-            "empty-paragraph",
-            "paragraph",
+            "local-figure",
+            "figure",
             "document_1",
             "document_1",
-        ),  # Empty paragraph into document
+        ),  # Local figure into document
         (
-            "empty-paragraph",
-            "paragraph",
+            "local-figure",
+            "figure",
             "simple_section",
             "document_1",
-        ),  # Empty paragraph into section
+        ),  # Local figure into section
         (
-            "lorem-paragraph",
-            "paragraph",
+            "remote-figure",
+            "figure",
             "simple_section",
             "document_1",
-        ),  # Lorem paragraph into section
+        ),  # Remote figure into section
     ],
 )
 def test_clone_archetype_dropdown_menu(app, archetype_id, archetype_class, parent_name, document_name):
