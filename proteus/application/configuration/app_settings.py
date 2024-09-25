@@ -119,8 +119,24 @@ class AppSettings:
             # Copy proteus.ini file to execution path
             shutil.copy(config_file_path, config_file_exec_path)
 
-        config_parser: ConfigParser = ConfigParser()
-        config_parser.read(config_file_exec_path, encoding="utf-8")
+        try:
+            config_parser: ConfigParser = ConfigParser()
+            config_parser.read(config_file_exec_path, encoding="utf-8")
+        except Exception as e:
+            log.error(
+                f"Error loading configuration file {config_file_exec_path}: {e}"
+                "Configuration file will be deleted and copied again from the default configuration file."
+            )
+
+            # Delete the corrupted configuration file
+            config_file_exec_path.unlink()
+
+            # Copy proteus.ini file to execution path
+            shutil.copy(config_file_path, config_file_exec_path)
+            
+            # Load the configuration file again
+            config_parser: ConfigParser = ConfigParser()
+            config_parser.read(config_file_exec_path, encoding="utf-8")
 
         # Variable to store init file path
         # This is required to avoid loosing track if cwd changes
@@ -221,7 +237,9 @@ class AppSettings:
 
         # Profile ------------------------
         self.selected_profile = settings[SETTING_SELECTED_PROFILE]
-        self.using_default_profile = settings.getboolean(SETTING_USING_DEFAULT_PROFILE, True)
+        self.using_default_profile = settings.getboolean(
+            SETTING_USING_DEFAULT_PROFILE, True
+        )
 
         custom_profile_path_str: str = settings[SETTING_CUSTOM_PROFILE_PATH]
         self.custom_profile_path = (
@@ -231,12 +249,13 @@ class AppSettings:
         self._validate_profile_path()
 
         # Load project on startup ------------------------
-        self.open_project_on_startup = settings.getboolean(SETTING_OPEN_PROJECT_ON_STARTUP, False)
+        self.open_project_on_startup = settings.getboolean(
+            SETTING_OPEN_PROJECT_ON_STARTUP, False
+        )
 
         # XSLT debug mode ------------------------
         self.xslt_debug_mode = settings.getboolean(SETTING_XSLT_DEBUG_MODE, False)
 
-    
         log.info(f"Loaded app user settings from {self.settings_file_path}.")
         log.info(f"{self.language = }")
         log.info(f"{self.default_view = }")
@@ -354,7 +373,6 @@ class AppSettings:
             self.open_project_on_startup
         )
 
-
         with open(self.settings_file_path, "w", encoding="utf-8") as config_file:
             self.config_parser.write(config_file)
 
@@ -366,7 +384,6 @@ class AppSettings:
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
         log.info(f"{self.open_project_on_startup = }")
-
 
     # ==========================================================================
     # Session data
@@ -390,7 +407,7 @@ class AppSettings:
                 f"Session data '{SESSION_LAST_PROJECT_OPENED}' not found in {self.settings_file_path}."
             )
             return ""
-        
+
     # --------------------------------------------------------------------------
     # Method: set_last_project_opened
     # Description: Set the last project opened
@@ -411,5 +428,7 @@ class AppSettings:
         with open(self.settings_file_path, "w") as config_file:
             self.config_parser.write(config_file)
 
-        log.info(f"Session data '{SESSION_LAST_PROJECT_OPENED}' saved to {self.settings_file_path}.")
+        log.info(
+            f"Session data '{SESSION_LAST_PROJECT_OPENED}' saved to {self.settings_file_path}."
+        )
         log.info(f"{last_project_opened = }")
