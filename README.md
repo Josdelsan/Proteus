@@ -20,11 +20,58 @@ XSLT templates, archetypes repositories and plugins are grouped in profiles. A p
 PROTEUS is licensed under the BSD 3-Clause "New" or "Revised" License. See [LICENSE](LICENSE) for more information.
 
 ## Installation
-PROTEUS is a Python application. It is developed using Python 3.11.x. It is recommended to use a virtual environment to install the application. The application dependencies are listed in the `requirements.txt` file. The application can be installed via `pip install -r requirements.txt`.
+PROTEUS is a Python application. It is developed using Python 3.10 or 3.11. It is recommended to use a virtual environment to install the application. The application dependencies are listed in the `requirements.txt` file.
 
-## Usage
-PROTEUS is executed via `python3 -m proteus` from the top-level application directory.
-Tests can be executed via `pytest` from the top-level application directory.
+### Detailed installation instructions
 
-Installation and execution can be performed using the `proteus.bat`script in Windows and the `proteus.sh` script in Linux. Linux users might need to restart ibus via `ibus restart`. Installation of `python3-venv` package is required in Linux.
+Clone the repository and navigate to the top-level directory of the application.
+
+```bash
+git clone https://github.com/Josdelsan/Proteus.git
+
+cd Proteus
+```
+
+Create a virtual environment and activate it. You can call it `proteus_env` or any other name. In Windows, it is recommended to use PowerShell instead of CMD.
+
+If you use another Python alias, replace `python` with the correct alias.
+
+```bash
+python -m venv proteus_env
+
+source venv/bin/activate # Linux and MacOS
+./venv/Scripts/activate # Windows
+```
+
+Install the dependencies once the virtual environment is activated.
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the application.
+
+```bash
+python -m proteus
+```
+
+### Installation scripts
+
+Installation scripts are provided for Windows, Linux and MacOS. The scripts create a virtual environment called `proteus_env`, install the dependencies and run the application. The first time you run the script it will take a while to install the dependencies and create python cache files.
+
+Scripts will look for `python3.11`, `python` and `python3` aliases in that order. It displays the version of Python found, take into account that the application was only tested with Python 3.10 and 3.11. Python 3.12 will be supported in the future.
+
+Windows:
+- It is recommended to use de PowerShell script `proteus.ps1`.
+- It may be necessary to [change the execution policy](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.3) to allow virtual environment activation.
+
+
+Linux and MacOS:
+- You may need to give execution permissions to the script.
+- Since PROTEUS writes logs and configuration files inside the repository directory, it may be also necessary to give write permissions to the repository directory.
+- Depending on the system previous configuration, you may need to install `python3-venv` package.
+- Some users may need to restart ibus via `ibus restart` the first time they run the application.
+
+**WARNING**, directory names changes may affect the virtual environment. If you encounter any problem, delete the virtual environment and create/run the scripts again.
+
 
