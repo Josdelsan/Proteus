@@ -15,20 +15,18 @@
 from dataclasses import dataclass
 from typing import ClassVar
 import logging
+from urllib.parse import urlparse
 
 # --------------------------------------------------------------------------
 # Third-party library imports
 # --------------------------------------------------------------------------
 
 import lxml.etree as ET
-import validators
-from validators.utils import ValidationFailure
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import URL_PROPERTY_TAG
 
@@ -70,15 +68,18 @@ class UrlProperty(Property):
         # Value validation
         try:
             _value = str(self.value)
-            validators.url(_value)
-        except ValidationFailure:
-            log.warning(
-                f"URL property '{self.name}': Wrong format ({self.value}). Please check."
-            )
+            valid_url = validate_url_string(_value)
+
+            if not valid_url:
+                log.warning(
+                    f"URL property '{self.name}': Wrong format ({self.value}). Please check."
+                )
+               
         except TypeError:
             log.warning(
-                f"URL property '{self.name}': Wrong type ({type(self.value)}). Please use str -> assigning US logo URL"
+                f"URL property '{self.name}': Wrong type ({type(self.value)}). Please use str"
             )
+
         finally:
             # self.value = _value cannot be used when frozen=True
             # https://stackoverflow.com/questions/53756788/how-to-set-the-value-of-dataclass-field-in-post-init-when-frozen-true
@@ -86,7 +87,7 @@ class UrlProperty(Property):
 
     @property
     def is_valid(self) -> bool:
-        return True if validators.url(self.value) else False
+        return validate_url_string(self.value)
 
     def generate_xml_value(self, _: ET._Element = None) -> str | ET.CDATA:
         """
@@ -102,3 +103,25 @@ class UrlProperty(Property):
             ), f"urlProperty '{self.name}' is required but has no value"
 
         return ET.CDATA(_value)
+
+
+# --------------------------------------------------------------------------
+# Function: validate_url_string
+# Description: Function to validate a URL string
+# Date: 25/09/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+# NOTE: We avoid using external library validators because it was causing
+# an issue for some users that were not able to import the library.
+# Solution from: https://stackoverflow.com/a/38020041/17947088
+def validate_url_string(url_string: str) -> bool:
+    """
+    Function to validate a URL string.
+    """
+    
+    try:
+        result = urlparse(url_string)
+        return all([result.scheme, result.netloc])
+    except:
+        return False
