@@ -118,7 +118,7 @@ def validate_url_string(url_string: str) -> bool:
     """
     Function to validate a URL string.
     """
-    
+
     try:
         result = urlparse(url_string)
         return all([result.scheme, result.netloc])

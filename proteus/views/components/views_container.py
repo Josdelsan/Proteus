@@ -166,8 +166,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         try:
             self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
         except AttributeError:
-            log.debug("Tab bar button not found in the RightSide position. Ignore this message on MacOS.")
-            pass
+            log.debug(
+                "Tab bar button not found in the RightSide position. Ignore this message on MacOS."
+            )
 
         # Connect singal to handle view tab change
         self.currentChanged.connect(self.current_view_changed)
