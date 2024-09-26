@@ -163,7 +163,11 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         self.setCornerWidget(self.add_view_button, Qt.Corner.TopRightCorner)
 
         # Hide the close button on the main view tab
-        self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
+        try:
+            self.tabBar().tabButton(0, QTabBar.ButtonPosition.RightSide).hide()
+        except AttributeError:
+            log.debug("Tab bar button not found in the RightSide position. Ignore this message on MacOS.")
+            pass
 
         # Connect singal to handle view tab change
         self.currentChanged.connect(self.current_view_changed)
