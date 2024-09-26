@@ -74,7 +74,6 @@ class UrlProperty(Property):
                 log.warning(
                     f"URL property '{self.name}': Wrong format ({self.value}). Please check."
                 )
-               
         except TypeError:
             log.warning(
                 f"URL property '{self.name}': Wrong type ({type(self.value)}). Please use str"
@@ -123,5 +122,5 @@ def validate_url_string(url_string: str) -> bool:
     try:
         result = urlparse(url_string)
         return all([result.scheme, result.netloc])
-    except:
+    except ValueError:
         return False
