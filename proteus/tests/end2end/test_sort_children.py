@@ -137,6 +137,10 @@ def test_sort_children_alphabetically(app, object_id, expected_order):
         f"Expected order: {expected_order}"
     )
 
+    assert main_window.main_menu.save_button.isEnabled(), (
+        "Save button should be enabled after sorting children"
+    )
+
 
 
 @pytest.mark.parametrize(
@@ -221,3 +225,6 @@ def test_sort_children_alphabetically_reverse(app, object_id, expected_order):
         f"Expected order: {expected_order}"
     )
 
+    assert main_window.main_menu.save_button.isEnabled(), (
+        "Save button should be enabled after sorting children"
+    )

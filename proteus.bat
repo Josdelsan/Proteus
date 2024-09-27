@@ -41,9 +41,11 @@ echo PROTEUS: Checking execution policy...
 powershell -Command "if ((Get-ExecutionPolicy -Scope CurrentUser) -ne 'Unrestricted') { exit 1 }" >nul 2>&1
 if errorlevel 1 (
     echo PROTEUS: Execution policy is not set to Unrestricted. This is required to activate the virtual environment.
-    echo PROTEUS: Run the following command in PowerShell as an administrator to set the execution policy to Unrestricted.
+    echo PROTEUS: You can check the current execution policy by running the following command in PowerShell: Get-ExecutionPolicy -Scope CurrentUser
     echo PROTEUS: This might expose your system to security risks, check official documentation for more information https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.3 .
+    echo PROTEUS: Run the following command in PowerShell as an administrator to set the execution policy to Unrestricted.
     echo PROTEUS: Set-ExecutionPolicy -Scope CurrentUser Unrestricted
+    echo PROTEUS: If you have already set the execution policy to Unrestricted, this might be caused due to powershell not being in the PATH, use the PowerShell script "proteus.ps1" to run the application.
     pause
     exit /b 1
 )
@@ -74,6 +76,22 @@ if exist "%venv_dir%" (
 echo PROTEUS: Activating the virtual environment...
 call "%venv_dir%\Scripts\activate.bat"
 
+echo PROTEUS: Checking the Python version in the virtual environment...
+for /f "tokens=2 delims= " %%i in ('%python_executable% --version') do set "script_python_version=%%i"
+for /f "tokens=2 delims= " %%i in ('python --version') do set "venv_python_version=%%i"
+
+echo PROTEUS: Virtual environment Python version: %venv_python_version%
+
+if not "%script_python_version%"=="%venv_python_version%" (
+    echo PROTEUS: Looks like the Python version in the virtual environment is different from the one chosen by the script.
+    echo PROTEUS: Virutal environment was not activated successfully.
+    echo PROTEUS: Script Python version: %script_python_version%
+    echo PROTEUS: Virtual environment Python version: %venv_python_version%
+    echo PROTEUS: Try using the PowerShell script "proteus.ps1" in order to run the application.
+    pause
+    exit /b 1
+)
+
 echo PROTEUS: Installing the required packages...
 pip install -r "%script_dir%requirements.txt"
 
@@ -87,5 +105,11 @@ if %errorlevel% NEQ 0 (
 @REM Run the application in the background so the console can be closed
 echo PROTEUS: Running the application...
 call python -m proteus
+
+if errorlevel 1 (
+    echo PROTEUS: Error running the application. Please check the error message above for details.
+    pause
+    exit /b 1
+)
 
 endlocal
