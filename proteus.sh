@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "PROTEUS: v1.0.0-beta"
+echo "PROTEUS: v1.0.1-beta"
 
 # Initialize variables
 python_executable=

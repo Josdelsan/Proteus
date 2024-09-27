@@ -1,5 +1,5 @@
 # Display the application name and version
-Write-Output "PROTEUS: v1.0.0-beta"
+Write-Output "PROTEUS: v1.0.1-beta"
 
 # Initialize variables
 $python_executable = $null
