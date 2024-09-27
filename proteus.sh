@@ -49,6 +49,7 @@ fi
 echo "PROTEUS: Activating the virtual environment..."
 source "$venv_dir/bin/activate"
 
+
 # Check if the virtual environment is activated
 if [ $? -ne 0 ]; then
     echo "PROTEUS: Failed to activate the virtual environment. Check if python venv package is installed."
@@ -58,6 +59,9 @@ if [ $? -ne 0 ]; then
     fi
     exit 1
 fi
+
+echo "PROTEUS: Virtual environment Python version:"
+python --version || true
 
 echo "PROTEUS: Installing the required packages..."
 pip install -r "$script_dir/requirements.txt"
