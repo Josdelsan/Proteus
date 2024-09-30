@@ -12,6 +12,7 @@
 
 from typing import Dict
 import logging
+import time
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -302,15 +303,25 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             # Get html from controller
             html_str: str = self._controller.get_html_view(xslt_name=current_view)
 
+            start_time = time.perf_counter()
+
+            browser.loadFinished.connect(lambda: self.load_finished(start_time, browser.loadFinished))
+
             # Convert html to QByteArray
             # NOTE: This is done to avoid 2mb limit on setHtml method
             # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-            browser.page().setContent(html_array, "text/html")
+            # html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
+            browser.page().load(QUrl.fromLocalFile(html_str))
 
             # NOTE: When using onLoadFinished signal make sure to disconnect
             # the sender using self.sender().disconnect() to avoid multiple
             # calls when page is reloaded.
+
+    def load_finished(self, start_time: float, sender: QWebEngineView.loadFinished):
+        print(f"Time taken: {(time.perf_counter() - start_time)*1000:0.2f}")
+
+        # Disconnect the signal to avoid multiple calls when page is reloaded
+        sender.disconnect()
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)

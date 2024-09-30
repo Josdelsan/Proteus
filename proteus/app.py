@@ -159,7 +159,7 @@ class ProteusApplication:
 
         # Setup the request interceptor -----------------------
         profile = QWebEngineProfile.defaultProfile()
-        profile.setUrlRequestInterceptor(self.request_interceptor)
+        # profile.setUrlRequestInterceptor(self.request_interceptor)
         self.app.aboutToQuit.connect(self.request_interceptor.stop_server)
 
         # Set application style sheet -------------------------

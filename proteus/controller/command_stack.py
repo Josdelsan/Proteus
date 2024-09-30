@@ -25,6 +25,7 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
+from proteus import PROTEUS_APP_PATH
 from proteus.model import ProteusID, ProteusClassTag
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
@@ -781,7 +782,22 @@ class Controller:
 
         html_string: str = self._render_service.render(xml, xslt_name)
 
-        return html_string
+        project_path = self.get_current_project().path.removesuffix("proteus.xml")
+        current_view = StateManager().get_current_view()
+        xslt_dir = Config().profile_settings.xslt_directory.as_posix()
+
+        html_string = html_string.replace(f"assets:///", f"{project_path}/assets/")
+
+        html_string = html_string.replace(
+                f"templates:///",
+                f"{xslt_dir}/",
+            )
+
+        html_dir = Path(PROTEUS_APP_PATH) / "output.html"
+        with open(html_dir.as_posix(), "w", encoding="utf-8") as f:
+            f.write(html_string)
+
+        return html_dir.as_posix()
 
     # ----------------------------------------------------------------------
     # Method     : get_available_xslt
