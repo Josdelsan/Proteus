@@ -146,7 +146,6 @@ spellchecker/
 # Proteus temp files
 /.proteus
 *.log
-output.html
 
 # Proteus user configuration files
 proteus.ini
