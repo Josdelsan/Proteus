@@ -13,6 +13,7 @@
 from pathlib import Path
 import shutil
 import logging
+import re
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -139,11 +140,34 @@ class ExportHTML(ExportStrategy):
             # Copy the current XSLT template folder excluding XSL and XML files
             template = self._controller.get_template_by_name(current_view)
 
-            shutil.copytree(
-                template.path,
-                export_folder / "resources",
-                ignore=shutil.ignore_patterns("*.xsl", "*.xml"),
-            )
+            for file_dir in template.path.iterdir():
+                if file_dir.is_file() and file_dir.suffix not in [".xsl", ".xml"]:
+                    shutil.copy2(
+                        file_dir,
+                        export_folder / file_dir.name
+                    )
+                elif file_dir.is_dir():
+                    shutil.copytree(
+                        file_dir,
+                        export_folder / file_dir.name,
+                        ignore=shutil.ignore_patterns("*.xsl", "*.xml"),
+                    )
+
+            self.exportProgressSignal.emit(50)
+
+            # ------------------------------------------------------------------
+            # Remove the empty directories and assets that are not used in the HTML
+
+            # Remove unused assets
+            assests_pattern = re.compile(r"(?<=\")(assets:///.*?[^\"\.])(?=\")")
+            assets_matches = assests_pattern.findall(html)
+            necessary_assets = [asset.split("/")[-1] for asset in assets_matches]
+            for asset in assets_folder_destination.iterdir():
+                if asset.is_file() and asset.name not in necessary_assets:
+                    asset.unlink()
+
+            # Remove empty directories
+            remove_empty_directories(export_folder)
 
             self.exportProgressSignal.emit(65)
 
@@ -159,7 +183,7 @@ class ExportHTML(ExportStrategy):
             # from 'src' attributes with the string './resources/'
             html = html.replace(
                 f"{TEMPLATE_DUMMY_SEARCH_PATH}:///{current_view}/",
-                "./resources/",
+                "./",
             )
 
             self.exportProgressSignal.emit(85)
@@ -320,3 +344,21 @@ class ExportHTML(ExportStrategy):
         # If everything is ok, hide the error label and emit the signal
         self._error_label.setHidden(True)
         self.readyToExportSignal.emit(True)
+
+
+
+def remove_empty_directories(path: Path) -> None:
+    """
+    Removes all the empty directories from the given path.
+
+    If the given path is an empty directory, it is removed. Otherwise, it
+    recursively calls itself for each subdirectory.
+    """
+    if not path.is_dir():
+        return
+
+    for sub_path in path.iterdir():
+        remove_empty_directories(sub_path)
+
+    if not list(path.iterdir()):
+        path.rmdir()
