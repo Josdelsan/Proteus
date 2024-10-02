@@ -27,6 +27,7 @@ from proteus.application.events import UpdateMetricsEvent
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
 
+
 # --------------------------------------------------------------------------
 # Class: Metrics
 # Description: Class to handle application metrics
@@ -45,7 +46,7 @@ class Metrics:
     # --------------------------------------------------------------------------
     # HTML generation time methods
     # --------------------------------------------------------------------------
-    
+
     @staticmethod
     def html_generation_time_decorator(func: callable):
         """
@@ -53,7 +54,7 @@ class Metrics:
 
         It is meant to be used with get_html_view_path() method in the controller.
         """
-        
+
         def wrapper(*args, **kwargs):
             start_time = time.perf_counter()
             result = func(*args, **kwargs)
@@ -64,7 +65,7 @@ class Metrics:
             return result
 
         return wrapper
-    
+
     # --------------------------------------------------------------------------
     # HTML load time methods
     # --------------------------------------------------------------------------

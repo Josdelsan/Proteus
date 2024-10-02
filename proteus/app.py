@@ -108,8 +108,6 @@ class ProteusApplication:
         self.main_window = MainWindow(parent=None, controller=controller)
         self.main_window.show()
 
-        
-
         # Load plugin components
         self.load_plugin_components()
 
@@ -199,7 +197,10 @@ class ProteusApplication:
         xslt_methods: Dict[str, Callable] = {}
 
         # Components that need to be instantiated in order to not be deleted
-        for comp_name, comp_callable in self.plugin_manager.get_proteus_components().items():
+        for (
+            comp_name,
+            comp_callable,
+        ) in self.plugin_manager.get_proteus_components().items():
             try:
                 obj = comp_callable(self.main_window)
             except Exception as e:
@@ -218,7 +219,9 @@ class ProteusApplication:
                     xslt_methods[method_callable_str_from_xslt] = method
                     print(method())
                 except Exception as e:
-                    log.critical(f"Error loading proteus component method from plugin: {e}")
+                    log.critical(
+                        f"Error loading proteus component method from plugin: {e}"
+                    )
 
         # Add the methods to the render service namespace
         self.main_window._controller._render_service.add_functions_to_namespace(

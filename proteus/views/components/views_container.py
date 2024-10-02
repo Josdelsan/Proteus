@@ -306,9 +306,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             Metrics.html_load_time_start()
 
             browser.loadFinished.connect(
-                lambda: self.load_finished(
-                    browser.loadFinished, object_to_scroll
-                )
+                lambda: self.load_finished(browser.loadFinished, object_to_scroll)
             )
 
             url: QUrl = QUrl.fromLocalFile(html_path)
@@ -352,7 +350,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def update_view_on_add_object(self, object_id: ProteusID, update_view: bool) -> None:
+    def update_view_on_add_object(
+        self, object_id: ProteusID, update_view: bool
+    ) -> None:
         """
         Update the view when an object is added to the project.
 

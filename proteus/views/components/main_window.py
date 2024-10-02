@@ -404,7 +404,7 @@ class ClipboardIndicator(QWidget, ProteusComponent):
         layout.addWidget(self._object_information_label)
         layout.setContentsMargins(0, 0, 0, 0)
         self.container_widget.setLayout(layout)
-        
+
         # Creating a container widget is the only way to correctly set the
         # style to all the labels from the qss file.
         aux_layout = QHBoxLayout()
@@ -496,10 +496,13 @@ class MetricsIndicator(QWidget, ProteusComponent):
         Update the metrics information in the status bar.
         """
         self._html_generation_time_label.setText(
-            f"HTML generation time: {Metrics.html_generation_time} ms"
+            _(
+                "main_window.statusbar.text.html_generation_time",
+                Metrics.html_generation_time,
+            )
         )
         self._html_load_time_label.setText(
-            f"HTML load time: {Metrics.html_load_time} ms"
+            _("main_window.statusbar.text.html_load_time", Metrics.html_load_time)
         )
 
         self._html_generation_time_label.show()

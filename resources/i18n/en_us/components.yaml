@@ -86,6 +86,9 @@ main_window.title: "Proteus application"
 main_window.exit_dialog.title: "Exit Proteus without saving"
 main_window.exit_dialog.text: "Do you want to save changes before exiting Proteus?"
 main_window.statusbar.text.selected_object: "Selected object '{}' with id '{}' || Accepted children classes: {} || Accepted parent classes: {}"
+main_window.statusbar.text.html_generation_time: "HTML generation: {} ms"
+main_window.statusbar.text.html_load_time: "HTML load: {} ms"
+
 
 # ---------------------------------------------------------------------------
 # Document render
