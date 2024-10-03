@@ -31,7 +31,6 @@ from proteus.model import (
     ProteusClassTag,
     PROTEUS_ANY,
     PROTEUS_NONE,
-    PROTEUS_ALL,
     PROTEUS_DOCUMENT,
     PROTEUS_NAME,
     PROTEUS_CODE,
@@ -577,7 +576,6 @@ class ProjectService:
         # Remove special Proteus classes from the set if any
         classes.discard(PROTEUS_ANY)
         classes.discard(PROTEUS_NONE)
-        classes.discard(PROTEUS_ALL)
         classes.discard(PROTEUS_DOCUMENT)
 
         return sorted(classes)
