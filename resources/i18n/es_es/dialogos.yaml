@@ -46,7 +46,7 @@ spellcheck.language.nl: "Holandés"
 
 main_menu.open_project.caption: "Seleccione una carpeta de proyecto"
 main_menu.open_project.error.title: "Error al abrir el proyecto"
-main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+main_menu.open_project.error.text: "Ha ocurrido un error al abrir el proyecto. Más información en el archivo de registro de la aplicación"
 main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
 main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 

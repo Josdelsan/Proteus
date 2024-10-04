@@ -471,7 +471,6 @@ class ProjectService:
 
         return False
 
-
     # ----------------------------------------------------------------------
     # Method     : get_object_structure
     # Description: Returns the object structure as a tree.
@@ -945,38 +944,6 @@ class ProjectService:
                     parent_element.replace(child_element, child_xml)
 
         return root
-
-    # ----------------------------------------------------------------------
-    # Method     : add_project_template
-    # Description: Add a new project template to the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def add_project_template(self, template_name: str) -> None:
-        """
-        Add a new project template to the project.
-
-        :param template_name: The name of the template to add.
-        """
-        self.project.xsl_templates.append(template_name)
-        self.project.state = ProteusState.DIRTY
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_project_template
-    # Description: Delete a project template from the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_project_template(self, template_name: str) -> None:
-        """
-        Remove a project template from the project.
-
-        :param template_name: The name of the template to remove.
-        """
-        self.project.xsl_templates.remove(template_name)
-        self.project.state = ProteusState.DIRTY
 
     # ----------------------------------------------------------------------
     # Method     : sort_children_by_name

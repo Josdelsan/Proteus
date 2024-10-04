@@ -12,7 +12,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, Union
+from typing import Dict, Union, List
 from pathlib import Path
 import logging
 
@@ -71,6 +71,8 @@ class StateManager(metaclass=SingletonMeta):
 
         self.current_project_path: Path = None
 
+        self.opened_views: List[str] = []
+
     # ==========================================================================
     # App state variables management mehtods
     # ==========================================================================
@@ -91,7 +93,7 @@ class StateManager(metaclass=SingletonMeta):
 
         :param document_id: Current document id
         """
-        log.debug(f"Setting current document {document_id}")
+        log.debug(f"Setting current document '{document_id}'")
         self.current_document = document_id
 
         # If the current document is not in the current object dictionary,
@@ -146,11 +148,11 @@ class StateManager(metaclass=SingletonMeta):
         :param navigate: Flag to indicate if we should navigate to the object in the view
         :param scroll_behavior: Scroll behavior when navigating to the object in the document tree
         """
-        log.debug(f"Selecting object {object_id} in document {document_id}")
+        log.debug(f"Selecting object '{object_id}' in document '{document_id}'")
 
         assert (
             document_id in self.current_object
-        ), f"Document id {document_id} not found in current application state dictionary."
+        ), f"Document id '{document_id}' not found in current application state dictionary."
 
         self.current_object[document_id] = object_id
         SelectObjectEvent().notify(object_id, document_id, navigate, scroll_behavior)
@@ -220,7 +222,7 @@ class StateManager(metaclass=SingletonMeta):
 
         :param view_name: Current view id
         """
-        log.debug(f"Setting current view {view_name}")
+        log.debug(f"Setting current view '{view_name}'")
 
         assert (
             view_name is not None or view_name != ""
@@ -268,6 +270,62 @@ class StateManager(metaclass=SingletonMeta):
                 return document_id
         return None
 
+    # --------------------------------------------------------------------------
+    # Method: add_opened_view
+    # Description: Adds the opened view to the opened views list.
+    # Date: 04/10/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def add_opened_view(self, view_name: str) -> None:
+        """
+        Adds the opened view to the opened views list.
+
+        :param view_name: Opened view name
+        """
+
+        # Check if the view name is not None or empty
+        assert (
+            view_name is not None or view_name != ""
+        ), "View name cannot be None or empty."
+
+        # Check if the view is already opened
+        if view_name in self.opened_views:
+            log.error(f"View '{view_name}' is already opened.")
+            return
+
+        log.debug(f"Adding opened view '{view_name}' to the opened views list.")
+
+        self.opened_views.append(view_name)
+
+    # --------------------------------------------------------------------------
+    # Method: remove_opened_view
+    # Description: Removes the opened view from the opened views list.
+    # Date: 04/10/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def remove_opened_view(self, view_name: str) -> None:
+        """
+        Removes the opened view from the opened views list.
+
+        :param view_name: Opened view name
+        """
+
+        # Check if the view name is not None or empty
+        assert (
+            view_name is not None or view_name != ""
+        ), "View name cannot be None or empty."
+
+        # Check if the view is already opened
+        if view_name not in self.opened_views:
+            log.error(f"View '{view_name}' is not in the opened views list.")
+            return
+        
+        log.debug(f"Removing opened view '{view_name}' from the opened views list.")
+
+        self.opened_views.remove(view_name)
+
     # ==========================================================================
     # State manager general methods
     # ==========================================================================
@@ -289,3 +347,4 @@ class StateManager(metaclass=SingletonMeta):
         self.current_object = {}
         self.current_view = None
         self.current_project_path = None
+        self.opened_views = []

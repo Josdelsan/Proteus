@@ -38,7 +38,7 @@ from PyQt6.QtCore import QByteArray, QBuffer, QIODevice, pyqtSlot
 # --------------------------------------------------------------------------
 
 from proteus.application.configuration.config import Config
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.model import ASSETS_REPOSITORY
 from proteus.views.components.abstract_component import ProteusComponent
 

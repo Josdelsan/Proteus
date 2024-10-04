@@ -135,16 +135,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Allow to close tabs
         self.setTabsClosable(True)
 
-        xsl_templates: list[str] = self._controller.get_project_templates()
-        # Move the current default view to the first position so it is the
-        # first tab to be displayed
         current_default_view: str = Config().app_settings.default_view
-        if current_default_view in xsl_templates:
-            xsl_templates.remove(current_default_view)
-        xsl_templates.insert(0, current_default_view)
 
-        for xsl_template in xsl_templates:
-            self.add_view(xsl_template)
+        self.add_view(current_default_view)
 
         # Check at least one view is available
         assert (
@@ -192,6 +185,13 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             log.error(
                 f"XSLT template {xslt_name} not found in the XSLT directory, view not added to the views container component."
             )
+            self._state_manager.remove_opened_view(xslt_name)
+            return
+
+        if xslt_name in self.tabs.keys():
+            log.debug(
+                f"XSLT template {xslt_name} already exists in the views container component."
+            )
             return
 
         # Create browser
@@ -231,6 +231,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser
+
+        # Add the opened view to the state manager
+        self._state_manager.add_opened_view(xslt_name)
 
     # ----------------------------------------------------------------------
     # Method     : subscribe
@@ -470,6 +473,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         browser: QWebEngineView = self.tabs.pop(view_name)
 
+        # Delete from state manager
+        self._state_manager.remove_opened_view(view_name)
+
         # Delete the browser
         browser.parent = None
         browser.deleteLater()
@@ -496,8 +502,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Get the key corresponding to the tab index
         xslt_name: str = list(self.tabs.keys())[index]
 
-        # Delete the view
-        self._controller.delete_project_template(xslt_name)
+        # Trigger REMOVE_VIEW event
+        DeleteViewEvent().notify(xslt_name)
 
     # ----------------------------------------------------------------------
     # Method     : current_view_changed

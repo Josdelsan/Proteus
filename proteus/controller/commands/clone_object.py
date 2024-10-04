@@ -27,7 +27,7 @@ from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.events import (
     AddObjectEvent,
     DeleteObjectEvent,

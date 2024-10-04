@@ -35,8 +35,8 @@ from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.application.resources.translator import Translator, translate as _
 from proteus.application.resources.icons import Icons
-from proteus.application.state_manager import StateManager
-from proteus.application.state_restorer import read_state_from_file
+from proteus.application.state.manager import StateManager
+from proteus.application.state.restorer import read_state_from_file
 from proteus.application.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.application.clipboard import Clipboard
 from proteus.controller.command_stack import Controller
@@ -113,8 +113,6 @@ class ProteusApplication:
         # Create the main window
         self.main_window = MainWindow(parent=None, controller=controller)
         self.main_window.show()
-
-        
 
         # Load plugin components
         self.load_plugin_components()
@@ -198,7 +196,10 @@ class ProteusApplication:
         xslt_methods: Dict[str, Callable] = {}
 
         # Components that need to be instantiated in order to not be deleted
-        for comp_name, comp_callable in self.plugin_manager.get_proteus_components().items():
+        for (
+            comp_name,
+            comp_callable,
+        ) in self.plugin_manager.get_proteus_components().items():
             try:
                 obj = comp_callable(self.main_window)
             except Exception as e:
@@ -215,9 +216,10 @@ class ProteusApplication:
                     method = getattr(obj, method_name)
                     method_callable_str_from_xslt = f"{comp_name}.{method_name}"
                     xslt_methods[method_callable_str_from_xslt] = method
-                    print(method())
                 except Exception as e:
-                    log.critical(f"Error loading proteus component method from plugin: {e}")
+                    log.critical(
+                        f"Error loading proteus component method from plugin: {e}"
+                    )
 
         # Add the methods to the render service namespace
         self.main_window._controller._render_service.add_functions_to_namespace(
@@ -265,11 +267,7 @@ class ProteusApplication:
         if project_path_to_open != "":
             try:
                 self.main_window._controller.load_project(project_path_to_open)
-                read_state_from_file(
-                    Path(project_path_to_open),
-                    self.main_window._controller,
-                    StateManager(),
-                )
+                read_state_from_file(self.main_window._controller)
             except Exception as e:
                 log.error(f"Error opening project on startup: {e}")
 

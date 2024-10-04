@@ -22,7 +22,4 @@
     <document id="7hadM59iCS5g"/>
     <document id="4PDqmhx9rXqS"/>
   </documents>
-  <xsl-templates>
-    <xsl-template name="remus"/>
-  </xsl-templates>
 </project>

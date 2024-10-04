@@ -33,9 +33,9 @@ from PyQt6.QtWidgets import (
 
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application import ASSETS_DUMMY_SEARCH_PATH, TEMPLATE_DUMMY_SEARCH_PATH
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.resources.translator import translate as _
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.controller.command_stack import Controller
 from proteus.views.export.export_strategy import ExportStrategy
 from proteus.views.forms.directory_edit import DirectoryEdit

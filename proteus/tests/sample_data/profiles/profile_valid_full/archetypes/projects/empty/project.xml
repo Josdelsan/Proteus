@@ -10,7 +10,4 @@
   <documents>
     <document id="7SvZwfdo5gPQ" />
   </documents>
-  <xsl-templates>
-    <xsl-template name="default" />
-  </xsl-templates>
 </project>

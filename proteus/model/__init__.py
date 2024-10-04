@@ -34,8 +34,6 @@ DOCUMENTS_TAG      = str('documents')
 CHILD_TAG          = str('child')
 CHILDREN_TAG       = str('children')
 
-XSL_TEMPLATES_TAG  = str('xsl-templates')
-XLS_TEMPLATE_TAG   = str('xsl-template')
 
 # XML attributes
 ID_ATTRIBUTE                   = str('id')

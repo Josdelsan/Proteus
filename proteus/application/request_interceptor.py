@@ -35,7 +35,7 @@ from PyQt6.QtCore import QUrl
 from proteus.model import ASSETS_REPOSITORY
 from proteus.application import TEMPLATE_DUMMY_SEARCH_PATH, ASSETS_DUMMY_SEARCH_PATH
 from proteus.application.configuration.config import Config
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 
 # logging configuration
 log = logging.getLogger(__name__)

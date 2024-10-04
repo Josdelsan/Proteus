@@ -40,7 +40,6 @@ import lxml.etree as ET
 # --------------------------------------------------------------------------
 from proteus.model import (
     ID_ATTRIBUTE,
-    NAME_ATTRIBUTE,
     DOCUMENT_TAG,
     DOCUMENTS_TAG,
     OBJECTS_REPOSITORY,
@@ -49,8 +48,6 @@ from proteus.model import (
     PROJECT_FILE_NAME,
     PROTEUS_DOCUMENT,
     PROTEUS_DATE,
-    XSL_TEMPLATES_TAG,
-    XLS_TEMPLATE_TAG,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
 from proteus.model.properties import DateProperty, TraceProperty
@@ -156,9 +153,6 @@ class Project(AbstractObject):
 
         # Project's ids, this variable is set in get_ids method
         self._ids: MutableSet[ProteusID] = None
-
-        # Template list
-        self.xsl_templates: List[str] = self.load_xsl_templates(root)
 
         # Documents list
         self._documents: List[Object] = None
@@ -291,41 +285,6 @@ class Project(AbstractObject):
                 self.properties.pop(property_name)
 
     # ----------------------------------------------------------------------
-    # Method     : load_xsl_templates
-    # Description: It loads the XSL templates of a PROTEUS project using an
-    #              XML root element <project>.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def load_xsl_templates(self, root: ET._Element) -> List[str]:
-        """
-        It loads a PROTEUS project's XSL templates from an XML root element.
-
-        :param root: XML root element.
-        """
-        # Check root is not None
-        assert root is not None, f"Root element is not valid in {self.path}."
-
-        # Load XSL templates
-        xsl_templates_element: ET._Element = root.find(XSL_TEMPLATES_TAG)
-
-        # Check whether it has XSL templates
-        assert (
-            xsl_templates_element is not None
-        ), f"PROTEUS project file {self.path} does not have a <{XSL_TEMPLATES_TAG}> element."
-
-        # Parse project's XSL templates
-        xsl_template_element: ET._Element
-        xsl_templates: List[str] = []
-        for xsl_template_element in xsl_templates_element:
-            xsl_template_name: str = xsl_template_element.attrib.get(NAME_ATTRIBUTE, None)
-            xsl_templates.append(xsl_template_name)
-
-        # Return XSL templates
-        return xsl_templates
-
-    # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the documents of a project.
     # Date       : 23/05/2023
@@ -403,6 +362,7 @@ class Project(AbstractObject):
 
         # Check if the child is a document
         return PROTEUS_DOCUMENT in child.classes
+
     # ----------------------------------------------------------------------
     # Method     : generate_xml
     # Description: It generates an XML element for the project.
@@ -431,16 +391,6 @@ class Project(AbstractObject):
             if document.state != ProteusState.DEAD:
                 document_element = ET.SubElement(documents_element, DOCUMENT_TAG)
                 document_element.set(ID_ATTRIBUTE, document.id)
-
-        # Create <xsl_templates> element
-        xsl_templates_element = ET.SubElement(project_element, XSL_TEMPLATES_TAG)
-
-        # Create <xsl_template> subelements
-        for xsl_template in self.xsl_templates:
-            xsl_template_element = ET.SubElement(
-                xsl_templates_element, XLS_TEMPLATE_TAG
-            )
-            xsl_template_element.set(NAME_ATTRIBUTE, xsl_template)
 
         return project_element
 
@@ -541,7 +491,6 @@ class Project(AbstractObject):
 
         log.info(f"Project cloned successfully.")
         return cloned_project
-
 
 
 # ----------------------------------------------------------------------
