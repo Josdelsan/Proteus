@@ -5,6 +5,7 @@
         <icon key="section" file="section.png" />
         <icon key="appendix" file="appendix.png" />
         <icon key="paragraph" file="paragraph.png" />
+        <icon key="information" file="information.png" />
         <icon key="glossary-item" file="glossary-item.png" />
         <icon key="figure" file="figure.png" />
         <icon key="stakeholder" file="stakeholder.png" />

@@ -117,6 +117,7 @@
 
     <xsl:include href="archetypes/general/section.xsl" />
     <xsl:include href="archetypes/general/appendix.xsl" />
+    <xsl:include href="archetypes/general/information.xsl" />
     <xsl:include href="archetypes/general/paragraph.xsl" />
     <xsl:include href="archetypes/general/glossary_item.xsl" />
     <xsl:include href="archetypes/general/figure.xsl" />
