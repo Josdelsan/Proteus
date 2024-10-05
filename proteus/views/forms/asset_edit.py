@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ASSETS_REPOSITORY
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 
@@ -173,6 +173,10 @@ class AssetEdit(QWidget):
         # Assets directory
         assets_path = StateManager().current_project_path / ASSETS_REPOSITORY
 
+        # Check if the assets directory exists
+        if not assets_path.exists():
+            assets_path.mkdir()
+
         file_dialog = QFileDialog()
 
         # Get the name of the selected file
@@ -224,6 +228,8 @@ class AssetEdit(QWidget):
 
                     if msg_box.result() == QMessageBox.StandardButton.No:
                         return
+                    elif msg_box.result() == QMessageBox.StandardButton.Yes:
+                        shutil.copy(file_path, assets_path)
                 else:
                     shutil.copy(file_path, assets_path)
 

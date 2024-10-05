@@ -46,7 +46,7 @@ spellcheck.language.nl: "Holandés"
 
 main_menu.open_project.caption: "Seleccione una carpeta de proyecto"
 main_menu.open_project.error.title: "Error al abrir el proyecto"
-main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+main_menu.open_project.error.text: "Ha ocurrido un error al abrir el proyecto. Más información en el archivo de registro de la aplicación"
 main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
 main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 
@@ -173,6 +173,7 @@ Sevilla, Septiembre de 2024."
 trace_edit_dialog.title: "Selecciona un elemento a trazar"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
 trace_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
+trace_edit_dialog.any_document: "Cualquier documento"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

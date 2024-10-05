@@ -38,7 +38,7 @@ from proteus.application.events import (
     ModifyObjectEvent,
     ClipboardChangedEvent,
 )
-from proteus.application.state_restorer import write_state_to_file
+from proteus.application.state.exporter import write_state_to_file
 from proteus.application.clipboard import Clipboard, ClipboardStatus
 
 # Module configuration
@@ -299,8 +299,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             if not unsaved_changes:
                 # Write the state to a file if there is a project opened
                 if self._controller.get_current_project() is not None:
-                    project_path: str = self._controller.get_current_project().path
-                    write_state_to_file(Path(project_path).parent, self._state_manager)
+                    write_state_to_file()
             # Close the application
             event.accept()
 
@@ -309,8 +308,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             self._controller.save_project()
 
             # Write the state to a file
-            project_path: str = self._controller.get_current_project().path
-            write_state_to_file(Path(project_path).parent, self._state_manager)
+            write_state_to_file()
 
             # Close the application
             event.accept()

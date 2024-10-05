@@ -33,10 +33,7 @@ DOCUMENT_TAG       = str('document')
 DOCUMENTS_TAG      = str('documents')
 CHILD_TAG          = str('child')
 CHILDREN_TAG       = str('children')
-TRACES_TAG         = str('traces')
 
-XSL_TEMPLATES_TAG  = str('xsl-templates')
-XLS_TEMPLATE_TAG   = str('xsl-template')
 
 # XML attributes
 ID_ATTRIBUTE                   = str('id')
@@ -63,7 +60,6 @@ ProteusID = NewType('ProteusID', str)
 PROTEUS_DOCUMENT = ProteusClassTag(':Proteus-document')
 PROTEUS_ANY      = ProteusClassTag(':Proteus-any')
 PROTEUS_NONE     = ProteusClassTag(':Proteus-none')
-PROTEUS_ALL      = ProteusClassTag(':Proteus-all')
 
 # Some predefined attribute names
 PROTEUS_CODE    = str(':Proteus-code')

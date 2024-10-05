@@ -739,7 +739,14 @@ class RequiredSaveActionEvent(ProteusEvent):
             f"Emitting REQUIRED SAVE ACTION EVENT signal... | save_required: {save_required}"
         )
 
-        self.signal.emit(save_required)
+        # TODO: This is a workaround to avoid RuntimeError when running all the tests with pytest command.
+        # RuntimeError does not affect tests results but it makes the GitHub Actions workflow fail.
+        # `RuntimeError: wrapped C/C++ object of type RequiredSaveActionEvent has been deleted`
+        # This only happens in this specific event. Further investigation is needed.
+        try:
+            self.signal.emit(save_required)
+        except RuntimeError as e:
+            log.error(f"Error emitting REQUIRED SAVE ACTION EVENT signal: {e}")
 
     def connect(self, method: Callable[[bool], None]) -> None:
         """

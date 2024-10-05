@@ -140,6 +140,9 @@ class ArchetypeRepository:
 
         # We create a dictionary to store the result
         object_arquetype_dict: Dict[str, Dict] = {}
+        
+        # Order the subdirectories by the number in the name
+        subdirs.sort(key=lambda x: int(x[:2]))
 
         # For each subdirectory, containing the archetypes of a given group
         for group_subdir in subdirs:

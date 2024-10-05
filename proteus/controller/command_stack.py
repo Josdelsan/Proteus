@@ -43,7 +43,7 @@ from proteus.controller.commands.sort_children import SortChildrenCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -818,82 +818,6 @@ class Controller:
         return next(
             template for template in templates if template.name == template_name
         )
-
-    # ----------------------------------------------------------------------
-    # Method     : get_project_templates
-    # Description: Get the available project templates in the templates folder.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def get_project_templates(self) -> List[str]:
-        """
-        Get the project templates in the proteus.xml project file. Note that
-        templates that are not in the app installation are ignored and not
-        saved when the project is saved.
-        """
-        project: Project = self._project_service.project
-        return project.xsl_templates
-
-    # ----------------------------------------------------------------------
-    # Method     : add_project_template
-    # Description: Add a new project template to the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def add_project_template(self, template_name: str) -> None:
-        """
-        Add a new project template to the project.
-
-        Triggers AddViewEvent.
-
-        :param template_name: The name of the template to add.
-        """
-        log.info(f"Adding '{template_name}' template to the project")
-
-        # Get the available templates to check if the template exists
-        loaded_templates: List[Template] = self._render_service.get_templates()
-
-        # Check the template exists
-        assert template_name in [
-            template.name for template in loaded_templates
-        ], f"Template {template_name} does not exist in the xslt directory!"
-
-        self._project_service.add_project_template(template_name)
-
-        # Trigger ADD_VIEW event notifying the new template
-        AddViewEvent().notify(template_name)
-
-        # Notify that this action requires saving even if the command is not
-        # undoable
-        RequiredSaveActionEvent().notify()
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_project_template
-    # Description: Delete a project template from the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_project_template(self, template_name: str) -> None:
-        """
-        Remove a project template from the project.
-
-        Triggers DeleteViewEvent.
-
-        :param template_name: The name of the template to remove.
-        """
-        log.info(f"Removing '{template_name}' template from the project")
-
-        self._project_service.delete_project_template(template_name)
-
-        # Trigger REMOVE_VIEW event
-        DeleteViewEvent().notify(template_name)
-
-        # Notify that this action requires saving even if the command is not
-        # undoable
-        RequiredSaveActionEvent().notify()
 
     # ======================================================================
     # Archetype methods

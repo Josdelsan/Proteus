@@ -46,8 +46,8 @@ from proteus.model import (
     PROTEUS_DATE,
     PROTEUS_CODE,
     PROTEUS_NAME,
+    PROTEUS_DOCUMENT,
     ID_ATTRIBUTE,
-    NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
     ACCEPTED_PARENTS_ATTRIBUTE,
@@ -55,7 +55,6 @@ from proteus.model import (
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
     CHILD_TAG,
-    TRACES_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
     COPY_OF,
@@ -282,6 +281,33 @@ class Object(AbstractObject):
 
             self.children.append(object)
 
+    # ----------------------------------------------------------------------
+    # Method     : get_document
+    # Description: It returns the parent document of the object.
+    # Date       : 03/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_document(self) -> Object:
+        """
+        It returns the parent document of the object. It looks recursively
+        for the parent until it finds a document object.
+
+        Raises an exception if the document is not found before reaching the
+        project root.
+
+        :return: Parent document of the object.
+        """
+
+        # Project does not have classes attribute so it will raise an exception
+        try:
+            if PROTEUS_DOCUMENT in self.classes:
+                return self
+            else:
+                return self.parent.get_document()
+        except AttributeError:
+            raise Exception(f"Parent document not found for object {self.id}")
+        
     # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the children of an object.

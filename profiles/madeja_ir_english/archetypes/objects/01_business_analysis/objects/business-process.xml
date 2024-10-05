@@ -6,7 +6,7 @@
 >
   <properties>
     <codeProperty name=":Proteus-code" category="general" inmutable="true">
-      <prefix><![CDATA[PRNA-]]></prefix>
+      <prefix><![CDATA[BPRO-]]></prefix>
       <number>001</number>
       <suffix><![CDATA[]]></suffix>
     </codeProperty>

@@ -355,7 +355,4 @@
       </children>
     </object>
   </documents>
-  <xsl-templates>
-    <xsl-template name="remus"/>
-  </xsl-templates>
 </project>

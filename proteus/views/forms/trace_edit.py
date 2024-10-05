@@ -43,6 +43,7 @@ from proteus.model import (
     PROTEUS_NAME,
     PROTEUS_CODE,
     PROTEUS_ANY,
+    PROTEUS_ACRONYM,
 )
 from proteus.model.object import Object
 from proteus.model.properties.trace_property import NO_TARGETS_LIMIT
@@ -55,6 +56,11 @@ from proteus.application.resources.translator import translate as _
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
+
+
+# Constants
+
+ANY_DOCUMENT = ":Proteus-any-document"  # Used to filter documents
 
 
 # --------------------------------------------------------------------------
@@ -104,7 +110,9 @@ class TraceEdit(QWidget):
         super().__init__(*args, **kwargs)
 
         # Validate element_id
-        assert element_id is not None, "TraceEdit requires an element_id to be initialized."
+        assert (
+            element_id is not None
+        ), "TraceEdit requires an element_id to be initialized."
 
         # Validate controller
         assert isinstance(
@@ -470,6 +478,7 @@ class TraceEditDialog(QDialog):
         self.list_widget = QListWidget(self)
         self.list_widget.setMovement(QListWidget.Movement.Static)
         self.list_widget.setMinimumHeight(100)
+        self.list_widget.setMinimumWidth(400)
 
         # Get list of project objects
         objects: List[Object] = self.controller.get_objects(
@@ -495,16 +504,57 @@ class TraceEditDialog(QDialog):
             classes_set.update(object.classes)
 
         # -----------------------
+        # Document filter
+        # -----------------------
+
+        # Get project documents
+        documents: List[Object] = self.controller.get_current_project().documents
+
+        # Create combocheckbox filter
+        self.document_selector_combo: CheckComboBox = CheckComboBox()
+
+        self.document_selector_combo.addItem(
+            _("trace_edit_dialog.any_document"),
+            ANY_DOCUMENT,
+            True,
+            Icons().icon(ProteusIconType.Document, ANY_DOCUMENT),
+        )
+
+        for document in documents:
+            # Document acronym
+            document_acronym = document.get_property(PROTEUS_ACRONYM).value
+
+            document_icon = Icons().icon(ProteusIconType.Document, document_acronym)
+
+            # Add item
+            self.document_selector_combo.addItem(
+                document_acronym, document.id, False, document_icon
+            )
+
+        # Connect activated signal
+        self.document_selector_combo.activated.connect(self.update_list_widget)
+
+        # -----------------------
         # Class filter
         # -----------------------
 
         # Create a class list ordered alphabetically and insert :Proteus-any first
         classes_list: List[ProteusClassTag] = list(classes_set)
         classes_list.sort()
-        classes_list.insert(0, PROTEUS_ANY)
 
         # Create combocheckbox filter
         self.class_selector_combo: CheckComboBox = CheckComboBox()
+        self.class_selector_combo.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+        )
+        self.class_selector_combo.setMaximumWidth(170)
+
+        self.class_selector_combo.addItem(
+            _(f"archetype.class.{PROTEUS_ANY}"),
+            PROTEUS_ANY,
+            True,
+            Icons().icon(ProteusIconType.Archetype),
+        )
 
         for _class in classes_list:
             class_name_tr = _(f"archetype.class.{_class}", alternative_text=_class)
@@ -513,10 +563,7 @@ class TraceEditDialog(QDialog):
             class_icon = Icons().icon(ProteusIconType.Archetype, _class)
 
             # Add item
-            if _class == PROTEUS_ANY:
-                self.class_selector_combo.addItem(class_name_tr, _class, True, class_icon)
-            else:
-                self.class_selector_combo.addItem(class_name_tr, _class, False, class_icon)
+            self.class_selector_combo.addItem(class_name_tr, _class, False, class_icon)
 
         # Connect activated signal
         self.class_selector_combo.activated.connect(self.update_list_widget)
@@ -552,6 +599,7 @@ class TraceEditDialog(QDialog):
 
         # Filter layout
         filter_layout = QHBoxLayout()
+        filter_layout.addWidget(self.document_selector_combo)
         filter_layout.addWidget(self.class_selector_combo)
         filter_layout.addWidget(self.name_filter_widget)
 
@@ -590,6 +638,7 @@ class TraceEditDialog(QDialog):
 
             self.name_filter_widget.setDisabled(True)
             self.class_selector_combo.setDisabled(True)
+            self.document_selector_combo.setDisabled(True)
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)
@@ -609,6 +658,11 @@ class TraceEditDialog(QDialog):
         # Unselect the current item
         self.list_widget.setCurrentItem(None)
 
+        # Selected classes, documents and the name filter
+        selected_documents = self.document_selector_combo.checkedItemsData()
+        selected_classes = self.class_selector_combo.checkedItemsData()
+        name_filter_text = self.name_filter_widget.text().lower()
+
         # Iterate over the QListWidget items and hide the ones
         # that do not match the class filter
         for i in range(self.list_widget.count()):
@@ -623,31 +677,31 @@ class TraceEditDialog(QDialog):
             # Get list widget item text lowercased to compare with the name filter
             object_name: str = item.text().lower()
 
-            # Selected classes in the class filter and the name filter
-            selected_classes = self.class_selector_combo.checkedItemsData()
-            name_filter_text = self.name_filter_widget.text().lower()
-
-            # Check if the object matches the name filter
-            if name_filter_text in object_name:
-                # Check if the object matches the class filter
-                # Condition 1: :Proteus-any is selected
-                if PROTEUS_ANY in selected_classes:
-                    item.setHidden(False)
-                    continue
-                # Condition 2: One of the object classes is selected
-                elif any(
-                    object_class in selected_classes for object_class in object.classes
-                ):
-                    item.setHidden(False)
-                    continue
-                # Condition 3: None of the conditions above
-                else:
+            # Check conditions one by one, they are ordered by computation cost
+            # Condition 1: Name filter -----------------
+            if name_filter_text != "":
+                if not name_filter_text in object_name:
                     item.setHidden(True)
                     continue
-            # No need to check the class filter if the name filter does not match
-            else:
-                item.setHidden(True)
-                continue
+
+            # Condition 2: Class filter ----------------
+            if not PROTEUS_ANY in selected_classes:
+                if not any(
+                    object_class in selected_classes for object_class in object.classes
+                ):
+                    item.setHidden(True)
+                    continue
+
+            # Condition 3: Document filter -------------
+            if not ANY_DOCUMENT in selected_documents:
+                if not object.get_document().id in selected_documents:
+                    item.setHidden(True)
+                    continue
+
+            # If the object passes all the conditions, show it
+            item.setHidden(False)
+
+            
 
     # ----------------------------------------------------------------------
     # Method     : enable_accept_button
