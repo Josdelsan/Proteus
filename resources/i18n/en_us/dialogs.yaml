@@ -187,6 +187,3 @@ delete_dialog.tree.header: Click in each item to see the elements that will be u
 # ---------------------------------------------------------------------------
 asset_edit.file_dialog.title: "Select image"
 asset_edit.file_dialog.filter: "Images"
-
-asset_edit.warning.title: "Warning"
-asset_edit.warning.text: "There is already a file with the same name in the assets folder. Do you want to replace it?"
