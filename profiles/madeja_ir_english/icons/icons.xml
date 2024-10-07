@@ -13,6 +13,7 @@
         <icon key="meeting" file="meeting.png" />
         <icon key="symbolic-link" file="symbolic-link.png" />
 
+
         <icon key="strength" file="strength.png" />
         <icon key="weakness" file="weakness.png" />
         <icon key="business-actor" file="business-actor.png" />
