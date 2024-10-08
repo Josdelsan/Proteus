@@ -15,9 +15,9 @@ archetype.copy-of: "Copy of"
 # -----------------------------------------------------------------------
 # Archetype classes
 # -----------------------------------------------------------------------
-'archetype.class.:proteus-any': "Any class"
+'archetype.class.:proteus-any': "any"
 'archetype.class.:proteus-document': "Document"
-'archetype.class.:proteus-none': "None class"
+'archetype.class.:proteus-none': "none"
 
 # -----------------------------------------------------------------------
 # Archetype categories

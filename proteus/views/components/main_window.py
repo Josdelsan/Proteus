@@ -234,8 +234,8 @@ class MainWindow(QMainWindow, ProteusComponent):
         # Message to show in the status bar
         message: str = _(
             "main_window.statusbar.text.selected_object",
-            object_name,
             selected_object_id,
+            object_name,
             translated_object_accepted_children,
             translated_object_accepted_parents,
         )

@@ -85,9 +85,10 @@ paste_button.text: "Pegar"
 main_window.title: "Aplicación Proteus"
 main_window.exit_dialog.title: "Salir de Proteus sin guardar"
 main_window.exit_dialog.text: "¿Desea guardar los cambios antes de salir de Proteus?"
-main_window.statusbar.text.selected_object: "Objeto seleccionado '{}' con id '{}' || Clases descendientes aceptadas: {} || Clases padre aceptadas:"
-main_window.statusbar.text.html_generation_time: "Generación HTML: {} ms"
-main_window.statusbar.text.html_load_time: "Carga HTML: {} ms"
+main_window.statusbar.text.selected_object: "Objeto {} [name:'{}'] / acepta hijos: {} / acepta padre: {}"
+main_window.statusbar.text.html_generation_time: "XSLT: {}ms"
+main_window.statusbar.text.html_load_time: "HTML: {}ms"
+
 
 # ---------------------------------------------------------------------------
 # Document render
