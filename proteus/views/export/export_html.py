@@ -100,7 +100,7 @@ class ExportHTML(ExportStrategy):
 
         The algorithm takes the following steps:
         - Create the export folder.
-        - Copy the project assets folder to the export folder.
+        - Copy the project assets folder to the export folder (if it exists).
         - Copy the XSLT current template folder to the export folder. Exclude
           from the copy all the XSL files.
         - Replace all the 'assets:///' dummy URLs from 'src' attributes with
@@ -132,7 +132,9 @@ class ExportHTML(ExportStrategy):
             # Copy the project assets folder to the export folder
             assets_folder: Path = StateManager().current_project_path / ASSETS_REPOSITORY
             assets_folder_destination: Path = export_folder / ASSETS_REPOSITORY
-            shutil.copytree(assets_folder, assets_folder_destination)
+
+            if assets_folder.exists():
+                shutil.copytree(assets_folder, assets_folder_destination)
 
             self.exportProgressSignal.emit(40)
 
@@ -158,13 +160,14 @@ class ExportHTML(ExportStrategy):
             # ------------------------------------------------------------------
             # Remove the empty directories and assets that are not used in the HTML
 
-            # Remove unused assets
-            assests_pattern = re.compile(r"(?<=\")(assets:///.*?[^\"\.])(?=\")")
-            assets_matches = assests_pattern.findall(html)
-            necessary_assets = [asset.split("/")[-1] for asset in assets_matches]
-            for asset in assets_folder_destination.iterdir():
-                if asset.is_file() and asset.name not in necessary_assets:
-                    asset.unlink()
+            # Remove unused assets, if assets folder exists
+            if assets_folder_destination.exists():
+                assests_pattern = re.compile(r"(?<=\")(assets:///.*?[^\"\.])(?=\")")
+                assets_matches = assests_pattern.findall(html)
+                necessary_assets = [asset.split("/")[-1] for asset in assets_matches]
+                for asset in assets_folder_destination.iterdir():
+                    if asset.is_file() and asset.name not in necessary_assets:
+                        asset.unlink()
 
             # Remove empty directories
             remove_empty_directories(export_folder)
