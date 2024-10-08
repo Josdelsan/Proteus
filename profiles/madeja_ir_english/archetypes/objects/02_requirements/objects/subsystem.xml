@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-  id="business-actor"
-  classes="business-requirement business-actor"
-  acceptedChildren=":Proteus-none"
+    id="subsystem"
+    classes="software-requirement subsystem"
+    acceptedChildren=":Proteus-none"
+    acceptedParents=":Proteus-any"
 >
   <properties>
     <codeProperty name=":Proteus-code" category="general" inmutable="true">
-      <prefix><![CDATA[BACT-]]></prefix>
+      <prefix><![CDATA[SUBS-]]></prefix>
       <number>001</number>
       <suffix><![CDATA[]]></suffix>
     </codeProperty>
-    <stringProperty name=":Proteus-name"><![CDATA[Business actor]]></stringProperty>
+    <stringProperty name=":Proteus-name"><![CDATA[Subsystem]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
-    <markdownProperty name="description" category="detail"><![CDATA[This current business actor represents _[description of the organization, role or responsability represented by the current business actor]_.]]></markdownProperty>
-    <traceProperty name="participates-in" category="detail" acceptedTargets="business-process" traceType=":Proteus-dependency"/>
+    <markdownProperty name="description" category="detail"><![CDATA[This subsystem groups the requirements related to _<subsystem description>_.]]></markdownProperty>
+    <enumProperty name="importance" category="detail" choices="tbd critical high medium low optional">tbd</enumProperty>
+    <enumProperty name="priority" category="detail" choices="tbd high medium low">tbd</enumProperty>
     <traceProperty name="dependencies" category="dependencies" acceptedTargets="general-traceable-object business-requirement" traceType=":Proteus-dependency"/>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>

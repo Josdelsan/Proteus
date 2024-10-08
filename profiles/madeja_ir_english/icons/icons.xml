@@ -13,13 +13,14 @@
         <icon key="meeting" file="meeting.png" />
         <icon key="symbolic-link" file="symbolic-link.png" />
 
-
         <icon key="strength" file="strength.png" />
         <icon key="weakness" file="weakness.png" />
         <icon key="business-actor" file="business-actor.png" />
         <icon key="business-process" file="business-process.png" />
         <icon key="business-objective" file="business-objective.png" />
         <icon key="user-story" file="user-story.png" />
+
+        <icon key="subsystem" file="subsystem.png" />
 
         <icon key="actor" file="actor.png" />
         <icon key="information-requirement" file="information-req.png" />

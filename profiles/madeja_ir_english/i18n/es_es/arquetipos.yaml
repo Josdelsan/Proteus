@@ -49,6 +49,7 @@ archetype.class.user-story: "Historia de usuario"
 
 # Software Requirements category
 
+archetype.class.subsystem: "Subsistema"
 archetype.class.objective: "Objetivo"
 archetype.class.information-requirement: "Requisito de información"
 archetype.class.specific-data: "Dato específico"

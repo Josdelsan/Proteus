@@ -131,7 +131,9 @@
     <xsl:include href="archetypes/business_analysis/business_actor.xsl" />
     <xsl:include href="archetypes/business_analysis/business_process.xsl" />
     <xsl:include href="archetypes/business_analysis/business_objective.xsl" />
-    <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />
+    <xsl:include href="archetypes/business_analysis/user_story.xsl" />
+
+    <xsl:include href="archetypes/requirements/subsystem.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 

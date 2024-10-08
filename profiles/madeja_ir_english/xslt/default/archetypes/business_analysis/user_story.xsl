@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_user_story.xsl                         -->
+<!-- File    : user_story.xsl                                 -->
 <!-- Content : PROTEUS default XSLT for user-story            -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/05/28                                     -->

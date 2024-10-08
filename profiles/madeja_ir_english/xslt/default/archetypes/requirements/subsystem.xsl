@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : business_objective.xsl                         -->
-<!-- Content : PROTEUS default XSLT for business-objective    -->
+<!-- File    : subsystem.xsl                                  -->
+<!-- Content : PROTEUS default XSLT for subsystem             -->
 <!-- Author  : Amador Durán Toro                              -->
 <!-- Date    : 2024/09/18                                     -->
 <!-- Version : 1.0                                            -->
@@ -20,16 +20,16 @@
     exclude-result-prefixes="proteus proteus-utils"
 >
     <!-- ============================================= -->
-    <!-- business-objective template                   -->
+    <!-- subsystem template                            -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[contains(@classes,'business-objective')]">
+    <xsl:template match="object[contains(@classes,'subsystem')]">
         <!-- By wrapping both the list and the current property name with commas, -->
         <!-- we ensure we're matching whole names and not partial strings.        -->
         <!-- This was suggested by Claude AI.                                     -->
 
         <!-- List of excluded properties (not shown) -->
-        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,description,</xsl:variable>
+        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
         <xsl:variable name="mandatory_properties">,description,importance,priority,</xsl:variable>
@@ -39,25 +39,13 @@
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'business-objective'"/>
+                    <xsl:with-param name="class"   select="'subsystem'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->
                 <xsl:call-template name="generate_version_row"/>
 
-                <!-- Description row -->
-                <xsl:for-each select="properties/*[@name='description']">
-                    <xsl:call-template name="generate_property_row">
-                        <xsl:with-param name="mandatory" select="true()"/>
-                    </xsl:call-template>
-                </xsl:for-each>
-
-                <!-- Subobjectives row -->
-                <xsl:call-template name="generate_children_row">
-                    <xsl:with-param name="label" select="$proteus:lang_subobjectives"/>
-                </xsl:call-template>
-
-                <!-- Generate rows for all other properties                           -->
+                <!-- Generate rows for all ordinary properties                         -->
                 <!-- Each property can be accessed as current() in the called template -->
                 <xsl:for-each select="properties/*[not(contains($excluded_properties,concat(',', @name, ',')))]">
                     <xsl:call-template name="generate_property_row">

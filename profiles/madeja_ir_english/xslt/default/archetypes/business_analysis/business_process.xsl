@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_business_process.xsl                   -->
+<!-- File    : business_process.xsl                           -->
 <!-- Content : PROTEUS default XSLT for business-process      -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/05/28                                     -->
