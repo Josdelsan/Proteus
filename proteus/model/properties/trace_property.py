@@ -35,6 +35,7 @@ from proteus.model import (
     NAME_ATTRIBUTE,
     TARGET_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
+    EXCLUDED_TARGETS_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
     TRACE_TYPE_ATTRIBUTE,
     PROTEUS_ANY,
@@ -70,6 +71,7 @@ class TraceProperty(Property):
     # dataclass instance attributes
     element_tagname: ClassVar[str] = TRACE_PROPERTY_TAG
     acceptedTargets: List[ProteusClassTag] = field(default_factory=list)
+    excludedTargets: List[ProteusClassTag] = field(default_factory=list)
     type: str = str(DEFAULT_TRACE_TYPE)
     value: List[ProteusID] = field(default_factory=list)  # targets
     max_targets_number: int = NO_TARGETS_LIMIT
@@ -107,6 +109,13 @@ class TraceProperty(Property):
             # self.acceptedTargets = list() cannot be used when frozen=True
             object.__setattr__(self, "acceptedTargets", [PROTEUS_ANY])
 
+        if not isinstance(self.excludedTargets, list):
+            log.debug(
+                f"PROTEUS trace '{self.name}' must have a list of excluded targets -> assigning an empty list"
+            )
+            # self.excludedTargets = list() cannot be used when frozen=True
+            object.__setattr__(self, "excludedTargets", list())
+
         # Tooltip validation
         if not self.tooltip:
             # self.tooltip = str() cannot be used when frozen=True
@@ -126,11 +135,13 @@ class TraceProperty(Property):
             object.__setattr__(self, "targets", list())
 
         # Max targets number validation
-        if not isinstance(self.max_targets_number, int) or self.max_targets_number <= 0:
+        if not isinstance(self.max_targets_number, int) or (
+            self.max_targets_number <= 0 and self.max_targets_number != NO_TARGETS_LIMIT
+        ):
             # Log warning omitted to avoid excessive logging so the user do not have to be excessively verbose when creating an archetype
-            # log.warning(
-            #     f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
-            # )
+            log.warning(
+                f"PROTEUS trace '{self.name}' must have a max targets number -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
+            )
 
             # self.max_targets_number = NO_TARGETS_LIMIT cannot be used when frozen=True
             object.__setattr__(self, "max_targets_number", NO_TARGETS_LIMIT)
@@ -162,6 +173,13 @@ class TraceProperty(Property):
         trace_property_element.set(
             ACCEPTED_TARGETS_ATTRIBUTE, " ".join(self.acceptedTargets)
         )
+
+        # Create excluded targets attribute if it is not an empty list
+        if len(self.excludedTargets) > 0:
+            trace_property_element.set(
+                EXCLUDED_TARGETS_ATTRIBUTE, " ".join(self.excludedTargets)
+            )
+
         trace_property_element.set(TRACE_TYPE_ATTRIBUTE, self.type)
 
         # Create max targets number attribute if it is not NO_TARGETS_LIMIT
@@ -179,7 +197,9 @@ class TraceProperty(Property):
     # Version: 0.1
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
-    def generate_xml_value(self, property_element: ET._Element) -> str | ET.CDATA | None:
+    def generate_xml_value(
+        self, property_element: ET._Element
+    ) -> str | ET.CDATA | None:
         """
         Generates the value of the property for its XML element. Creates each trace tag and sets its attribute.
         """

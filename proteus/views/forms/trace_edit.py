@@ -95,6 +95,7 @@ class TraceEdit(QWidget):
         element_id: ProteusID,
         controller: Controller = None,
         accepted_targets: List[ProteusClassTag] = [],
+        excluded_targets: List[ProteusID] = [],
         limit: int = NO_TARGETS_LIMIT,
         *args,
         **kwargs,
@@ -105,6 +106,7 @@ class TraceEdit(QWidget):
         :param element_id: ProteusID of the element that is being edited.
         :param controller: Controller instance to get the objects.
         :param accepted_targets: List of ProteusClassTag as accepted targets.
+        :param excluded_targets: List of ProteusID as exclude targets.
         :param limit: Maximum number of targets allowed.
         """
         super().__init__(*args, **kwargs)
@@ -124,6 +126,10 @@ class TraceEdit(QWidget):
         ), f"TraceEdit requires a list of ProteusClassTag as accepted targets. Accepted targets argument is type {type(accepted_targets)}"
 
         assert isinstance(
+            excluded_targets, list
+        ), f"TraceEdit requires a list of ProteusID as exclude targets. Exclude targets argument is type {type(exclude_targets)}"
+
+        assert isinstance(
             limit, int
         ), f"TraceEdit requires an integer as limit. Limit argument is type {type(limit)}"
 
@@ -131,6 +137,7 @@ class TraceEdit(QWidget):
         self.element_id: ProteusID = element_id
         self.controller: Controller = controller
         self.accepted_targets: List[ProteusClassTag] = accepted_targets
+        self.excluded_targets: List[ProteusID] = excluded_targets
         self.limit: int = limit
 
         # Initialize widgets
@@ -281,6 +288,7 @@ class TraceEdit(QWidget):
             element_id=self.element_id,
             controller=self.controller,
             accepted_classes=self.accepted_targets,
+            excluded_classes=self.excluded_targets,
             targets=self.traces(),
         )
 
@@ -388,6 +396,7 @@ class TraceEditDialog(QDialog):
         element_id: ProteusID,
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
+        excluded_classes: List[ProteusClassTag],
         targets: List[ProteusID] = [],
         *args,
         **kwargs,
@@ -398,6 +407,7 @@ class TraceEditDialog(QDialog):
         :param element_id: ProteusID of the element that is being edited.
         :param controller: Controller instance to get the objects.
         :param accepted_classes: List of ProteusClassTag as accepted classes.
+        :param excluded_classes: List of ProteusClassTag as excluded classes.
         :param targets: List of ProteusID as targets to discard.
         """
         super().__init__(*args, **kwargs)
@@ -413,6 +423,12 @@ class TraceEditDialog(QDialog):
             accepted_classes, list
         ), f"TraceEditDialog requires a string as object class. Object class argument is type {type(accepted_classes)}"
         self.accepted_classes: List[ProteusClassTag] = accepted_classes
+
+        # Validate excluded classes
+        assert isinstance(
+            excluded_classes, list
+        ), f"TraceEditDialog requires a list of ProteusClassTag as excluded classes. Excluded classes argument is type {type(excluded_classes)}"
+        self.excluded_classes: List[ProteusClassTag] = excluded_classes
 
         # Validate targets
         assert isinstance(
@@ -485,6 +501,16 @@ class TraceEditDialog(QDialog):
             classes=self.accepted_classes
         )
 
+        # Drop items that contain at least one of the excluded classes
+        objects = [
+            object
+            for object in objects
+            if not any(
+                excluded_class in object.classes
+                for excluded_class in self.excluded_classes
+            )
+        ]
+
         # Populate the QListWidget and store found object classes
         classes_set = set()
         object: Object
@@ -539,7 +565,9 @@ class TraceEditDialog(QDialog):
         # -----------------------
 
         # Create a class list ordered alphabetically and insert :Proteus-any first
-        classes_list: List[ProteusClassTag] = list(classes_set)
+        classes_list: List[ProteusClassTag] = [
+            class_ for class_ in classes_set if class_ not in self.excluded_classes
+        ]
         classes_list.sort()
 
         # Create combocheckbox filter
@@ -701,8 +729,6 @@ class TraceEditDialog(QDialog):
             # If the object passes all the conditions, show it
             item.setHidden(False)
 
-            
-
     # ----------------------------------------------------------------------
     # Method     : enable_accept_button
     # Description: Enables the accept button.
@@ -779,13 +805,14 @@ class TraceEditDialog(QDialog):
         element_id: ProteusID,
         controller: Controller,
         accepted_classes: List[ProteusClassTag],
+        excluded_classes: List[ProteusClassTag],
         targets: List[ProteusID] = [],
     ) -> ProteusID:
         """
         Creates and executes the dialog.
         """
         # Create dialog
-        dialog = TraceEditDialog(element_id, controller, accepted_classes, targets)
+        dialog = TraceEditDialog(element_id, controller, accepted_classes, excluded_classes, targets)
 
         # Execute dialog
         result = dialog.exec()

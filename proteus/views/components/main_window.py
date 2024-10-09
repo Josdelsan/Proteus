@@ -222,12 +222,12 @@ class MainWindow(QMainWindow, ProteusComponent):
         object_name = selected_object.get_property(PROTEUS_NAME).value
 
         translated_object_accepted_children = [
-            _(f"archetype.class.{cls}", alternative_text=cls)
+            _(f"archetype.class.{cls}", alternative_text=cls).lower()
             for cls in selected_object.acceptedChildren
         ]
 
         translated_object_accepted_parents = [
-            _(f"archetype.class.{cls}", alternative_text=cls)
+            _(f"archetype.class.{cls}", alternative_text=cls).lower()
             for cls in selected_object.acceptedParents
         ]
 

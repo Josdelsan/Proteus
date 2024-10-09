@@ -37,6 +37,7 @@ from proteus.model import (
     NAME_ATTRIBUTE,
     CATEGORY_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
+    EXCLUDED_TARGETS_ATTRIBUTE,
     TRACE_TYPE_ATTRIBUTE,
     TARGET_ATTRIBUTE,
     PROTEUS_ANY,
@@ -59,6 +60,7 @@ def create_trace_element(
     name: str = DEFAULT_TRACE_NAME,
     category: str = DEFAULT_TRACE_CATEGORY,
     accepted_targets: str = PROTEUS_ANY,
+    excluded_targets: str = None,
     trace_type: str = DEFAULT_TRACE_TYPE,
     tooltip: str = None,
     max_targets: int = None,
@@ -75,6 +77,10 @@ def create_trace_element(
         trace_element.set(TOOLTIP_ATTRIBUTE, tooltip)
 
     trace_element.set(ACCEPTED_TARGETS_ATTRIBUTE, accepted_targets)
+
+    if excluded_targets is not None:
+        trace_element.set(EXCLUDED_TARGETS_ATTRIBUTE, excluded_targets)
+
     trace_element.set(TRACE_TYPE_ATTRIBUTE, trace_type)
 
     # Max_targets attributes
@@ -113,6 +119,14 @@ def create_trace_element(
     ],
 )
 @pytest.mark.parametrize(
+    "excluded_targets, expected_excluded_targets",
+    [
+        ("target1", ["target1"]),
+        ("target1 target2 target3", ["target1", "target2", "target3"]),
+        (str(), []),
+    ],
+)
+@pytest.mark.parametrize(
     "trace_type, expected_trace_type",
     [("test-type", "test-type"), (str(), DEFAULT_TRACE_TYPE)],
 )
@@ -144,6 +158,8 @@ def test_trace_creation(
     expected_category,
     accepted_targets,
     expected_accepted_targets,
+    excluded_targets,
+    expected_excluded_targets,
     trace_type,
     expected_trace_type,
     dummy_targets,
@@ -163,6 +179,7 @@ def test_trace_creation(
         name,
         category,
         accepted_targets,
+        excluded_targets,
         trace_type,
         tooltip,
         max_targets_number,
@@ -186,6 +203,9 @@ def test_trace_creation(
     assert (
         trace.value == expected_targets
     ), f"Trace targets '{trace.value}' do not match expected targets '{expected_targets}'"
+    assert (
+        trace.excludedTargets == expected_excluded_targets
+    ), f"Trace excluded targets '{trace.excludedTargets}' do not match expected excluded targets '{expected_excluded_targets}'"
     assert (
         trace.tooltip == expected_tooltip
     ), f"Trace tooltip '{trace.tooltip}' does not match expected tooltip '{expected_tooltip}'"
@@ -229,6 +249,9 @@ def test_trace_clone(old_targets: List, new_targets: List):
     assert (
         cloned_trace.acceptedTargets == trace.acceptedTargets
     ), f"Cloned trace accepted targets '{cloned_trace.acceptedTargets}' do not match original accepted targets '{trace.acceptedTargets}'"
+    assert (
+        cloned_trace.excludedTargets == trace.excludedTargets
+    ), f"Cloned trace excluded targets '{cloned_trace.excludedTargets}' do not match original excluded targets '{trace.excludedTargets}'"
     assert (
         cloned_trace.type == trace.type
     ), f"Cloned trace type '{cloned_trace.type}' does not match original type '{trace.type}'"
