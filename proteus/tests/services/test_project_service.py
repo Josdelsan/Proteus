@@ -328,7 +328,7 @@ def test_get_traces_dependencies(
         ("simple_paragraph", "document_1", 2, 0),
         ("simple_paragraph", "document_1", 3, 0),
         ("simple_paragraph", "document_1", 8, 0),  # Move to the last position
-        ("simple_objective", "document_1", 0, 5),  # Move to the first position
+        ("simple_objective", "document_1", 0, 6),  # Move to the first position
     ],
 )
 def test_change_object_position_same_parent(

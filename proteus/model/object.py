@@ -51,6 +51,7 @@ from proteus.model import (
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
     ACCEPTED_PARENTS_ATTRIBUTE,
+    SELECTED_CATEGORY_ATTRIBUTE,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
@@ -195,6 +196,10 @@ class Object(AbstractObject):
         self.acceptedParents: List[ProteusClassTag] = root.attrib.get(
             ACCEPTED_PARENTS_ATTRIBUTE, PROTEUS_ANY
         ).split()
+
+        # Selected category provides information about which property category
+        # is more relevant among the others to the user. It can be None
+        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, None)
 
         # Load object's properties using superclass method
         super().load_properties(root)
@@ -450,6 +455,9 @@ class Object(AbstractObject):
         object_element.set(CLASSES_ATTRIBUTE, " ".join(self.classes))
         object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
         object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
+
+        if self.selectedCategory is not None:
+            object_element.set(SELECTED_CATEGORY_ATTRIBUTE, self.selectedCategory)
 
         # Create <properties> element
         super().generate_xml_properties(object_element)
