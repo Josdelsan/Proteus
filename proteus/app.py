@@ -23,21 +23,19 @@ from typing import Dict, Callable
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
-from PyQt6.QtWebEngineCore import QWebEngineProfile
+from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings
 
 # --------------------------------------------------------------------------
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus import PROTEUS_LOGGING_DIR
+from proteus import PROTEUS_TEMP_DIR
 from proteus.application.spellcheck import SpellCheckerWrapper
 from proteus.application.configuration.config import Config
 from proteus.application.resources.plugins import Plugins
 from proteus.application.resources.translator import Translator, translate as _
 from proteus.application.resources.icons import Icons
-from proteus.application.state.manager import StateManager
 from proteus.application.state.restorer import read_state_from_file
-from proteus.application.request_interceptor import WebEngineUrlRequestInterceptor
 from proteus.application.clipboard import Clipboard
 from proteus.controller.command_stack import Controller
 from proteus.views.components.main_window import MainWindow
@@ -68,11 +66,6 @@ class ProteusApplication:
         self.translator: Translator = Translator()
         self.dynamic_icons: Icons = Icons()
         self.spellchecker = SpellCheckerWrapper()
-
-        # Request interceptor
-        self.request_interceptor: WebEngineUrlRequestInterceptor = (
-            WebEngineUrlRequestInterceptor()
-        )
 
         # PyQt6 application and main window
         self.app: QApplication = None
@@ -155,11 +148,6 @@ class ProteusApplication:
         if spellchecker_language is not None:
             self.spellchecker.set_language(spellchecker_language)
 
-        # Setup the request interceptor -----------------------
-        profile = QWebEngineProfile.defaultProfile()
-        profile.setUrlRequestInterceptor(self.request_interceptor)
-        self.app.aboutToQuit.connect(self.request_interceptor.stop_server)
-
         # Set application style sheet -------------------------
         with open(
             self.config.app_settings.resources_directory
@@ -170,6 +158,18 @@ class ProteusApplication:
             _stylesheet = f.read()
             self.app.setStyleSheet(_stylesheet)
             del _stylesheet
+
+        # Configure QWebEngineProfile settings ----------------
+        profile: QWebEngineProfile = QWebEngineProfile.defaultProfile()
+        profile.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptEnabled, True
+        )
+        profile.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
+        )
+        profile.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
+        )
 
     # --------------------------------------------------------------------------
     # Method: load_plugin_components
@@ -331,7 +331,7 @@ class ProteusApplication:
             log.critical(f"Error clearing the undo stack: {e}")
 
         # Select last log file
-        log_files = sorted(PROTEUS_LOGGING_DIR.glob("*.log"))
+        log_files = sorted(PROTEUS_TEMP_DIR.glob("*.log"))
         log_file = log_files[-1]
 
         # Build new crash report file name

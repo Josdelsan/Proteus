@@ -35,6 +35,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.application.metrics import Metrics
 from proteus.application.resources.translator import translate as _
 from proteus.application.configuration.config import Config
 from proteus.application.resources.icons import Icons, ProteusIconType
@@ -258,7 +259,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             - SELECT OBJECT -> update_on_select_object
             - CURRENT VIEW CHANGED -> update_on_current_view_changed
         """
-        AddObjectEvent().connect(self.update_view)
+        AddObjectEvent().connect(self.update_view_on_add_object)
         ModifyObjectEvent().connect(self.update_view)
         DeleteObjectEvent().connect(self.update_view)
         CurrentDocumentChangedEvent().connect(self.update_view)
@@ -277,7 +278,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def display_view(self) -> None:
+    def display_view(self, object_to_scroll: ProteusID = None) -> None:
         """
         Update the view to display the current project information rendered
         using the current view template. If there is no current document
@@ -303,21 +304,68 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Update the current view browser with the content
         if current_view in self.tabs and current_document_id is not None:
             # Get html from controller
-            html_str: str = self._controller.get_html_view(xslt_name=current_view)
+            html_path: str = self._controller.get_html_view_path(xslt_name=current_view)
 
-            # Convert html to QByteArray
-            # NOTE: This is done to avoid 2mb limit on setHtml method
-            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-            browser.page().setContent(html_array, "text/html")
+            Metrics.html_load_time_start()
+
+            browser.loadFinished.connect(
+                lambda: self.load_finished(browser.loadFinished, object_to_scroll)
+            )
+
+            url: QUrl = QUrl.fromLocalFile(html_path)
+            log.debug(f"Loading HTML file: {url.toString()}")
+            browser.page().load(url)
 
             # NOTE: When using onLoadFinished signal make sure to disconnect
             # the sender using self.sender().disconnect() to avoid multiple
             # calls when page is reloaded.
 
+    def load_finished(self, sender: QWebEngineView.loadFinished, object_to_scroll: ProteusID):  # type: ignore
+        # Disconnect the signal to avoid multiple calls when page is reloaded
+        sender.disconnect()
+
+        current_selected_object: ProteusID = self._state_manager.get_current_object()
+        current_view: str = self._state_manager.get_current_view()
+
+        # If an object is given to scroll, scroll to it
+        if object_to_scroll is not None:
+            script_template: str = "onTreeObjectSelected('{}');"
+            browser: QWebEngineView = self.tabs[current_view]
+            browser.page().runJavaScript(script_template.format(object_to_scroll))
+        # If not, scroll to the current selected object
+        elif current_selected_object is not None:
+            script_template: str = "onTreeObjectSelected('{}');"
+            browser: QWebEngineView = self.tabs[current_view]
+            browser.page().runJavaScript(
+                script_template.format(current_selected_object)
+            )
+
+        Metrics.html_load_time_end()
+
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_view_on_add_object
+    # Description: Update the view when an object is added to the project.
+    # Date       : 01/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_view_on_add_object(
+        self, object_id: ProteusID, update_view: bool
+    ) -> None:
+        """
+        Update the view when an object is added to the project.
+
+        Triggered by: AddObjectEvent
+
+        :param object_id: Id of the added object.
+        :param update_view: Flag to update the view.
+        """
+        if update_view == True:
+            self.display_view(object_id)
 
     # ----------------------------------------------------------------------
     # Method     : update_view
@@ -330,7 +378,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         """
         Update the view depending on the update_view flag.
 
-        Triggered by: AddObjectEvent, ModifyObjectEvent, DeleteObjectEvent,
+        Triggered by:   ModifyObjectEvent, DeleteObjectEvent,
                         CurrentDocumentChangedEvent, CurrentViewChangedEvent
 
         :param _: Unused parameter.

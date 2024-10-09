@@ -46,7 +46,7 @@ from proteus.application.configuration.profile_settings import (
     ProfileBasicMetadata,
 )
 from proteus.application.utils.abstract_meta import SingletonMeta
-from proteus import PROTEUS_LOGGER_NAME, PROTEUS_LOGGING_DIR, PROTEUS_MAX_LOG_FILES
+from proteus import PROTEUS_LOGGER_NAME, PROTEUS_TEMP_DIR, PROTEUS_MAX_LOG_FILES
 from proteus.application import (
     RESOURCES_SEARCH_PATH,
     TEMPLATE_DUMMY_SEARCH_PATH,
@@ -191,14 +191,6 @@ class Config(metaclass=SingletonMeta):
             RESOURCES_SEARCH_PATH, self.app_settings.resources_directory.as_posix()
         )  # Used in PyQt stylesheets
 
-        # Configure dummy search paths
-        # NOTE: This is used by the XSLT templates to access local files
-        # This allows to use search path syntax so it can be handled as a
-        # request by the request interceptor. It will build the path to the
-        # file and return it as an http response.
-        QtCore.QDir.addSearchPath(TEMPLATE_DUMMY_SEARCH_PATH, "")
-        QtCore.QDir.addSearchPath(ASSETS_DUMMY_SEARCH_PATH, "")
-
     # --------------------------------------------------------------------------
     # Method: _logger_configuration
     # Description: Private method that configures the logger for the application.
@@ -212,8 +204,8 @@ class Config(metaclass=SingletonMeta):
         logger.setLevel(logging.DEBUG)
 
         # Create directory for log files
-        if not PROTEUS_LOGGING_DIR.exists():
-            PROTEUS_LOGGING_DIR.mkdir()
+        if not PROTEUS_TEMP_DIR.exists():
+            PROTEUS_TEMP_DIR.mkdir()
 
         # Define a formatter
         formatter = logging.Formatter(
@@ -223,7 +215,7 @@ class Config(metaclass=SingletonMeta):
         # Create a TimedRotatingFileHandler to create log files based on date and time
         log_filename = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
         file_handler = TimedRotatingFileHandler(
-            filename=f"{PROTEUS_LOGGING_DIR}/{log_filename}",
+            filename=f"{PROTEUS_TEMP_DIR}/{log_filename}",
             when="midnight",
             interval=1,
             backupCount=PROTEUS_MAX_LOG_FILES,
@@ -237,7 +229,7 @@ class Config(metaclass=SingletonMeta):
 
         # Clean logs
         # This is required because TimedRotatingFileHandler does not delete old log files
-        log_files = [str(log_file) for log_file in PROTEUS_LOGGING_DIR.glob("*.log")]
+        log_files = [str(log_file) for log_file in PROTEUS_TEMP_DIR.glob("*.log")]
         log_files.sort(key=os.path.getmtime, reverse=True)
 
         for old_log_file in log_files[PROTEUS_MAX_LOG_FILES:]:

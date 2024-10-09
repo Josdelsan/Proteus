@@ -13,6 +13,7 @@
 from typing import List, Set, Dict
 from pathlib import Path
 import logging
+import time
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -25,7 +26,10 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag
+from proteus import PROTEUS_TEMP_DIR
+from proteus.model import ProteusID, ProteusClassTag, ASSETS_REPOSITORY
+from proteus.application import ASSETS_DUMMY_SEARCH_PATH, TEMPLATE_DUMMY_SEARCH_PATH
+from proteus.application.metrics import Metrics
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
     CloneArchetypeObjectCommand,
@@ -765,14 +769,14 @@ class Controller:
     # ----------------------------------------------------------------------
     def get_html_view(self, xslt_name: str = "default") -> str:
         """
-        Get the string representation of the document view given its id. The
-        view is generated using the xslt file specified in the xslt_name. If
-        the xslt_name is not specified, the default xslt is used.
+        Get the HTML string view of the project XML processed with the given
+        XSLT template.
 
         XSLT files are located in the xslt folder, defined in the config file.
 
         :param document_id: The id of the document to get the view.
         :param xslt_name: The name of the xslt file to use.
+        :return: The HTML string of the view.
         """
         log.info(f"Getting {xslt_name} render of project.")
 
@@ -782,6 +786,48 @@ class Controller:
         html_string: str = self._render_service.render(xml, xslt_name)
 
         return html_string
+
+    # ----------------------------------------------------------------------
+    # Method     : get_html_view_path
+    # Description: Get the HTML view of the document given a XSLT template
+    #              name.
+    # Date       : 01/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @Metrics.html_generation_time_decorator
+    def get_html_view_path(self, xslt_name: str = "default") -> str:
+        """
+        Generate a temporary HTML file that contains the view of the project
+        XML processed with the given XSLT template.
+
+        XSLT files are located in the xslt folder, defined in the config file.
+
+        :param document_id: The id of the document to get the view.
+        :param xslt_name: The name of the xslt file to use.
+        :return: The path of the generated HTML file.
+        """
+        html_string = self.get_html_view(xslt_name)
+
+        # Replace the dummy search paths with the real paths
+        assets_dir = (
+            StateManager().current_project_path / ASSETS_REPOSITORY
+        ).as_posix()
+        xslt_dir = Config().profile_settings.xslt_directory.as_posix()
+
+        html_string = html_string.replace(
+            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"{assets_dir}/"
+        )
+        html_string = html_string.replace(
+            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"{xslt_dir}/"
+        )
+
+        # Save the html file
+        html_dir = Path(PROTEUS_TEMP_DIR) / f"temp_project_render.html"
+        with open(html_dir.as_posix(), "w", encoding="utf-8") as f:
+            f.write(html_string)
+
+        return html_dir.as_posix()
 
     # ----------------------------------------------------------------------
     # Method     : get_available_xslt

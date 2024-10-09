@@ -294,6 +294,24 @@ QCheckBox:pressed {
     width: 2px;
 }
 
+/* ========================================================================= */
+/* StatusBar widgets                                                         */
+/* ========================================================================= */
+
+#MetricsIndicator QWidget {
+    background-color: #ffe7e7e7;
+    padding: 0.1em;
+    border: 1px solid gainsboro;
+}
+
+#clipboard_indicator {
+    background-color: #ffe7e7e7;
+    border: 1px solid gainsboro;
+}
+
+#clipboard_indicator QLabel {
+    padding: 0.1em;
+}
 
 /* ========================================================================= */
 /* MainMenu component                                                        */

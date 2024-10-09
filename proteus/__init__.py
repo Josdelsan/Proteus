@@ -33,8 +33,11 @@ PROTEUS_APP_PATH = Path(getattr(sys, '_MEIPASS', Path().parent.absolute()))
 
 PROTEUS_LOGGER_NAME    = str('proteus')
 PROTEUS_LOGGING_FORMAT = str('%(name)s:%(filename)s [%(levelname)s] -> %(message)s')
-PROTEUS_LOGGING_DIR    = PROTEUS_APP_PATH / '.proteus'
 PROTEUS_MAX_LOG_FILES  = 7
+
+# Temporal file directory
+
+PROTEUS_TEMP_DIR    = PROTEUS_APP_PATH / '.proteus'
 
 # --------------------------------------------------------------------------
 # Argument parser
