@@ -619,7 +619,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Get the children tree items
         children_items: List[QTreeWidgetItem] = [
-            self.tree_items[child.id] for child in children_objects
+            self.tree_items[child.id]
+            for child in children_objects
+            if child.state != ProteusState.DEAD
         ]
 
         # NOTE: Helper functions to get and set the expanded state of the object
