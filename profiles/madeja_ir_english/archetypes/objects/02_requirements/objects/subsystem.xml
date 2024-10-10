@@ -16,9 +16,9 @@
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
-    <markdownProperty name="description" category="detail"><![CDATA[This subsystem groups the requirements related to _<subsystem description>_.]]></markdownProperty>
-    <enumProperty name="importance" category="detail" choices="tbd critical high medium low optional">tbd</enumProperty>
-    <enumProperty name="priority" category="detail" choices="tbd high medium low">tbd</enumProperty>
+    <markdownProperty name="description" category="detail"><![CDATA[This subsystem groups the requirements related to _[subsystem description]_.]]></markdownProperty>
+    <enumProperty name="importance" category="detail" tooltip="importance" choices="tbd critical high medium low optional">tbd</enumProperty>
+    <enumProperty name="priority" category="detail" tooltip="priority" choices="tbd high medium low">tbd</enumProperty>
     <traceProperty name="dependencies" category="dependencies" acceptedTargets="general-traceable-object business-requirement" traceType=":Proteus-dependency"/>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>

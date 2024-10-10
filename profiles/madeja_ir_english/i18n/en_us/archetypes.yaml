@@ -125,6 +125,9 @@ archetype.tooltip.file-info: "Select a graphic file from your local system to co
 archetype.tooltip.width-info: "Percentage of the page width that the image will occupy."
 archetype.tooltip.is-abstract: "This entity class type is an abstract class."
 archetype.tooltip.is-derived: "This association is a derived association."
+archetype.tooltip.importance: "Importance for the client."
+archetype.tooltip.priority: "Priority for the project manager."
+archetype.tooltip.status: "Status according to the project's lifecycle."
 
 # -----------------------------------------------------------------------
 # Archetype property names
@@ -158,7 +161,7 @@ archetype.prop_name.place: "Place"
 archetype.prop_name.results: "Results"
 archetype.prop_name.importance: "Importance"
 archetype.prop_name.urgency: "Urgency"
-archetype.prop_name.development-status: "Status"
+archetype.prop_name.status: "Status"
 archetype.prop_name.stability: "Stability"
 archetype.prop_name.source: "Source"
 archetype.prop_name.sources: "Sources"

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects>
     <object id="subsystem" />
-    <object id="actor" />
     <object id="general-requirement" />
+    <object id="actor" />
     <object id="information-requirement" />
     <object id="specific-data" />
     <object id="business-rule" />

@@ -125,6 +125,9 @@ archetype.tooltip.file-info: "Seleccione un archivo gráfico de su sistema para 
 archetype.tooltip.width-info: "Porcentaje del ancho de la página que ocupará el recurso."
 archetype.tooltip.is-abstract: "Este objecto es de tipo abstracto."
 archetype.tooltip.is-derived: "Esta asociación es una asociación derivada."
+archetype.tooltip.importance: "Importancia para el cliente."
+archetype.tooltip.priority: "Prioridad para la dirección del proyecto."
+archetype.tooltip.status: "Estado según el ciclo de vida del proyecto."
 
 # -----------------------------------------------------------------------
 # Nombre de propiedades
@@ -158,7 +161,7 @@ archetype.prop_name.place: "Lugar"
 archetype.prop_name.results: "Resultados"
 archetype.prop_name.importance: "Importancia"
 archetype.prop_name.urgency: "Urgencia"
-archetype.prop_name.development-status: "Estado"
+archetype.prop_name.status: "Estado"
 archetype.prop_name.stability: "Estabilidad"
 archetype.prop_name.source: "Fuente"
 archetype.prop_name.sources: "Fuentes"

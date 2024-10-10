@@ -56,8 +56,8 @@
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>        
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
-        <label key="development-status"><xsl:value-of select="$proteus:lang_development_status"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
@@ -69,7 +69,7 @@
         <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>
         <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
         <label key="works-for"><xsl:value-of select="$proteus:lang_organization"/></label>
-        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
+        <label key="status"><xsl:value-of select="$proteus:lang_status"/></label>
         <label key="time"><xsl:value-of select="$proteus:lang_time"/></label>
         <label key="participates-in"><xsl:value-of select="$proteus:lang_participates_in"/></label>
         <label key="place"><xsl:value-of select="$proteus:lang_place"/></label>

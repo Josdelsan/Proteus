@@ -159,7 +159,6 @@
 <xsl:variable name="proteus:lang_optional">Optional</xsl:variable>
 
 <xsl:variable name="proteus:lang_child_requirements">Child requirements</xsl:variable>
-<xsl:variable name="proteus:lang_development_status">Development status</xsl:variable>
 
 <!-- ================== -->
 <!-- General L-patterns -->

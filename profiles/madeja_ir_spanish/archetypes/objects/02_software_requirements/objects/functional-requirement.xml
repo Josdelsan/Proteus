@@ -17,7 +17,7 @@
       <markdownProperty name="description" category="details"><![CDATA[]]></markdownProperty>
       <enumProperty name="importance" category="priority" choices="nd vital important">nd</enumProperty>
       <enumProperty name="urgency" category="priority" choices="nd immediately pressure">nd</enumProperty>
-      <enumProperty name="development-status" category="priority" choices="nd developing pending">nd</enumProperty>
+      <enumProperty name="status" category="priority" choices="nd developing pending">nd</enumProperty>
       <enumProperty name="stability" category="priority" choices="nd low medium high">nd</enumProperty>
       <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
     </properties>
