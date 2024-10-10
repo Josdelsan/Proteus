@@ -158,6 +158,9 @@
 <xsl:variable name="proteus:lang_low">Baja</xsl:variable>
 <xsl:variable name="proteus:lang_optional">Opcional</xsl:variable>
 
+<xsl:variable name="proteus:lang_child_requirements">Requisitos hijos</xsl:variable>
+<xsl:variable name="proteus:lang_development_status">Estado de desarrollo</xsl:variable>
+
 <!-- ==================== -->
 <!-- Patrones-L generales -->
 <!-- ==================== -->

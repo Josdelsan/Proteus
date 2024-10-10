@@ -57,6 +57,7 @@
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
+        <label key="development-status"><xsl:value-of select="$proteus:lang_development_status"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
@@ -64,6 +65,7 @@
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
         <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>
         <label key="sources"><xsl:value-of select="$proteus:lang_sources"/></label>
+        <label key="stability"><xsl:value-of select="$proteus:lang_stability"/></label>
         <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>
         <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
         <label key="works-for"><xsl:value-of select="$proteus:lang_organization"/></label>
@@ -134,6 +136,7 @@
     <xsl:include href="archetypes/business_analysis/user_story.xsl" />
 
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
+    <xsl:include href="archetypes/requirements/general-requirement.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 

@@ -7,8 +7,10 @@
 	5.2. archetype.prop_category.whatever_category: "Whatever category"
 	5.2. archetype.prop_name.whatever_property: "whatever property"
 	5.3. archetype.tooltip.whatever_tooltip: "Whatever tooltip"
-	5.4. archetype.enum_choice_whatever_choice: "Whatever choice"
+	5.4. archetype.enum_choices.whatever_choice: "Whatever choice"
 6. Crear el XSLT en perfil/xslt/default/whatever_category/whatever.xsl
 7. Copiar icono en perfil/xslt/default/resources/images
 8. Añadir CSS en perfil/xslt/default/resources/css
 9. Añadir el XSLT en perfil/xslt/default/PROTEUS_main.xsl
+10. Añadir las propiedades en el "property_labels_dictionary" de PROTEUS_main.xsl
+11. Añadir los enumerados en el "enum_labels_dictionary" de PROTEUS_main.xsl

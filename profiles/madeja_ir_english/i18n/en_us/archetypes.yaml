@@ -50,7 +50,7 @@ archetype.class.user-story: "User story"
 # Software Requirements category
 
 archetype.class.subsystem: "Subsystem"
-archetype.class.objective: "Objective"
+archetype.class.general-requirement: "General requirement"
 archetype.class.information-requirement: "Information requirement"
 archetype.class.specific-data: "Specific data"
 archetype.class.actor: "System actor"
@@ -109,6 +109,11 @@ archetype.enum_choices.set: "Set"
 archetype.enum_choices.simple: "Simple"
 archetype.enum_choices.sequence: "Sequence"
 archetype.enum_choices.bag: "Bag"
+
+archetype.enum_choices.draft: "Draf"
+archetype.enum_choices.awaiting-qa: "Awaiting quality verification"
+archetype.enum_choices.awaiting-validation: "Awaiting validation"
+archetype.enum_choices.validated: "Validated"
 
 # -----------------------------------------------------------------------
 # Archetype tooltips
@@ -181,6 +186,7 @@ archetype.prop_name.so-that: "So that ..."
 archetype.prop_name.web: "Website"
 archetype.prop_name.image: "Image"
 archetype.prop_name.email: "E-mail"
+archetype.prop_name.telephone: "Phone number"
 archetype.prop_name.diagram: "Diagram"
 archetype.prop_name.importance: "Importance"
 archetype.prop_name.urgency: "Urgency"

@@ -156,14 +156,14 @@ export_dialog.export_html.error.folder_exists: "Ya existe una carpeta con ese no
 # Information dialog
 # ---------------------------------------------------------------------------
 information_dialog.title: "Información sobre Proteus"
-information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados. 
-Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos. 
-Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios. 
-Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes. 
+information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados.
+Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos.
+Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios.
+Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado).
 Esta versión es principalmente la evolución de los resultados del Proyecto Fin de Carrera de José María Delgado."
 information_dialog.license.text: "Esta aplicacion se distribuyen bajo la licencia BSD 3-Clause 'New' or 'Revised'."
-information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal. 
-El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. 
+information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal.
+El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo.
 Los autores no son responsables de ningún daño causado por el uso de este software.
 Sevilla, Septiembre de 2024."
 

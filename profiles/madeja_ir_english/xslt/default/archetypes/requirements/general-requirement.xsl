@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : business_objective.xsl                         -->
-<!-- Content : PROTEUS default XSLT for business-objective    -->
-<!-- Author  : Amador Durán Toro                              -->
-<!-- Date    : 2024/09/18                                     -->
+<!-- File    : general-requirement.xsl                        -->
+<!-- Content : PROTEUS default XSLT for general-requirement   -->
+<!-- Author  : José María Delgado Sánchez                     -->
+<!-- Date    : 2023/08/02                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/10/10 (Amador Durán)                      -->
+<!-- objective -> general-requirement                         -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,11 +22,11 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-    <!-- ============================================= -->
-    <!-- business-objective template                   -->
-    <!-- ============================================= -->
+    <!-- ============================================== -->
+    <!-- general-requirement template                   -->
+    <!-- ============================================== -->
 
-    <xsl:template match="object[contains(@classes,'business-objective')]">
+    <xsl:template match="object[contains(@classes,'general-requirement')]">
         <!-- By wrapping both the list and the current property name with commas, -->
         <!-- we ensure we're matching whole names and not partial strings.        -->
         <!-- This was suggested by Claude AI.                                     -->
@@ -34,12 +37,12 @@
         <!-- List of mandatory properties (shown even if they are empty)-->
         <xsl:variable name="mandatory_properties">,importance,priority,</xsl:variable>
 
-        <div id="{@id}" data-proteus-id="{@id}">
+        <div id="{@id}"  data-proteus-id="{@id}">
             <table class="madeja_object remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'business-objective'"/>
+                    <xsl:with-param name="class"   select="'general-requirement'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->
@@ -52,9 +55,9 @@
                     </xsl:call-template>
                 </xsl:for-each>
 
-                <!-- Subobjectives row -->
+                <!-- Child requirements row -->
                 <xsl:call-template name="generate_children_row">
-                    <xsl:with-param name="label" select="$proteus:lang_subobjectives"/>
+                    <xsl:with-param name="label" select="$proteus:lang_child_requirements"/>
                 </xsl:call-template>
 
                 <!-- Generate rows for all other properties                           -->

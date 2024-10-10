@@ -2,7 +2,7 @@
 <objects>
     <object id="subsystem" />
     <object id="actor" />
-    <object id="objective" />
+    <object id="general-requirement" />
     <object id="information-requirement" />
     <object id="specific-data" />
     <object id="business-rule" />

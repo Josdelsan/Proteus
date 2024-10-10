@@ -17,7 +17,7 @@
 
 archetype.category.general: "General"
 archetype.category.business_analysis: "Análisis de negocio"
-archetype.category.software_requirements: "Requisitos de sistema/software"
+archetype.category.requirements: "Requisitos de sistema/software"
 archetype.category.conceptual_modeling: "Modelado conceptual"
 
 # -----------------------------------------------------------------------
@@ -50,7 +50,7 @@ archetype.class.user-story: "Historia de usuario"
 # Software Requirements category
 
 archetype.class.subsystem: "Subsistema"
-archetype.class.objective: "Objetivo"
+archetype.class.general-requirement: "Requisito general"
 archetype.class.information-requirement: "Requisito de información"
 archetype.class.specific-data: "Dato específico"
 archetype.class.actor: "Actor del sistema"
@@ -109,6 +109,11 @@ archetype.enum_choices.set: "Conjunto"
 archetype.enum_choices.simple: "Simple"
 archetype.enum_choices.sequence: "Secuencia"
 archetype.enum_choices.bag: "Multiconjunto"
+
+archetype.enum_choices.draft: "Borrador"
+archetype.enum_choices.awaiting-qa: "Esperando verificación de calidad"
+archetype.enum_choices.awaiting-validation: "Esperando validación"
+archetype.enum_choices.validated: "Validado"
 
 # -----------------------------------------------------------------------
 # Mensajes de ayuda
@@ -181,6 +186,7 @@ archetype.prop_name.so-that: "Para ..."
 archetype.prop_name.web: "Sitio web"
 archetype.prop_name.image: "Imagen"
 archetype.prop_name.email: "Correo-e"
+archetype.prop_name.telephone: "Teléfono"
 archetype.prop_name.diagram: "Diagrama"
 archetype.prop_name.importance: "Importancia"
 archetype.prop_name.urgency: "Urgencia"
