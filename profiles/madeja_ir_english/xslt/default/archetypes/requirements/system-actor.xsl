@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : business_actor.xsl                             -->
-<!-- Content : PROTEUS default XSLT for business-actor        -->
+<!-- File    : system-actor.xsl                               -->
+<!-- Content : PROTEUS default XSLT for system-actor          -->
 <!-- Author  : José María Delgado Sánchez                     -->
-<!-- Date    : 2024/05/28                                     -->
+<!-- Date    : 2023/06/07                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
 <!-- Update  : 2024/10/11 (Amador Durán)                      -->
-<!-- match must be object[ends-with(@classes,'business-actor')]-->
+<!-- match must be object[ends-with(@classes,'actor')]        -->
 <!-- To check if an object is of a given class:               -->
 <!--    object[contains(@classes,class_name)]                 -->
 <!-- To check if an object is of a given final class:         -->
@@ -29,16 +29,16 @@
     exclude-result-prefixes="proteus proteus-utils"
 >
     <!-- ============================================= -->
-    <!-- business-actor template                       -->
+    <!-- system-actor template                         -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[contains(@classes,'business-actor')]">
+    <xsl:template match="object[contains(@classes,'system-actor')]">
         <div id="{@id}" data-proteus-id="{@id}">
             <table class="madeja_object remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'business-actor'"/>
+                    <xsl:with-param name="class"   select="'system-actor'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->

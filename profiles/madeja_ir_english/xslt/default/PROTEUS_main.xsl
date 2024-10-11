@@ -56,11 +56,12 @@
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
-        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>        
+        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
+        <label key="inherits-from"><xsl:value-of select="$proteus:lang_inherits_from"/></label>
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
         <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>
@@ -137,11 +138,11 @@
 
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
     <xsl:include href="archetypes/requirements/general-requirement.xsl" />
+    <xsl:include href="archetypes/requirements/system-actor.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 
     <!--
-    <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />

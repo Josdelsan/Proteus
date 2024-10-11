@@ -13,4 +13,6 @@
 8. Añadir CSS en perfil/xslt/default/resources/css
 9. Añadir el XSLT en perfil/xslt/default/PROTEUS_main.xsl
 10. Añadir las propiedades en el "property_labels_dictionary" de PROTEUS_main.xsl
-11. Añadir los enumerados en el "enum_labels_dictionary" de PROTEUS_main.xsl
+11. Crear las variables proteus:lang_whatever necesarias en PROTEUS_i18n_English/Spanish.xsl
+12. Añadir los enumerados en el "enum_labels_dictionary" de PROTEUS_main.xsl
+13. Crear las variables proteus:lang_whatever necesarias en PROTEUS_i18n_English/Spanish.xsl
