@@ -139,11 +139,11 @@
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
     <xsl:include href="archetypes/requirements/general-requirement.xsl" />
     <xsl:include href="archetypes/requirements/system-actor.xsl" />
+    <xsl:include href="archetypes/requirements/information_requirement.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 
     <!--
-    <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_constraint.xsl" />

@@ -329,6 +329,7 @@ table.remus_table div.remus_comments p {
 }
 
 /* lists inside tables */
+table.remus_table td ul.children,
 table.remus_table td ul.traces,
 table.remus_table td ul.stakeholders,
 table.remus_table td ul.subobjectives,

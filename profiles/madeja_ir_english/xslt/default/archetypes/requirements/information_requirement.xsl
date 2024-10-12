@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- ======================================================== -->
-<!-- File    : general-requirement.xsl                        -->
-<!-- Content : PROTEUS default XSLT for general-requirement   -->
-<!-- Author  : José María Delgado Sánchez                     -->
-<!-- Date    : 2023/08/02                                     -->
-<!-- Version : 1.0                                            -->
-<!-- ======================================================== -->
+<!-- ========================================================== -->
+<!-- File    : information_requirement.xsl                      -->
+<!-- Content : PROTEUS default XSLT for information-requirement -->
+<!-- Author  : José María Delgado Sánchez                       -->
+<!-- Date    : 2023/06/07                                       -->
+<!-- Version : 1.0                                              -->
+<!-- ========================================================== -->
 <!-- Update  : 2024/10/10 (Amador Durán)                      -->
-<!-- objective -> general-requirement                         -->
 <!-- Code simplification.                                     -->
 <!-- ======================================================== -->
 
@@ -24,10 +23,10 @@
     exclude-result-prefixes="proteus proteus-utils"
 >
     <!-- ============================================== -->
-    <!-- general-requirement template                   -->
+    <!-- information-requirement template               -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[contains(@classes,'general-requirement')]">
+    <xsl:template match="object[contains(@classes,'information-requirement')]">
         <!-- By wrapping both the list and the current property name with commas, -->
         <!-- we ensure we're matching whole names and not partial strings.        -->
         <!-- This was suggested by Claude AI.                                     -->
@@ -36,14 +35,14 @@
         <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,description,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
-        <xsl:variable name="mandatory_properties">,importance,priority,</xsl:variable>
+        <xsl:variable name="mandatory_properties"></xsl:variable>
 
         <div id="{@id}" data-proteus-id="{@id}">
             <table class="madeja_object remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'general-requirement'"/>
+                    <xsl:with-param name="class"   select="'information-requirement'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->
@@ -58,7 +57,7 @@
 
                 <!-- Child requirements row -->
                 <xsl:call-template name="generate_children_row">
-                    <xsl:with-param name="label" select="$proteus:lang_child_requirements"/>
+                    <xsl:with-param name="label" select="$proteus:lang_specific_data"/>
                 </xsl:call-template>
 
                 <!-- Generate rows for all other properties                           -->
@@ -69,6 +68,27 @@
                     </xsl:call-template>
                 </xsl:for-each>
             </table>
+        </div>
+    </xsl:template>
+
+    <!-- ============================================== -->
+    <!-- Specific data template                         -->
+    <!-- ============================================== -->
+
+    <xsl:template name="generate_specificdata">
+        <div id="{@id}" data-proteus-id="{@id}">
+            <xsl:variable name="description" select="properties/*[@name='description']" />
+
+            <li>
+                <xsl:choose>
+                    <xsl:when test="not(string-length(normalize-space($description)) > 0)">
+                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$description" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </li>
         </div>
     </xsl:template>
 

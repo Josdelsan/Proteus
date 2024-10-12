@@ -50,16 +50,16 @@ archetype.class.user-story: "Historia de usuario"
 # Software Requirements category
 
 archetype.class.subsystem: "Subsistema"
-archetype.class.general-requirement: "Requisito general"
-archetype.class.information-requirement: "Requisito de información"
+archetype.class.general-requirement: "Requisito\ngeneral"
+archetype.class.information-requirement: "Requisito\nde información"
 archetype.class.specific-data: "Dato específico"
-archetype.class.system-actor: "Actor del sistema"
+archetype.class.system-actor: "Actor del\nsistema"
 archetype.class.use-case: "Caso de uso"
 archetype.class.use-case-step: "Paso de caso de uso"
-archetype.class.functional-requirement: "Requisito funcional"
-archetype.class.non-functional-requirement: "Requisito no funcional"
-archetype.class.business-rule: "Regla de negocio"
-archetype.class.traceability-matrix: "Matriz de rastreabilidad"
+archetype.class.functional-requirement: "Requisito\nfuncional"
+archetype.class.non-functional-requirement: "Requisito\nno funcional"
+archetype.class.business-rule: "Regla de\nnegocio"
+archetype.class.traceability-matrix: "Matriz de\nrastreabilidad"
 
 # Conceptual Modeling category
 
