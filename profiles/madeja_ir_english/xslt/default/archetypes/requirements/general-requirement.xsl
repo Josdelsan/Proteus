@@ -39,7 +39,7 @@
         <xsl:variable name="mandatory_properties">,importance,priority,</xsl:variable>
 
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="madeja_object remus_table">
+            <table class="general_requirement remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>

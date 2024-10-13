@@ -14,12 +14,6 @@
 /* IE 7 does not support :last-child and :nth-child in CSS */
 /* ======================================================= */
 
-/* MADEJA objects */
-
-table.madeja_object>thead>tr {
-  background-color: rgb(207, 243, 207);
-}
-
 /* Default tables */
 table {
   width: 98%;
@@ -72,7 +66,6 @@ td {
   }
 
 }
-
 
 /* general styles */
 
@@ -341,6 +334,8 @@ table.remus_table td ul.affected_objects {
   padding-left: 0em;
 }
 
+/* MADEJA objects */
+
 /* general purpose objects */
 
 table.organization>thead>tr,
@@ -349,27 +344,28 @@ table.meeting>thead>tr {
   background-color: lightcyan;
 }
 
+/* business analysis objects */
+
+table.business_actor>thead>tr,
+table.business_objective>thead>tr,
+table.business_process>thead>tr,
+table.strength>thead>tr,
+table.weakness>thead>tr,
+table.user_story>thead>tr {
+  background-color: rgb(207, 243, 207);
+}
+
 /* requirements objects */
 
-table.objective>thead>tr,
-table.actor>thead>tr,
+table.subsystem>thead>tr,
+table.general_requirement>thead>tr,
+table.system_actor>thead>tr,
 table.information_requirement>thead>tr,
-table.constraint_requirement>thead>tr,
+table.business_rule>thead>tr,
 table.use_case>thead>tr,
 table.functional_requirement>thead>tr,
 table.nonfunctional_requirement>thead>tr {
   background-color: powderblue;
-}
-
-span.subobjective {
-  font-weight: bold;
-}
-
-span.relevant_concept,
-span.triggering_event,
-span.exception_termination {
-  /*font-weight: bold;*/
-  font-style: italic;
 }
 
 /* use case tables */

@@ -38,7 +38,7 @@
         <xsl:variable name="mandatory_properties"></xsl:variable>
 
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="madeja_object remus_table">
+            <table class="information_requirement remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
@@ -68,27 +68,6 @@
                     </xsl:call-template>
                 </xsl:for-each>
             </table>
-        </div>
-    </xsl:template>
-
-    <!-- ============================================== -->
-    <!-- Specific data template                         -->
-    <!-- ============================================== -->
-
-    <xsl:template name="generate_specificdata">
-        <div id="{@id}" data-proteus-id="{@id}">
-            <xsl:variable name="description" select="properties/*[@name='description']" />
-
-            <li>
-                <xsl:choose>
-                    <xsl:when test="not(string-length(normalize-space($description)) > 0)">
-                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="$description" />
-                    </xsl:otherwise>
-                </xsl:choose>
-            </li>
         </div>
     </xsl:template>
 

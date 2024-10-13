@@ -32,7 +32,7 @@
         <xsl:variable name="so_that"   select="properties/*[@name='so-that']" />
 
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="madeja_object remus_table">
+            <table class="user_story remus_table">
 
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
