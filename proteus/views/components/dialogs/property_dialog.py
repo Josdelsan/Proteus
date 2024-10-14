@@ -202,6 +202,16 @@ class PropertyDialog(ProteusDialog):
 
             if category is not None and category == selected_category:
                 tab_widget.setCurrentWidget(category_widget)
+        
+        # Set the keyboard focus to the first input widget of the selected tab
+        first_input_widget: PropertyInput
+        input_widget: PropertyInput
+        for input_widget in tab_widget.currentWidget().findChildren(PropertyInput):
+            if not input_widget.property.inmutable:
+                first_input_widget = input_widget
+                break
+
+        first_input_widget.setKeyboardFocus()
 
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)

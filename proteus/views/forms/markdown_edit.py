@@ -249,3 +249,17 @@ class MarkdownEdit(QWidget):
                 wheelEventMethod(e)
 
         return wrapper
+
+
+    # ----------------------------------------------------------------------
+    # Method     : setFocus
+    # Description: Sets the mouse focus.
+    # Date       : 14/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def setFocus(self) -> None:
+        """
+        Sets the mouse focus to the input box.
+        """
+        self.input_box.setFocus()
