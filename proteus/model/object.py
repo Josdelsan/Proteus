@@ -456,7 +456,7 @@ class Object(AbstractObject):
         object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
         object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
 
-        if self.selectedCategory is not None:
+        if self.selectedCategory is not None and self.selectedCategory != "":
             object_element.set(SELECTED_CATEGORY_ATTRIBUTE, self.selectedCategory)
 
         # Create <properties> element
