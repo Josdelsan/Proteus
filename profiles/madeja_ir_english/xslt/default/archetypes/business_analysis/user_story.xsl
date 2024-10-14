@@ -91,7 +91,7 @@
                 <!-- This was suggested by Claude AI.                                     -->
 
                 <!-- List of excluded properties (not shown) -->
-                <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,as-role,i-want-to,so-that,</xsl:variable>
+                <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,as-role,i-want-to,so-that,dependencies,</xsl:variable>
 
                 <!-- List of mandatory properties (shown even if they are empty)-->
                 <xsl:variable name="mandatory_properties">,importance,urgency,</xsl:variable>
