@@ -36,16 +36,18 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, PROTEUS_NAME
-from proteus.model.abstract_object import ProteusState
+from proteus.model import ProteusID, PROTEUS_NAME, PROTEUS_ACRONYM, PROTEUS_DOCUMENT
 from proteus.model.object import Object
+from proteus.model.project import Project
 from proteus.model.properties import Property
 from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
-from proteus.application.events import ModifyObjectEvent, RequiredSaveActionEvent
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.controller.command_stack import Controller
+from proteus.controller.commands.update_object_meta_model import (
+    UpdateObjectMetaModelCommand,
+)
 
 # Constants
 
@@ -79,7 +81,7 @@ class RawObjectEditor(ProteusDialog):
     modifications are not undoable. It is assumed this is a developer's tool and the application
     will not be used in a production environment if this dialog is used.
 
-    This class is hidden by default and can be enabled by setting the 'raw_model_editor' flag
+    This class is hidden by default and can be enabled by setting the 'developer_features' flag
     in the application configuration file.
     """
 
@@ -99,6 +101,9 @@ class RawObjectEditor(ProteusDialog):
         super(RawObjectEditor, self).__init__(*args, **kwargs)
 
         self.object: Object = self._controller.get_element(object_id)
+
+        # Store if the project is a document based on its parent
+        self.is_document: bool = isinstance(self.object.parent, Project)
 
         # Copy the object properties to avoid modifying the original object until
         # the user confirms the changes
@@ -142,8 +147,9 @@ class RawObjectEditor(ProteusDialog):
         Create the component
         """
 
-        # Dialog size
-        self.setMinimumWidth(900)
+        # Dialog properties --------------------------------------------------
+        self.setWindowTitle(_("meta_model_editor.title"))
+        self.resize(900, 300)
 
         # Dialog layout and main widget
         layout: QVBoxLayout = QVBoxLayout()
@@ -154,8 +160,8 @@ class RawObjectEditor(ProteusDialog):
         properties_tab: QWidget = self._create_properties_tab()
 
         # Add the tabs to the tab widget -------------------------------------
-        tab_widget.addTab(properties_tab, _("object.properties"))
-        tab_widget.addTab(attributes_tab, _("object.attributes"))
+        tab_widget.addTab(properties_tab, _("meta_model_editor.object.properties_tab"))
+        tab_widget.addTab(attributes_tab, _("meta_model_editor.object.attributes_tab"))
 
         # Set content layout
         layout.addWidget(tab_widget)
@@ -201,13 +207,13 @@ class RawObjectEditor(ProteusDialog):
         # Set header label
         self.properties_list.setHeaderLabels(
             [
-                _("name"),
-                _("type"),
-                _("category"),
-                _("required"),
-                _("inmutable"),
-                _("tooltip"),
-                _("value"),
+                ("name"),
+                ("type"),
+                ("category"),
+                ("required"),
+                ("inmutable"),
+                ("tooltip"),
+                ("value"),
             ]
         )
 
@@ -322,36 +328,39 @@ class RawObjectEditor(ProteusDialog):
         self.selectedCategory_input_error_label: QLabel = create_error_label()
 
         # Add attributes to the layout
-        attributes_tab_layout.addRow(_("object.id"), self.id_input)
+        attributes_tab_layout.addRow("ProteusID", self.id_input)
         attributes_tab_layout.addWidget(self.id_input_error_label)
 
-        attributes_tab_layout.addRow(_("object.classes"), self.classes_input)
+        attributes_tab_layout.addRow("classes", self.classes_input)
         attributes_tab_layout.addWidget(self.classes_input_error_label)
 
         attributes_tab_layout.addRow(
-            _("object.acceptedChildren"), self.acceptedChildren_input
+            "acceptedChildren",
+            self.acceptedChildren_input,
         )
         attributes_tab_layout.addWidget(self.acceptedChildren_input_error_label)
 
         attributes_tab_layout.addRow(
-            _("object.acceptedParents"), self.acceptedParents_input
+            "acceptedParents",
+            self.acceptedParents_input,
         )
         attributes_tab_layout.addWidget(self.acceptedParents_input_error_label)
 
         attributes_tab_layout.addRow(
-            _("object.selectedCategory"), self.selectedCategory_input
+            "selectedCategory",
+            self.selectedCategory_input,
         )
         attributes_tab_layout.addWidget(self.selectedCategory_input_error_label)
 
         # Direct links to objects relevant files -----------------------------
 
-        object_file_button = QPushButton(_("object's XML file"))
+        object_file_button = QPushButton(_("meta_model_editor.object.open_xml_file"))
         object_file_button.clicked.connect(
             lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(self.object.path))
         )
 
         translations_directory_button = QPushButton(
-            _("Profile's translations directory")
+            _("meta_model_editor.profile_translations_directory")
         )
         translations_directory_button.clicked.connect(
             lambda: QDesktopServices.openUrl(
@@ -359,7 +368,9 @@ class RawObjectEditor(ProteusDialog):
             )
         )
 
-        icons_directory_button = QPushButton(_("Profile's icons directory"))
+        icons_directory_button = QPushButton(
+            _("meta_model_editor.profile_icons_directory")
+        )
         icons_directory_button.clicked.connect(
             lambda: QDesktopServices.openUrl(
                 QUrl.fromLocalFile(Config().profile_settings.icons_directory.as_posix())
@@ -409,7 +420,9 @@ class RawObjectEditor(ProteusDialog):
         self.move_up_button.setEnabled(property_index > 0)
 
         # Disable the move down button if is the last item
-        self.move_down_button.setEnabled(property_index < self.properties_list.topLevelItemCount() - 1)
+        self.move_down_button.setEnabled(
+            property_index < self.properties_list.topLevelItemCount() - 1
+        )
 
         # Enable the edit button
         self.edit_button.setEnabled(True)
@@ -441,9 +454,7 @@ class RawObjectEditor(ProteusDialog):
         dictionary_positions.insert(item_index + offset, property_name)
 
         # Create a new dictionary with the new order
-        self.properties = {
-            key: self.properties[key] for key in dictionary_positions
-        }
+        self.properties = {key: self.properties[key] for key in dictionary_positions}
 
         # Update the properties list based on the new dictionary order
         self._update_properties_list()
@@ -471,14 +482,21 @@ class RawObjectEditor(ProteusDialog):
 
         if property_name == PROTEUS_NAME:
             MessageBox.critical(
-                _("error.cannot_delete_name_property"),
-                _("error.cannot_delete_name_property_message"),
+                _("meta_model_editor.error.cannot_delete_property"),
+                _("meta_model_editor.error.cannot_delete_name_property_message"),
             )
             return
-        
+
+        if self.is_document and property_name == PROTEUS_ACRONYM:
+            MessageBox.critical(
+                _("meta_model_editor.error.cannot_delete_property"),
+                _("meta_model_editor.error.cannot_delete_acronym_property_message"),
+            )
+            return
+
         confirmation_dialog = MessageBox.question(
-            _("dialog.delete_property"),
-            _("dialog.delete_property_message", property_name),
+            _("meta_model_editor.delete_property_dialog.title"),
+            _("meta_model_editor.delete_property_dialog.message", property_name),
         )
 
         if confirmation_dialog == MessageBox.StandardButton.Yes:
@@ -506,12 +524,18 @@ class RawObjectEditor(ProteusDialog):
         """
         form_has_errors: bool = False
 
+        new_properties = self.properties
+        new_classes = self.classes_input.text().split()
+        new_acceptedChildren = self.acceptedChildren_input.text().split()
+        new_acceptedParents = self.acceptedParents_input.text().split()
+        new_selectedCategory = self.selectedCategory_input.text()
+
         # Attributes validation ---------------------------------------------
         def attribute_input_has_errors(input: QLineEdit, error_lable: QLabel) -> bool:
             if not input.text() or any(
                 char in input.text() for char in XML_PROBLEMATIC_CHARS
             ):
-                error_lable.setText(_("error.required_field"))
+                error_lable.setText(_("meta_model_editor.error.required_input"))
                 error_lable.show()
                 return True
             else:
@@ -531,19 +555,44 @@ class RawObjectEditor(ProteusDialog):
         )
 
         # Selected category cannot include spaces but may be empty
-        selected_category: str = self.selectedCategory_input.text()
-        if " " in selected_category or any(
-            char in selected_category for char in XML_PROBLEMATIC_CHARS
+        if " " in new_selectedCategory or any(
+            char in new_selectedCategory for char in XML_PROBLEMATIC_CHARS
         ):
-            self.selectedCategory_input_error_label.setText(_("error.invalid_category"))
+            self.selectedCategory_input_error_label.setText(
+                _("meta_model_editor.error.invalid_selected_category")
+            )
             self.selectedCategory_input_error_label.show()
             form_has_errors = True
+        else:
+            self.selectedCategory_input_error_label.hide()
+
+        # Check :Proteus-document class is present in documents
+        if self.is_document and PROTEUS_DOCUMENT not in new_classes:
+            self.classes_input_error_label.setText(
+                _("meta_model_editor.error.document_class_required")
+            )
+            self.classes_input_error_label.show()
+            form_has_errors = True
+        else:
+            self.classes_input_error_label.hide()
 
         # Properties validation ---------------------------------------------
         # Properties are validated in their own dialog so we just check if
         # PROTEUS_NAME property is present
         if PROTEUS_NAME not in self.properties:
-            self.properties_list_error_label.setText(_("error.missing_name_property"))
+            self.properties_list_error_label.setText(
+                _("meta_model_editor.error.missing_name_property")
+            )
+            self.properties_list_error_label.show()
+            form_has_errors = True
+        else:
+            self.properties_list_error_label.hide()
+
+        # PROTEUS_ACROYNM is present in documents
+        if self.is_document and PROTEUS_ACRONYM not in new_properties:
+            self.properties_list_error_label.setText(
+                _("meta_model_editor.error.missing_acronym_property")
+            )
             self.properties_list_error_label.show()
             form_has_errors = True
         else:
@@ -553,26 +602,32 @@ class RawObjectEditor(ProteusDialog):
         if form_has_errors:
             return
 
-        # Update the object attributes
-        self.object.classes = self.classes_input.text().split()
-        self.object.acceptedChildren = self.acceptedChildren_input.text().split()
-        self.object.acceptedParents = self.acceptedParents_input.text().split()
-        self.object.selectedCategory = self.selectedCategory_input.text()
+        # If there is no changes, do not update the object
+        if not (
+            # Check attributes
+            new_classes == self.object.classes
+            and new_acceptedChildren == self.object.acceptedChildren
+            and new_acceptedParents == self.object.acceptedParents
+            and new_selectedCategory == self.object.selectedCategory
+            # Check properties values
+            and all(
+                new_properties[key].value == self.object.properties[key].value
+                for key in new_properties.keys()
+            )
+            # Check properties order
+            and list(new_properties.keys()) == list(self.object.properties.keys())
+        ):
+            # Create the command and push it to the stack
+            command = UpdateObjectMetaModelCommand(
+                self.object,
+                new_classes,
+                new_acceptedChildren,
+                new_acceptedParents,
+                new_selectedCategory,
+                new_properties,
+            )
 
-        # Update the object properties
-        self.object.properties = self.properties
-
-        # Mark the object as modified
-        self.object.state = ProteusState.DIRTY
-
-        # NOTE: It is neccesary to clear the command stack to avoid inconsistencies
-        # since the object model is being modified directly.
-        self._controller.stack.clear()
-
-        # Call modify object event to update the object in the front-end
-        # and force a save action
-        ModifyObjectEvent().notify(object_id=self.object.id)
-        RequiredSaveActionEvent().notify(save_required=True)
+            self._controller._push(command)
 
         # Close the form window
         self.close()

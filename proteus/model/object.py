@@ -61,7 +61,7 @@ from proteus.model import (
     COPY_OF,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property, PropertyFactory, FileProperty, DateProperty, CodeProperty, TraceProperty, TRACE_PROPERTY_TAG
+from proteus.model.properties import Property, FileProperty, DateProperty, CodeProperty, TraceProperty
 from proteus.model.properties.code_property import ProteusCode
 from proteus.application.resources.translator import translate as _
 
@@ -199,7 +199,7 @@ class Object(AbstractObject):
 
         # Selected category provides information about which property category
         # is more relevant among the others to the user. It can be None
-        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, None)
+        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, '')
 
         # Load object's properties using superclass method
         super().load_properties(root)
@@ -456,7 +456,7 @@ class Object(AbstractObject):
         object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
         object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
 
-        if self.selectedCategory is not None and self.selectedCategory != "":
+        if self.selectedCategory is not None and self.selectedCategory != '':
             object_element.set(SELECTED_CATEGORY_ATTRIBUTE, self.selectedCategory)
 
         # Create <properties> element
@@ -652,12 +652,12 @@ class Object(AbstractObject):
         # due to Project dummy class at the beginning of the file.
         assert (
             project.__class__.__name__ == "Project"
-        ), f"Parent project must be instance of Project."
+        ), "Parent project must be instance of Project."
 
         # Check if parent is not None
         assert parent.__class__.__name__ == "Project" or isinstance(
             parent, Object
-        ), f"Parent must be instance of Object or Project"
+        ), "Parent must be instance of Object or Project"
 
         # Check if object is an archetype based on the project property
         is_archetype: bool = self.project is None

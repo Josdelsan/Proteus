@@ -190,7 +190,7 @@ class PropertyDialog(ProteusDialog):
         try:
             selected_category: str = self.object.selectedCategory
         except AttributeError:
-            selected_category = None
+            selected_category = ''
 
         # Add the category widgets as tabs in the tab widget
         for category, category_widget in category_widgets.items():
@@ -200,7 +200,7 @@ class PropertyDialog(ProteusDialog):
             )
             tab_widget.addTab(category_widget, translated_category)
 
-            if category is not None and category == selected_category:
+            if category == selected_category:
                 tab_widget.setCurrentWidget(category_widget)
 
         # Add the tab widget to the main form layout

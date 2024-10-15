@@ -189,3 +189,27 @@ delete_dialog.tree.header: Haz clic en cada ítem para ver los elementos que se 
 asset_edit.file_dialog.title: "Seleccionar imagen"
 asset_edit.file_dialog.filter: "Imágenes"
 
+# ---------------------------------------------------------------------------
+# Developer features
+# ---------------------------------------------------------------------------
+
+meta_model_editor.title: "Editor de meta-modelo"
+meta_model_editor.object.properties_tab: "Propiedades"
+meta_model_editor.object.attributes_tab: "Atributos"
+
+meta_model_editor.object.open_xml_file: "Abrir archivo XML"
+meta_model_editor.profile_translations_directory: "Directorio de traducciones del perfil"
+meta_model_editor.profile_icons_directory: "Directorio de iconos del perfil"
+
+meta_model_editor.delete_property_dialog.title: "Eliminar propiedad"
+meta_model_editor.delete_property_dialog.message: "¿Estás seguro de que quieres eliminar la propiedad '{}'?"
+
+meta_model_editor.error.cannot_delete_property: "No se puede eliminar la propiedad"
+meta_model_editor.error.cannot_delete_name_property_message: "Cada objeto debe tener una propiedad :Proteus-name. No puedes eliminarla."
+meta_model_editor.error.cannot_delete_acronym_property_message: "Los documentos deben tener una propiedad :Proteus-acronym. No puedes eliminarla."
+
+meta_model_editor.error.required_input: "El campo está vacío o contiene caracteres no válidos"
+meta_model_editor.error.invalid_selected_category: "El campo no puede contener espacios ni caracteres especiales"
+meta_model_editor.error.document_class_required: "No se puede eliminar la clase :Proteus-document de un documento"
+meta_model_editor.error.missing_acronym_property: "Los documentos deben tener una propiedad :Proteus-acronym"
+meta_model_editor.error.missing_name_property: "Los objetos deben tener una propiedad :Proteus-name"

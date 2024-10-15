@@ -447,7 +447,7 @@ class ContextMenu(QMenu, ProteusComponent):
         action.setIcon(edit_icon)
 
         # Visibility and state restrictions (not needed for this action)
-        if not Config().app_settings.raw_model_editor:
+        if not Config().app_settings.developer_features:
             action.setEnabled(False)
             action.setVisible(False)
 

@@ -51,7 +51,7 @@ SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
 SETTING_OPEN_PROJECT_ON_STARTUP: str = "open_project_on_startup"
 # Special advanced settings
 SETTING_XSLT_DEBUG_MODE: str = "xslt_debug_mode"
-SETTING_RAW_MODEL_EDITOR: str = "raw_model_editor"
+SETTING_DEVELOPER_FEATURES: str = "developer_features"
 
 # User session data
 SESSION: str = "session"
@@ -90,7 +90,7 @@ class AppSettings:
     # Special advanced settings (not editable by the user)
     # These settings must be set manually in the configuration file
     xslt_debug_mode: bool = False
-    raw_model_editor: bool = False
+    developer_features: bool = False
 
     # --------------------------------------------------------------------------
     # Method: load
@@ -262,7 +262,7 @@ class AppSettings:
         self.xslt_debug_mode = settings.getboolean(SETTING_XSLT_DEBUG_MODE, False)
 
         # Raw model editor ------------------------
-        self.raw_model_editor = settings.getboolean(SETTING_RAW_MODEL_EDITOR, False)
+        self.developer_features = settings.getboolean(SETTING_DEVELOPER_FEATURES, False)
 
         log.info(f"Loaded app user settings from {self.settings_file_path}.")
         log.info(f"{self.language = }")
@@ -272,7 +272,7 @@ class AppSettings:
         log.info(f"{self.custom_profile_path = }")
         log.info(f"{self.open_project_on_startup = }")
         log.info(f"{self.xslt_debug_mode = }")
-        log.info(f"{self.raw_model_editor = }")
+        log.info(f"{self.developer_features = }")
 
     # --------------------------------------------------------------------------
     # Method: _validate_profile_path
