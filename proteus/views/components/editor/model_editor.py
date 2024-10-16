@@ -36,6 +36,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.views.components.editor import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.model import ProteusID, PROTEUS_NAME, PROTEUS_ACRONYM, PROTEUS_DOCUMENT
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -44,14 +45,11 @@ from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
+from proteus.views.components.editor.add_property_dialog import AddPropertyDialog
 from proteus.controller.command_stack import Controller
 from proteus.controller.commands.update_object_meta_model import (
     UpdateObjectMetaModelCommand,
 )
-
-# Constants
-
-XML_PROBLEMATIC_CHARS = ["&", '"', "<", ">"]
 
 
 # --------------------------------------------------------------------------
@@ -72,16 +70,7 @@ class RawObjectEditor(ProteusDialog):
     but it performs some python Object instance manipulation in order to update the object
     during application runtime.
 
-    WARNING:
-
-    Due to runtime model manipulation, data consistency is not guaranteed. The user should
-    be aware of data integrity issues (modifying accepted parents, children, classes, etc.).
-
-    Modifying an object's properties and/or attributes will clear the command stack. These
-    modifications are not undoable. It is assumed this is a developer's tool and the application
-    will not be used in a production environment if this dialog is used.
-
-    This class is hidden by default and can be enabled by setting the 'developer_features' flag
+    This feature is hidden by default and can be enabled by setting the 'developer_features' flag
     in the application configuration file.
     """
 
@@ -174,10 +163,10 @@ class RawObjectEditor(ProteusDialog):
         self.move_up_button.clicked.connect(lambda: self.move_button_clicked(True))
         self.move_down_button.clicked.connect(lambda: self.move_button_clicked(False))
         self.remove_button.clicked.connect(self.remove_button_clicked)
+        self.add_button.clicked.connect(self.add_button_clicked)
 
         self.accept_button.setText(_("dialog.save_button"))
         self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
     # ----------------------------------------------------------------------
     # Method     : _create_properties_tab
@@ -428,6 +417,39 @@ class RawObjectEditor(ProteusDialog):
         self.edit_button.setEnabled(True)
 
     # ----------------------------------------------------------------------
+    # Method     : add_button_clicked
+    # Description: Manage the add button clicked event. It opens a dialog
+    #              to add a new property to the object.
+    # Date       : 16/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def add_button_clicked(self):
+        """
+        Manage the add button clicked event. It opens a dialog to add a new
+        property to the object.
+        """
+        invalid_property_names = self.properties.keys()
+
+        new_property: Property = AddPropertyDialog.create_property(
+            self._controller, invalid_property_names
+        )
+
+        if new_property:
+
+            if new_property.name in invalid_property_names:
+                MessageBox.critical(
+                    _("meta_model_editor.error.duplicated_property"),
+                    _("meta_model_editor.error.duplicated_property_message"),
+                )
+                return
+
+            self.properties[new_property.name] = new_property
+
+            # Update the properties list
+            self._update_properties_list()
+
+    # ----------------------------------------------------------------------
     # Method     : move_up_button_clicked
     # Description: Manage the move up button clicked event. It moves the
     #              selected property up in the list.
@@ -602,20 +624,31 @@ class RawObjectEditor(ProteusDialog):
         if form_has_errors:
             return
 
+        # Check every property value from the original object has changed
+        # NOTE: Since different properties may have different attributes,
+        # we compare them by memory address. Properties are inmutable so
+        # any change will create a new object.
+        original_properties_changed = any(
+            new_properties[key] is self.object.properties[key]
+            for key in self.object.properties.keys()
+            if new_properties.get(key) is not None
+        )
+
+        # Comparing the keys lists will cover the rest of the checks for
+        # properties changes
+        properties_changed_order_name_or_number = list(new_properties.keys()) != list(
+            self.object.properties.keys()
+        )
+
         # If there is no changes, do not update the object
-        if not (
+        if (
             # Check attributes
-            new_classes == self.object.classes
-            and new_acceptedChildren == self.object.acceptedChildren
-            and new_acceptedParents == self.object.acceptedParents
-            and new_selectedCategory == self.object.selectedCategory
-            # Check properties values
-            and all(
-                new_properties[key].value == self.object.properties[key].value
-                for key in new_properties.keys()
-            )
-            # Check properties order
-            and list(new_properties.keys()) == list(self.object.properties.keys())
+            new_classes != self.object.classes
+            or new_acceptedChildren != self.object.acceptedChildren
+            or new_acceptedParents != self.object.acceptedParents
+            or new_selectedCategory != self.object.selectedCategory
+            or original_properties_changed
+            or properties_changed_order_name_or_number
         ):
             # Create the command and push it to the stack
             command = UpdateObjectMetaModelCommand(
@@ -630,23 +663,6 @@ class RawObjectEditor(ProteusDialog):
             self._controller._push(command)
 
         # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Manage the cancel button clicked event. It closes the
-    #              form window without saving any changes.
-    # Date       : 11/10/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without saving any changes.
-        """
-        # Close the form window without saving any changes
         self.close()
         self.deleteLater()
 
@@ -674,14 +690,3 @@ class RawObjectEditor(ProteusDialog):
         dialog = RawObjectEditor(object_id=object_id, controller=controller)
         dialog.exec()
         return dialog
-
-
-def create_error_label() -> QLabel:
-    """
-    Create an error label
-    """
-    error_label: QLabel = QLabel()
-    error_label.setObjectName("error_label")
-    error_label.setWordWrap(True)
-    error_label.hide()
-    return error_label

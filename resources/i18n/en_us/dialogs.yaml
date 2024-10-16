@@ -10,6 +10,7 @@
 # Common
 # ---------------------------------------------------------------------------
 dialog.accept_button: "Accept"
+dialog.create_button: "Create"
 dialog.save_button: "Save"
 dialog.export_button: "Export"
 dialog.reject_button: "Cancel"
@@ -213,3 +214,13 @@ meta_model_editor.error.invalid_selected_category: "Selected category cannot con
 meta_model_editor.error.document_class_required: "Cannot remove document class from document"
 meta_model_editor.error.missing_acronym_property: "Document must have a :Proteus-acronym property"
 meta_model_editor.error.missing_name_property: "Every object must have a :Proteus-name property"
+
+add_property_dialog.title: "Add property"
+add_property_dialog.label.required: "Property value cannot be empty"
+add_property_dialog.label.inmutable: "Property value should not be modified"
+add_property_dialog.label.property_class: "Property class:"
+add_property_dialog.message.property_specific_attributes: "Property specific attributes and value may be edited in the property editor"
+add_property_dialog.error.invalid_name: "This cannot be empty or contain invalid XML characters"
+add_property_dialog.error.duplicated_name: "A property named '{}' already exists"
+add_property_dialog.error.invalid_characters: "Input contains invalid XML characters"
+add_property_dialog.message_box.critical.create_property: "Error creating property"

@@ -120,7 +120,6 @@ class SettingsDialog(ProteusDialog):
         # Connect the buttons to the slots
         self.accept_button.setText(_("dialog.save_button"))
         self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         # Setting message label
         setting_info_label: QLabel = QLabel(_("settings_dialog.info.label"))
@@ -191,7 +190,7 @@ class SettingsDialog(ProteusDialog):
 
         assert (
             current_lang is not None or current_lang == ""
-        ), f"Error getting current language from configuration"
+        ), "Error getting current language from configuration"
 
         index: int = self.language_combo.findData(current_lang)
         self.language_combo.setCurrentIndex(index)
@@ -535,21 +534,6 @@ class SettingsDialog(ProteusDialog):
         self.close()
         self.deleteLater()
 
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Cancel button clicked event handler
-    # Date       : 18/03/2024
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self) -> None:
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without saving any changes.
-        """
-        # Close the form window without saving any changes
-        self.close()
-        self.deleteLater()
 
     # ======================================================================
     # Helper methods

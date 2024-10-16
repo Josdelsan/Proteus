@@ -128,6 +128,9 @@ class ProteusDialog(QDialog, ProteusComponent):
         self._dialog_layout.addLayout(self._buttons_layout)
         self.setLayout(self._dialog_layout)
 
+        # Signals
+        self.reject_button.clicked.connect(self.reject_button_clicked)
+
     # --------------------------------------------------------------------------
     # Method: set_content_layout
     # Description: Set the content layout
@@ -151,6 +154,22 @@ class ProteusDialog(QDialog, ProteusComponent):
         self._content_layout = layout
         self._dialog_layout.insertWidget(0, self._content_widget)
 
+
+    # ----------------------------------------------------------------------
+    # Method     : reject_button_clicked
+    # Description: Manage the reject button clicked event. It closes the
+    #              dialog.
+    # Date       : 11/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def reject_button_clicked(self):
+        """
+        Manage the reject button clicked event. It closes the dialog.
+        """
+        # Close the form window without saving any changes
+        self.close()
+        self.deleteLater()
 
 # --------------------------------------------------------------------------
 # Class: MessageBox

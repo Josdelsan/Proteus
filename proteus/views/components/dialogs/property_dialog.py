@@ -208,7 +208,6 @@ class PropertyDialog(ProteusDialog):
 
         self.accept_button.setText(_("dialog.save_button"))
         self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         self.set_content_layout(tabbed_layout)
 
@@ -348,23 +347,6 @@ class PropertyDialog(ProteusDialog):
             )
 
         # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Manage the cancel button clicked event. It closes the
-    #              form window without saving any changes.
-    # Date       : 27/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without saving any changes.
-        """
-        # Close the form window without saving any changes
         self.close()
         self.deleteLater()
 

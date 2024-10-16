@@ -148,7 +148,6 @@ class DeleteDialog(ProteusDialog):
 
         # Connect the button box signals to the slots
         self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
 
         self.set_content_layout(layout)
 
@@ -202,22 +201,6 @@ class DeleteDialog(ProteusDialog):
             self._controller.delete_object(self.element_id)
 
         # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Cancel button clicked event handler
-    # Date       : 30/10/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self) -> None:
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without deleting the element.
-        """
-        # Close the form window without saving any changes
         self.close()
         self.deleteLater()
 

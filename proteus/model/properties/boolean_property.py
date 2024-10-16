@@ -13,7 +13,7 @@
 # --------------------------------------------------------------------------
 
 from dataclasses import dataclass
-from typing import ClassVar, Union
+from typing import ClassVar
 import logging
 
 # --------------------------------------------------------------------------

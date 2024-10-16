@@ -10,6 +10,7 @@
 # Común
 # ---------------------------------------------------------------------------
 dialog.accept_button: "Aceptar"
+dialog.create_button: "Crear"
 dialog.save_button: "Guardar"
 dialog.export_button: "Exportar"
 dialog.reject_button: "Cancelar"
@@ -213,3 +214,13 @@ meta_model_editor.error.invalid_selected_category: "El campo no puede contener e
 meta_model_editor.error.document_class_required: "No se puede eliminar la clase :Proteus-document de un documento"
 meta_model_editor.error.missing_acronym_property: "Los documentos deben tener una propiedad :Proteus-acronym"
 meta_model_editor.error.missing_name_property: "Los objetos deben tener una propiedad :Proteus-name"
+
+add_property_dialog.title: "Añadir propiedad"
+add_property_dialog.label.required: "El valor de la propiedad no puede estar vacío"
+add_property_dialog.label.inmutable: "El valor de la propiedad no se debería modificar"
+add_property_dialog.label.property_class: "Clase de la propiedad:"
+add_property_dialog.message.property_specific_attributes: "Los atributos específicos de la propiedad y su valor pueden editarse en el editor de propiedades"
+add_property_dialog.error.invalid_name: "El campo no puede estar vacío o contener caracteres no válidos"
+add_property_dialog.error.duplicated_name: "Ya existe una propiedad llamada '{}'"
+add_property_dialog.error.invalid_characters: "El campo contiene caracteres no válidos"
+add_property_dialog.message_box.critical.create_property: "Error al crear la propiedad"
