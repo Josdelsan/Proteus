@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- ======================================================== -->
-<!-- File    : business_rule.xsl                              -->
-<!-- Content : PROTEUS default XSLT for business-rule         -->
-<!-- Author  : José María Delgado Sánchez                     -->
-<!-- Date    : 2023/12/02                                     -->
-<!-- Version : 1.0                                            -->
-<!-- ======================================================== -->
-<!-- Update  : 2024/10/10 (Amador Durán)                      -->
-<!-- Constraint requirements -> business rule                 -->
-<!-- Code simplification.                                     -->
-<!-- ======================================================== -->
+<!-- ============================================================ -->
+<!-- File    : nonfunctional_requirement.xsl                      -->
+<!-- Content : PROTEUS default XSLT for nonfunctional_requirement -->
+<!-- Author  : José María Delgado Sánchez                         -->
+<!-- Date    : 2023/12/02                                         -->
+<!-- Version : 1.0                                                -->
+<!-- ============================================================ -->
+<!-- Update  : 2024/10/16 (Amador Durán)                          -->
+<!-- Code simplification.                                         -->
+<!-- ============================================================ -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -24,10 +23,10 @@
     exclude-result-prefixes="proteus proteus-utils"
 >
     <!-- ============================================= -->
-    <!-- business-rule template                        -->
+    <!-- nonfunctional-requirement template            -->
     <!-- ============================================= -->
 
-    <xsl:template match="object[contains(@classes,'business-rule')]">
+    <xsl:template match="object[contains(@classes,'nonfunctional-requirement')]">
 
         <!-- By wrapping both the list and the current property name with commas, -->
         <!-- we ensure we're matching whole names and not partial strings.        -->
@@ -40,11 +39,11 @@
         <xsl:variable name="mandatory_properties">description</xsl:variable>
 
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="business_rule remus_table">
+            <table class="nonfunctional_requirement remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'business-rule'"/>
+                    <xsl:with-param name="class"   select="'nonfunctional-requirement'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->

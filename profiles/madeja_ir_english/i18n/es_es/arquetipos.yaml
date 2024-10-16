@@ -57,7 +57,7 @@ archetype.class.system-actor: "Actor del\nsistema"
 archetype.class.use-case: "Caso de uso"
 archetype.class.use-case-step: "Paso de caso de uso"
 archetype.class.functional-requirement: "Requisito\nfuncional"
-archetype.class.non-functional-requirement: "Requisito\nno funcional"
+archetype.class.nonfunctional-requirement: "Requisito\nno funcional"
 archetype.class.business-rule: "Regla de\nnegocio"
 archetype.class.traceability-matrix: "Matriz de\nrastreabilidad"
 

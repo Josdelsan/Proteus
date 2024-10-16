@@ -9,6 +9,6 @@
     <object id="use-case" />
     <object id="use-case-step" />
     <object id="functional-requirement" />
-    <object id="non-functional-requirement" />
+    <object id="nonfunctional-requirement" />
     <object id="matrix" />
 </objects>

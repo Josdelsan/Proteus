@@ -307,7 +307,7 @@ table.remus_table tr>th:first-child {
 table.remus_table>thead>tr>th:first-child>img:first-child {
   padding-right: 0.25em;
   vertical-align: text-bottom;
-  width: 18px;
+  width: 20px;
 }
 
 /* paragraphs inside tables */

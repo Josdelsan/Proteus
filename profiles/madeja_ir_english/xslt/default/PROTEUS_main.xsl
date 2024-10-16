@@ -141,14 +141,13 @@
     <xsl:include href="archetypes/requirements/system-actor.xsl" />
     <xsl:include href="archetypes/requirements/information_requirement.xsl" />
     <xsl:include href="archetypes/requirements/business_rule.xsl" />
+    <xsl:include href="archetypes/requirements/functional_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/nonfunctional_requirement.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 
     <!--
-    <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_functional_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_nonfunctional_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
