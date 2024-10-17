@@ -15,7 +15,4 @@
   </properties>
   <documents>
   </documents>
-  <xsl-templates>
-    <xsl-template name="default" />
-  </xsl-templates>
 </project>

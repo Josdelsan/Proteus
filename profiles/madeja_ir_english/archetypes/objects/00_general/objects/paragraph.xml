@@ -4,6 +4,7 @@
   classes="general-traceable-object paragraph" 
   acceptedChildren=":Proteus-none" 
   acceptedParents=":Proteus-document section"
+  selectedCategory="detail"
 >
   <properties>
     <stringProperty name=":Proteus-name"><![CDATA[Paragraph]]></stringProperty>

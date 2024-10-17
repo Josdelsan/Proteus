@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------------
 
 import pytest
-from PyQt6.QtWidgets import QTreeWidgetItem
+from PyQt6.QtWidgets import QTreeWidgetItem, QTabWidget
 from PyQt6.QtCore import QPoint
 
 # --------------------------------------------------------------------------
@@ -34,7 +34,12 @@ from proteus.views.components.document_tree import DocumentTree
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.tests.fixtures import SampleData
-from proteus.tests.end2end.fixtures import app, load_project, get_context_menu, get_dialog
+from proteus.tests.end2end.fixtures import (
+    app,
+    load_project,
+    get_context_menu,
+    get_dialog,
+)
 
 # --------------------------------------------------------------------------
 # Fixtures
@@ -63,7 +68,7 @@ def test_edit_object(app, object_name, document_name):
     Checks:
         - Object was edited
         - Buttons are enabled
-    
+
     NOTE: Do not double check the properties are updated in the dialog.
     This is tested in test_edit_document.py, this is focused on the
     context menu access and tree item update.
@@ -110,7 +115,9 @@ def test_edit_object(app, object_name, document_name):
     # Get element position
     element_position: QPoint = document_tree.visualItemRect(tree_element).center()
 
-    context_menu: ContextMenu = get_context_menu(lambda: document_tree.customContextMenuRequested.emit(element_position))
+    context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(element_position)
+    )
     first_dialog: PropertyDialog = get_dialog(context_menu.action_edit_object.trigger)
 
     # Change properties
@@ -120,7 +127,7 @@ def test_edit_object(app, object_name, document_name):
     # Accept dialog
     first_dialog.accept_button.click()
     first_dialog.deleteLater()
-    
+
     # --------------------------------------------
     # Assert
     # --------------------------------------------
@@ -149,3 +156,73 @@ def test_edit_object(app, object_name, document_name):
     assert (
         current_name == NEW_NAME
     ), f"Expected name to be '{NEW_NAME}' but it is '{current_name}'"
+
+
+@pytest.mark.parametrize(
+    "object_name, tab_index",
+    [
+        ("simple_paragraph", 0),
+        ("paragraph_edit_dialog_auto_selects_detail_tab", 1),
+    ],
+)
+def test_edit_dialog_select_specific_category_on_open(app, object_name, tab_index):
+    """
+    Test the edit object dialog auto selects an specific category
+    tab on dialog open depending on the object information.
+    """
+    # --------------------------------------------
+    # Arrange
+    # --------------------------------------------
+    main_window: MainWindow = app
+
+    object_id = SampleData.get(object_name)
+    document_id = SampleData.get("document_1")
+
+    load_project(main_window=main_window)
+
+    # Get document container
+    documents_container: DocumentsContainer = (
+        main_window.project_container.documents_container
+    )
+
+    # Click the document tab
+    tab = documents_container.tabs.get(document_id)
+    document_tab_index: int = documents_container.indexOf(tab)
+    documents_container.currentChanged.emit(document_tab_index)
+
+    # Right click arrange
+    # NOTE: Clicking in a QMenu is not supported by pytest-qt
+    # https://github.com/pytest-dev/pytest-qt/issues/195
+    document_tree: DocumentTree = documents_container.tabs[document_id]
+    tree_element: QTreeWidgetItem = document_tree.tree_items[object_id]
+    # Click the object tree item
+    document_tree.itemPressed.emit(tree_element, 0)
+
+    # --------------------------------------------
+    # Act
+    # --------------------------------------------
+
+    # Get element position
+    element_position: QPoint = document_tree.visualItemRect(tree_element).center()
+
+    context_menu: ContextMenu = get_context_menu(
+        lambda: document_tree.customContextMenuRequested.emit(element_position)
+    )
+    first_dialog: PropertyDialog = get_dialog(context_menu.action_edit_object.trigger)
+
+    # Store selected category tab (QTabWidget index)
+    tab_widget: QTabWidget = first_dialog.findChild(QTabWidget)
+    selected_category_index = tab_widget.currentIndex()
+
+    # Accept dialog
+    first_dialog.accept_button.click()
+    first_dialog.deleteLater()
+
+    # --------------------------------------------
+    # Assert
+    # --------------------------------------------
+
+    # Check selected category tab
+    assert (
+        selected_category_index == tab_index
+    ), f"Expected category tab to be '{tab_index}' but it is '{selected_category_index}'"

@@ -25,7 +25,10 @@ import lxml.etree as ET
 # Project specific imports (starting from root)
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusID, ProteusClassTag
+from proteus import PROTEUS_TEMP_DIR
+from proteus.model import ProteusID, ProteusClassTag, ASSETS_REPOSITORY
+from proteus.application import ASSETS_DUMMY_SEARCH_PATH, TEMPLATE_DUMMY_SEARCH_PATH
+from proteus.application.metrics import Metrics
 from proteus.controller.commands.update_properties import UpdatePropertiesCommand
 from proteus.controller.commands.clone_archetype_object import (
     CloneArchetypeObjectCommand,
@@ -43,7 +46,7 @@ from proteus.controller.commands.sort_children import SortChildrenCommand
 from proteus.services.project_service import ProjectService
 from proteus.services.archetype_service import ArchetypeService
 from proteus.services.render_service import RenderService
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.utils.decorators import proteus_action
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -52,8 +55,6 @@ from proteus.model.template import Template
 
 from proteus.application.configuration.config import Config
 from proteus.application.events import (
-    AddViewEvent,
-    DeleteViewEvent,
     StackChangedEvent,
     RequiredSaveActionEvent,
     OpenProjectEvent,
@@ -765,14 +766,14 @@ class Controller:
     # ----------------------------------------------------------------------
     def get_html_view(self, xslt_name: str = "default") -> str:
         """
-        Get the string representation of the document view given its id. The
-        view is generated using the xslt file specified in the xslt_name. If
-        the xslt_name is not specified, the default xslt is used.
+        Get the HTML string view of the project XML processed with the given
+        XSLT template.
 
         XSLT files are located in the xslt folder, defined in the config file.
 
         :param document_id: The id of the document to get the view.
         :param xslt_name: The name of the xslt file to use.
+        :return: The HTML string of the view.
         """
         log.info(f"Getting {xslt_name} render of project.")
 
@@ -782,6 +783,48 @@ class Controller:
         html_string: str = self._render_service.render(xml, xslt_name)
 
         return html_string
+
+    # ----------------------------------------------------------------------
+    # Method     : get_html_view_path
+    # Description: Get the HTML view of the document given a XSLT template
+    #              name.
+    # Date       : 01/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @Metrics.html_generation_time_decorator
+    def get_html_view_path(self, xslt_name: str = "default") -> str:
+        """
+        Generate a temporary HTML file that contains the view of the project
+        XML processed with the given XSLT template.
+
+        XSLT files are located in the xslt folder, defined in the config file.
+
+        :param document_id: The id of the document to get the view.
+        :param xslt_name: The name of the xslt file to use.
+        :return: The path of the generated HTML file.
+        """
+        html_string = self.get_html_view(xslt_name)
+
+        # Replace the dummy search paths with the real paths
+        assets_dir = (
+            StateManager().current_project_path / ASSETS_REPOSITORY
+        ).as_posix()
+        xslt_dir = Config().profile_settings.xslt_directory.as_posix()
+
+        html_string = html_string.replace(
+            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"file:///{assets_dir}/"
+        )
+        html_string = html_string.replace(
+            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"file:///{xslt_dir}/"
+        )
+
+        # Save the html file
+        html_dir = Path(PROTEUS_TEMP_DIR) / "temp_project_render.html"
+        with open(html_dir.as_posix(), "w", encoding="utf-8") as f:
+            f.write(html_string)
+
+        return html_dir.as_posix()
 
     # ----------------------------------------------------------------------
     # Method     : get_available_xslt
@@ -818,82 +861,6 @@ class Controller:
         return next(
             template for template in templates if template.name == template_name
         )
-
-    # ----------------------------------------------------------------------
-    # Method     : get_project_templates
-    # Description: Get the available project templates in the templates folder.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def get_project_templates(self) -> List[str]:
-        """
-        Get the project templates in the proteus.xml project file. Note that
-        templates that are not in the app installation are ignored and not
-        saved when the project is saved.
-        """
-        project: Project = self._project_service.project
-        return project.xsl_templates
-
-    # ----------------------------------------------------------------------
-    # Method     : add_project_template
-    # Description: Add a new project template to the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def add_project_template(self, template_name: str) -> None:
-        """
-        Add a new project template to the project.
-
-        Triggers AddViewEvent.
-
-        :param template_name: The name of the template to add.
-        """
-        log.info(f"Adding '{template_name}' template to the project")
-
-        # Get the available templates to check if the template exists
-        loaded_templates: List[Template] = self._render_service.get_templates()
-
-        # Check the template exists
-        assert template_name in [
-            template.name for template in loaded_templates
-        ], f"Template {template_name} does not exist in the xslt directory!"
-
-        self._project_service.add_project_template(template_name)
-
-        # Trigger ADD_VIEW event notifying the new template
-        AddViewEvent().notify(template_name)
-
-        # Notify that this action requires saving even if the command is not
-        # undoable
-        RequiredSaveActionEvent().notify()
-
-    # ----------------------------------------------------------------------
-    # Method     : delete_project_template
-    # Description: Delete a project template from the project.
-    # Date       : 23/06/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def delete_project_template(self, template_name: str) -> None:
-        """
-        Remove a project template from the project.
-
-        Triggers DeleteViewEvent.
-
-        :param template_name: The name of the template to remove.
-        """
-        log.info(f"Removing '{template_name}' template from the project")
-
-        self._project_service.delete_project_template(template_name)
-
-        # Trigger REMOVE_VIEW event
-        DeleteViewEvent().notify(template_name)
-
-        # Notify that this action requires saving even if the command is not
-        # undoable
-        RequiredSaveActionEvent().notify()
 
     # ======================================================================
     # Archetype methods

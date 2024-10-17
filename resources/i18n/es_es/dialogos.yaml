@@ -46,7 +46,7 @@ spellcheck.language.nl: "Holandés"
 
 main_menu.open_project.caption: "Seleccione una carpeta de proyecto"
 main_menu.open_project.error.title: "Error al abrir el proyecto"
-main_menu.open_project.error.text: "No se pudo abrir el proyecto"
+main_menu.open_project.error.text: "Ha ocurrido un error al abrir el proyecto. Más información en el archivo de registro de la aplicación"
 main_menu.open_project.save.title: "Guardar cambios antes de abrir el proyecto"
 main_menu.open_project.save.text: "¿Desea guardar los cambios actuales antes de abrir el nuevo proyecto seleccionado?"
 
@@ -156,14 +156,14 @@ export_dialog.export_html.error.folder_exists: "Ya existe una carpeta con ese no
 # Information dialog
 # ---------------------------------------------------------------------------
 information_dialog.title: "Información sobre Proteus"
-information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados. 
-Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos. 
-Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios. 
-Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes. 
+information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados.
+Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos.
+Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios.
+Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado).
 Esta versión es principalmente la evolución de los resultados del Proyecto Fin de Carrera de José María Delgado."
 information_dialog.license.text: "Esta aplicacion se distribuyen bajo la licencia BSD 3-Clause 'New' or 'Revised'."
-information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal. 
-El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo. 
+information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal.
+El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo.
 Los autores no son responsables de ningún daño causado por el uso de este software.
 Sevilla, Septiembre de 2024."
 
@@ -173,6 +173,7 @@ Sevilla, Septiembre de 2024."
 trace_edit_dialog.title: "Selecciona un elemento a trazar"
 trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
 trace_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
+trace_edit_dialog.any_document: "Cualquier documento"
 
 # ---------------------------------------------------------------------------
 # Delete dialog
@@ -188,5 +189,3 @@ delete_dialog.tree.header: Haz clic en cada ítem para ver los elementos que se 
 asset_edit.file_dialog.title: "Seleccionar imagen"
 asset_edit.file_dialog.filter: "Imágenes"
 
-asset_edit.warning.title: "Advertencia"
-asset_edit.warning.text: "Ya existe un archivo con ese nombre en la carpeta de recursos 'assets', ¿desea sobreescribirlo?"

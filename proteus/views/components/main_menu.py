@@ -55,7 +55,8 @@ from proteus.views.components.archetypes_menu_dropdown import (
 )
 from proteus.views import buttons
 from proteus.views.buttons import ArchetypeMenuButton
-from proteus.application.state_restorer import read_state_from_file, write_state_to_file
+from proteus.application.state.restorer import read_state_from_file
+from proteus.application.state.exporter import write_state_to_file
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.clipboard import Clipboard
@@ -194,10 +195,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         icon_label.setPixmap(profile_icon.pixmap(2000, 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-
-        profile_name: QLabel = QLabel(
-            profile_metadata.name
-        )
+        profile_name: QLabel = QLabel(profile_metadata.name)
         profile_name.setWordWrap(True)
         profile_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -331,21 +329,15 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ---------
         # Cut action
         self.cut_button: QToolButton = buttons.cut_button(self)
-        self.cut_button.clicked.connect(
-            Clipboard().cut
-        )
+        self.cut_button.clicked.connect(Clipboard().cut)
 
         # Copy action
         self.copy_button: QToolButton = buttons.copy_button(self)
-        self.copy_button.clicked.connect(
-            Clipboard().copy
-        )
+        self.copy_button.clicked.connect(Clipboard().copy)
 
         # Paste action
         self.paste_button: QToolButton = buttons.paste_button(self)
-        self.paste_button.clicked.connect(
-            Clipboard().paste
-        )
+        self.paste_button.clicked.connect(Clipboard().paste)
 
         # Add the buttons to the clipboard menu widget
         clipboard_menu: QWidget = buttons.button_group(
@@ -444,9 +436,11 @@ class MainMenu(QDockWidget, ProteusComponent):
 
             if len(archetype_list) == 1:
                 archetype_button.clicked.connect(
-                    lambda action, archetype_id=archetype_list[0].id: self._controller.create_object(
-                    archetype_id, parent_id=self._state_manager.get_current_object()
-                )
+                    lambda action, archetype_id=archetype_list[
+                        0
+                    ].id: self._controller.create_object(
+                        archetype_id, parent_id=self._state_manager.get_current_object()
+                    )
                 )
                 archetype_button.single_archetype_mode(archetype_list[0])
             elif len(archetype_list) > 1:
@@ -518,7 +512,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         ClipboardChangedEvent().connect(self.update_on_clipboard_changed)
         SelectObjectEvent().connect(self.update_on_clipboard_changed)
         StackChangedEvent().connect(self.update_on_clipboard_changed)
-
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -618,7 +611,9 @@ class MainMenu(QDockWidget, ProteusComponent):
                     archetype_menu_button.setEnabled(archetype_is_accepted)
                 else:
                     # Get the menu of the archetype button
-                    archetype_menu: ArchetypesMenuDropdown = archetype_menu_button.menu()
+                    archetype_menu: ArchetypesMenuDropdown = (
+                        archetype_menu_button.menu()
+                    )
 
                     # Iterate over the archetype list and check at least one
                     # archetype is accepted by the selected object
@@ -784,9 +779,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             try:
                 directory_path = Path(project_file_path).parent
                 self._controller.load_project(project_path=directory_path.as_posix())
-                read_state_from_file(
-                    Path(directory_path), self._controller, self._state_manager
-                )
+                read_state_from_file(self._controller)
             except Exception as e:
                 log.error(f"Error loading project: {e}")
                 informative_text: str = str(e)
@@ -815,8 +808,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         self._controller.save_project()
 
         # Write the state to a file
-        project_path: str = self._controller.get_current_project().path
-        write_state_to_file(Path(project_path).parent, self._state_manager)
+        write_state_to_file()
 
     # ----------------------------------------------------------------------
     # Method     : delete_current_document

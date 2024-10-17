@@ -5,6 +5,9 @@
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
+# Update: 2024/09/19 (Amador Durán)
+# "Default template" -> "Default view"
+# ==========================================================================
 
-xslt_templates.default: "Vista por defecto"
-xslt_templates.description.default: "Vista por defecto para la asignatura IR"
+xslt_templates.default: "Requirements Engineering view"
+xslt_templates.description.default: "Default view for the RE course"

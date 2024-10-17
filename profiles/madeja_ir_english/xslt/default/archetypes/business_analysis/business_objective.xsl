@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_business_objective.xsl                 -->
+<!-- File    : business_objective.xsl                         -->
 <!-- Content : PROTEUS default XSLT for business-objective    -->
 <!-- Author  : Amador Durán Toro                              -->
 <!-- Date    : 2024/09/18                                     -->
@@ -29,13 +29,13 @@
         <!-- This was suggested by Claude AI.                                     -->
 
         <!-- List of excluded properties (not shown) -->
-        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,description,</xsl:variable>
+        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,description,dependencies,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
-        <xsl:variable name="mandatory_properties">,description,importance,priority,</xsl:variable>
+        <xsl:variable name="mandatory_properties">,importance,priority,</xsl:variable>
 
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="madeja_object remus_table">
+            <table class="business_objective remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>

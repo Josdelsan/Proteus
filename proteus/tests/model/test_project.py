@@ -432,21 +432,4 @@ def test_save_project_document_delete(cloned_project: Project):
         Actual: {num_documents_after_delete}"
 
 
-def test_load_xsl_templates(sample_project: Project):
-    """
-    Test Project load_xsl_templates method
-    """
-    # Expected xsl templates
-    expected_xsl_templates = ["remus"]
-
-    # Parse and load XML into memory
-    root: ET.Element = ET.parse(sample_project.path).getroot()
-    actual_xsl_templates: List[str] = sample_project.load_xsl_templates(root)
-
-    # Check that xsl templates are equal
-    assert (
-        expected_xsl_templates == actual_xsl_templates
-    ), f"XSL templates are not equal. Expected: {expected_xsl_templates} \
-        Actual: {actual_xsl_templates}"
-
     # TODO: Test add_descendant and accept descendant (not prioritary for project)

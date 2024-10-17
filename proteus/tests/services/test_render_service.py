@@ -135,7 +135,7 @@ def test_render(
 
     # Mock StataManager get_current_document method
     mocker.patch(
-        "proteus.application.state_manager.StateManager.get_current_document",
+        "proteus.application.state.manager.StateManager.get_current_document",
         return_value="722GfFiezi5F",
     )
 

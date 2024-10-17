@@ -835,3 +835,35 @@ class DeleteViewEvent(ProteusEvent):
         :param method: The method to connect to the event.
         """
         self.signal.connect(method)
+
+
+# --------------------------------------------------------------------------
+# Class: UpdateMetricsEvent
+# Description: Class for the update metrics event in the PROTEUS
+# Date: 01/10/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class UpdateMetricsEvent(ProteusEvent):
+    """
+    Event to handle the update of the application metrics in the PROTEUS application.
+    """
+
+    signal = pyqtSignal()
+
+    def notify(self) -> None:
+        """
+        Notify the event that the application metrics have been updated.
+        """
+        log.debug("Emitting UPDATE METRICS EVENT signal...")
+
+        self.signal.emit()
+
+    def connect(self, method: Callable[[], None]) -> None:
+        """
+        Connect a method to the update metrics event. The method should
+        take no arguments.
+
+        :param method: The method to connect to the event.
+        """
+        self.signal.connect(method)

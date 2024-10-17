@@ -27,6 +27,7 @@ from PyQt6.QtGui import QIcon
 # --------------------------------------------------------------------------
 
 from proteus.application.utils.abstract_meta import SingletonMeta
+from proteus.application.configuration.config import Config
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -124,13 +125,20 @@ class Icons(metaclass=SingletonMeta):
     def _load_icons(self, icons_path: Path) -> None:
         """
         Loads the icons configuration file 'icons.xml' from the given directory.
-        Stores the icons paths found in the configuration file. 
+        Stores the icons paths found in the configuration file.
 
         :param icons_path: Path to the icons directory.
         """
 
         # Parse icons file
         icons_file: Path = icons_path / ICONS_FILE
+
+        # Check if icons file exists
+        assert icons_file.exists(), (
+            f"Icons file '{icons_file}' does not exist. If you are loading icons from the app resources directory, this might crash the application. "
+            "If you are loading icons from the profile icons directory, it will just look for png files in the root icons directory."
+        )
+
         resources_icons_tree: ET._ElementTree = ET.parse(icons_file)
         resources_icons_root: ET._Element = resources_icons_tree.getroot()
 
@@ -224,8 +232,8 @@ class Icons(metaclass=SingletonMeta):
     # --------------------------------------------------------------------------
     # Method: icon_path
     # Description: Returns the icon path for the given key and type
-    # Date: 12/02/2024
-    # Version: 0.1
+    # Date: 08/10/2024
+    # Version: 0.2
     # Author: José María Delgado Sánchez
     # --------------------------------------------------------------------------
     def icon_path(
@@ -234,29 +242,59 @@ class Icons(metaclass=SingletonMeta):
         """
         It returns the icon path for the given type and key.
 
+        Archetypes and document icons are looked up in the profile icons directory
+        first and then in the app resources icons/archetypes directory if the key
+        is not found.
+
         :param type: Icon type.
         :param key: Icon key.
+        :return: Icon path or None if the icon is not found.
         """
-        try:
-            # Check if key exists
-            if key not in self._icons_paths[type]:
-                log.warning(
-                    f"Icon key '{key}' not found for type '{type}', using default icon"
-                )
-                key = DEFAULT_ICON_KEY
-
-            # Default icon may not exist, log a critical message
-            icon_path = self._icons_paths[type].get(key, None)
-            if icon_path is None:
-                log.critical(
-                    f"Icon path not found for type '{type}' and key '{key}', check default icons."
-                )
-
-            return icon_path
-
-        except KeyError:
+        if type not in self._icons_paths:
             log.critical(f"Type {type} not found in dynamic icons dictionary.")
             return None
+
+        icons_paths = self._icons_paths[type]
+
+        # Special case for archetypes and document acronyms. In order to reduce the number
+        # of steps needed to add archetypes, we will search for the icon based on the key
+        # name in the icons directories.
+        if key not in icons_paths and type in [
+            ProteusIconType.Archetype,
+            ProteusIconType.Document,
+        ]:
+            log.debug(
+                f"Icon key '{key}' not found for type '{type}', trying to find '{key}.png' in profile icons directories."
+            )
+
+            # Check if key exists in any of the directories
+            alternative_icons_profile_path = (
+                Config().profile_settings.icons_directory / f"{key}.png"
+            )
+            if alternative_icons_profile_path.exists():
+                return alternative_icons_profile_path
+
+            log.debug(
+                f"Icon '{key}.png' not found in '{alternative_icons_profile_path}'. Using default icon."
+            )
+
+            key = DEFAULT_ICON_KEY
+
+        # Base case, key not found and not archetype type
+        if key not in icons_paths and type != ProteusIconType.Archetype:
+            log.debug(
+                f"Icon key '{key}' not found for type '{type}', using default icon"
+            )
+            key = DEFAULT_ICON_KEY
+
+        # Default icon may not exist, log a critical message
+        icon_path = self._icons_paths[type].get(key, None)
+        if icon_path is None:
+            log.critical(
+                f"Icon path not found for type '{type}' and key '{key}', check default icons."
+            )
+
+        return icon_path
 
     # --------------------------------------------------------------------------
     # Method: icon
@@ -267,15 +305,19 @@ class Icons(metaclass=SingletonMeta):
     # --------------------------------------------------------------------------
     def icon(self, type: ProteusIconType, key: str = DEFAULT_ICON_KEY) -> QIcon:
         """
-        It returns the icon (QIcon) for the given type and key.
+        It returns the icon (QIcon) for the given type and key. Icons are
+        stored in a memo to avoid creating multiple QIcon objects for the same
+        icon.
 
         :param type: Icon type.
         :param key: Icon key.
+        :return: Icon (QIcon) for the given type and key. If the icon is not
+        found, it returns an empty QIcon.
         """
         # Check if icon is already in memo
         if key in self._icons_memo[type]:
             return self._icons_memo[type][key]
-        
+
         icon_path = self.icon_path(type, key)
         icon = QIcon(icon_path.as_posix()) if icon_path else QIcon()
         self._icons_memo[type][key] = icon

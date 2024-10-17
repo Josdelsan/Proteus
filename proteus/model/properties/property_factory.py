@@ -51,6 +51,7 @@ from proteus.model import (
     TARGET_ATTRIBUTE,
     TRACE_TYPE_ATTRIBUTE,
     ACCEPTED_TARGETS_ATTRIBUTE,
+    EXCLUDED_TARGETS_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
 )
 
@@ -176,18 +177,24 @@ class PropertyFactory:
             return EnumProperty(
                 name, category, value, tooltip, required, inmutable, choices
             )
-        
+
         # Special case: traceProperty
         if property_class is TraceProperty:
             # We need to collect its trace type, max targets number and accepted targets
             trace_type = element.attrib.get(TRACE_TYPE_ATTRIBUTE, DEFAULT_TRACE_TYPE)
 
-            accepted_targets: List | None = element.attrib.get(
+            accepted_targets: List = element.attrib.get(
                 ACCEPTED_TARGETS_ATTRIBUTE, PROTEUS_ANY
             ).split()
-            
+
+            excluded_targets: List = element.attrib.get(
+                EXCLUDED_TARGETS_ATTRIBUTE, ""
+            ).split()
+
             try:
-                max_targets_number: int = int(element.attrib.get(MAX_TARGETS_NUMBER_ATTRIBUTE, NO_TARGETS_LIMIT))
+                max_targets_number: int = int(
+                    element.attrib.get(MAX_TARGETS_NUMBER_ATTRIBUTE, NO_TARGETS_LIMIT)
+                )
             except ValueError:
                 log.warning(
                     f"PROTEUS propertyTrace '{name}' has a max targets number that is not an integer -> assigning NO_TARGETS_LIMIT=-1 as max targets number"
@@ -195,7 +202,16 @@ class PropertyFactory:
                 max_targets_number = NO_TARGETS_LIMIT
 
             return TraceProperty(
-                name, category, value, tooltip, required, inmutable, accepted_targets, trace_type, max_targets_number
+                name,
+                category,
+                value,
+                tooltip,
+                required,
+                inmutable,
+                accepted_targets,
+                excluded_targets,
+                trace_type,
+                max_targets_number,
             )
 
         # Ordinary case: rest of property classes

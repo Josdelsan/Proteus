@@ -31,6 +31,7 @@ example_project:
   simple_use_case: 4VcsmExNNn8K
   simple_information_req: 47y7gcbz4c8n
   simple_objective: 5ND5HhYmadja
+  paragraph_edit_dialog_auto_selects_detail_tab: bt2BDD8xSgSu
 
   # Objects with different depth levels, no traces dependencies
   section_dl_1: 85xnhSdzNmMB

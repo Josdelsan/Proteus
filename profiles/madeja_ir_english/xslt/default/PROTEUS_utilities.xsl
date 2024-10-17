@@ -64,7 +64,9 @@
     <!-- generate_property_row template                -->
     <!-- ============================================= -->
 
-    <!-- current() is the property element being processed -->
+    <!-- current() is the property element being processed. -->
+    <!-- 'tbd' is considered as having no content, it shown -->
+    <!-- only if it mandatory.                              -->
 
     <xsl:template name="generate_property_row">
         <xsl:param name="label" select="$property_labels/label[@key=current()/@name]"/>
@@ -73,7 +75,7 @@
         <xsl:param name="alternative"/>
         <xsl:param name="span" select="1"/>
 
-        <xsl:variable name="hasContent"  select="string-length(current()//text()) > 0"/>
+        <xsl:variable name="hasContent"  select="(string-length(current()//text()) > 0) and (normalize-space(current()) != 'tbd')"/>
         <xsl:variable name="hasChildren" select="boolean(current()/*)"/>
 
         <xsl:if test="$hasContent or $hasChildren or $mandatory">
@@ -117,7 +119,7 @@
                     <xsl:value-of select="$label"/>
                 </th>
                 <td colspan="{$span}">
-                    <ul class="subobjectives">
+                    <ul class="children">
                         <!-- for each children -->
                         <xsl:for-each select="children/object">
                             <li>
@@ -152,7 +154,8 @@
             </strong>
             <xsl:if test="$description">
                 <xsl:text>: </xsl:text>
-                [<xsl:value-of select="$description"/>]
+                <!-- <xsl:value-of select="$description"/> -->
+                <xsl:apply-templates select="$description"/>
             </xsl:if>
 
             <!-- Does it have children? -->
@@ -324,10 +327,10 @@
             </xsl:call-template>
         </xsl:if>
 
-        <xsl:if test="properties/enumProperty[@name='development-status'] != 'nd'">
+        <xsl:if test="properties/enumProperty[@name='status'] != 'nd'">
             <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_status"/>
-                <xsl:with-param name="content" select="properties/enumProperty[@name='development-status']"/>
+                <xsl:with-param name="content" select="properties/enumProperty[@name='status']"/>
                 <xsl:with-param name="span"    select="$span"/>
             </xsl:call-template>
         </xsl:if>

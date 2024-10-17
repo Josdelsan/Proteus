@@ -22,7 +22,6 @@ from PyQt6.QtWidgets import (
     QLabel,
     QComboBox,
     QSizePolicy,
-    QFrame,
 )
 
 
@@ -33,7 +32,7 @@ from PyQt6.QtWidgets import (
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
-
+from proteus.application.events import AddViewEvent
 
 
 # --------------------------------------------------------------------------
@@ -111,7 +110,7 @@ class NewViewDialog(ProteusDialog):
         )
         self.reject_button.clicked.connect(self.cancel_button_clicked)
         self.view_combo.currentIndexChanged.connect(self.update_description)
-        self.update_description() # First call
+        self.update_description()  # First call
 
         # Error message label
         self.error_label: QLabel = QLabel()
@@ -148,12 +147,16 @@ class NewViewDialog(ProteusDialog):
                 f"xslt_templates.description.{view_name}", alternative_text=""
             )
             if description == "":
-                self.description_content_label.setStyleSheet("color: red; font-style: italic;")
+                self.description_content_label.setStyleSheet(
+                    "color: red; font-style: italic;"
+                )
                 self.description_content_label.setText(
                     _("new_document_dialog.archetype.description.empty")
                 )
             else:
-                self.description_content_label.setStyleSheet("color: black; font-style: italic;")
+                self.description_content_label.setStyleSheet(
+                    "color: black; font-style: italic;"
+                )
                 self.description_content_label.setText(description)
 
     # ----------------------------------------------------------------------
@@ -172,12 +175,12 @@ class NewViewDialog(ProteusDialog):
             self.error_label.setText(_("new_view_dialog.error.no_view_selected"))
             return
 
-        if combo_text in self._controller.get_project_templates():
+        if combo_text in self._state_manager.opened_views:
             self.error_label.setText(_("new_view_dialog.error.duplicated_view"))
             return
 
-        # Add the new template to the project and call the event
-        self._controller.add_project_template(combo_text)
+        # Trigger ADD_VIEW event notifying the new template
+        AddViewEvent().notify(combo_text)
 
         # Close the form window
         self.close()

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object
+    id="object-invariant"
+    classes="object-invariant"
+    acceptedChildren=":Proteus-none"
+    acceptedParents="object-type association-type"
+>
+    <properties>
+      <stringProperty name=":Proteus-name" category="general" required="true">Invariant</stringProperty>
+      <markdownProperty name="natural-lang" category="general"><![CDATA[]]></markdownProperty>
+      <markdownProperty name="obj-constraint-lang" category="general"><![CDATA[]]></markdownProperty>
+      <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
+    </properties>
+
+    <children/>
+
+    <traces/>
+
+</object>

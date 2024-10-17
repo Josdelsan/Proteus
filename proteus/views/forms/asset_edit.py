@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ASSETS_REPOSITORY
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 
@@ -170,6 +170,9 @@ class AssetEdit(QWidget):
         Opens a file dialog and sets the selected file as the input value.
         Copies the file to the assets directory if it is not already there.
         """
+        # Copy file path variable
+        asset_file_path = None
+
         # Assets directory
         assets_path = StateManager().current_project_path / ASSETS_REPOSITORY
 
@@ -192,6 +195,7 @@ class AssetEdit(QWidget):
 
             # Build file path
             file_path: Path = Path(selected_file)
+            asset_file_path = file_path
 
             # NOTE: We copy the file to the project directory
             # so we can perform undo/redo operations. If we don't
@@ -205,39 +209,25 @@ class AssetEdit(QWidget):
                 # Before copying the file, check if it already exists
                 # a file with the same name in the assets directory
                 if (assets_path / file_path.name).exists():
-                    # Ask the user if he wants to overwrite the file
-                    msg_box = QMessageBox()
-                    msg_box.setIcon(QMessageBox.Icon.Warning)
-                    proteus_icon = Icons().icon(ProteusIconType.App, "proteus_icon")
-                    msg_box.setWindowIcon(proteus_icon)
-                    msg_box.setWindowTitle(_("asset_edit.warning.title"))
-                    msg_box.setText(_("asset_edit.warning.text"))
-                    msg_box.setStandardButtons(
-                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-                    )
+                    
+                    # Add a number to the file name
+                    file_name = file_path.stem
+                    file_extension = file_path.suffix
+                    number = 1
+                    while (assets_path / f"{file_name} ({number}){file_extension}").exists():
+                        number += 1
 
-                    msg_box.button(QMessageBox.StandardButton.Yes).setText(
-                        _("dialog.yes_button")
-                    )
-                    msg_box.button(QMessageBox.StandardButton.No).setText(
-                        _("dialog.no_button")
-                    )
+                    # Copy the file
+                    asset_file_path = shutil.copy2(file_path, assets_path / f"{file_name} ({number}){file_extension}")
 
-                    msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-                    msg_box.exec()
-
-                    if msg_box.result() == QMessageBox.StandardButton.No:
-                        return
-                    elif msg_box.result() == QMessageBox.StandardButton.Yes:
-                        shutil.copy(file_path, assets_path)
                 else:
-                    shutil.copy(file_path, assets_path)
+                    asset_file_path = shutil.copy2(file_path, assets_path)
 
             # Get file name
             # NOTE: It will be stored in the property value and
             # used to create the path to the file relative to
             # the project directory
-            file_name = file_path.name
+            file_name = Path(asset_file_path).name
             self.input.setText(file_name)
        
     # ----------------------------------------------------------------------

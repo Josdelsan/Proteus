@@ -56,18 +56,21 @@
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
         <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
+        <label key="inherits-from"><xsl:value-of select="$proteus:lang_inherits_from"/></label>
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
         <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>
         <label key="sources"><xsl:value-of select="$proteus:lang_sources"/></label>
+        <label key="stability"><xsl:value-of select="$proteus:lang_stability"/></label>
         <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>
         <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
         <label key="works-for"><xsl:value-of select="$proteus:lang_organization"/></label>
-        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
+        <label key="status"><xsl:value-of select="$proteus:lang_status"/></label>
         <label key="time"><xsl:value-of select="$proteus:lang_time"/></label>
         <label key="participates-in"><xsl:value-of select="$proteus:lang_participates_in"/></label>
         <label key="place"><xsl:value-of select="$proteus:lang_place"/></label>
@@ -117,6 +120,7 @@
 
     <xsl:include href="archetypes/general/section.xsl" />
     <xsl:include href="archetypes/general/appendix.xsl" />
+    <xsl:include href="archetypes/general/information.xsl" />
     <xsl:include href="archetypes/general/paragraph.xsl" />
     <xsl:include href="archetypes/general/glossary_item.xsl" />
     <xsl:include href="archetypes/general/figure.xsl" />
@@ -130,18 +134,20 @@
     <xsl:include href="archetypes/business_analysis/business_actor.xsl" />
     <xsl:include href="archetypes/business_analysis/business_process.xsl" />
     <xsl:include href="archetypes/business_analysis/business_objective.xsl" />
-    <xsl:include href="archetypes/business_analysis/PROTEUS_user_story.xsl" />
+    <xsl:include href="archetypes/business_analysis/user_story.xsl" />
+
+    <xsl:include href="archetypes/requirements/subsystem.xsl" />
+    <xsl:include href="archetypes/requirements/general-requirement.xsl" />
+    <xsl:include href="archetypes/requirements/system-actor.xsl" />
+    <xsl:include href="archetypes/requirements/information_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/business_rule.xsl" />
+    <xsl:include href="archetypes/requirements/functional_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/nonfunctional_requirement.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 
     <!--
-    <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_constraint.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_functional_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_nonfunctional_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />

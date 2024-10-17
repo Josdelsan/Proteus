@@ -26,7 +26,7 @@ from proteus.model import ProteusID
 from proteus.model.properties import TraceProperty
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.controller.commands.delete_object import DeleteObjectCommand
 from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.tests.fixtures import SampleData

@@ -7,5 +7,5 @@
 # Author: José María Delgado Sánchez
 # ==========================================================================
 
-xslt_templates.default: "Vista para Ingeniería de Requisitos"
-xslt_templates.description.default: "Vista por defecto para la asignatura IR"
+xslt_templates.default: "Plantilla por defecto de IR"
+xslt_templates.description.default: "Plantilla por defecto para la asignatura IR"

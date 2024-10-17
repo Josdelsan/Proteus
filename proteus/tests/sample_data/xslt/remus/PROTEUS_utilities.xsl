@@ -225,10 +225,10 @@
             </xsl:call-template>
         </xsl:if>
 
-        <xsl:if test="properties/enumProperty[@name='development-status'] != 'nd'">
+        <xsl:if test="properties/enumProperty[@name='status'] != 'nd'">
             <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_status"/>
-                <xsl:with-param name="content" select="properties/enumProperty[@name='development-status']"/>
+                <xsl:with-param name="content" select="properties/enumProperty[@name='status']"/>
                 <xsl:with-param name="span"    select="$span"/>
             </xsl:call-template>
         </xsl:if>

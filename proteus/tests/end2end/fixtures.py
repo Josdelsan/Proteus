@@ -35,7 +35,7 @@ from proteus.tests import PROTEUS_SAMPLE_PROJECTS_PATH
 from proteus.views.components.main_window import MainWindow
 from proteus.views.components.dialogs.context_menu import ContextMenu
 from proteus.views.components.views_container import ViewsContainer
-from proteus.application.state_manager import StateManager
+from proteus.application.state.manager import StateManager
 from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import Translator
 from proteus.application.resources.icons import Icons

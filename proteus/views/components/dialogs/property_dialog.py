@@ -126,9 +126,7 @@ class PropertyDialog(ProteusDialog):
         )
 
         # Get the object's properties dictionary
-        properties_dict: Dict[str, Property] = (
-            self.object.properties.copy()
-        )
+        properties_dict: Dict[str, Property] = self.object.properties.copy()
 
         main_obj_class: str
         icon_type: ProteusIconType
@@ -143,7 +141,6 @@ class PropertyDialog(ProteusDialog):
 
             main_obj_class = "proteus_icon"
             icon_type = ProteusIconType.App
-
 
         # Dialog settings (icon is set later) ---------------------------
         self.sizeHint = lambda: QSize(500, 300)
@@ -176,15 +173,24 @@ class PropertyDialog(ProteusDialog):
         # Inspired by: https://stackoverflow.com/a/13847010
         for category_widget in category_widgets.values():
             category_layout: QFormLayout = category_widget.layout()
-            category_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
-
+            category_layout.addItem(
+                QSpacerItem(
+                    0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+                )
+            )
 
         # Tabs layout ---------------------------------------------------
 
         # Create the form vertical layout and the tab widget
         # to organize the properties by category
         tabbed_layout: QVBoxLayout = QVBoxLayout()
-        tab_widget: QTabWidget = QTabWidget()
+        tab_widget: QTabWidget = QTabWidget(self)
+
+        # Get selected category to preselect the tab (only for objects)
+        try:
+            selected_category: str = self.object.selectedCategory
+        except AttributeError:
+            selected_category = None
 
         # Add the category widgets as tabs in the tab widget
         for category, category_widget in category_widgets.items():
@@ -193,6 +199,19 @@ class PropertyDialog(ProteusDialog):
                 alternative_text=category,
             )
             tab_widget.addTab(category_widget, translated_category)
+
+            if category is not None and category == selected_category:
+                tab_widget.setCurrentWidget(category_widget)
+        
+        # Set the keyboard focus to the first input widget of the selected tab
+        first_input_widget: PropertyInput
+        input_widget: PropertyInput
+        for input_widget in tab_widget.currentWidget().findChildren(PropertyInput):
+            if not input_widget.property.inmutable:
+                first_input_widget = input_widget
+                break
+
+        first_input_widget.setKeyboardFocus()
 
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)
@@ -232,7 +251,7 @@ class PropertyDialog(ProteusDialog):
         return category_widgets
 
     def add_row_to_category_widget(
-            self, category_widget: QWidget, prop: Property
+        self, category_widget: QWidget, prop: Property
     ) -> None:
         """
         Add a row to the category widget with the property input widget and label.
@@ -325,9 +344,7 @@ class PropertyDialog(ProteusDialog):
 
             # If the values are different, clone the original property with the new value
             if new_prop_value != original_prop_value:
-                cloned_property: Property = original_prop.clone(
-                    new_prop_value
-                )
+                cloned_property: Property = original_prop.clone(new_prop_value)
                 update_list.append(cloned_property)
 
         # If there are errors, do not update the properties

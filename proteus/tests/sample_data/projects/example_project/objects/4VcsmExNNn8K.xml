@@ -7,7 +7,7 @@
     <markdownProperty name="description" category="details"><![CDATA[TBD]]></markdownProperty>
     <enumProperty name="importance" category="priority" choices="vital important">vital</enumProperty>
     <enumProperty name="urgency" category="priority" choices="immediately pressure">immediately</enumProperty>
-    <enumProperty name="development-status" category="priority" choices="developing pending">developing</enumProperty>
+    <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
     <markdownProperty name="precondition" category="conditions"><![CDATA[TBD]]></markdownProperty>
     <markdownProperty name="postcondition" category="conditions"><![CDATA[TBD]]></markdownProperty>

@@ -17,7 +17,7 @@
 
 archetype.category.general: "General"
 archetype.category.business_analysis: "Business Analysis"
-archetype.category.software_requirements: "System/Software Requirements"
+archetype.category.requirements: "System/Software Requirements"
 archetype.category.conceptual_modeling: "Conceptual Modeling"
 
 # -----------------------------------------------------------------------
@@ -27,10 +27,11 @@ archetype.category.conceptual_modeling: "Conceptual Modeling"
 # General category
 
 archetype.class.general-traceable-object: "General object"
-archetype.class.paragraph: "Paragraph"
-archetype.class.appendix: "Appendix"
-archetype.class.glossary-item: "Glossary item"
 archetype.class.section: "Section"
+archetype.class.appendix: "Appendix"
+archetype.class.information: "Information"
+archetype.class.paragraph: "Paragraph"
+archetype.class.glossary-item: "Glossary item"
 archetype.class.figure: "Figure"
 archetype.class.organization: "Organization"
 archetype.class.stakeholder: "Stakeholder"
@@ -151,7 +152,7 @@ archetype.prop_name.place: "Place"
 archetype.prop_name.results: "Results"
 archetype.prop_name.importance: "Importance"
 archetype.prop_name.urgency: "Urgency"
-archetype.prop_name.development-status: "Status"
+archetype.prop_name.status: "Status"
 archetype.prop_name.stability: "Stability"
 archetype.prop_name.source: "Source"
 archetype.prop_name.sources: "Sources"

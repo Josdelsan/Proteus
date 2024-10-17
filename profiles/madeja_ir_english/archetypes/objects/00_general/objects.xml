@@ -2,6 +2,7 @@
 <objects>
     <object id="section" />
     <object id="appendix" />
+    <object id="information" />    
     <object id="paragraph" />
     <object id="glossary-item" />
     <object id="local-figure" />

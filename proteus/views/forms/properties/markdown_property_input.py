@@ -15,9 +15,6 @@
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import (
-    QTextEdit,
-)
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -76,7 +73,7 @@ class MarkdownPropertyInput(PropertyInput):
             return "markdown_property_input.validator.error.cdata"
         
         # Check required
-        if self.property.required and (text == None or text == ""):
+        if self.property.required and (text is None or text == ""):
             return "property_input.validator.error.required"
 
         return None

@@ -81,7 +81,6 @@ class ProfileSettings:
     # Found templates
     listed_templates: List[str] = None
 
-
     # --------------------------------------------------------------------------
     # Method: load
     # Description: Load profile settings from the configuration file
@@ -119,7 +118,6 @@ class ProfileSettings:
         profile_settings._load_preference_settings()
 
         return profile_settings
-
 
     # --------------------------------------------------------------------------
     # Method: _load_directories
@@ -221,7 +219,6 @@ class ProfileSettings:
 
         self.preferred_default_view = preferred_default_view
 
-
     # --------------------------------------------------------------------------
     # Method: _validate_profile_basic_content
     # Description: Validate the basic content of the profile
@@ -244,7 +241,9 @@ class ProfileSettings:
                 template = Template.load(template_dir)
                 self.listed_templates.append(template.name)
             except Exception as e:
-                log.error(f"Could not load template from {template_dir}. It will be ignored in profile settings. Error: {e}")
+                log.error(
+                    f"Could not load template from {template_dir}. It will be ignored in profile settings. Error: {e}"
+                )
 
         assert (
             len(self.listed_templates) > 0
@@ -258,7 +257,9 @@ class ProfileSettings:
             ArchetypeRepository.load_document_archetypes(self.archetypes_directory)
             ArchetypeRepository.load_project_archetypes(self.archetypes_directory)
         except Exception as e:
-            log.error(f"Could not load archetype repository from {self.archetypes_directory}. It will be ignored in profile settings. Error: {e}")
+            log.error(
+                f"Could not load archetype repository from {self.archetypes_directory}. It will be ignored in profile settings. Error: {e}"
+            )
             raise e
 
 
@@ -297,14 +298,14 @@ class ProfileBasicMetadata:
 
         assert (
             config_file_path.exists()
-        ), f"PROTEUS profile configuration file {CONFIG_FILE} does not exist in {profile_path}!"
+        ), f"PROTEUS profile configuration file '{CONFIG_FILE}' does not exist in '{profile_path}'!"
 
         config_parser: ConfigParser = ConfigParser()
         config_parser.read(config_file_path, encoding="utf-8")
 
         settings_file_path: Path = config_file_path
 
-        log.info(f"Loading basic metadata from {settings_file_path}...")
+        log.info(f"Loading basic metadata from '{settings_file_path}'...")
 
         profile_metadata = ProfileBasicMetadata(
             profile_path=profile_path,
@@ -315,7 +316,7 @@ class ProfileBasicMetadata:
         profile_metadata._load_information()
 
         return profile_metadata
-    
+
     # --------------------------------------------------------------------------
     # Method: _load_information
     # Description: Load profile information from the configuration file
@@ -335,35 +336,41 @@ class ProfileBasicMetadata:
         try:
             self.description = information[DESCRIPTION]
         except Exception as e:
-            log.error(f"Could not load profile description from {self.settings_file_path}. Error: {e}")
+            log.error(
+                f"Could not load profile description from '{self.settings_file_path}'. Error: {e}"
+            )
             self.description = ""
 
         try:
             image_relative_path = information[IMAGE]
         except Exception as e:
-            log.error(f"Could not load profile image from {self.settings_file_path}. Error: {e}")
+            log.error(
+                f"Could not load profile image from '{self.settings_file_path}'. Error: {e}"
+            )
             image_relative_path = ""
 
         assert (
             self.name is not None and self.name != ""
         ), f"Profile name is not defined in '{self.settings_file_path}'!"
 
-        
         if self.description is None or self.description == "":
-            log.warning(f"Profile description is not defined in '{self.settings_file_path}'!")
+            log.warning(
+                f"Profile description is not defined in '{self.settings_file_path}'!"
+            )
             self.description = ""
 
         self.image = self.profile_path / image_relative_path
 
         if not self.image.is_file():
-            log.warning(f"Profile image {self.image} is not a valid file. Using default image instead.")
+            log.warning(
+                f"Profile image {self.image} is not a valid file. Using default image instead."
+            )
             self.image = proteus.PROTEUS_APP_PATH / "resources" / "default.png"
 
-        log.info(f"Profile information loaded from {self.settings_file_path}.")
+        log.info(f"Profile information loaded from '{self.settings_file_path}'.")
         log.info(f"{self.name = }")
         log.info(f"{self.description = }")
         log.info(f"{self.image = }")
-
 
     # --------------------------------------------------------------------------
     # Method: list_profiles
@@ -381,7 +388,7 @@ class ProfileBasicMetadata:
         :param profiles_directory: Path to the profiles directory.
         :return: Dictionary with the profile name as key and the profile metadata as value.
         """
-        
+
         assert (
             profiles_directory.exists()
         ), f"PROTEUS profiles directory {profiles_directory} does not exist!"
@@ -393,6 +400,8 @@ class ProfileBasicMetadata:
                 profile_metadata = ProfileBasicMetadata.load(profile_dir)
                 listed_profiles[profile_dir.name] = profile_metadata
             except Exception as e:
-                log.error(f"Could not load profile metadata from {profile_dir}. It will be ignored. Error: {e}")
+                log.error(
+                    f"Could not load profile metadata from '{profile_dir}'. It will be ignored. Error: {e}"
+                )
 
         return listed_profiles

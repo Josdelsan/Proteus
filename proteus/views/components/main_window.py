@@ -11,7 +11,6 @@
 # --------------------------------------------------------------------------
 
 import logging
-from pathlib import Path
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,6 +26,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QMessageBox, QHBoxLayout, QLab
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.application.metrics import Metrics
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.abstract_component import ProteusComponent
@@ -37,8 +37,9 @@ from proteus.application.events import (
     OpenProjectEvent,
     ModifyObjectEvent,
     ClipboardChangedEvent,
+    UpdateMetricsEvent,
 )
-from proteus.application.state_restorer import write_state_to_file
+from proteus.application.state.exporter import write_state_to_file
 from proteus.application.clipboard import Clipboard, ClipboardStatus
 
 # Module configuration
@@ -118,7 +119,10 @@ class MainWindow(QMainWindow, ProteusComponent):
 
         # Create the clipboard indicator
         self.clipboard_indicator = ClipboardIndicator(parent=self)
+        self.metrics_indicator = MetricsIndicator(parent=self)
+
         self.statusBar().addPermanentWidget(self.clipboard_indicator)
+        self.statusBar().addPermanentWidget(self.metrics_indicator)
 
         log.info("Main window component created")
 
@@ -217,20 +221,20 @@ class MainWindow(QMainWindow, ProteusComponent):
         object_name = selected_object.get_property(PROTEUS_NAME).value
 
         translated_object_accepted_children = [
-            _(f"archetype.class.{cls}", alternative_text=cls)
+            _(f"archetype.class.{cls}", alternative_text=cls).lower()
             for cls in selected_object.acceptedChildren
         ]
 
         translated_object_accepted_parents = [
-            _(f"archetype.class.{cls}", alternative_text=cls)
+            _(f"archetype.class.{cls}", alternative_text=cls).lower()
             for cls in selected_object.acceptedParents
         ]
 
         # Message to show in the status bar
         message: str = _(
             "main_window.statusbar.text.selected_object",
-            object_name,
             selected_object_id,
+            object_name,
             translated_object_accepted_children,
             translated_object_accepted_parents,
         )
@@ -299,8 +303,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             if not unsaved_changes:
                 # Write the state to a file if there is a project opened
                 if self._controller.get_current_project() is not None:
-                    project_path: str = self._controller.get_current_project().path
-                    write_state_to_file(Path(project_path).parent, self._state_manager)
+                    write_state_to_file()
             # Close the application
             event.accept()
 
@@ -309,8 +312,7 @@ class MainWindow(QMainWindow, ProteusComponent):
             self._controller.save_project()
 
             # Write the state to a file
-            project_path: str = self._controller.get_current_project().path
-            write_state_to_file(Path(project_path).parent, self._state_manager)
+            write_state_to_file()
 
             # Close the application
             event.accept()
@@ -375,10 +377,16 @@ class ClipboardIndicator(QWidget, ProteusComponent):
         # Set the widget margins to zero
         self.setContentsMargins(0, 0, 0, 0)
 
+        self.container_widget = QWidget()
+        self.container_widget.setObjectName("clipboard_indicator")
+
         # Create the clipboard icon and message labels
         self._clipboard_message_label = QLabel(_("clipboard.indicator.status.empty"))
         self._object_icon_label = QLabel()
         self._object_information_label = QLabel()
+
+        self._object_icon_label.hide()
+        self._object_information_label.hide()
 
         # Create icon label
         self._clipboard_icon_label = QLabel()
@@ -392,7 +400,14 @@ class ClipboardIndicator(QWidget, ProteusComponent):
         layout.addWidget(self._object_icon_label)
         layout.addWidget(self._object_information_label)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
+        self.container_widget.setLayout(layout)
+
+        # Creating a container widget is the only way to correctly set the
+        # style to all the labels from the qss file.
+        aux_layout = QHBoxLayout()
+        aux_layout.addWidget(self.container_widget)
+        aux_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(aux_layout)
 
     def subscribe(self) -> None:
         """
@@ -420,6 +435,9 @@ class ClipboardIndicator(QWidget, ProteusComponent):
             self._clipboard_message_label.setText(_("clipboard.indicator.status.empty"))
             self._object_information_label.setText("")
             self._object_icon_label.clear()
+
+            self._object_icon_label.hide()
+            self._object_information_label.hide()
             return
 
         # Retrieve clipboard content data
@@ -439,3 +457,50 @@ class ClipboardIndicator(QWidget, ProteusComponent):
 
         self._object_icon_label.setPixmap(object_icon.pixmap(16, 16))
         self._object_information_label.setText(object_name)
+
+        self._object_icon_label.show()
+        self._object_information_label.show()
+
+
+class MetricsIndicator(QWidget, ProteusComponent):
+    """
+    Simple widget that displays metrics information in the status bar.
+    """
+
+    def __init__(self, parent=None):
+        super(MetricsIndicator, self).__init__(parent)
+
+        self.setContentsMargins(0, 0, 0, 0)
+
+        # Create the labels
+        self._html_generation_time_label = QLabel()
+        self._html_load_time_label = QLabel()
+
+        self._html_generation_time_label.hide()
+        self._html_load_time_label.hide()
+
+        # Create an horizontal layout
+        layout = QHBoxLayout()
+        layout.addWidget(self._html_generation_time_label)
+        layout.addWidget(self._html_load_time_label)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+        UpdateMetricsEvent().connect(self.update_metrics)
+
+    def update_metrics(self):
+        """
+        Update the metrics information in the status bar.
+        """
+        self._html_generation_time_label.setText(
+            _(
+                "main_window.statusbar.text.html_generation_time",
+                Metrics.html_generation_time,
+            )
+        )
+        self._html_load_time_label.setText(
+            _("main_window.statusbar.text.html_load_time", Metrics.html_load_time)
+        )
+
+        self._html_generation_time_label.show()
+        self._html_load_time_label.show()

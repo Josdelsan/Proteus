@@ -77,12 +77,23 @@ class TraceInput(PropertyInput):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
-    def create_input(property: TraceProperty, controller: Controller, element_id: ProteusID, *args, **kwargs) -> TraceEdit:
+    def create_input(
+        property: TraceProperty,
+        controller: Controller,
+        element_id: ProteusID,
+        *args,
+        **kwargs
+    ) -> TraceEdit:
         """
         Creates the input widget based on PROTEUS TraceEdit.
         """
+
         input: TraceEdit = TraceEdit(
-            element_id=element_id, controller=controller, accepted_targets=property.acceptedTargets, limit=property.max_targets_number
+            element_id=element_id,
+            controller=controller,
+            accepted_targets=property.acceptedTargets,
+            excluded_targets=property.excludedTargets,
+            limit=property.max_targets_number,
         )
         input.setTraces(property.value)
         return input

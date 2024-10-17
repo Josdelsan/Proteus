@@ -30,15 +30,14 @@ import lxml.etree as ET
 
 from proteus.model import (
     ID_ATTRIBUTE,
-    NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
     PROTEUS_NAME,
     PROTEUS_ANY,
+    ProteusID,
 )
 from proteus.model.properties import STRING_PROPERTY_TAG
 from proteus.model.abstract_object import ProteusState
-from proteus.model.properties import TraceProperty
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.model.archetype_repository import ArchetypeRepository
@@ -82,7 +81,7 @@ def sample_archetype_document() -> Object:
     archetype_list: list[Object] = ArchetypeRepository.load_document_archetypes(
         Config().profile_settings.archetypes_directory
     )
-    return archetype_list[1] #Known archetype document with multiple children
+    return archetype_list[1]  # Known archetype document with multiple children
 
 
 @pytest.fixture
@@ -272,8 +271,14 @@ def test_generate_xml(sample_object: Object):
 @pytest.mark.parametrize(
     "test_object_to_clone, test_parent",
     [
-        (pytest.lazy_fixtures("sample_object"), pytest.lazy_fixtures("sample_document")),
-        (pytest.lazy_fixtures("sample_document"), pytest.lazy_fixtures("sample_project")),
+        (
+            pytest.lazy_fixtures("sample_object"),
+            pytest.lazy_fixtures("sample_document"),
+        ),
+        (
+            pytest.lazy_fixtures("sample_document"),
+            pytest.lazy_fixtures("sample_project"),
+        ),
         (
             pytest.lazy_fixtures("sample_archetype_document"),
             pytest.lazy_fixtures("sample_project"),
@@ -425,6 +430,45 @@ def test_accept_descendant(
     ), f"Parent with classes {mock_parent.classes} and accepted children {mock_parent.acceptedChildren} \
         should accept child with classes {mock_child.classes} and accepted parents {mock_child.acceptedParents} \
         but it does not."
+
+
+def test_get_document(sample_project: Project):
+    """
+    Test get_document method returns the document where the object is located.
+
+    NOTE: This method cannot use sample_object fixture. get_document method
+    depends on the object's parent which is set during parent's children load.
+    Since the sample object fixture is loaded isolated from its parent (just needs
+    the project). Even if the load is forced, the parent will load its children as
+    new objects instances, sample object reference is just stored in the fixture itself.
+    """
+    # Arrange -------------------
+
+    # Look for the sample object in the project
+
+    def find_object_by_id(
+        item: Object = sample_project, object_id: ProteusID = SAMPLE_OBJECT_ID
+    ) -> Object:
+        
+        if item.id == object_id:
+            return item
+
+        for descendant in item.get_descendants():
+            result = find_object_by_id(descendant, object_id)
+            if result:
+                return result
+
+        return None
+
+    test_object = find_object_by_id()
+
+    # Act -----------------------
+    document = test_object.get_document()
+
+    # Assert --------------------
+    assert (
+        document.id == SAMPLE_DOCUMENT_ID
+    ), f"Object is not in the expected document {SAMPLE_DOCUMENT_ID}. It is in {document.id}"
 
 
 # NOTE save method is tested with the save_project method in test_project.py
