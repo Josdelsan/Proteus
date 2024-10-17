@@ -294,8 +294,25 @@ class GlossaryHandler(ProteusComponent):
 
         :param object: Object to add
         """
-        # Get items
+        # Get items ----------------------------------
+
+        # name
         items: str = object.get_property(PROTEUS_NAME).value
+
+        # synonyms
+        try:
+            synonyms = object.get_property("synonyms").value
+            items += "," + synonyms
+        except Exception as e:
+            log.debug(f"No synonyms found for glossary item {object.id}. Error: {e}")
+
+        # plural-form
+        try:
+            plural_form = object.get_property("plural-form").value
+            items += "," + plural_form
+        except Exception as e:
+            log.debug(f"No plural forms found for glossary item {object.id}. Error: {e}")
+
 
         # Get description and convert markdown to plaintext
         # TODO: Now conversion is done from markdown to plaintext, ignoring
