@@ -22,7 +22,6 @@ from PyQt6.QtWidgets import (
     QMenu,
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
 )
 
 
@@ -190,6 +189,7 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the edit action.
         """
         action: QAction = QAction(_("document_tree.menu.action.edit"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         action.triggered.connect(
             lambda: PropertyDialog.create_dialog(
                 element_id=self.element.id, controller=self._controller
@@ -216,6 +216,7 @@ class ContextMenu(QMenu, ProteusComponent):
         is_document: bool = isinstance(self.element.parent, Project)
 
         action: QAction = QAction(_("document_tree.menu.action.delete"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         action.triggered.connect(
             lambda: DeleteDialog.create_dialog(
                 element_id=self.element.id,
@@ -240,6 +241,7 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the clone action.
         """
         action: QAction = QAction(_("document_tree.menu.action.clone"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         action.triggered.connect(lambda: self._controller.clone_object(self.element.id))
         clone_icon = Icons().icon(ProteusIconType.App, "context-menu-clone")
         action.setIcon(clone_icon)
@@ -262,6 +264,7 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the copy action.
         """
         action: QAction = QAction(_("document_tree.menu.action.copy"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         action.triggered.connect(Clipboard().copy)
         copy_icon = Icons().icon(ProteusIconType.App, "context-menu-copy")
         action.setIcon(copy_icon)
@@ -284,6 +287,7 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the cut action.
         """
         action: QAction = QAction(_("document_tree.menu.action.cut"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         action.triggered.connect(Clipboard().cut)
         cut_icon = Icons().icon(ProteusIconType.App, "context-menu-cut")
         action.setIcon(cut_icon)
@@ -306,6 +310,7 @@ class ContextMenu(QMenu, ProteusComponent):
         Create the paste action.
         """
         action: QAction = QAction(_("document_tree.menu.action.paste"), self)
+        action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
 
         # Connect the action to the controller method
         action.triggered.connect(Clipboard().paste)
@@ -335,6 +340,7 @@ class ContextMenu(QMenu, ProteusComponent):
 
         # Create move up action ---------------------------------------------
         action_move_up: QAction = QAction(_("document_tree.menu.action.move_up"), self)
+        action_move_up.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
 
         action_move_up.triggered.connect(
             lambda: self._controller.change_object_position(
@@ -348,6 +354,8 @@ class ContextMenu(QMenu, ProteusComponent):
         action_move_down: QAction = QAction(
             _("document_tree.menu.action.move_down"), self
         )
+        action_move_down.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
+
         action_move_down.triggered.connect(
             lambda: self._controller.change_object_position(
                 self.element.id, self.element.parent.id, position_index + 2
@@ -390,6 +398,7 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_children_sort: QAction = QAction(
             _("document_tree.menu.action.sort_children_alphabetically"), self
         )
+        self.action_children_sort.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
 
         self.action_children_sort.triggered.connect(
             lambda: self._controller.sort_object_children(self.element.id)
@@ -402,6 +411,9 @@ class ContextMenu(QMenu, ProteusComponent):
         # Add reverse true action ---------------------
         self.action_children_sort_reverse: QAction = QAction(
             _("document_tree.menu.action.sort_children_reverse"), self
+        )
+        self.action_children_sort_reverse.setMenuRole(
+            QAction.MenuRole.ApplicationSpecificRole
         )
 
         self.action_children_sort_reverse.triggered.connect(
@@ -527,6 +539,8 @@ class AvailableArchetypesMenu(QMenu, ProteusComponent):
             action: QAction = QAction(
                 _(archetype.get_property(PROTEUS_NAME).value), self
             )
+            action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
+
             icon = Icons().icon(ProteusIconType.Archetype, archetype.classes[-1])
             action.setIcon(icon)
             action.triggered.connect(

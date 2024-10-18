@@ -100,6 +100,7 @@ class ArchetypesMenuDropdown(QMenu, ProteusComponent):
                 # Name translation might not be needed for archetypes
                 archetype.get_property(PROTEUS_NAME).value,
             )
+            clone_action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
             icon: QIcon = Icons().icon(ProteusIconType.Archetype, arch_class)
 
             clone_action.setIcon(icon)
