@@ -142,3 +142,18 @@ class Property(ABC):
         Depending on the type of property, it can be a string or
         a CDATA section.
         """
+
+    def compare(self, other: "Property") -> bool:
+        """
+        It compares two properties to check if they are equal.
+        :param other: the other property to compare.
+        :return: True if both properties are equal comparing their attributes.
+        """
+        return (
+            self.name == other.name
+            and self.category == other.category
+            and self.tooltip == other.tooltip
+            and self.required == other.required
+            and self.inmutable == other.inmutable
+            and self.value == other.value
+        )

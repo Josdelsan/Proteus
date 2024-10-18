@@ -224,3 +224,8 @@ add_property_dialog.error.invalid_name: "This cannot be empty or contain invalid
 add_property_dialog.error.duplicated_name: "A property named '{}' already exists"
 add_property_dialog.error.invalid_characters: "Input contains invalid XML characters"
 add_property_dialog.message_box.critical.create_property: "Error creating property"
+
+edit_property_dialog.title: "Edit property"
+edit_property_dialog.error.invalid_chars_present: "One or more attributes contain invalid characters: {}"
+edit_property_dialog.error.duplicated_or_empty_name: "The name is duplicated or empty"
+edit_property_dialog.error.invalid_max_targets_number_value: "The maximum number of targets must be a positive integer or -1 (unlimited)"

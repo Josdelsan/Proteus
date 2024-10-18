@@ -224,3 +224,8 @@ add_property_dialog.error.invalid_name: "El campo no puede estar vacío o conten
 add_property_dialog.error.duplicated_name: "Ya existe una propiedad llamada '{}'"
 add_property_dialog.error.invalid_characters: "El campo contiene caracteres no válidos"
 add_property_dialog.message_box.critical.create_property: "Error al crear la propiedad"
+
+edit_property_dialog.title: "Editar propiedad"
+edit_property_dialog.error.invalid_chars_present: "Uno o más atributos contienen caracteres no válidos: {}"
+edit_property_dialog.error.duplicated_or_empty_name: "Ya existe una propiedad con ese nombre o el campo está vacío"
+edit_property_dialog.error.invalid_max_targets_number_value: "El número máximo de objetivos debe ser un número entero positivo o -1 para infinito"

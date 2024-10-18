@@ -46,6 +46,7 @@ from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.views.components.editor.add_property_dialog import AddPropertyDialog
+from proteus.views.components.editor.edit_property_dialog import EditPropertyDialog
 from proteus.controller.command_stack import Controller
 from proteus.controller.commands.update_object_meta_model import (
     UpdateObjectMetaModelCommand,
@@ -164,9 +165,11 @@ class RawObjectEditor(ProteusDialog):
         self.move_down_button.clicked.connect(lambda: self.move_button_clicked(False))
         self.remove_button.clicked.connect(self.remove_button_clicked)
         self.add_button.clicked.connect(self.add_button_clicked)
+        self.edit_button.clicked.connect(self.edit_button_clicked)
 
         self.accept_button.setText(_("dialog.save_button"))
         self.accept_button.clicked.connect(self.save_button_clicked)
+        self.properties_list.doubleClicked.connect(self.edit_button_clicked)
 
     # ----------------------------------------------------------------------
     # Method     : _create_properties_tab
@@ -417,6 +420,50 @@ class RawObjectEditor(ProteusDialog):
         self.edit_button.setEnabled(True)
 
     # ----------------------------------------------------------------------
+    # Method     : edit_button_clicked
+    # Description: Manage the edit button clicked event. It opens a dialog
+    #              to edit the selected property.
+    # Date       : 17/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def edit_button_clicked(self):
+        """
+        Manage the edit button clicked event. It opens a dialog to edit the
+        selected property.
+        """
+        item: QTreeWidgetItem = self.properties_list.currentItem()
+        property_name: str = item.data(0, Qt.ItemDataRole.UserRole)
+        property: Property = self.properties[property_name]
+
+        invalid_property_names = list(self.properties.keys())
+        invalid_property_names.remove(property_name)
+
+        # Create the dialog
+        edited_property = EditPropertyDialog.edit_property(
+            self.object, property, invalid_property_names, self._controller
+        )
+
+        if edited_property is not None:
+            # Get current property position in the dictionary
+            properties_keys = list(self.properties.keys())
+            property_index = properties_keys.index(property_name)
+
+            # Remove from the list and insert the new name
+            properties_keys.remove(property_name)
+            properties_keys.insert(property_index, edited_property.name)
+
+            # Remove the property from the dictionary and insert the new one
+            self.properties.pop(property_name)
+            self.properties[edited_property.name] = edited_property
+
+            # Order the dictionary based on the new keys list
+            self.properties = {key: self.properties[key] for key in properties_keys}
+
+            # Update the properties list
+            self._update_properties_list()
+
+    # ----------------------------------------------------------------------
     # Method     : add_button_clicked
     # Description: Manage the add button clicked event. It opens a dialog
     #              to add a new property to the object.
@@ -629,7 +676,7 @@ class RawObjectEditor(ProteusDialog):
         # we compare them by memory address. Properties are inmutable so
         # any change will create a new object.
         original_properties_changed = any(
-            new_properties[key] is self.object.properties[key]
+            not(new_properties[key].compare(self.object.properties[key]))
             for key in self.object.properties.keys()
             if new_properties.get(key) is not None
         )

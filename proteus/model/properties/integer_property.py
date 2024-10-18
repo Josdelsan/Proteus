@@ -26,7 +26,6 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-import proteus
 from proteus.model.properties.property import Property
 from proteus.model.properties import INTEGER_PROPERTY_TAG
 

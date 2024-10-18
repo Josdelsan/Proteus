@@ -126,6 +126,8 @@ class ProteusCode:
             and self.number == other.number
             and self.suffix == other.suffix
         )
+    
+    # TODO: Implement __hash__ method?
 
 
 # --------------------------------------------------------------------------

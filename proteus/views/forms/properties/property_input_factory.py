@@ -11,7 +11,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import Dict, Union
+from typing import Dict
 import logging
 
 # --------------------------------------------------------------------------
