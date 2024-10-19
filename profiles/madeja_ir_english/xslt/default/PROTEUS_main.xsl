@@ -137,8 +137,9 @@
     <xsl:include href="archetypes/business_analysis/user_story.xsl" />
 
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
-    <xsl:include href="archetypes/requirements/general-requirement.xsl" />
-    <xsl:include href="archetypes/requirements/system-actor.xsl" />
+    <xsl:include href="archetypes/requirements/general_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/system_actor.xsl" />
+    <xsl:include href="archetypes/requirements/use_case.xsl" />
     <xsl:include href="archetypes/requirements/information_requirement.xsl" />
     <xsl:include href="archetypes/requirements/business_rule.xsl" />
     <xsl:include href="archetypes/requirements/functional_requirement.xsl" />
@@ -148,7 +149,6 @@
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
 
     <!--
-    <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
 
