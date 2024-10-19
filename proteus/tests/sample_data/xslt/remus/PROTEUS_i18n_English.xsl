@@ -113,8 +113,8 @@
 <xsl:variable name="proteus:lang_times_per">times per</xsl:variable>
 <xsl:variable name="proteus:lang_TOC">Table of contents</xsl:variable>
 <xsl:variable name="proteus:lang_traceability_matrix">Traceability matrix</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_class">Error creating Traceability Matrix. Make sure at leat one class is selected for rows and columns.</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_item">Error creating Traceability Matrix. Make sure at least one object exists of the class selected in rows and columns.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_class">Cannot display traceability matrix. Make sure at leat one class is selected for rows and columns.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_item">Cannot display traceability matrix. Make sure at least one object exists of the class selected in rows and columns.</xsl:variable>
 <xsl:variable name="proteus:lang_type">Type</xsl:variable>
 <xsl:variable name="proteus:lang_urgency">Urgency</xsl:variable>
 <xsl:variable name="proteus:lang_variable_attribute">Variable attribute</xsl:variable>

@@ -10,8 +10,8 @@
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
     <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
-    <stringProperty name="plural-form" category="detail"><![CDATA[Glossary items]]></stringProperty>
-    <stringProperty name="synonyms" category="detail"><![CDATA[Glossary term]]></stringProperty>
+    <stringProperty name="plural-form" category="detail"><![CDATA[]]></stringProperty>
+    <stringProperty name="synonyms" category="detail"><![CDATA[]]></stringProperty>
     <markdownProperty name="description" category="detail"><![CDATA[]]></markdownProperty>
     <fileProperty name="image" category="detail" tooltip="file-info"><![CDATA[]]></fileProperty>
     <integerProperty name="width" category="detail" tooltip="width-info">50</integerProperty>

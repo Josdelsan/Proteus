@@ -3,7 +3,6 @@
     id="subsystem"
     classes="software-requirement subsystem"
     acceptedChildren=":Proteus-none"
-    acceptedParents=":Proteus-any"
 >
   <properties>
     <codeProperty name=":Proteus-code" category="general" inmutable="true">

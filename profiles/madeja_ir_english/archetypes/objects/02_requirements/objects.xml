@@ -10,5 +10,5 @@
     <object id="use-case-step" />
     <object id="functional-requirement" />
     <object id="nonfunctional-requirement" />
-    <object id="matrix" />
+    <object id="traceability-matrix" />
 </objects>
