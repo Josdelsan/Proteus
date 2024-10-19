@@ -55,7 +55,7 @@
         <label key="attenders"><xsl:value-of select="$proteus:lang_attenders"/></label>
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
-        <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="authors"><xsl:value-of select="$proteus:lang_authors"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>

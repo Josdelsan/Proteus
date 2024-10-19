@@ -13,7 +13,7 @@
     <stringProperty name=":Proteus-name"><![CDATA[User story]]></stringProperty>
     <dateProperty name=":Proteus-date">2024-09-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>
-    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
     <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <stringProperty name="as-role" category="detail"><![CDATA[]]></stringProperty>
     <markdownProperty name="i-want-to" category="detail"><![CDATA[]]></markdownProperty>

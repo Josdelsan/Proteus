@@ -47,7 +47,7 @@
                 <xsl:value-of select="proteus-utils:generate_markdown($content)" disable-output-escaping="yes"/>
             </xsl:otherwise>
         </xsl:choose>
-        
+
     </xsl:template>
 
 
@@ -166,7 +166,7 @@
 
         <xsl:call-template name="generate_trace_row">
             <xsl:with-param name="label"   select="$proteus:lang_authors"/>
-            <xsl:with-param name="content" select="properties/traceProperty[@name='created-by']"/>
+            <xsl:with-param name="content" select="properties/traceProperty[@name='authors']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 

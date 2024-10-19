@@ -46,7 +46,7 @@
                     <floatProperty name="version" category="general">1.0</floatProperty>
                     <markdownProperty name="text" category="details"><![CDATA[TBD]]></markdownProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency"/>
                   </properties>
                   <children/>
@@ -74,7 +74,7 @@
                         <floatProperty name="version" category="general">1.0</floatProperty>
                         <markdownProperty name="text" category="details"><![CDATA[TBD]]></markdownProperty>
                         <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                        <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                        <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                         <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency"/>
                       </properties>
                       <children/>
@@ -95,7 +95,7 @@
                 <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                 <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                 <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                 <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
               </properties>
               <children>
@@ -111,7 +111,7 @@
                     <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
                   </properties>
                   <children/>
@@ -130,7 +130,7 @@
                 <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                 <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                 <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                 <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
               </properties>
               <children>
@@ -146,7 +146,7 @@
                     <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
                   </properties>
                   <children>
@@ -162,7 +162,7 @@
                         <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                         <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                         <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                        <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                        <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                         <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
                       </properties>
                       <children/>
@@ -183,7 +183,7 @@
                 <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                 <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                 <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                 <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
               </properties>
               <children>
@@ -210,7 +210,7 @@
                 <markdownProperty name="precondition" category="conditions"><![CDATA[TBD]]></markdownProperty>
                 <markdownProperty name="postcondition" category="conditions"><![CDATA[TBD]]></markdownProperty>
                 <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                 <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
               </properties>
               <children>
@@ -247,7 +247,7 @@
                     <floatProperty name="version" category="general">1.0</floatProperty>
                     <markdownProperty name="text" category="details"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id felis vel justo semper congue placerat eu diam. Nam non odio sodales, volutpat velit quis, ultricies elit. Vestibulum ex ipsum, dapibus id leo et, placerat egestas enim. In in hendrerit lorem. Ut malesuada at dui sit amet molestie. Pellentesque tempus est vel eros fringilla lobortis.]]></markdownProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency">
                       <trace target="3H4yFe9KfHQL" traceType=":Proteus-dependency"/>
                     </traceProperty>
@@ -262,7 +262,7 @@
                     <fileProperty name="file" category="general"><![CDATA[us-logo.jpg]]></fileProperty>
                     <markdownProperty name="description" category="details"><![CDATA[Logo of the University of Seville.]]></markdownProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author"/>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="paragraph graphic-file external-resource glossary-item" traceType=":Proteus-dependency"/>
                   </properties>
                   <children/>
@@ -300,7 +300,7 @@
                     <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author">
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author">
                       <trace target="69mm7MQDyge6" traceType=":Proteus-author"/>
                     </traceProperty>
                     <traceProperty name="dependencies" category="traceability" acceptedTargets="software-requirement" traceType=":Proteus-dependency"/>
@@ -340,7 +340,7 @@
                     <enumProperty name="status" category="priority" choices="developing pending">developing</enumProperty>
                     <enumProperty name="stability" category="priority" choices="low medium high">low</enumProperty>
                     <markdownProperty name="comments" category="comments"><![CDATA[No comments.]]></markdownProperty>
-                    <traceProperty name="created-by" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author">
+                    <traceProperty name="authors" category="general" acceptedTargets="stakeholder" traceType=":Proteus-author">
                       <trace target="72h27zSWCS2b" traceType=":Proteus-author"/>
                       <trace target="69mm7MQDyge6" traceType=":Proteus-author"/>
                     </traceProperty>

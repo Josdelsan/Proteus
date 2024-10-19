@@ -34,7 +34,7 @@
         <!-- This was suggested by Claude AI.                                     -->
 
         <!-- List of excluded properties (not shown) -->
-        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,created-by,sources,precondition,description,postcondition,dependencies,</xsl:variable>
+        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,authors,sources,precondition,description,postcondition,dependencies,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
         <xsl:variable name="mandatory_properties"></xsl:variable>
@@ -57,7 +57,7 @@
                 </xsl:call-template>
 
                 <!-- Authors and sources rows -->
-                <xsl:for-each select="properties/*[@name='created-by' or @name='sources']">
+                <xsl:for-each select="properties/*[@name='authors' or @name='sources']">
                     <xsl:call-template name="generate_property_row">
                         <xsl:with-param name="span" select="$span" />
                     </xsl:call-template>
