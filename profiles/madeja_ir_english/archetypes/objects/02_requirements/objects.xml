@@ -3,10 +3,9 @@
     <object id="subsystem" />
     <object id="general-requirement" />
     <object id="system-actor" />
-    <object id="information-requirement" />
-    <object id="specific-data" />
-    <object id="business-rule" />
     <object id="use-case" />
+    <object id="information-requirement" />
+    <object id="business-rule" />
     <object id="use-case-step" />
     <object id="functional-requirement" />
     <object id="nonfunctional-requirement" />

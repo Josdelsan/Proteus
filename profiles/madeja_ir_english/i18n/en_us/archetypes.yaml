@@ -110,7 +110,7 @@ archetype.enum_choices.simple: "Simple"
 archetype.enum_choices.sequence: "Sequence"
 archetype.enum_choices.bag: "Bag"
 
-archetype.enum_choices.draft: "Draf"
+archetype.enum_choices.draft: "Draft"
 archetype.enum_choices.awaiting-qa: "Awaiting quality verification"
 archetype.enum_choices.awaiting-validation: "Awaiting validation"
 archetype.enum_choices.validated: "Validated"

@@ -157,6 +157,10 @@
 <xsl:variable name="proteus:lang_medium">Medium</xsl:variable>
 <xsl:variable name="proteus:lang_low">Low</xsl:variable>
 <xsl:variable name="proteus:lang_optional">Optional</xsl:variable>
+<xsl:variable name="proteus:lang_draft">Draft</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_qa">Awaiting quality verification</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_validation">Awaiting validation</xsl:variable>
+<xsl:variable name="proteus:lang_validated">Validated</xsl:variable>
 
 <xsl:variable name="proteus:lang_child_requirements">Child requirements</xsl:variable>
 <xsl:variable name="proteus:lang_inherits_from">Inherits from</xsl:variable>

@@ -34,7 +34,7 @@
         <!-- This was suggested by Claude AI.                                     -->
 
         <!-- List of excluded properties (not shown) -->
-        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,precondition,description,postcondition,dependencies,</xsl:variable>
+        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,created-by,sources,precondition,description,postcondition,dependencies,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
         <xsl:variable name="mandatory_properties"></xsl:variable>
@@ -47,12 +47,21 @@
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'information-requirement'"/>
+                    <xsl:with-param name="class"   select="'use-case'"/>
                     <xsl:with-param name="span" select="$span" />
                 </xsl:call-template>
 
                 <!-- Version row -->
-                <xsl:call-template name="generate_version_row"/>
+                <xsl:call-template name="generate_version_row">
+                    <xsl:with-param name="span" select="$span" />
+                </xsl:call-template>
+
+                <!-- Authors and sources rows -->
+                <xsl:for-each select="properties/*[@name='created-by' or @name='sources']">
+                    <xsl:call-template name="generate_property_row">
+                        <xsl:with-param name="span" select="$span" />
+                    </xsl:call-template>
+                </xsl:for-each>
 
                 <!-- Precondition row -->
                 <xsl:for-each select="properties/*[@name='precondition']">
@@ -66,18 +75,16 @@
                 <xsl:for-each select="properties/*[@name='description']">
                     <xsl:call-template name="generate_property_row">
                         <xsl:with-param name="mandatory" select="true()"/>
-                        <xsl:with-param name="span" select="$span" />                        
+                        <xsl:with-param name="span" select="$span" />
                     </xsl:call-template>
                 </xsl:for-each>
-
-                </xsl:call-template>
 
                 <!-- use case steps -->
                 <!-- check if there are children otherwise do nothing -->
                 <xsl:if test="children/object">
                     <!-- count the number of use case step in total -->
                     <xsl:variable name="number_of_steps" select="count(children/object)" />
-                
+
                     <tr>
                         <th rowspan="{$number_of_steps + 1}">
                             <xsl:value-of select="$proteus:lang_ordinary_sequence" />
@@ -89,9 +96,9 @@
                             <xsl:value-of select="$proteus:lang_action" />
                         </th>
                     </tr>
-                    <!--
+
                     <xsl:apply-templates select="children/object" />
-                    -->
+
                 </xsl:if>
 
                 <!-- Postcondition row -->
@@ -107,7 +114,7 @@
                 <xsl:for-each select="properties/*[not(contains($excluded_properties,concat(',', @name, ',')))]">
                     <xsl:call-template name="generate_property_row">
                         <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
-                        <xsl:with-param name="span" select="$span" />                    
+                        <xsl:with-param name="span" select="$span" />
                     </xsl:call-template>
                 </xsl:for-each>
             </table>
@@ -118,17 +125,20 @@
     <!-- Use case step template                         -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='use-case-step']">
+    <xsl:template match="object[contains(@classes,'use-case-step')]">
         <xsl:variable name="label_number">
-            <xsl:number from="object[@classes='software-requirement use-case']"
-                count="object[@classes='use-case-step']"
-                level="any" format="1" />
-        </xsl:variable>        
+            <xsl:number
+                from="object[contains(@classes,'software-requirement use-case')]"
+                count="object[contains(@classes,'use-case-step')]"
+                level="any"
+                format="1"
+            />
+        </xsl:variable>
 
-        <xsl:variable name="description" select="properties/markdownProperty[@name='description']"/>
+        <xsl:variable name="description" select="properties/*[@name='description']"/>
 
-        <tr id="{@id}"  data-proteus-id="{@id}">
-            <th>
+        <tr id="{@id}" data-proteus-id="{@id}">
+            <th class="step_number">
                 <xsl:value-of select="$label_number"/>
             </th>
             <td colspan="1">
@@ -142,7 +152,6 @@
                 </xsl:choose>
             </td>
         </tr>
-
     </xsl:template>
 
 </xsl:stylesheet>

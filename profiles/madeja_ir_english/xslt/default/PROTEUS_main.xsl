@@ -45,8 +45,8 @@
     />
 
     <!-- Language independent dictionaries -->
-    <!-- NOTE: that would not be necessary in XSLT 2.0, -->
-    <!-- where variable names can be computed online    -->
+    <!-- NOTE: that would not be necessary in XSLT 2.0,  -->
+    <!-- where variable names can be computed in runtime -->
 
     <!-- PROTEUS property labels dictionary -->
     <xsl:variable name="property_labels_dictionary">
@@ -64,6 +64,8 @@
         <label key="inherits-from"><xsl:value-of select="$proteus:lang_inherits_from"/></label>
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
+        <label key="precondition"><xsl:value-of select="$proteus:lang_precondition"/></label>
+        <label key="postcondition"><xsl:value-of select="$proteus:lang_postcondition"/></label>
         <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>
         <label key="sources"><xsl:value-of select="$proteus:lang_sources"/></label>
         <label key="stability"><xsl:value-of select="$proteus:lang_stability"/></label>
@@ -100,6 +102,10 @@
         <label key="medium"><xsl:value-of select="$proteus:lang_medium"/></label>
         <label key="low"><xsl:value-of select="$proteus:lang_low"/></label>
         <label key="optional"><xsl:value-of select="$proteus:lang_optional"/></label>
+        <label key="draft"><xsl:value-of select="$proteus:lang_draft"/></label>
+        <label key="awaiting-qa"><xsl:value-of select="$proteus:lang_awaiting_qa"/></label>
+        <label key="awaiting-validation"><xsl:value-of select="$proteus:lang_awaiting_validation"/></label>
+        <label key="validated"><xsl:value-of select="$proteus:lang_validated"/></label>
     </xsl:variable>
 
     <!-- This is needed because of limitations of XSLT 1.0 -->

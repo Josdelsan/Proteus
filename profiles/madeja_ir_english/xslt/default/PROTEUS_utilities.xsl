@@ -160,7 +160,7 @@
 
             <!-- Does it have children? -->
             <xsl:if test="children/object">
-                <ul class="subobjectives">
+                <ul class="children">
                     <xsl:for-each select="children/object">
                         <li><xsl:call-template name="generate_object_basic_information"/></li>
                     </xsl:for-each>

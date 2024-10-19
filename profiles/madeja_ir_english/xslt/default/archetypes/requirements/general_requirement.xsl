@@ -11,6 +11,9 @@
 <!-- objective -> general-requirement                         -->
 <!-- Code simplification.                                     -->
 <!-- ======================================================== -->
+<!-- Update  : 2024/10/19 (Amador Durán)                      -->
+<!-- authors and sources must appear before description.      -->
+<!-- ======================================================== -->
 
 <!-- ======================================================== -->
 <!-- exclude-result-prefixes="proteus" must be set in all     -->
@@ -33,7 +36,7 @@
         <!-- This was suggested by Claude AI.                                     -->
 
         <!-- List of excluded properties (not shown) -->
-        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,description,dependencies,</xsl:variable>
+        <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,created-by,sources,description,dependencies,</xsl:variable>
 
         <!-- List of mandatory properties (shown even if they are empty)-->
         <xsl:variable name="mandatory_properties">,importance,priority,</xsl:variable>
@@ -42,12 +45,17 @@
             <table class="general_requirement remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
-                    <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
-                    <xsl:with-param name="class"   select="'general-requirement'"/>
+                    <xsl:with-param name="label" select="properties/*[@name=':Proteus-code']"/>
+                    <xsl:with-param name="class" select="'general-requirement'"/>
                 </xsl:call-template>
 
                 <!-- Version row -->
                 <xsl:call-template name="generate_version_row"/>
+
+                <!-- Authors and sources rows -->
+                <xsl:for-each select="properties/*[@name='created-by' or @name='sources']">
+                    <xsl:call-template name="generate_property_row"/>
+                </xsl:for-each>
 
                 <!-- Description row -->
                 <xsl:for-each select="properties/*[@name='description']">
