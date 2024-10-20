@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="object-attribute"
-    classes="object-attribute"
+    id="attribute"
+    classes="attribute"
     acceptedChildren=":Proteus-none"
-    acceptedParents="object-type association-type"
+    acceptedParents="entity-class association"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general" required="true">Attribute</stringProperty>
-      <enumProperty name="base-type" category="general" choices="real integer natural string date time">real</enumProperty>
+      <enumProperty name="type" category="general" choices="real integer natural string date time">real</enumProperty>
       <enumProperty name="type" category="general" choices="set bag sequence simple">simple</enumProperty>
       <stringProperty name="multiplicity-lower-bound" category="general"><![CDATA[]]></stringProperty>
       <stringProperty name="multiplicity-upper-bound" category="general"><![CDATA[]]></stringProperty>

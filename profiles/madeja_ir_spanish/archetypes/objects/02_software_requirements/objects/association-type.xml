@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="association-type"
-    classes="association-type"
-    acceptedChildren="association-role object-attribute object-invariant"
+    id="association"
+    classes="association"
+    acceptedChildren="role attribute object-invariant"
     acceptedParents=":Proteus-any"
 >
     <properties>

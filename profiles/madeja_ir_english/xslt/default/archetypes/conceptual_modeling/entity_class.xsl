@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_object_type.xsl                        -->
-<!-- Content : PROTEUS XSLT for subjects at US - objective    -->
+<!-- File    : entity_class.xsl                               -->
+<!-- Content : PROTEUS default XSLT for entity-class          -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/08/02                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/10/20 (Amador Durán)                      -->
+<!-- Code review and refactoring.                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,20 +22,22 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================== -->
-    <!-- object-type template                           -->
+    <!-- entity-class template                          -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='object-type']">
-        <div id="{@id}" data-proteus-id="{@id}" class="object_type">
-            <table class="object_type remus_table">
+    <xsl:template match="object[contains(@classes,'entity-class')]">
 
-                <!-- Header, version, authors and sources -->
-                <xsl:call-template name="generate_software_requirement_expanded_header">
-                    <xsl:with-param name="class" select="'objectType'" />
+        <div id="{@id}" data-proteus-id="{@id}" class="entity_class">
+
+            <table class="entity_class remus_table">
+                <!-- Header -->
+                <xsl:call-template name="generate_header">
+                    <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
+                    <xsl:with-param name="class"   select="'entity-class'"/>
                 </xsl:call-template>
 
+                <!-- Entity information -->
                 <tr>
                     <td colspan="2">
                         <div class="code">
@@ -42,97 +47,69 @@
                 </tr>
 
                 <!-- Comments -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                </xsl:call-template>
-
+                <xsl:for-each select="properties/*[@name='comments']">
+                    <xsl:call-template name="generate_property_row"/>
+                </xsl:for-each>
             </table>
         </div>
     </xsl:template>
 
     <!-- ============================================== -->
-    <!-- object-type template (mode code)               -->
+    <!-- entity-class template (code mode)              -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='object-type']" mode="code">
-        
+    <xsl:template match="object[contains(@classes,'entity-class')]" mode="code">
+
         <!-- Description -->
-        <xsl:call-template name="generate-code-description">
-            <xsl:with-param name="multiline-comment" select="true()"/>
-        </xsl:call-template>
+        <xsl:variable name="description" select="properties/*[@name='description']"/>
+        <xsl:if test="string-length($description)">
+            <xsl:call-template name="generate-code-description">
+                <xsl:with-param name="multiline-comment" select="true()"/>
+            </xsl:call-template>
+        </xsl:if>
 
         <!-- Class declaration -->
-        <xsl:variable name="class_declaration">
-            <xsl:choose>
-                <xsl:when test="properties/booleanProperty[@name='is-abstract'] = 'true'">abstract class</xsl:when>
-                <xsl:otherwise>class</xsl:otherwise>
-            </xsl:choose>
+        <xsl:variable name="is_abstract">
+            <xsl:if test="properties/*[@name='is-abstract'] = 'true'">abstract </xsl:if>
         </xsl:variable>
 
-        <xsl:variable name="css_class_declaration">
-            <xsl:choose>
-                <xsl:when test="properties/booleanProperty[@name='is-abstract'] = 'true'">abstract</xsl:when>
-                <xsl:otherwise></xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-        <span class="keyword {$css_class_declaration}">
-            <xsl:value-of select="$class_declaration"/>
-            <xsl:text> </xsl:text>
+        <span class="keyword">
+            <xsl:value-of select="$is_abstract"/>
+            <xsl:text>class </xsl:text>
         </span>
-        <span class="class_name {$css_class_declaration}">
-            <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
+        <span class="class_name {$is_abstract}">
+            <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
         </span>
 
-        <!-- Supertype -->
-        <xsl:variable name="supertype-trace" select="properties/traceProperty[@name='supertype']/trace"/>
-        <xsl:if test="$supertype-trace">
-            <span class="keyword {$css_class_declaration}"> specializes </span>
-            <span class="class_name {$css_class_declaration}">
-            <xsl:for-each select="$supertype-trace">
-                <xsl:variable name="targetId" select="@target" />
-                <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
+        <!-- superclass -->
+        <xsl:variable name="superclass-trace" select="properties/*[@name='superclass']/trace"/>
 
-                <a href="#{$targetId}" class="rem_ref">
-                    <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
+        <xsl:if test="$superclass-trace">
+            <span class="keyword"> specializes </span>
+            <span class="class_name">
+            <xsl:for-each select="$superclass-trace">
+                <xsl:variable name="target_id" select="@target" />
+                <xsl:variable name="target_object" select="//object[@id = $target_id]" />
+
+                <a href="#{$target_id}">
+                    <xsl:value-of select="$target_object/properties/*[@name=':Proteus-name']" />
                 </a>
             </xsl:for-each>
             </span>
         </xsl:if>
 
-
-
         <!-- Open bracket -->
         <br></br>
         <xsl:text>{</xsl:text>
-        <br></br>
 
         <!-- Attributes -->
-        <xsl:if test="children/object[@classes='object-attribute']">
+        <xsl:if test="children/object[@classes='attribute']">
+            <!--
+            <br></br>
             <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_attributes"/></div>
+            -->
             <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='object-attribute']" mode="code"/>
-            </ul>
-        </xsl:if>
-
-        <br></br>
-
-        <!-- Components -->
-        <xsl:if test="children/object[@classes='object-component']">
-            <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_components"/></div>
-            <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='object-component']" mode="code"/>
-            </ul>
-        </xsl:if>
-
-        <br></br>
-
-        <!-- Invariants -->
-        <xsl:if test="children/object[@classes='object-invariant']">
-            <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_invariants"/></div>
-            <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='object-invariant']" mode="code"/>
+                <xsl:apply-templates select="children/object[contains(@classes,'attribute')]" mode="code"/>
             </ul>
         </xsl:if>
 
@@ -143,47 +120,38 @@
     </xsl:template>
 
     <!-- ============================================== -->
-    <!-- Attribute | Component templates                -->
+    <!-- attribute template                             -->
     <!-- ============================================== -->
-    <xsl:template match="object[@classes='object-attribute'] | object[@classes='object-component'] | object[@classes='association-role']" mode="code">
+
+    <xsl:template match="object[contains(@classes,'attribute')]" mode="code">
+
         <li id="{@id}" data-proteus-id="{@id}" class="property">
+
+            <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
+            <xsl:text>: </xsl:text>
+            <xsl:value-of select="properties/*[@name='type']"/>
+
             <!-- Description -->
-            <xsl:call-template name="generate-code-description"/>
+            <xsl:variable name="description" select="properties/*[@name='description']"/>
 
-            <!-- Keyword -->
-            <xsl:call-template name="generate-code-keyword"/>
+            <xsl:if test="string-length($description)">
+                <span class="code_comment code_description">
+                    //
+                    <xsl:call-template name="generate_markdown">
+                        <xsl:with-param name="content" select="$description"/>
+                    </xsl:call-template>
+                </span>
+            </xsl:if>
 
-            <!-- Name -->
-            <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
-            <xsl:text> : </xsl:text> 
-
-            <!-- Type -->
-            <xsl:apply-templates select="." mode="code-type"/>
-
-            <!-- Lower/Upper bounds -->
-            <xsl:call-template name="generate-code-upper-lower-bounds"/>
-
-            <!-- Init value/Expression -->
-            <xsl:call-template name="generate-code-init-value"/>
         </li>
     </xsl:template>
 
-    <!-- Template to generate attribute type -->
-    <xsl:template match="object[@classes='object-attribute']" mode="code-type">
-        <xsl:variable name="type" select="properties/enumProperty[@name='type']"/>
-        <xsl:choose>
-            <xsl:when test="$type = 'set'">Set(</xsl:when>
-            <xsl:when test="$type = 'sequence'">Sequence(</xsl:when>
-            <xsl:when test="$type = 'bag'">Bag(</xsl:when>
-        </xsl:choose>
-
-        <xsl:value-of select="properties/enumProperty[@name='base-type']"/>
-
-        <xsl:if test="$type = 'set' or $type = 'sequence' or $type = 'bag'">)</xsl:if>
-    </xsl:template>
+    <!-- ============================================== -->
+    <!-- auxiliary templates                            -->
+    <!-- ============================================== -->
 
     <!-- Template to generate component type -->
-    <xsl:template match="object[@classes='object-component'] | object[@classes='association-role']" mode="code-type">
+    <xsl:template match="object[@classes='object-component'] | object[@classes='role']" mode="code-type">
         <xsl:variable name="type" select="properties/enumProperty[@name='type']"/>
         <xsl:choose>
             <xsl:when test="$type = 'set'">Set(</xsl:when>
@@ -192,9 +160,9 @@
         </xsl:choose>
 
         <!-- Trace handling -->
-        <xsl:variable name="base-type-trace" select="properties/traceProperty[@name='base-type']/trace"/>
-        <xsl:if test="$base-type-trace">
-            <xsl:for-each select="$base-type-trace">
+        <xsl:variable name="type-trace" select="properties/traceProperty[@name='type']/trace"/>
+        <xsl:if test="$type-trace">
+            <xsl:for-each select="$type-trace">
                 <xsl:variable name="targetId" select="@target" />
                 <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
                 <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
@@ -205,35 +173,9 @@
     </xsl:template>
 
     <!-- ============================================== -->
-    <!-- Invariant template                             -->
-    <!-- ============================================== -->
-    <xsl:template match="object[@classes='object-invariant']" mode="code">
-        <li id="{@id}" data-proteus-id="{@id}" class="property">
-
-            <!-- Natural language (comment) -->
-            <xsl:call-template name="generate-code-description">
-                <xsl:with-param name="content" select="properties/markdownProperty[@name='natural-lang']"/>
-            </xsl:call-template>
-
-            <!-- Keyword -->
-            <span class="keyword">invariant </span>
-
-            <!-- Name -->
-            <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
-            
-            <!-- Object constraint language -->
-            <xsl:if test="string-length(properties/markdownProperty[@name = 'obj-constraint-lang'])">
-                <xsl:text> : </xsl:text>
-                <xsl:call-template name="generate_markdown">
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name = 'obj-constraint-lang']"/>
-                </xsl:call-template>
-            </xsl:if>
-        </li>
-    </xsl:template>
-
-    <!-- ============================================== -->
     <!-- Helper templates                               -->
     <!-- ============================================== -->
+
     <!-- Description -->
     <xsl:template name="generate-code-description">
         <xsl:param name="multiline-comment" select="false()"/>
@@ -304,7 +246,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
                 <xsl:text>]</xsl:text>
-            </xsl:if>            
+            </xsl:if>
         </xsl:if>
 
     </xsl:template>

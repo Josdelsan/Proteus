@@ -434,7 +434,7 @@ table.traceability_matrix td.trace {
 
 /*  modeling objects */
 
-table.object_type>thead>tr,
+table.entity_class>thead>tr,
 table.value_type>thead>tr,
 table.association_type>thead>tr,
 table.system_operation>thead>tr {

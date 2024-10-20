@@ -100,7 +100,7 @@
 <xsl:variable name="proteus:lang_step">Paso</xsl:variable>
 <xsl:variable name="proteus:lang_subobjectives">Subobjetivos</xsl:variable>
 <xsl:variable name="proteus:lang_subtypes">Subtipos</xsl:variable>
-<xsl:variable name="proteus:lang_supertype">Supertipo</xsl:variable>
+<xsl:variable name="proteus:lang_superclass">Supertipo</xsl:variable>
 <xsl:variable name="proteus:lang_system">sistema</xsl:variable>
 <xsl:variable name="proteus:lang_TBD">PD</xsl:variable>
 <xsl:variable name="proteus:lang_telephone">Teléfono</xsl:variable>

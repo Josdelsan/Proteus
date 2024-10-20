@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="association-role"
-    classes="association-role"
+    id="role"
+    classes="role"
     acceptedChildren=":Proteus-none"
-    acceptedParents="association-type"
+    acceptedParents="association"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general" required="true">Role</stringProperty>
@@ -19,7 +19,7 @@
     <children/>
 
     <traces>
-      <traceProperty name="base-type" category="general" acceptedTargets="object-type" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
+      <traceProperty name="type" category="general" acceptedTargets="entity-class" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
     </traces>
 
 </object>

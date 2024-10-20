@@ -3,7 +3,7 @@
     id="object-component"
     classes="object-component"
     acceptedChildren=":Proteus-none"
-    acceptedParents="object-type"
+    acceptedParents="entity-class"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general" required="true">Component</stringProperty>
@@ -19,7 +19,7 @@
     <children/>
 
     <traces>
-      <traceProperty name="base-type" category="general" acceptedTargets="object-type" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
+      <traceProperty name="type" category="general" acceptedTargets="entity-class" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
     </traces>
 
 </object>

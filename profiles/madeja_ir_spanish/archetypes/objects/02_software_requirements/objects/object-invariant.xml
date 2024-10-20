@@ -3,7 +3,7 @@
     id="object-invariant"
     classes="object-invariant"
     acceptedChildren=":Proteus-none"
-    acceptedParents="object-type association-type"
+    acceptedParents="entity-class association"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general" required="true">Invariant</stringProperty>

@@ -143,7 +143,7 @@
     <xsl:include href="archetypes/software/PROTEUS_constraint.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_functional_requirement.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_nonfunctional_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
+    <xsl:include href="archetypes/software/PROTEUS_entity_class.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
     -->

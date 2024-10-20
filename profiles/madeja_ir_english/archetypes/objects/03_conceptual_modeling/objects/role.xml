@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    id="object-component"
-    classes="object-component"
+    id="role"
+    classes="role"
     acceptedChildren=":Proteus-none"
-    acceptedParents="object-type"
+    acceptedParents="association"
 >
     <properties>
-      <stringProperty name=":Proteus-name" category="general" required="true">Component</stringProperty>
+      <stringProperty name=":Proteus-name" category="general" required="true">Role</stringProperty>
       <enumProperty name="type" category="general" choices="set bag sequence simple">simple</enumProperty>
       <stringProperty name="multiplicity-lower-bound" category="general"><![CDATA[]]></stringProperty>
       <stringProperty name="multiplicity-upper-bound" category="general"><![CDATA[]]></stringProperty>
@@ -19,7 +19,7 @@
     <children/>
 
     <traces>
-      <traceProperty name="base-type" category="general" acceptedTargets="object-type" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
+      <traceProperty name="type" category="general" acceptedTargets="entity-class" maxTargetsNumber="1" traceType=":Proteus-dependency"/>
     </traces>
 
 </object>
