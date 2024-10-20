@@ -432,7 +432,7 @@ table.traceability_matrix td.trace {
 
 table.entity_class>thead>tr,
 table.value_type>thead>tr,
-table.association_type>thead>tr,
+table.association>thead>tr,
 table.system_operation>thead>tr {
   background-color: gainsboro;
 }

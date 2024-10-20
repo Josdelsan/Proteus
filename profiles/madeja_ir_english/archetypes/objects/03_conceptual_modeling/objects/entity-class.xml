@@ -10,7 +10,6 @@
       <number>001</number>
       <suffix><![CDATA[]]></suffix>
     </codeProperty>
-
     <stringProperty name=":Proteus-name" category="general">Entity</stringProperty>
     <dateProperty name=":Proteus-date">2024-10-01</dateProperty>
     <stringProperty name="version"><![CDATA[1.0]]></stringProperty>

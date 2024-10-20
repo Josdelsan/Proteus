@@ -151,7 +151,7 @@
     <!-- ============================================== -->
 
     <!-- Template to generate component type -->
-    <xsl:template match="object[@classes='object-component'] | object[@classes='role']" mode="code-type">
+    <xsl:template match="object[@classes='object-component'] | object[@classes='role']" mode="code">
         <xsl:variable name="type" select="properties/enumProperty[@name='type']"/>
         <xsl:choose>
             <xsl:when test="$type = 'set'">Set(</xsl:when>

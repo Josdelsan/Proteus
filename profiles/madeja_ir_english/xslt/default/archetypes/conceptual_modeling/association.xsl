@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ======================================================== -->
-<!-- File    : PROTEUS_association_type.xsl                   -->
-<!-- Content : PROTEUS XSLT for subjects at US - objective    -->
+<!-- File    : association.xsl                                -->
+<!-- Content : PROTEUS defualt XSLT for association           -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2023/08/02                                     -->
 <!-- Version : 1.0                                            -->
+<!-- ======================================================== -->
+<!-- Update  : 2024/10/20 (Amador Durán)                      -->
+<!-- Code review and refactoring.                             -->
 <!-- ======================================================== -->
 
 <!-- ======================================================== -->
@@ -19,25 +22,28 @@
     xmlns:proteus-utils="http://proteus.us.es/utils"
     exclude-result-prefixes="proteus proteus-utils"
 >
-
     <!-- ============================================== -->
-    <!-- association template                      -->
+    <!-- association template                           -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='association']">
-        <div id="{@id}" data-proteus-id="{@id}">
-            <table class="entity_class remus_table">
+    <xsl:template match="object[contains(@classes,'association')]">
+
+        <div id="{@id}" data-proteus-id="{@id}" class="association">
+
+            <table class="association remus_table">
 
                 <xsl:variable name="name">
                     <xsl:call-template name="generate-association-name"/>
                 </xsl:variable>
 
-                <!-- Header, version, authors and sources -->
-                <xsl:call-template name="generate_software_requirement_expanded_header">
-                    <xsl:with-param name="class" select="'associationType'" />
-                    <xsl:with-param name="name" select="$name" />
+                <!-- Header -->
+                <xsl:call-template name="generate_header">
+                    <xsl:with-param name="label" select="properties/*[@name=':Proteus-code']"/>
+                    <xsl:with-param name="class" select="'association'"/>
+                    <xsl:with-param name="name"  select="$name" />
                 </xsl:call-template>
 
+                <!-- Association information -->
                 <tr>
                     <td colspan="2">
                         <div class="code">
@@ -47,50 +53,34 @@
                 </tr>
 
                 <!-- Comments -->
-                <xsl:call-template name="generate_property_row">
-                    <xsl:with-param name="label"   select="$proteus:lang_comments"/>
-                    <xsl:with-param name="content" select="properties/markdownProperty[@name='comments']"/>
-                </xsl:call-template>
-
+                <xsl:for-each select="properties/*[@name='comments']">
+                    <xsl:call-template name="generate_property_row"/>
+                </xsl:for-each>
             </table>
         </div>
     </xsl:template>
 
-
     <!-- ============================================== -->
-    <!-- association template (mode code)          -->
+    <!-- association template (code mode)               -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='association']" mode="code">
+    <xsl:template match="object[contains(@classes,'association')]" mode="code">
 
         <!-- Description -->
-        <xsl:call-template name="generate-code-description">
-            <xsl:with-param name="multiline-comment" select="true()"/>
-        </xsl:call-template>
+        <xsl:variable name="description" select="properties/*[@name='description']"/>
+        <xsl:if test="string-length($description)">
+            <xsl:call-template name="generate-code-description">
+                <xsl:with-param name="multiline-comment" select="true()"/>
+            </xsl:call-template>
+        </xsl:if>
 
-        <!-- Class declaration -->
-        <xsl:variable name="class_declaration">
-            <xsl:choose>
-                <xsl:when test="properties/booleanProperty[@name='is-derived'] = 'true'">derived association</xsl:when>
-                <xsl:otherwise>association</xsl:otherwise>
-            </xsl:choose>
+        <!-- Association declaration -->
+        <xsl:variable name="name">
+            <xsl:call-template name="generate-association-name"/>
         </xsl:variable>
 
-        <xsl:variable name="css_class_declaration">
-            <xsl:choose>
-                <xsl:when test="properties/booleanProperty[@name='is-derived'] = 'true'">abstract</xsl:when>
-                <xsl:otherwise></xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
-        <span class="keyword {$css_class_declaration}">
-            <xsl:value-of select="$class_declaration"/>
-            <xsl:text> </xsl:text>
-        </span>
-        <span class="class_name {$css_class_declaration}">
-            <xsl:value-of select="properties/stringProperty[@name=':Proteus-name']"/>
-        </span>
-
+        <span class="keyword">association </span>
+        <span class="class_name"><xsl:value-of select="$name"/></span>
 
         <!-- Open bracket -->
         <br></br>
@@ -115,16 +105,6 @@
             </ul>
         </xsl:if>
 
-        <br></br>
-
-        <!-- Invariants -->
-        <xsl:if test="children/object[@classes='object-invariant']">
-            <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_invariants"/></div>
-            <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='object-invariant']" mode="code"/>
-            </ul>
-        </xsl:if>
-
         <!-- Close bracket -->
         <br></br>
         <xsl:text>}</xsl:text>
@@ -134,7 +114,7 @@
     <!-- Role template                                  -->
     <!-- ============================================== -->
     <!-- Role template is located in                    -->
-    <!-- PROTEUS_entity_class.xsl file                   -->
+    <!-- entity_class.xsl file                          -->
 
     <!-- ============================================== -->
     <!-- Helper templates                               -->
@@ -170,6 +150,5 @@
         <xsl:text> )</xsl:text>
 
     </xsl:template>
-
 
 </xsl:stylesheet>
