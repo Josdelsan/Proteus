@@ -63,6 +63,7 @@
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
         <label key="inherits-from"><xsl:value-of select="$proteus:lang_inherits_from"/></label>
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
+        <label key="ordered"><xsl:value-of select="$proteus:lang_ordered"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
         <label key="precondition"><xsl:value-of select="$proteus:lang_precondition"/></label>
         <label key="postcondition"><xsl:value-of select="$proteus:lang_postcondition"/></label>

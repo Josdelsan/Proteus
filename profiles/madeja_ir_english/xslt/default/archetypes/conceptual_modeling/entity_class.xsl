@@ -114,7 +114,9 @@
         </xsl:if>
 
         <!-- Close bracket -->
-        <br></br>
+        <xsl:if test="not(children/object[@classes='attribute'])">
+            <br></br>
+        </xsl:if>
         <xsl:text>}</xsl:text>
 
     </xsl:template>
@@ -147,36 +149,10 @@
     </xsl:template>
 
     <!-- ============================================== -->
-    <!-- auxiliary templates                            -->
-    <!-- ============================================== -->
-
-    <!-- Template to generate component type -->
-    <xsl:template match="object[@classes='object-component'] | object[@classes='role']" mode="code">
-        <xsl:variable name="type" select="properties/enumProperty[@name='type']"/>
-        <xsl:choose>
-            <xsl:when test="$type = 'set'">Set(</xsl:when>
-            <xsl:when test="$type = 'sequence'">Sequence(</xsl:when>
-            <xsl:when test="$type = 'bag'">Bag(</xsl:when>
-        </xsl:choose>
-
-        <!-- Trace handling -->
-        <xsl:variable name="type-trace" select="properties/traceProperty[@name='type']/trace"/>
-        <xsl:if test="$type-trace">
-            <xsl:for-each select="$type-trace">
-                <xsl:variable name="targetId" select="@target" />
-                <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
-                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-            </xsl:for-each>
-        </xsl:if>
-
-        <xsl:if test="$type = 'set' or $type = 'sequence' or $type = 'bag'">)</xsl:if>
-    </xsl:template>
-
-    <!-- ============================================== -->
     <!-- Helper templates                               -->
     <!-- ============================================== -->
 
-    <!-- Description -->
+    <!-- description -->
     <xsl:template name="generate-code-description">
         <xsl:param name="multiline-comment" select="false()"/>
         <xsl:param name="content" select="properties/markdownProperty[@name='description']"/>
@@ -203,63 +179,6 @@
                 <br></br>
             </xsl:otherwise>
         </xsl:choose>
-    </xsl:template>
-
-    <!-- Keyword -->
-    <xsl:template name="generate-code-keyword">
-        <xsl:variable name="kind-of-property" select="properties/enumProperty[@name='kind-of-property']"/>
-        <span class="keyword">
-            <xsl:choose>
-                <xsl:when test="$kind-of-property = 'constant'">const </xsl:when>
-                <xsl:when test="$kind-of-property = 'variable'">var </xsl:when>
-                <xsl:when test="$kind-of-property = 'derived'">derived </xsl:when>
-            </xsl:choose>
-        </span>
-    </xsl:template>
-
-    <!-- Lower/Upper bounds -->
-    <xsl:template name="generate-code-upper-lower-bounds">
-
-        <!-- Check if type is simple to skip -->
-        <xsl:if test="properties/enumProperty[@name='type'] != 'simple'">
-            <xsl:variable name="lower-bound" select="properties/stringProperty[@name='multiplicity-lower-bound']"/>
-            <xsl:variable name="upper-bound" select="properties/stringProperty[@name='multiplicity-upper-bound']"/>
-            <xsl:if test="string-length($lower-bound) > 0 or string-length($upper-bound) > 0">
-                <xsl:text>[</xsl:text>
-                <!-- Lower bound -->
-                <xsl:choose>
-                    <xsl:when test="string-length($lower-bound) > 0">
-                        <xsl:value-of select="$lower-bound"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD"/></span>
-                    </xsl:otherwise>
-                </xsl:choose>
-                <xsl:text>..</xsl:text>
-                <!-- Upper bound -->
-                <xsl:choose>
-                    <xsl:when test="string-length($upper-bound) > 0">
-                        <xsl:value-of select="$upper-bound"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <span class="tbd"><xsl:value-of select="$proteus:lang_TBD"/></span>
-                    </xsl:otherwise>
-                </xsl:choose>
-                <xsl:text>]</xsl:text>
-            </xsl:if>
-        </xsl:if>
-
-    </xsl:template>
-
-    <!-- Init value/Expression -->
-    <xsl:template name="generate-code-init-value">
-        <xsl:variable name="init-value" select="properties/markdownProperty[@name='init-value']"/>
-        <xsl:if test="string-length($init-value) > 0">
-            <xsl:text> = </xsl:text>
-            <xsl:call-template name="generate_markdown">
-                <xsl:with-param name="content" select="$init-value"/>
-            </xsl:call-template>
-        </xsl:if>
     </xsl:template>
 
 </xsl:stylesheet>

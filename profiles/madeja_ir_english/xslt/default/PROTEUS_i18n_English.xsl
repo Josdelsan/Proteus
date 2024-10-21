@@ -164,6 +164,7 @@
 
 <xsl:variable name="proteus:lang_child_requirements">Child requirements</xsl:variable>
 <xsl:variable name="proteus:lang_inherits_from">Inherits from</xsl:variable>
+<xsl:variable name="proteus:lang_ordered">ordered</xsl:variable>
 
 <!-- ================== -->
 <!-- General L-patterns -->
