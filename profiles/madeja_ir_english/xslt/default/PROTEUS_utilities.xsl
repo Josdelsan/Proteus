@@ -64,7 +64,9 @@
     <!-- generate_property_row template                -->
     <!-- ============================================= -->
 
-    <!-- current() is the property element being processed -->
+    <!-- current() is the property element being processed. -->
+    <!-- 'tbd' is considered as having no content, it shown -->
+    <!-- only if it mandatory.                              -->
 
     <xsl:template name="generate_property_row">
         <xsl:param name="label" select="$property_labels/label[@key=current()/@name]"/>
@@ -72,28 +74,39 @@
         <xsl:param name="mandatory" select="false()"/>
         <xsl:param name="alternative"/>
         <xsl:param name="span" select="1"/>
+        <xsl:param name="diagram" select="@name='diagram'"/>
 
-        <xsl:variable name="hasContent"  select="string-length(current()//text()) > 0"/>
+        <xsl:variable name="hasContent"  select="(string-length(current()//text()) > 0) and (normalize-space(current()) != 'tbd')"/>
         <xsl:variable name="hasChildren" select="boolean(current()/*)"/>
 
         <xsl:if test="$hasContent or $hasChildren or $mandatory">
             <tr>
-                <th>
-                    <xsl:value-of select="$label"/>
-                </th>
-                <td colspan="{$span}">
-                    <xsl:choose>
-                        <xsl:when test="(not($hasContent) and not($hasChildren)) or normalize-space(current()) = 'tbd'">
-                            <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
-                        </xsl:when>
-                        <xsl:when test="$alternative">
-                            <span class="alternative"><xsl:value-of select="$alternative"/></span>
-                        </xsl:when>
-                        <xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="$diagram">
+                        <th colspan="{$span + 1}">
+                            <xsl:value-of select="$label"/>
                             <xsl:apply-templates select="current()"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </td>
+                        </th>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <th>
+                            <xsl:value-of select="$label"/>
+                        </th>
+                        <td colspan="{$span}">
+                            <xsl:choose>
+                                <xsl:when test="(not($hasContent) and not($hasChildren)) or normalize-space(current()) = 'tbd'">
+                                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                                </xsl:when>
+                                <xsl:when test="$alternative">
+                                    <span class="alternative"><xsl:value-of select="$alternative"/></span>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:apply-templates select="current()"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </td>
+                    </xsl:otherwise>
+                </xsl:choose>
             </tr>
         </xsl:if>
     </xsl:template>
@@ -117,7 +130,7 @@
                     <xsl:value-of select="$label"/>
                 </th>
                 <td colspan="{$span}">
-                    <ul class="subobjectives">
+                    <ul class="children">
                         <!-- for each children -->
                         <xsl:for-each select="children/object">
                             <li>
@@ -152,12 +165,13 @@
             </strong>
             <xsl:if test="$description">
                 <xsl:text>: </xsl:text>
-                [<xsl:value-of select="$description"/>]
+                <!-- <xsl:value-of select="$description"/> -->
+                <xsl:apply-templates select="$description"/>
             </xsl:if>
 
             <!-- Does it have children? -->
             <xsl:if test="children/object">
-                <ul class="subobjectives">
+                <ul class="children">
                     <xsl:for-each select="children/object">
                         <li><xsl:call-template name="generate_object_basic_information"/></li>
                     </xsl:for-each>
@@ -262,7 +276,7 @@
 
         <xsl:call-template name="generate_trace_row">
             <xsl:with-param name="label"   select="$proteus:lang_authors"/>
-            <xsl:with-param name="content" select="properties/traceProperty[@name='created-by']"/>
+            <xsl:with-param name="content" select="properties/traceProperty[@name='authors']"/>
             <xsl:with-param name="span"    select="$span"/>
         </xsl:call-template>
 
@@ -324,10 +338,10 @@
             </xsl:call-template>
         </xsl:if>
 
-        <xsl:if test="properties/enumProperty[@name='development-status'] != 'nd'">
+        <xsl:if test="properties/enumProperty[@name='status'] != 'nd'">
             <xsl:call-template name="generate_property_row">
                 <xsl:with-param name="label"   select="$proteus:lang_status"/>
-                <xsl:with-param name="content" select="properties/enumProperty[@name='development-status']"/>
+                <xsl:with-param name="content" select="properties/enumProperty[@name='status']"/>
                 <xsl:with-param name="span"    select="$span"/>
             </xsl:call-template>
         </xsl:if>

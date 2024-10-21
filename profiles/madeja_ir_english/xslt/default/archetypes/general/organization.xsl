@@ -57,8 +57,8 @@
                 <!-- This was suggested by Claude AI.                                     -->
 
                 <!-- List of excluded properties (not shown) -->
-                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,created-by,sources</xsl:variable>
-                
+                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,authors,sources,</xsl:variable>
+
                 <!-- List of mandatory properties (shown even if they are empty)-->
                 <xsl:variable name="mandatory_properties">,address,</xsl:variable>
 

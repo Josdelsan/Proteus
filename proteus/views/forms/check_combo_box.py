@@ -17,8 +17,13 @@ from typing import List, Any
 # --------------------------------------------------------------------------
 
 from PyQt6.QtWidgets import QComboBox
-from PyQt6.QtCore import Qt, QModelIndex
-from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon, QFontMetrics
+from PyQt6.QtCore import Qt, QModelIndex, QEvent, QObject
+from PyQt6.QtGui import (
+    QStandardItemModel,
+    QStandardItem,
+    QIcon,
+    QFontMetrics,
+)
 
 # --------------------------------------------------------------------------
 # Project specific imports
@@ -32,7 +37,7 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon, QFontMetrics
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-# TODO: Some methods from QStandardItemModel are not documented in 
+# TODO: Some methods from QStandardItemModel are not documented in
 # https://www.riverbankcomputing.com/static/Docs/PyQt6/ but they are working.
 # They have the same behavior as in PySide6 and multiple examples from PyQt
 # use them. Find the reason why they are not documented (deprecated, linting
@@ -120,7 +125,7 @@ class CheckComboBox(QComboBox):
         font_metrics = QFontMetrics(self.font())
         text_width = font_metrics.averageCharWidth() * int(len(text) * 1.5)
         icon_width = 0 if icon is None else icon.actualSize(self.sizeHint()).width()
-        width = text_width + icon_width + 20 # 20 is the width of the checkbox
+        width = text_width + icon_width + 20  # 20 is the width of the checkbox
         if width > self.view().minimumWidth():
             self.view().setMinimumWidth(width)
 
@@ -157,3 +162,37 @@ class CheckComboBox(QComboBox):
             if item.checkState() == Qt.CheckState.Checked:
                 items.append(item.data(Qt.ItemDataRole.UserRole))
         return items
+
+    # ----------------------------------------------------------------------
+    # Method     : eventFilter
+    # Description: Handle the mouse button press event to change the check state
+    #              of the item.
+    # Date       : 03/10/2024
+    # Version    : 0.1
+    # Author     : This method was proposed by ClaudeAI
+    # ----------------------------------------------------------------------
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.MouseButtonPress:
+            index = self.view().indexAt(event.pos())
+            if index.isValid():
+                item = self.model().itemFromIndex(index)
+                item.setCheckState(
+                    Qt.CheckState.Unchecked
+                    if item.checkState() == Qt.CheckState.Checked
+                    else Qt.CheckState.Checked
+                )
+                self.view().update(index)
+                return True  # Consume the event
+        return super().eventFilter(obj, event)
+
+    # ----------------------------------------------------------------------
+    # Method     : hidePopup
+    # Description: Hide the popup only if we click outside the combo box.
+    # Date       : 03/10/2024
+    # Version    : 0.1
+    # Author     : This method was proposed by ClaudeAI
+    # ----------------------------------------------------------------------
+    def hidePopup(self):
+        # Only hide the popup if we click outside the combo box
+        if not self.view().underMouse():
+            super().hidePopup()

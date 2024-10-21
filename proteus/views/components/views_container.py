@@ -35,6 +35,7 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.model import ProteusID
+from proteus.application.metrics import Metrics
 from proteus.application.resources.translator import translate as _
 from proteus.application.configuration.config import Config
 from proteus.application.resources.icons import Icons, ProteusIconType
@@ -135,16 +136,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Allow to close tabs
         self.setTabsClosable(True)
 
-        xsl_templates: list[str] = self._controller.get_project_templates()
-        # Move the current default view to the first position so it is the
-        # first tab to be displayed
         current_default_view: str = Config().app_settings.default_view
-        if current_default_view in xsl_templates:
-            xsl_templates.remove(current_default_view)
-        xsl_templates.insert(0, current_default_view)
 
-        for xsl_template in xsl_templates:
-            self.add_view(xsl_template)
+        self.add_view(current_default_view)
 
         # Check at least one view is available
         assert (
@@ -192,6 +186,13 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             log.error(
                 f"XSLT template {xslt_name} not found in the XSLT directory, view not added to the views container component."
             )
+            self._state_manager.remove_opened_view(xslt_name)
+            return
+
+        if xslt_name in self.tabs.keys():
+            log.debug(
+                f"XSLT template {xslt_name} already exists in the views container component."
+            )
             return
 
         # Create browser
@@ -232,6 +233,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Store the browser in the tab dict
         self.tabs[xslt_name] = browser
 
+        # Add the opened view to the state manager
+        self._state_manager.add_opened_view(xslt_name)
+
     # ----------------------------------------------------------------------
     # Method     : subscribe
     # Description: Subscribe the component to the events.
@@ -255,7 +259,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             - SELECT OBJECT -> update_on_select_object
             - CURRENT VIEW CHANGED -> update_on_current_view_changed
         """
-        AddObjectEvent().connect(self.update_view)
+        AddObjectEvent().connect(self.update_view_on_add_object)
         ModifyObjectEvent().connect(self.update_view)
         DeleteObjectEvent().connect(self.update_view)
         CurrentDocumentChangedEvent().connect(self.update_view)
@@ -274,7 +278,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def display_view(self) -> None:
+    def display_view(self, object_to_scroll: ProteusID = None) -> None:
         """
         Update the view to display the current project information rendered
         using the current view template. If there is no current document
@@ -300,21 +304,68 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Update the current view browser with the content
         if current_view in self.tabs and current_document_id is not None:
             # Get html from controller
-            html_str: str = self._controller.get_html_view(xslt_name=current_view)
+            html_path: str = self._controller.get_html_view_path(xslt_name=current_view)
 
-            # Convert html to QByteArray
-            # NOTE: This is done to avoid 2mb limit on setHtml method
-            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_str.encode(encoding="utf-8"))
-            browser.page().setContent(html_array, "text/html")
+            Metrics.html_load_time_start()
+
+            browser.loadFinished.connect(
+                lambda: self.load_finished(browser.loadFinished, object_to_scroll)
+            )
+
+            url: QUrl = QUrl.fromLocalFile(html_path)
+            log.debug(f"Loading HTML file: {url.toString()}")
+            browser.page().load(url)
 
             # NOTE: When using onLoadFinished signal make sure to disconnect
             # the sender using self.sender().disconnect() to avoid multiple
             # calls when page is reloaded.
 
+    def load_finished(self, sender: QWebEngineView.loadFinished, object_to_scroll: ProteusID):  # type: ignore
+        # Disconnect the signal to avoid multiple calls when page is reloaded
+        sender.disconnect()
+
+        current_selected_object: ProteusID = self._state_manager.get_current_object()
+        current_view: str = self._state_manager.get_current_view()
+
+        # If an object is given to scroll, scroll to it
+        if object_to_scroll is not None:
+            script_template: str = "onTreeObjectSelected('{}');"
+            browser: QWebEngineView = self.tabs[current_view]
+            browser.page().runJavaScript(script_template.format(object_to_scroll))
+        # If not, scroll to the current selected object
+        elif current_selected_object is not None:
+            script_template: str = "onTreeObjectSelected('{}');"
+            browser: QWebEngineView = self.tabs[current_view]
+            browser.page().runJavaScript(
+                script_template.format(current_selected_object)
+            )
+
+        Metrics.html_load_time_end()
+
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
     # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : update_view_on_add_object
+    # Description: Update the view when an object is added to the project.
+    # Date       : 01/01/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def update_view_on_add_object(
+        self, object_id: ProteusID, update_view: bool
+    ) -> None:
+        """
+        Update the view when an object is added to the project.
+
+        Triggered by: AddObjectEvent
+
+        :param object_id: Id of the added object.
+        :param update_view: Flag to update the view.
+        """
+        if update_view == True:
+            self.display_view(object_id)
 
     # ----------------------------------------------------------------------
     # Method     : update_view
@@ -327,7 +378,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         """
         Update the view depending on the update_view flag.
 
-        Triggered by: AddObjectEvent, ModifyObjectEvent, DeleteObjectEvent,
+        Triggered by:   ModifyObjectEvent, DeleteObjectEvent,
                         CurrentDocumentChangedEvent, CurrentViewChangedEvent
 
         :param _: Unused parameter.
@@ -470,6 +521,9 @@ class ViewsContainer(QTabWidget, ProteusComponent):
 
         browser: QWebEngineView = self.tabs.pop(view_name)
 
+        # Delete from state manager
+        self._state_manager.remove_opened_view(view_name)
+
         # Delete the browser
         browser.parent = None
         browser.deleteLater()
@@ -496,8 +550,8 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         # Get the key corresponding to the tab index
         xslt_name: str = list(self.tabs.keys())[index]
 
-        # Delete the view
-        self._controller.delete_project_template(xslt_name)
+        # Trigger REMOVE_VIEW event
+        DeleteViewEvent().notify(xslt_name)
 
     # ----------------------------------------------------------------------
     # Method     : current_view_changed

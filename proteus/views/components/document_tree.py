@@ -31,7 +31,6 @@ from PyQt6.QtWidgets import (
     QWidget,
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
 )
 
 # --------------------------------------------------------------------------
@@ -485,6 +484,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Create the new item
         self._populate_tree(parent_item, new_object, position=position)
 
+        # Scroll to the new item (parent remains selected)
+        self.scrollToItem(self.tree_items[new_object.id], QTreeWidget.ScrollHint.EnsureVisible)
+
         self.update_indexes()
 
     # ----------------------------------------------------------------------
@@ -619,7 +621,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Get the children tree items
         children_items: List[QTreeWidgetItem] = [
-            self.tree_items[child.id] for child in children_objects
+            self.tree_items[child.id]
+            for child in children_objects
+            if child.state != ProteusState.DEAD
         ]
 
         # NOTE: Helper functions to get and set the expanded state of the object

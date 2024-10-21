@@ -227,33 +227,6 @@ def test_generate_project_xml(
     )
 
 
-# test_add_project_template ---------------------------------------------------
-def test_add_project_template(
-    project_service: ProjectService,
-):
-    """
-    Test the add_project_template method.
-    """
-    # Arrange -------------------------
-    DUMMY_TEMPLATE = "example"
-
-    # Check that the dummy template do not exist
-    old_template_list = project_service.project.xsl_templates.copy()
-
-    # Act -----------------------------
-    project_service.add_project_template(DUMMY_TEMPLATE)
-
-    # Assert --------------------------
-    # Check that the project template is added
-    assert (
-        DUMMY_TEMPLATE in project_service.project.xsl_templates
-    ), f"Project template list should contain {DUMMY_TEMPLATE} template, current list: {project_service.project.xsl_templates}"
-
-    # Check that the template did not exist before
-    assert (
-        DUMMY_TEMPLATE not in old_template_list
-    ), f"{DUMMY_TEMPLATE} template should not exist in project template list before calling add_project_template, old list: {old_template_list}"
-
 
 @pytest.mark.parametrize(
     "object_name, expected_traced_objects, expected_sources_for_each_object",
@@ -355,7 +328,7 @@ def test_get_traces_dependencies(
         ("simple_paragraph", "document_1", 2, 0),
         ("simple_paragraph", "document_1", 3, 0),
         ("simple_paragraph", "document_1", 8, 0),  # Move to the last position
-        ("simple_objective", "document_1", 0, 5),  # Move to the first position
+        ("simple_objective", "document_1", 0, 6),  # Move to the first position
     ],
 )
 def test_change_object_position_same_parent(

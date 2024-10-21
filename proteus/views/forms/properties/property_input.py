@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget,
@@ -73,6 +73,8 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
         # Initialize input widget by calling the abstract method
         self.input: QWidget = self.create_input(property, controller, element_id)
         self.property: Property = property
+
+        self.input.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         # Create the component
         self.create_component()
@@ -288,3 +290,24 @@ class PropertyInput(QWidget, ABC, metaclass=AbstractObjectMeta):
                 _("property_input.inmutable_property_warning.title"),
                 _("property_input.inmutable_property_warning.text"),
             )
+
+
+    # ----------------------------------------------------------------------
+    # Method     : setKeyboardFocus
+    # Description: Set the keyboard focus to the input widget.
+    # Date       : 14/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def setKeyboardFocus(self):
+        """
+        Set the mouse/keyboard focus to the input widget.
+        """
+        try:
+            # Set the mouse/keyboard focus
+            # Solution for mouse focus: https://stackoverflow.com/a/35765436/17947088
+            QTimer.singleShot(0, self.input.setFocus)
+            
+        except Exception as e:
+            log.error(f"Error setting keyboard focus: {e}")
+            pass

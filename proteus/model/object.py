@@ -46,16 +46,16 @@ from proteus.model import (
     PROTEUS_DATE,
     PROTEUS_CODE,
     PROTEUS_NAME,
+    PROTEUS_DOCUMENT,
     ID_ATTRIBUTE,
-    NAME_ATTRIBUTE,
     CLASSES_ATTRIBUTE,
     ACCEPTED_CHILDREN_ATTRIBUTE,
     ACCEPTED_PARENTS_ATTRIBUTE,
+    SELECTED_CATEGORY_ATTRIBUTE,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
     CHILD_TAG,
-    TRACES_TAG,
     PROTEUS_ANY,
     ASSETS_REPOSITORY,
     COPY_OF,
@@ -197,6 +197,10 @@ class Object(AbstractObject):
             ACCEPTED_PARENTS_ATTRIBUTE, PROTEUS_ANY
         ).split()
 
+        # Selected category provides information about which property category
+        # is more relevant among the others to the user. It can be None
+        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, None)
+
         # Load object's properties using superclass method
         super().load_properties(root)
 
@@ -282,6 +286,33 @@ class Object(AbstractObject):
 
             self.children.append(object)
 
+    # ----------------------------------------------------------------------
+    # Method     : get_document
+    # Description: It returns the parent document of the object.
+    # Date       : 03/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_document(self) -> Object:
+        """
+        It returns the parent document of the object. It looks recursively
+        for the parent until it finds a document object.
+
+        Raises an exception if the document is not found before reaching the
+        project root.
+
+        :return: Parent document of the object.
+        """
+
+        # Project does not have classes attribute so it will raise an exception
+        try:
+            if PROTEUS_DOCUMENT in self.classes:
+                return self
+            else:
+                return self.parent.get_document()
+        except AttributeError:
+            raise Exception(f"Parent document not found for object {self.id}")
+        
     # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the children of an object.
@@ -424,6 +455,9 @@ class Object(AbstractObject):
         object_element.set(CLASSES_ATTRIBUTE, " ".join(self.classes))
         object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
         object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
+
+        if self.selectedCategory is not None:
+            object_element.set(SELECTED_CATEGORY_ATTRIBUTE, self.selectedCategory)
 
         # Create <properties> element
         super().generate_xml_properties(object_element)

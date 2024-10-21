@@ -143,7 +143,7 @@ spellchecker/
 # Visual Studio
 .vs/
 
-# Proteus logs
+# Proteus temp files
 /.proteus
 *.log
 

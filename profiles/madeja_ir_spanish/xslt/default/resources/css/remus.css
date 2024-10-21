@@ -14,12 +14,6 @@
 /* IE 7 does not support :last-child and :nth-child in CSS */
 /* ======================================================= */
 
-/* MADEJA objects */
-
-table.madeja_object>thead>tr {
-  background-color: rgb(207, 243, 207);
-}
-
 /* Default tables */
 table {
   width: 98%;
@@ -73,11 +67,10 @@ td {
 
 }
 
-
 /* general styles */
 
 body {
-  font-family: calibri, cambria, verdana, arial;
+  font-family: calibri, helvetica, cambria, verdana, arial;
   font-size: 12pt;
   text-align: justify;
 }
@@ -232,13 +225,9 @@ div.info {
   background-color: lightyellow;
   border: goldenrod solid;
   border-width: 1px;
-}
-
-/* TODO: poner URL al CDN de github */
-div.info>div {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAERUExURQAAAP/GOf/IN//ISf/MRP/MQv/GQP/NQP/KQP/KQP/JQf3LQf3LQf3KQf3MQf3KQP3LQf7LQP/LQf7KQP7KQv7KP/7KQf7KQf7KQf7LQP7KQP7LQP7KP/7KP/7KQf7LQf7KQf7LQf7KQP/LQf/LQv/LQ//MQ//MRf/MRv/NSP/OTP/OTf/PTv/QUv/QU//RVf/RV//RWf/SW//TXv/TX//WaP/XbP/Ycf/ad//fif/fi//gjv/gj//hkP/hkv/ilP/knP/knv/lnv/mo//npv/nqP/oqv/rtf/uwP/uwf/vw//wyf/xy//y0f/z1f/34v/45v/45//56f/67P/77//78P/88//99//++v/+/f///4M/5sUAAAAjdFJOUwAJDg4PIyQkMFdaiYqampucyszS0unp6uvs9PT1+fn5+vv8T/4+zAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAW5JREFUOE91k+lWwjAQhVNESqGtlEUKIlqCG264b7grKu675v0fxGlyLck5+v26M3dOmkxn2JARxwvCqFUrFnJppHTssQme0PBHkf7Fcqfhgcm8BUuSKSOvUbZhEtkqkgbVLGyW+dOniozyLf38xcvBQRual9Q9XISSOyHEETTn+di39fu3v6ngBgG9JX6tj0BxSwU9aMKn/mn9ITrn13uQMY00cyD/Icc8KMXy6iwUKLAAiljvPwvxuotIUWQhFNE7vaIrvs8jlNRYBKV4oYoVaEnLLGh/CPE1h0AS6Z/gfJMOeIBWhPolOT+mgjNoRWA+M+7jFrTCMxq18CnE2wwChWO0eocOGEAr6injZ/Wo4AJaQT9L/937VHDfXesi5Lwp53I4MEtPVCEeNxBy7sa+PnKdw/7JNjSBkft3aCvJ9mTHkTKoJGNPZ5SQ1CgZ22e5U8iDpmusHmH7dXhE3df2LiEl1z8KA8+h/ikY+wFGwHtzSILYxAAAAABJRU5ErkJggg==');
   background-repeat: no-repeat;
-  background-position: left top;
+  background-position: left 4px top 4px;
   min-height: 2em;
   padding-left: 42px;
 }
@@ -305,7 +294,7 @@ table.remus_table>thead>tr>th:first-child {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 4px;
-  min-width: 7em;
+  min-width: 8em;
   white-space: nowrap;
 }
 
@@ -318,7 +307,7 @@ table.remus_table tr>th:first-child {
 table.remus_table>thead>tr>th:first-child>img:first-child {
   padding-right: 0.25em;
   vertical-align: text-bottom;
-  width: 18px;
+  width: 20px;
 }
 
 /* paragraphs inside tables */
@@ -333,6 +322,7 @@ table.remus_table div.remus_comments p {
 }
 
 /* lists inside tables */
+table.remus_table td ul.children,
 table.remus_table td ul.traces,
 table.remus_table td ul.stakeholders,
 table.remus_table td ul.subobjectives,
@@ -344,6 +334,8 @@ table.remus_table td ul.affected_objects {
   padding-left: 0em;
 }
 
+/* MADEJA objects */
+
 /* general purpose objects */
 
 table.organization>thead>tr,
@@ -352,27 +344,28 @@ table.meeting>thead>tr {
   background-color: lightcyan;
 }
 
+/* business analysis objects */
+
+table.business_actor>thead>tr,
+table.business_objective>thead>tr,
+table.business_process>thead>tr,
+table.strength>thead>tr,
+table.weakness>thead>tr,
+table.user_story>thead>tr {
+  background-color: rgb(207, 243, 207);
+}
+
 /* requirements objects */
 
-table.objective>thead>tr,
-table.actor>thead>tr,
+table.subsystem>thead>tr,
+table.general_requirement>thead>tr,
+table.system_actor>thead>tr,
 table.information_requirement>thead>tr,
-table.constraint_requirement>thead>tr,
+table.business_rule>thead>tr,
 table.use_case>thead>tr,
 table.functional_requirement>thead>tr,
 table.nonfunctional_requirement>thead>tr {
   background-color: powderblue;
-}
-
-span.subobjective {
-  font-weight: bold;
-}
-
-span.relevant_concept,
-span.triggering_event,
-span.exception_termination {
-  /*font-weight: bold;*/
-  font-style: italic;
 }
 
 /* use case tables */
@@ -398,7 +391,7 @@ table.traceability_matrix {
 }
 
 table.traceability_matrix>thead>tr {
-  background-color: lightgoldenrodyellow;
+  background-color: lavender;
 }
 
 /* first row, first column */
@@ -437,9 +430,10 @@ table.traceability_matrix td.trace {
 
 /*  modeling objects */
 
-table.object_type>thead>tr,
+table.entity_class>thead>tr,
+table.association>thead>tr,
+table.mockup>thead>tr,
 table.value_type>thead>tr,
-table.association_type>thead>tr,
 table.system_operation>thead>tr {
   background-color: gainsboro;
 }

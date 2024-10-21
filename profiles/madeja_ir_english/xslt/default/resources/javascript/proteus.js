@@ -38,14 +38,6 @@ function loadWebChannel() {
         new QWebChannel(qt.webChannelTransport, function (channel) {
             proteusBasics = channel.objects.proteusBasics;
             documentInteractions = channel.objects.documentInteractions;
-
-            // Scroll to the current object as soon as the QWebChannel is loaded
-            // This improves user experience when the document has a lot of
-            // resources (images, stylesheets, etc.)
-            proteusBasics.get_current_object_id(function (oid) {
-                onTreeObjectSelected(oid);
-            });
-
             log("QWebChannel loaded.")
         });
     } catch (error) {

@@ -61,8 +61,8 @@
                 <!-- This was suggested by Claude AI (https://claude.ai/).                -->
 
                 <!-- List of excluded properties (not shown or shown as a special case) -->
-                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,works-for,created-by,sources</xsl:variable>
-                
+                <xsl:variable name="excluded_properties">,:Proteus-name,:Proteus-date,version,works-for,authors,sources</xsl:variable>
+
                 <!-- List of mandatory properties (shown even if they are empty)-->
                 <xsl:variable name="mandatory_properties">,works-for,category,role,</xsl:variable>
 
@@ -82,9 +82,9 @@
                         <xsl:otherwise>
                             <xsl:call-template name="generate_property_row">
                                 <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
-                            </xsl:call-template>                        
+                            </xsl:call-template>
                         </xsl:otherwise>
-                    </xsl:choose>                        
+                    </xsl:choose>
                 </xsl:for-each>
 
                 <!-- Generate rows for all other properties -->

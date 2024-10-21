@@ -2,12 +2,12 @@
 
 <!-- ======================================================== -->
 <!-- File    : business_actor.xsl                             -->
-<!-- Content : PROTEUS XSLT for businessactor                 -->
+<!-- Content : PROTEUS default XSLT for business-actor        -->
 <!-- Author  : José María Delgado Sánchez                     -->
 <!-- Date    : 2024/05/28                                     -->
 <!-- Version : 1.0                                            -->
 <!-- ======================================================== -->
-<!-- Update  : 2024/09/16 (Amador Durán)                      -->
+<!-- Update  : 2024/10/11 (Amador Durán)                      -->
 <!-- match must be object[ends-with(@classes,'business-actor')]-->
 <!-- To check if an object is of a given class:               -->
 <!--    object[contains(@classes,class_name)]                 -->
@@ -34,7 +34,7 @@
 
     <xsl:template match="object[contains(@classes,'business-actor')]">
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="madeja_object remus_table">
+            <table class="business_actor remus_table">
                 <!-- Header -->
                 <xsl:call-template name="generate_header">
                     <xsl:with-param name="label"   select="properties/*[@name=':Proteus-code']"/>
@@ -49,8 +49,8 @@
                 <!-- This was suggested by Claude AI.                                     -->
 
                 <!-- List of excluded properties (not shown) -->
-                <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,</xsl:variable>
-                
+                <xsl:variable name="excluded_properties">,:Proteus-code,:Proteus-name,:Proteus-date,version,dependencies,</xsl:variable>
+
                 <!-- List of mandatory properties (shown even if they are empty)-->
                 <xsl:variable name="mandatory_properties">,description,</xsl:variable>
 
@@ -61,7 +61,7 @@
                         <xsl:with-param name="mandatory" select="contains($mandatory_properties,concat(',', current()/@name, ','))"/>
                     </xsl:call-template>
                 </xsl:for-each>
-            </table>                
+            </table>
         </div>
     </xsl:template>
 
