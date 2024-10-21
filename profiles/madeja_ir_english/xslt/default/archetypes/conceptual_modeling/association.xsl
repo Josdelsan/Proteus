@@ -85,45 +85,102 @@
         <!-- Open bracket -->
         <br></br>
         <xsl:text>{</xsl:text>
-        <br></br>
 
         <!-- Roles -->
         <xsl:if test="children/object[@classes='role']">
-            <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_roles"/></div>
+            <br></br>
+            <!-- <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_roles"/></div> -->
             <ul class="properties">
                 <xsl:apply-templates select="children/object[@classes='role']" mode="code"/>
             </ul>
         </xsl:if>
 
-        <br></br>
-
         <!-- Attributes -->
         <xsl:if test="children/object[@classes='attribute']">
-            <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_attributes"/></div>
+            <br></br>
+            <!-- <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_attributes"/></div> -->
             <ul class="properties">
                 <xsl:apply-templates select="children/object[@classes='attribute']" mode="code"/>
             </ul>
         </xsl:if>
 
         <!-- Close bracket -->
-        <br></br>
+        <xsl:if test="not(children/object[@classes='attribute' or @classes='role'])">
+            <br></br>
+        </xsl:if>
         <xsl:text>}</xsl:text>
     </xsl:template>
 
     <!-- ============================================== -->
-    <!-- Role template                                  -->
+    <!-- role template                                  -->
     <!-- ============================================== -->
-    <!-- Role template is located in                    -->
-    <!-- entity_class.xsl file                          -->
+
+    <xsl:template match="object[contains(@classes,'role')]" mode="code">
+
+        <li id="{@id}" data-proteus-id="{@id}" class="property">
+
+            <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
+            <xsl:text>: </xsl:text>
+
+            <!-- role type -->
+            <xsl:variable name="target_id" select="properties/traceProperty[@name='type']/trace/@target"/>
+            <xsl:choose>
+                <xsl:when test="$target_id">
+                    <xsl:variable name="target_object" select="//object[@id=$target_id]" />
+                    <xsl:value-of select="$target_object/properties/*[@name=':Proteus-name']" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="tbd">?</span>
+                </xsl:otherwise>
+            </xsl:choose>
+
+            <!-- role multiplicity -->
+            <xsl:variable name="lower-bound" select="properties/*[@name='multiplicity-lower-bound']"/>
+            <xsl:variable name="upper-bound" select="properties/*[@name='multiplicity-upper-bound']"/>
+
+            <xsl:if test="string-length($lower-bound) or string-length($upper-bound)">
+                <xsl:text> [</xsl:text>
+
+                <!-- lower bound -->
+                <xsl:if test="string-length($lower-bound)">
+                    <xsl:value-of select="$lower-bound"/>
+                    <xsl:text>..</xsl:text>
+                </xsl:if>
+
+                <!-- upper bound -->
+                <xsl:choose>
+                    <xsl:when test="string-length($upper-bound)">
+                        <xsl:value-of select="$upper-bound"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <span class="tbd">?</span>
+                    </xsl:otherwise>
+                </xsl:choose>
+
+                <xsl:text>]</xsl:text>
+            </xsl:if>
+
+            <!-- role description -->
+            <xsl:variable name="description" select="properties/*[@name='description']"/>
+
+            <xsl:if test="string-length($description)">
+                <span class="code_comment code_description">
+                    //
+                    <xsl:call-template name="generate_markdown">
+                        <xsl:with-param name="content" select="$description"/>
+                    </xsl:call-template>
+                </span>
+            </xsl:if>
+
+        </li>
+    </xsl:template>
 
     <!-- ============================================== -->
     <!-- Helper templates                               -->
     <!-- ============================================== -->
-    <!-- Helper templates are located in                -->
-    <!-- PROTEUS_entity_class.xsl file                   -->
 
+    <!-- association name -->
     <xsl:template name="generate-association-name">
-
         <!-- Name -->
         <xsl:value-of select="properties/stringProperty[@name = ':Proteus-name']"/>
 
@@ -134,11 +191,16 @@
 
         <!-- Include roles -->
         <xsl:for-each select="$roles">
-            <xsl:for-each select="properties/traceProperty[@name = 'type']/trace">
-                <xsl:variable name="targetId" select="@target" />
-                <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
-                <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
-            </xsl:for-each>
+            <xsl:variable name="target_id" select="properties/traceProperty[@name='type']/trace/@target"/>
+            <xsl:choose>
+                <xsl:when test="$target_id">
+                    <xsl:variable name="target_object" select="//object[@id=$target_id]" />
+                    <xsl:value-of select="$target_object/properties/*[@name=':Proteus-name']" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="tbd">?</span>
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:if test="not(position()=last())">, </xsl:if>
         </xsl:for-each>
 
