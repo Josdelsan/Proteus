@@ -14,12 +14,6 @@
 /* IE 7 does not support :last-child and :nth-child in CSS */
 /* ======================================================= */
 
-/* MADEJA objects */
-
-table.madeja_object>thead>tr {
-  background-color: rgb(207, 243, 207);
-}
-
 /* Default tables */
 table {
   width: 98%;
@@ -73,11 +67,10 @@ td {
 
 }
 
-
 /* general styles */
 
 body {
-  font-family: calibri, cambria, verdana, arial;
+  font-family: calibri, helvetica, cambria, verdana, arial;
   font-size: 12pt;
   text-align: justify;
 }
@@ -301,7 +294,7 @@ table.remus_table>thead>tr>th:first-child {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 4px;
-  min-width: 7em;
+  min-width: 8em;
   white-space: nowrap;
 }
 
@@ -314,7 +307,7 @@ table.remus_table tr>th:first-child {
 table.remus_table>thead>tr>th:first-child>img:first-child {
   padding-right: 0.25em;
   vertical-align: text-bottom;
-  width: 18px;
+  width: 20px;
 }
 
 /* paragraphs inside tables */
@@ -341,6 +334,8 @@ table.remus_table td ul.affected_objects {
   padding-left: 0em;
 }
 
+/* MADEJA objects */
+
 /* general purpose objects */
 
 table.organization>thead>tr,
@@ -349,27 +344,28 @@ table.meeting>thead>tr {
   background-color: lightcyan;
 }
 
+/* business analysis objects */
+
+table.business_actor>thead>tr,
+table.business_objective>thead>tr,
+table.business_process>thead>tr,
+table.strength>thead>tr,
+table.weakness>thead>tr,
+table.user_story>thead>tr {
+  background-color: rgb(207, 243, 207);
+}
+
 /* requirements objects */
 
-table.objective>thead>tr,
-table.actor>thead>tr,
+table.subsystem>thead>tr,
+table.general_requirement>thead>tr,
+table.system_actor>thead>tr,
 table.information_requirement>thead>tr,
-table.constraint_requirement>thead>tr,
+table.business_rule>thead>tr,
 table.use_case>thead>tr,
 table.functional_requirement>thead>tr,
 table.nonfunctional_requirement>thead>tr {
   background-color: powderblue;
-}
-
-span.subobjective {
-  font-weight: bold;
-}
-
-span.relevant_concept,
-span.triggering_event,
-span.exception_termination {
-  /*font-weight: bold;*/
-  font-style: italic;
 }
 
 /* use case tables */
@@ -395,7 +391,7 @@ table.traceability_matrix {
 }
 
 table.traceability_matrix>thead>tr {
-  background-color: lightgoldenrodyellow;
+  background-color: lavender;
 }
 
 /* first row, first column */
@@ -435,8 +431,9 @@ table.traceability_matrix td.trace {
 /*  modeling objects */
 
 table.entity_class>thead>tr,
+table.association>thead>tr,
+table.mockup>thead>tr,
 table.value_type>thead>tr,
-table.association_type>thead>tr,
 table.system_operation>thead>tr {
   background-color: gainsboro;
 }

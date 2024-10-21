@@ -59,7 +59,7 @@ archetype.class.use-case: "Caso\nde uso"
 archetype.class.use-case-step: "Paso de caso de uso"
 archetype.class.functional-requirement: "Requisito\nfuncional"
 archetype.class.nonfunctional-requirement: "Requisito\nno funcional"
-archetype.class.traceability-matrix: "Matriz de\nrastreabilidad"
+archetype.class.traceability-matrix: "Matriz de\ntrazabilidad"
 
 # Conceptual Modeling category
 

@@ -135,6 +135,8 @@
         </xsl:variable>
 
         <!-- Generate <img> element (if any) -->
+        <br></br>
+        <br></br>
         <div>
             <xsl:choose>
                 <xsl:when test="normalize-space($image_path)">

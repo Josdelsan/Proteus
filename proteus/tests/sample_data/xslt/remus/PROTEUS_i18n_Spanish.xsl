@@ -112,9 +112,9 @@
 <xsl:variable name="proteus:lang_time">Hora</xsl:variable>
 <xsl:variable name="proteus:lang_times_per">veces por</xsl:variable>
 <xsl:variable name="proteus:lang_TOC">Índice</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix">Matriz de rastreabilidad</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_class">No se puede visualizar la matriz de rastreabilidad. Compruebe que hay al menos una clase seleccionada para las filas y columnas de la matriz.</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_item">No se puede visualizar la matriz de rastreabilidad. Compruebe que existe al menos un objeto de las clases selecionadas para las filas y columnas de la matriz.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix">Matriz de trazabilidad</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_class">No se puede visualizar la matriz de trazabilidad. Compruebe que hay al menos una clase seleccionada para las filas y columnas de la matriz.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_item">No se puede visualizar la matriz de trazabilidad. Compruebe que existe al menos un objeto de las clases selecionadas para las filas y columnas de la matriz.</xsl:variable>
 <xsl:variable name="proteus:lang_type">Tipo</xsl:variable>
 <xsl:variable name="proteus:lang_urgency">Urgencia</xsl:variable>
 <xsl:variable name="proteus:lang_variable_attribute">Atributo variable</xsl:variable>

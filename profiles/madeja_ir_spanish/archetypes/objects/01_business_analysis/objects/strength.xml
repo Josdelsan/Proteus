@@ -7,7 +7,7 @@
 >
   <properties>
     <codeProperty name=":Proteus-code" category="general" inmutable="true">
-      <prefix><![CDATA[FORT-]]></prefix>
+      <prefix><![CDATA[FOR-]]></prefix>
       <number>001</number>
       <suffix><![CDATA[]]></suffix>
     </codeProperty>

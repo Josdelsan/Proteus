@@ -12,7 +12,7 @@
     <traceProperty name="sources" category="general" acceptedTargets="stakeholder" traceType=":Proteus-information-source"/>
     <stringProperty name="role" category="detail"><![CDATA[]]></stringProperty>
     <enumProperty name="category" category="detail" choices="tbd customer developer user">tbd</enumProperty>
-    <stringProperty name="telephone" category="detail"><![CDATA[]]></stringProperty>
+    <stringProperty name="phone-number" category="detail"><![CDATA[]]></stringProperty>
     <stringProperty name="email" category="detail"><![CDATA[]]></stringProperty>
     <traceProperty name="works-for" category="detail" acceptedTargets="organization" traceType=":Proteus-works-for"/>
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
