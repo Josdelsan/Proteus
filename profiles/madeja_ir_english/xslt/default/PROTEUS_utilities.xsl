@@ -74,28 +74,39 @@
         <xsl:param name="mandatory" select="false()"/>
         <xsl:param name="alternative"/>
         <xsl:param name="span" select="1"/>
+        <xsl:param name="diagram" select="@name='diagram'"/>
 
         <xsl:variable name="hasContent"  select="(string-length(current()//text()) > 0) and (normalize-space(current()) != 'tbd')"/>
         <xsl:variable name="hasChildren" select="boolean(current()/*)"/>
 
         <xsl:if test="$hasContent or $hasChildren or $mandatory">
             <tr>
-                <th>
-                    <xsl:value-of select="$label"/>
-                </th>
-                <td colspan="{$span}">
-                    <xsl:choose>
-                        <xsl:when test="(not($hasContent) and not($hasChildren)) or normalize-space(current()) = 'tbd'">
-                            <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
-                        </xsl:when>
-                        <xsl:when test="$alternative">
-                            <span class="alternative"><xsl:value-of select="$alternative"/></span>
-                        </xsl:when>
-                        <xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="$diagram">
+                        <th colspan="{$span + 1}">
+                            <xsl:value-of select="$label"/>
                             <xsl:apply-templates select="current()"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </td>
+                        </th>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <th>
+                            <xsl:value-of select="$label"/>
+                        </th>
+                        <td colspan="{$span}">
+                            <xsl:choose>
+                                <xsl:when test="(not($hasContent) and not($hasChildren)) or normalize-space(current()) = 'tbd'">
+                                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                                </xsl:when>
+                                <xsl:when test="$alternative">
+                                    <span class="alternative"><xsl:value-of select="$alternative"/></span>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:apply-templates select="current()"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </td>
+                    </xsl:otherwise>
+                </xsl:choose>
             </tr>
         </xsl:if>
     </xsl:template>

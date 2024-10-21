@@ -4,5 +4,5 @@
     <object id="attribute" />
     <object id="association" />
     <object id="role" />
-    <object id="object-invariant" />
+    <object id="mockup" />
 </objects>

@@ -67,6 +67,7 @@ archetype.class.entity-class: "Entity class"
 archetype.class.attribute: "Attribute"
 archetype.class.association: "Association"
 archetype.class.role: "Role"
+archetype.class.mockup: "Mockup"
 archetype.class.constraint: "Constraint"
 
 # -----------------------------------------------------------------------

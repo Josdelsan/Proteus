@@ -155,11 +155,9 @@
 
     <xsl:include href="archetypes/conceptual_modeling/entity_class.xsl" />
     <xsl:include href="archetypes/conceptual_modeling/association.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/mockup.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
-
-    <!--
-    -->
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

@@ -119,6 +119,7 @@
 
         <li id="{@id}" data-proteus-id="{@id}" class="property">
 
+            <!-- role name -->
             <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
             <xsl:text>: </xsl:text>
 
@@ -158,6 +159,11 @@
                 </xsl:choose>
 
                 <xsl:text>]</xsl:text>
+            </xsl:if>
+
+            <!-- role ordered -->
+            <xsl:if test="properties/*[@name='ordered'] = 'true'">
+                {<xsl:value-of select="$proteus:lang_ordered"/>}
             </xsl:if>
 
             <!-- role description -->
