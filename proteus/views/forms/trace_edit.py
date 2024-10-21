@@ -17,7 +17,8 @@ from typing import List
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtGui import QStandardItem
+from PyQt6.QtCore import Qt, QSize, pyqtSignal, QModelIndex
 from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
@@ -127,7 +128,7 @@ class TraceEdit(QWidget):
 
         assert isinstance(
             excluded_targets, list
-        ), f"TraceEdit requires a list of ProteusID as exclude targets. Exclude targets argument is type {type(exclude_targets)}"
+        ), f"TraceEdit requires a list of ProteusID as exclude targets. Exclude targets argument is type {type(excluded_targets)}"
 
         assert isinstance(
             limit, int
@@ -558,7 +559,9 @@ class TraceEditDialog(QDialog):
             )
 
         # Connect activated signal
-        self.document_selector_combo.activated.connect(self.update_list_widget)
+        self.document_selector_combo.view().pressed.connect(
+            self.selector_document_filter_pressed
+        )
 
         # -----------------------
         # Class filter
@@ -594,7 +597,9 @@ class TraceEditDialog(QDialog):
             self.class_selector_combo.addItem(class_name_tr, _class, False, class_icon)
 
         # Connect activated signal
-        self.class_selector_combo.activated.connect(self.update_list_widget)
+        self.class_selector_combo.view().pressed.connect(
+            self.selector_class_filter_pressed
+        )
 
         # -----------------------
         # Name filter
@@ -673,6 +678,41 @@ class TraceEditDialog(QDialog):
     # ======================================================================
 
     # ----------------------------------------------------------------------
+    # Method     : selector_filter_pressed
+    # Description: Handle the filter pressed signal.
+    # Date       : 21/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def selector_document_filter_pressed(self, index: QModelIndex) -> None:
+        self._selector_filter_pressed(self.document_selector_combo, index)
+
+    def selector_class_filter_pressed(self, index: QModelIndex) -> None:
+        self._selector_filter_pressed(self.class_selector_combo, index)
+
+    def _selector_filter_pressed(self, combo_item: CheckComboBox, index: QModelIndex) -> None:
+        """
+        Handle the filter pressed signal to change the check state of the
+        selector items. We assume that the first item is the 'any' option.
+
+        Calls update_list_widget to update the QListWidget items.
+        """
+        item: QStandardItem = combo_item.model().itemFromIndex(index)
+
+        # If first item is pressed, deselect any other items
+        if item.index().row() == 0:
+            for i in range(1, combo_item.count()):
+                item = combo_item.model().item(i)
+                item.setCheckState(Qt.CheckState.Unchecked)
+        else:
+            # Deselect any document item
+            item = combo_item.model().item(0)
+            item.setCheckState(Qt.CheckState.Unchecked)
+
+        # Update the list widget
+        self.update_list_widget()
+
+    # ----------------------------------------------------------------------
     # Method     : update_list_widget
     # Description: Updates the QListWidget items.
     # Date       : 01/02/2024
@@ -708,12 +748,12 @@ class TraceEditDialog(QDialog):
             # Check conditions one by one, they are ordered by computation cost
             # Condition 1: Name filter -----------------
             if name_filter_text != "":
-                if not name_filter_text in object_name:
+                if name_filter_text not in object_name:
                     item.setHidden(True)
                     continue
 
             # Condition 2: Class filter ----------------
-            if not PROTEUS_ANY in selected_classes:
+            if PROTEUS_ANY not in selected_classes:
                 if not any(
                     object_class in selected_classes for object_class in object.classes
                 ):
@@ -721,8 +761,8 @@ class TraceEditDialog(QDialog):
                     continue
 
             # Condition 3: Document filter -------------
-            if not ANY_DOCUMENT in selected_documents:
-                if not object.get_document().id in selected_documents:
+            if ANY_DOCUMENT not in selected_documents:
+                if object.get_document().id not in selected_documents:
                     item.setHidden(True)
                     continue
 
@@ -812,7 +852,9 @@ class TraceEditDialog(QDialog):
         Creates and executes the dialog.
         """
         # Create dialog
-        dialog = TraceEditDialog(element_id, controller, accepted_classes, excluded_classes, targets)
+        dialog = TraceEditDialog(
+            element_id, controller, accepted_classes, excluded_classes, targets
+        )
 
         # Execute dialog
         result = dialog.exec()
