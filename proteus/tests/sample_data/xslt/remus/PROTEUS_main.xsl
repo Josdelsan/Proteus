@@ -51,7 +51,7 @@
     <xsl:include href="archetypes/general/PROTEUS_stakeholder.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_meeting.xsl" />
     <xsl:include href="archetypes/general/PROTEUS_archetype_link.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_entity_class.xsl" />
+    <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
     <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_business_actor.xsl" />
     <xsl:include href="archetypes/madeja/PROTEUS_business_process.xsl" />
