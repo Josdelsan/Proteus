@@ -16,14 +16,13 @@ from typing import List, Any
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtWidgets import QComboBox, QStyledItemDelegate
+from PyQt6.QtWidgets import QComboBox
 from PyQt6.QtCore import Qt, QModelIndex, QEvent, QObject
 from PyQt6.QtGui import (
     QStandardItemModel,
     QStandardItem,
     QIcon,
     QFontMetrics,
-    QMouseEvent,
 )
 
 # --------------------------------------------------------------------------
