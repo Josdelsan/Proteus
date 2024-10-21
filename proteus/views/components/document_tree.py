@@ -484,6 +484,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Create the new item
         self._populate_tree(parent_item, new_object, position=position)
 
+        # Scroll to the new item (parent remains selected)
+        self.scrollToItem(self.tree_items[new_object.id], QTreeWidget.ScrollHint.EnsureVisible)
+
         self.update_indexes()
 
     # ----------------------------------------------------------------------
