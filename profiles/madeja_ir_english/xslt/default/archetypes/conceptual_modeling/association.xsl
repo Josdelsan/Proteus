@@ -79,7 +79,14 @@
             <xsl:call-template name="generate-association-name"/>
         </xsl:variable>
 
-        <span class="keyword">association </span>
+        <xsl:choose>
+            <xsl:when test="properties/*[@name='is-composition'] = 'true'">
+                <span class="keyword">composition </span>
+            </xsl:when>
+            <xsl:otherwise>
+                <span class="keyword">association </span>
+            </xsl:otherwise>
+        </xsl:choose>
         <span class="class_name"><xsl:value-of select="$name"/></span>
 
         <!-- Open bracket -->
@@ -188,7 +195,7 @@
     <!-- association name -->
     <xsl:template name="generate-association-name">
         <!-- Name -->
-        <xsl:value-of select="properties/stringProperty[@name = ':Proteus-name']"/>
+        <xsl:value-of select="properties/*[@name = ':Proteus-name']"/>
 
         <xsl:text>( </xsl:text>
 
