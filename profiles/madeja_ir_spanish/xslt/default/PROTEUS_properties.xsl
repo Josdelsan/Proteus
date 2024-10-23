@@ -63,7 +63,6 @@
 
     <!-- Paragraph mode -->
     <xsl:template match="traceProperty" mode="paragraph">
-        <xsl:value-of select="@name"/>
         <xsl:for-each select="trace">
             <xsl:variable name="target_id" select="@target" />
             <xsl:variable name="target_object" select="//object[@id=$target_id]" />
