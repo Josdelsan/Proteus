@@ -364,7 +364,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         :param object_id: Id of the added object.
         :param update_view: Flag to update the view.
         """
-        if update_view == True:
+        if update_view is True:
             self.display_view(object_id)
 
     # ----------------------------------------------------------------------
@@ -384,7 +384,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         :param _: Unused parameter.
         :param update_view: Flag to update the view.
         """
-        if update_view == True:
+        if update_view is True:
             self.display_view()
 
     # ----------------------------------------------------------------------
@@ -417,7 +417,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
             self.setCurrentIndex(tab_index)
 
         # Check update_view flag
-        if update_view == True:
+        if update_view is True:
             self.display_view()
 
     # ----------------------------------------------------------------------
@@ -472,7 +472,7 @@ class ViewsContainer(QTabWidget, ProteusComponent):
         if document_id != self._state_manager.get_current_document():
             return
 
-        if navigate == False:
+        if navigate is False:
             return
 
         # NOTE: This javascript function must be implemented in the xslt

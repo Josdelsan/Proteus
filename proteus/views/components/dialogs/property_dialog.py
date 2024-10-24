@@ -43,6 +43,12 @@ from proteus.application.resources.translator import translate as _
 from proteus.views.forms.properties.property_input import PropertyInput
 from proteus.views.forms.properties.property_input_factory import (
     PropertyInputFactory,
+    TraceInput,
+    BooleanPropertyInput,
+    DatePropertyInput,
+    ClassListPropertyInput,
+    FilePropertyInput,
+    EnumPropertyInput,
 )
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
@@ -95,6 +101,9 @@ class PropertyDialog(ProteusDialog):
         # NOTE: This is used to get the input values when the form is
         #       accepted
         self.input_widgets: Dict[str, PropertyInput] = {}
+
+        # Store the category tabs that has been opened so the focus is set just once
+        self.opened_tabs: List[int] = []
 
         # Create the component
         self.create_component()
@@ -202,16 +211,10 @@ class PropertyDialog(ProteusDialog):
 
             if category is not None and category == selected_category:
                 tab_widget.setCurrentWidget(category_widget)
-        
-        # Set the keyboard focus to the first input widget of the selected tab
-        first_input_widget: PropertyInput
-        input_widget: PropertyInput
-        for input_widget in tab_widget.currentWidget().findChildren(PropertyInput):
-            if not input_widget.property.inmutable:
-                first_input_widget = input_widget
-                break
 
-        first_input_widget.setKeyboardFocus()
+        # Connect the tab changed signal to the change_focus_on_tab_changed method
+        tab_widget.currentChanged.connect(self.change_focus_on_tab_changed)
+        tab_widget.currentChanged.emit(tab_widget.currentIndex())
 
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)
@@ -377,6 +380,55 @@ class PropertyDialog(ProteusDialog):
         # Close the form window without saving any changes
         self.close()
         self.deleteLater()
+
+    # ---------------------------------------------------------------------
+    # Method     : change_focus_on_tab_changed
+    # Description: Set the keyboard focus to the first input widget of the
+    #              selected tab if no other widget has the focus.
+    # Date       : 24/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def change_focus_on_tab_changed(self, index: int) -> None:
+        """
+        Set the keyboard focus to the first input widget of the selected tab
+        if no other widget has the focus.
+
+        :param index: The index of the selected tab.
+        """
+        # Get the selected tab widget
+        tab_widget: QTabWidget = self.sender()
+        selected_widget: QWidget = tab_widget.widget(index)
+
+        if selected_widget is None:
+            log.error("Selected widget is None in PropertyDialog")
+            return
+
+        inputs: List[PropertyInput] = selected_widget.findChildren(PropertyInput)
+
+        # Check if the tab has been opened before to avoid setting the focus multiple
+        # times, this avoids overwriting the focus set by the user
+        if index in self.opened_tabs:
+            return
+        else:
+            self.opened_tabs.append(index)
+
+        # Set the keyboard focus to the first input widget of the selected tab
+        for input_widget in inputs:
+            if input_widget.property.inmutable or isinstance(
+                input_widget,
+                (
+                    TraceInput,
+                    BooleanPropertyInput,
+                    DatePropertyInput,
+                    ClassListPropertyInput,
+                    FilePropertyInput,
+                    EnumPropertyInput,
+                ),
+            ):
+                continue
+            input_widget.setKeyboardFocus()
+            break
 
     # ======================================================================
     # Dialog static methods (create and show the form window)
