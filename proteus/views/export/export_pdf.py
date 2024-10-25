@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtGui import QPageLayout, QPageSize
-from PyQt6.QtCore import QByteArray, QMarginsF
+from PyQt6.QtCore import QMarginsF, QUrl
 from PyQt6.QtWidgets import (
     QWidget,
     QLineEdit,
@@ -111,13 +111,10 @@ class ExportPDF(ExportStrategy):
             current_view = StateManager().get_current_view()
 
             # Generate html view
-            html_view: str = self._controller.get_html_view(xslt_name=current_view)
+            html_view_path: str = self._controller.get_html_view_path(xslt_name=current_view)
 
-            # Convert html to QByteArray
-            # NOTE: This is done to avoid 2mb limit on setHtml method
-            # https://www.riverbankcomputing.com/static/Docs/PyQt6/api/qtwebenginewidgets/qwebengineview.html#setHtml
-            html_array: QByteArray = QByteArray(html_view.encode(encoding="utf-8"))
-            self.page.setContent(html_array, "text/html")
+            url: QUrl = QUrl.fromLocalFile(html_view_path)
+            self.page.load(url)
 
             self.exportProgressSignal.emit(33)
 

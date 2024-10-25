@@ -5,9 +5,8 @@
     <!-- are located in profile icons directory root and they are named      -->
     <!-- classname.png where 'classname' is the archetype's main class name  -->
     <!-- (e.g. section.png, paragraph.png, etc.).                            -->
-    <!-- App, main menu and any other default icon can be overriden using    -->
+    <!-- App, main menu and any other default icons can be overriden using   -->
     <!-- profile icons configuration.                                        -->
-
 
     <!-- <type name="document"/> -->
     <!-- <type name="archetype"> -->

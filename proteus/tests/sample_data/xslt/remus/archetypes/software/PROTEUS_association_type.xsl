@@ -21,12 +21,12 @@
 >
 
     <!-- ============================================== -->
-    <!-- association-type template                      -->
+    <!-- association template                      -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='association-type']">
+    <xsl:template match="object[@classes='association']">
         <div id="{@id}" data-proteus-id="{@id}">
-            <table class="object_type remus_table">
+            <table class="entity_class remus_table">
 
                 <xsl:variable name="name">
                     <xsl:call-template name="generate-association-name"/>
@@ -58,11 +58,11 @@
 
 
     <!-- ============================================== -->
-    <!-- association-type template (mode code)          -->
+    <!-- association template (mode code)          -->
     <!-- ============================================== -->
 
-    <xsl:template match="object[@classes='association-type']" mode="code">
-        
+    <xsl:template match="object[@classes='association']" mode="code">
+
         <!-- Description -->
         <xsl:call-template name="generate-code-description">
             <xsl:with-param name="multiline-comment" select="true()"/>
@@ -98,20 +98,20 @@
         <br></br>
 
         <!-- Roles -->
-        <xsl:if test="children/object[@classes='association-role']">
+        <xsl:if test="children/object[@classes='role']">
             <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_roles"/></div>
             <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='association-role']" mode="code"/>
+                <xsl:apply-templates select="children/object[@classes='role']" mode="code"/>
             </ul>
         </xsl:if>
 
         <br></br>
 
         <!-- Attributes -->
-        <xsl:if test="children/object[@classes='object-attribute']">
+        <xsl:if test="children/object[@classes='attribute']">
             <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_attributes"/></div>
             <ul class="properties">
-                <xsl:apply-templates select="children/object[@classes='object-attribute']" mode="code"/>
+                <xsl:apply-templates select="children/object[@classes='attribute']" mode="code"/>
             </ul>
         </xsl:if>
 
@@ -134,13 +134,13 @@
     <!-- Role template                                  -->
     <!-- ============================================== -->
     <!-- Role template is located in                    -->
-    <!-- PROTEUS_object_type.xsl file                   -->
+    <!-- PROTEUS_entity_class.xsl file                   -->
 
     <!-- ============================================== -->
     <!-- Helper templates                               -->
     <!-- ============================================== -->
     <!-- Helper templates are located in                -->
-    <!-- PROTEUS_object_type.xsl file                   -->
+    <!-- PROTEUS_entity_class.xsl file                   -->
 
     <xsl:template name="generate-association-name">
 
@@ -150,11 +150,11 @@
         <xsl:text>( </xsl:text>
 
         <!-- Get association roles -->
-        <xsl:variable name="roles" select="children/object[@classes='association-role']"/>
+        <xsl:variable name="roles" select="children/object[@classes='role']"/>
 
         <!-- Include roles -->
         <xsl:for-each select="$roles">
-            <xsl:for-each select="properties/traceProperty[@name = 'base-type']/trace">
+            <xsl:for-each select="properties/traceProperty[@name = 'type']/trace">
                 <xsl:variable name="targetId" select="@target" />
                 <xsl:variable name="targetObject" select="//object[@id = $targetId]" />
                 <xsl:value-of select="$targetObject/properties/stringProperty[@name = ':Proteus-name']" />
@@ -168,8 +168,8 @@
         </xsl:choose>
 
         <xsl:text> )</xsl:text>
-            
+
     </xsl:template>
 
-    
+
 </xsl:stylesheet>

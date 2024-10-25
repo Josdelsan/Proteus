@@ -352,7 +352,7 @@ class Translator(metaclass=SingletonMeta):
     # repositories that are not translated, this might cause a performance
     # issue on app startup. Also tests may be affected by this.
     # Consider implement a LBYL flag/mode for testing purposes.
-    def text(self, key: str, *args, alternative_text: str = None) -> str:
+    def text(self, key: str, *args, alternative_text: str = None, allow_new_line_characters: bool = False) -> str:
         """
         Returns the translation found for the given key. If no translation is
         found, it returns the key or the alternative text if provided.
@@ -392,6 +392,10 @@ class Translator(metaclass=SingletonMeta):
         if args:
             translation = translation.format(*args)
 
+        # Check if new line characters are allowed
+        if not allow_new_line_characters:
+            translation = translation.replace("\n", " ")
+
         return translation
 
 
@@ -402,7 +406,7 @@ class Translator(metaclass=SingletonMeta):
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-def translate(key: str, *args, alternative_text: str = None) -> str:
+def translate(key: str, *args, alternative_text: str = None, allow_new_line_characters: bool = False) -> str:
         """
         Returns the translation found for the given key. If no translation is
         found, it returns the key or the alternative text if provided.
@@ -419,4 +423,4 @@ def translate(key: str, *args, alternative_text: str = None) -> str:
                     it returns the alternative text.
         """
 
-        return Translator().text(key, *args, alternative_text=alternative_text)
+        return Translator().text(key, *args, alternative_text=alternative_text, allow_new_line_characters=allow_new_line_characters)

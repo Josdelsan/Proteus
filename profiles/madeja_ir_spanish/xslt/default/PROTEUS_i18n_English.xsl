@@ -100,7 +100,7 @@
 <xsl:variable name="proteus:lang_step">Step</xsl:variable>
 <xsl:variable name="proteus:lang_subobjectives">Subobjectives</xsl:variable>
 <xsl:variable name="proteus:lang_subtypes">Subtypes</xsl:variable>
-<xsl:variable name="proteus:lang_supertype">Supertype</xsl:variable>
+<xsl:variable name="proteus:lang_superclass">superclass</xsl:variable>
 <xsl:variable name="proteus:lang_system">system</xsl:variable>
 <xsl:variable name="proteus:lang_TBD">TBD</xsl:variable>
 <xsl:variable name="proteus:lang_telephone">Telephone</xsl:variable>
@@ -113,8 +113,8 @@
 <xsl:variable name="proteus:lang_times_per">times per</xsl:variable>
 <xsl:variable name="proteus:lang_TOC">Table of contents</xsl:variable>
 <xsl:variable name="proteus:lang_traceability_matrix">Traceability matrix</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_class">Error creating Traceability Matrix. Make sure at leat one class is selected for rows and columns.</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_item">Error creating Traceability Matrix. Make sure at least one object exists of the class selected in rows and columns.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_class">Cannot display traceability matrix. Make sure at leat one class is selected for rows and columns.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_item">Cannot display traceability matrix. Make sure at least one object exists of the class selected in rows and columns.</xsl:variable>
 <xsl:variable name="proteus:lang_type">Type</xsl:variable>
 <xsl:variable name="proteus:lang_urgency">Urgency</xsl:variable>
 <xsl:variable name="proteus:lang_variable_attribute">Variable attribute</xsl:variable>
@@ -157,7 +157,14 @@
 <xsl:variable name="proteus:lang_medium">Medium</xsl:variable>
 <xsl:variable name="proteus:lang_low">Low</xsl:variable>
 <xsl:variable name="proteus:lang_optional">Optional</xsl:variable>
+<xsl:variable name="proteus:lang_draft">Draft</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_qa">Awaiting quality verification</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_validation">Awaiting validation</xsl:variable>
+<xsl:variable name="proteus:lang_validated">Validated</xsl:variable>
 
+<xsl:variable name="proteus:lang_child_requirements">Child requirements</xsl:variable>
+<xsl:variable name="proteus:lang_inherits_from">Inherits from</xsl:variable>
+<xsl:variable name="proteus:lang_ordered">ordered</xsl:variable>
 
 <!-- ================== -->
 <!-- General L-patterns -->

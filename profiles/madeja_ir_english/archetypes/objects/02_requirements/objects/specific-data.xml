@@ -6,15 +6,9 @@
     acceptedParents="information-requirement"
 >
     <properties>
-      <stringProperty name=":Proteus-name" category="general">Specific data</stringProperty>
-      <markdownProperty name="description" category="general"><![CDATA[]]></markdownProperty>
+      <stringProperty name=":Proteus-name" category="general">specific data</stringProperty>
+      <markdownProperty name="description" category="general"><![CDATA[specific data description]]></markdownProperty>
       <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
     </properties>
-
-    <children>
-    </children>
-
-    <traces>
-    </traces>
 
 </object>

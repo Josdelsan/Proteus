@@ -63,7 +63,6 @@
 
     <!-- Paragraph mode -->
     <xsl:template match="traceProperty" mode="paragraph">
-        <xsl:value-of select="@name"/>
         <xsl:for-each select="trace">
             <xsl:variable name="target_id" select="@target" />
             <xsl:variable name="target_object" select="//object[@id=$target_id]" />
@@ -135,19 +134,25 @@
         </xsl:variable>
 
         <!-- Generate <img> element (if any) -->
-        <xsl:if test="normalize-space($image_path)">
-            <div>
-                <img class="figure_image">
-                    <xsl:attribute name="src">
-                        <xsl:value-of select="concat('assets:///', $image_path)" disable-output-escaping="no"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="style">
-                        <xsl:value-of select="concat('width:', $image_width_percentage, '%')"/>
-                    </xsl:attribute>
-                </img>
-            </div>
-        </xsl:if>
+        <br></br>
+        <br></br>
+        <div>
+            <xsl:choose>
+                <xsl:when test="normalize-space($image_path)">
+                    <img class="figure_image">
+                        <xsl:attribute name="src">
+                            <xsl:value-of select="concat('assets:///', $image_path)" disable-output-escaping="no"/>
+                        </xsl:attribute>
+                        <xsl:attribute name="style">
+                            <xsl:value-of select="concat('width:', $image_width_percentage, '%')"/>
+                        </xsl:attribute>
+                    </img>
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                </xsl:otherwise>
+            </xsl:choose>
+        </div>
     </xsl:template>
-
 
 </xsl:stylesheet>

@@ -100,7 +100,7 @@
 <xsl:variable name="proteus:lang_step">Paso</xsl:variable>
 <xsl:variable name="proteus:lang_subobjectives">Subobjetivos</xsl:variable>
 <xsl:variable name="proteus:lang_subtypes">Subtipos</xsl:variable>
-<xsl:variable name="proteus:lang_supertype">Supertipo</xsl:variable>
+<xsl:variable name="proteus:lang_superclass">Supertipo</xsl:variable>
 <xsl:variable name="proteus:lang_system">sistema</xsl:variable>
 <xsl:variable name="proteus:lang_TBD">PD</xsl:variable>
 <xsl:variable name="proteus:lang_telephone">Teléfono</xsl:variable>
@@ -112,9 +112,9 @@
 <xsl:variable name="proteus:lang_time">Hora</xsl:variable>
 <xsl:variable name="proteus:lang_times_per">veces por</xsl:variable>
 <xsl:variable name="proteus:lang_TOC">Índice</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix">Matriz de rastreabilidad</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_class">Error al crear la Matriz de rastreabilidad. Comprueba que hay la menos una clase seleccionada para las filas y columnas de la matriz.</xsl:variable>
-<xsl:variable name="proteus:lang_traceability_matrix_missing_item">Error al crear la Matriz de rastreabilidad. Comprueba que existe al menos un objecto de las clases selecionadas para las filas y columnas de la matriz.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix">Matriz de trazabilidad</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_class">No se puede visualizar la matriz de trazabilidad. Compruebe que hay al menos una clase seleccionada para las filas y columnas de la matriz.</xsl:variable>
+<xsl:variable name="proteus:lang_traceability_matrix_missing_item">No se puede visualizar la matriz de trazabilidad. Compruebe que existe al menos un objeto de las clases selecionadas para las filas y columnas de la matriz.</xsl:variable>
 <xsl:variable name="proteus:lang_type">Tipo</xsl:variable>
 <xsl:variable name="proteus:lang_urgency">Urgencia</xsl:variable>
 <xsl:variable name="proteus:lang_variable_attribute">Atributo variable</xsl:variable>
@@ -157,6 +157,14 @@
 <xsl:variable name="proteus:lang_medium">Media</xsl:variable>
 <xsl:variable name="proteus:lang_low">Baja</xsl:variable>
 <xsl:variable name="proteus:lang_optional">Opcional</xsl:variable>
+<xsl:variable name="proteus:lang_draft">Borrador</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_qa">Esperando verificación de calidad</xsl:variable>
+<xsl:variable name="proteus:lang_awaiting_validation">Esperando validación</xsl:variable>
+<xsl:variable name="proteus:lang_validated">Validado</xsl:variable>
+
+<xsl:variable name="proteus:lang_child_requirements">Requisitos hijos</xsl:variable>
+<xsl:variable name="proteus:lang_inherits_from">Hereda de</xsl:variable>
+<xsl:variable name="proteus:lang_ordered">ordered</xsl:variable>
 
 <!-- ==================== -->
 <!-- Patrones-L generales -->

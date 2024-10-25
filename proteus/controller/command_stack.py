@@ -13,7 +13,6 @@
 from typing import List, Set, Dict
 from pathlib import Path
 import logging
-import time
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -56,8 +55,6 @@ from proteus.model.template import Template
 
 from proteus.application.configuration.config import Config
 from proteus.application.events import (
-    AddViewEvent,
-    DeleteViewEvent,
     StackChangedEvent,
     RequiredSaveActionEvent,
     OpenProjectEvent,
@@ -816,14 +813,14 @@ class Controller:
         xslt_dir = Config().profile_settings.xslt_directory.as_posix()
 
         html_string = html_string.replace(
-            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"{assets_dir}/"
+            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"file:///{assets_dir}/"
         )
         html_string = html_string.replace(
-            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"{xslt_dir}/"
+            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"file:///{xslt_dir}/"
         )
 
         # Save the html file
-        html_dir = Path(PROTEUS_TEMP_DIR) / f"temp_project_render.html"
+        html_dir = Path(PROTEUS_TEMP_DIR) / "temp_project_render.html"
         with open(html_dir.as_posix(), "w", encoding="utf-8") as f:
             f.write(html_string)
 

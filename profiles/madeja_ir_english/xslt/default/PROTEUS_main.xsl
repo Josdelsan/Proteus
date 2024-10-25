@@ -45,8 +45,8 @@
     />
 
     <!-- Language independent dictionaries -->
-    <!-- NOTE: that would not be necessary in XSLT 2.0, -->
-    <!-- where variable names can be computed online    -->
+    <!-- NOTE: that would not be necessary in XSLT 2.0,  -->
+    <!-- where variable names can be computed in runtime -->
 
     <!-- PROTEUS property labels dictionary -->
     <xsl:variable name="property_labels_dictionary">
@@ -55,19 +55,25 @@
         <label key="attenders"><xsl:value-of select="$proteus:lang_attenders"/></label>
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
-        <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="authors"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
         <label key="email"><xsl:value-of select="$proteus:lang_email"/></label>
         <label key="importance"><xsl:value-of select="$proteus:lang_importance"/></label>
+        <label key="inherits-from"><xsl:value-of select="$proteus:lang_inherits_from"/></label>
         <label key="name"><xsl:value-of select="$proteus:lang_name"/></label>
+        <label key="ordered"><xsl:value-of select="$proteus:lang_ordered"/></label>
         <label key="phone-number"><xsl:value-of select="$proteus:lang_telephone"/></label>
+        <label key="precondition"><xsl:value-of select="$proteus:lang_precondition"/></label>
+        <label key="postcondition"><xsl:value-of select="$proteus:lang_postcondition"/></label>
         <label key="role"><xsl:value-of select="$proteus:lang_role"/></label>
         <label key="sources"><xsl:value-of select="$proteus:lang_sources"/></label>
+        <label key="stability"><xsl:value-of select="$proteus:lang_stability"/></label>
         <label key="version"><xsl:value-of select="$proteus:lang_version"/></label>
         <label key="web"><xsl:value-of select="$proteus:lang_web"/></label>
         <label key="works-for"><xsl:value-of select="$proteus:lang_organization"/></label>
-        <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
+        <label key="status"><xsl:value-of select="$proteus:lang_status"/></label>
         <label key="time"><xsl:value-of select="$proteus:lang_time"/></label>
         <label key="participates-in"><xsl:value-of select="$proteus:lang_participates_in"/></label>
         <label key="place"><xsl:value-of select="$proteus:lang_place"/></label>
@@ -97,6 +103,10 @@
         <label key="medium"><xsl:value-of select="$proteus:lang_medium"/></label>
         <label key="low"><xsl:value-of select="$proteus:lang_low"/></label>
         <label key="optional"><xsl:value-of select="$proteus:lang_optional"/></label>
+        <label key="draft"><xsl:value-of select="$proteus:lang_draft"/></label>
+        <label key="awaiting-qa"><xsl:value-of select="$proteus:lang_awaiting_qa"/></label>
+        <label key="awaiting-validation"><xsl:value-of select="$proteus:lang_awaiting_validation"/></label>
+        <label key="validated"><xsl:value-of select="$proteus:lang_validated"/></label>
     </xsl:variable>
 
     <!-- This is needed because of limitations of XSLT 1.0 -->
@@ -134,21 +144,20 @@
     <xsl:include href="archetypes/business_analysis/user_story.xsl" />
 
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
+    <xsl:include href="archetypes/requirements/general_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/system_actor.xsl" />
+    <xsl:include href="archetypes/requirements/use_case.xsl" />
+    <xsl:include href="archetypes/requirements/information_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/business_rule.xsl" />
+    <xsl:include href="archetypes/requirements/functional_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/nonfunctional_requirement.xsl" />
+    <xsl:include href="archetypes/requirements/traceability_matrix.xsl" />
+
+    <xsl:include href="archetypes/conceptual_modeling/entity_class.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/association.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/mockup.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
-
-    <!--
-    <xsl:include href="archetypes/software/PROTEUS_actor.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_information_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_objective.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_use_case.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_constraint.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_functional_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_nonfunctional_requirement.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_object_type.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_association_type.xsl" />
-    <xsl:include href="archetypes/software/PROTEUS_traceability_matrix.xsl" />
-    -->
 
     <xsl:template match="project">
         <xsl:variable name="currentDocumentId" select="proteus-utils:current_document()"/>

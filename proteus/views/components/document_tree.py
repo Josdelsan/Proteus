@@ -20,7 +20,7 @@ import string
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt, QPoint, QSize
 from PyQt6.QtGui import (
     QDropEvent,
     QDragEnterEvent,
@@ -31,7 +31,6 @@ from PyQt6.QtWidgets import (
     QWidget,
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
 )
 
 # --------------------------------------------------------------------------
@@ -162,6 +161,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         """
         # Set header
         self.header().setVisible(False)
+        self.setIconSize(QSize(22,22))
 
         # Set drag and drop properties
         self.setDragEnabled(True)
@@ -484,6 +484,9 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Create the new item
         self._populate_tree(parent_item, new_object, position=position)
+
+        # Scroll to the new item (parent remains selected)
+        self.scrollToItem(self.tree_items[new_object.id], QTreeWidget.ScrollHint.EnsureVisible)
 
         self.update_indexes()
 
