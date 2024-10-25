@@ -20,7 +20,7 @@ import string
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt, QPoint, QSize
 from PyQt6.QtGui import (
     QDropEvent,
     QDragEnterEvent,
@@ -161,6 +161,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         """
         # Set header
         self.header().setVisible(False)
+        self.setIconSize(QSize(22,22))
 
         # Set drag and drop properties
         self.setDragEnabled(True)
