@@ -50,6 +50,9 @@ from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.components.dialogs.information_dialog import InformationDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
+from proteus.views.components.developer.create_object_archetype import (
+    CreateObjectArchetypeDialog,
+)
 from proteus.views.components.archetypes_menu_dropdown import (
     ArchetypesMenuDropdown,
 )
@@ -389,6 +392,27 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         tab_layout.addWidget(aplication_menu)
 
+
+        # ---------
+        # developer
+        # ---------
+        # Create add archetype from object action
+        add_archetype_button: QToolButton = buttons.info_button(self)
+        add_archetype_button.clicked.connect(
+            lambda: CreateObjectArchetypeDialog.create_dialog(self._controller)
+        )
+
+        # Add the buttons to the developer menu widget
+        developer_menu: QWidget = buttons.button_group(
+            [add_archetype_button],
+            "main_menu.button_group.developer",
+        )
+
+        if Config().app_settings.developer_features:
+            tab_layout.addWidget(buttons.get_separator(vertical=True))
+            tab_layout.addWidget(developer_menu)
+            
+        
         # ---------------------------------------------
 
         # Spacer to justify content left

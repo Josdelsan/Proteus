@@ -27,13 +27,46 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.components.editor import XML_PROBLEMATIC_CHARS, create_error_label
+from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.controller.command_stack import Controller
 from proteus.views.forms.boolean_edit import BooleanEdit
-from proteus.model.properties.property_factory import PropertyFactory
-from proteus.model.properties import Property
+
+from proteus.model.properties import (
+    Property,
+    StringProperty,
+    BooleanProperty,
+    DateProperty,
+    TimeProperty,
+    MarkdownProperty,
+    IntegerProperty,
+    FloatProperty,
+    EnumProperty,
+    FileProperty,
+    UrlProperty,
+    ClassListProperty,
+    TraceProperty,
+    CodeProperty,
+)
+
+# Constants
+
+PROPERTY_CLASSES = {
+    StringProperty.__name__: StringProperty,
+    BooleanProperty.__name__: BooleanProperty,
+    DateProperty.__name__: DateProperty,
+    TimeProperty.__name__: TimeProperty,
+    MarkdownProperty.__name__: MarkdownProperty,
+    IntegerProperty.__name__: IntegerProperty,
+    FloatProperty.__name__: FloatProperty,
+    EnumProperty.__name__: EnumProperty,
+    FileProperty.__name__: FileProperty,
+    UrlProperty.__name__: UrlProperty,
+    ClassListProperty.__name__: ClassListProperty,
+    TraceProperty.__name__: TraceProperty,
+    CodeProperty.__name__: CodeProperty,
+}
 
 
 # --------------------------------------------------------------------------
@@ -128,11 +161,9 @@ class AddPropertyDialog(ProteusDialog):
 
         # Property class selection --------------------------------------------
         self.property_class_combobox = QComboBox()
-        self.property_class_combobox.addItems(PropertyFactory.propertyFactory.keys())
+        self.property_class_combobox.addItems(PROPERTY_CLASSES.keys())
 
-        form_layout.addRow(
-            _("add_property_dialog.label.property_class"), self.property_class_combobox
-        )
+        form_layout.addRow(_("add_property_dialog.label.property_class"), self.property_class_combobox)
 
         # Property specific attributes message --------------------------------
         message_label: QLabel = QLabel(
@@ -208,7 +239,7 @@ class AddPropertyDialog(ProteusDialog):
             return
 
         # Create the property
-        property_class: type = PropertyFactory.propertyFactory[
+        property_class: type = PROPERTY_CLASSES[
             self.property_class_combobox.currentText()
         ]
         try:

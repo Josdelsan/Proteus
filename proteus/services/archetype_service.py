@@ -12,6 +12,7 @@
 
 import logging
 from typing import Union, List, Dict
+import copy
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -375,3 +376,47 @@ class ArchetypeService:
 
         # Create the object from the archetype
         return object_archetype.clone_object(parent, project)
+
+    # ----------------------------------------------------------------------
+    # Method     : store_object_as_archetype
+    # Description: Stores an object as an archetype
+    # Date       : 25/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def store_object_as_archetype(
+        self,
+        object: Object,
+        proteus_id: ProteusID,
+        group: str,
+        include_children: bool = True,
+    ) -> None:
+        """
+        Stores an object as an archetype.
+        """
+        # Check ProteusID
+        assert (
+            proteus_id and proteus_id != ""
+        ), f"Archetype must have a valid ProteusID: '{proteus_id}'"
+
+        assert (
+            proteus_id not in self.archetype_index
+        ), f"ProteusID '{proteus_id}' is already in use"
+
+        # Check group
+        assert (
+            group in self.get_object_archetypes().keys()
+        ), f"Group '{group}' not found"
+
+        # Copy the object to avoid modifying the original
+        # Normal copy is fine since we just modify id and reference list
+        archetype = copy.copy(object)
+        archetype.id = proteus_id
+
+        if not include_children:
+            archetype._children = []
+
+        # Add the archetype to the object archetypes
+        ArchetypeRepository.store_object_archetype(
+            Config().profile_settings.archetypes_directory, archetype, group
+        )

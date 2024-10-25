@@ -40,7 +40,7 @@ from proteus.application.clipboard import Clipboard
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
-from proteus.views.components.editor.model_editor import RawObjectEditor
+from proteus.views.components.developer.model_editor import RawObjectEditor
 
 
 # --------------------------------------------------------------------------

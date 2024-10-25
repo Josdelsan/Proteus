@@ -36,7 +36,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.components.editor import XML_PROBLEMATIC_CHARS, create_error_label
+from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.model import ProteusID, PROTEUS_NAME, PROTEUS_ACRONYM, PROTEUS_DOCUMENT
 from proteus.model.object import Object
 from proteus.model.project import Project
@@ -45,8 +45,8 @@ from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
-from proteus.views.components.editor.add_property_dialog import AddPropertyDialog
-from proteus.views.components.editor.edit_property_dialog import EditPropertyDialog
+from proteus.views.components.developer.add_property_dialog import AddPropertyDialog
+from proteus.views.components.developer.edit_property_dialog import EditPropertyDialog
 from proteus.controller.command_stack import Controller
 from proteus.controller.commands.update_object_meta_model import (
     UpdateObjectMetaModelCommand,
@@ -419,7 +419,7 @@ class RawObjectEditor(ProteusDialog):
         # Enable the edit button
         self.edit_button.setEnabled(True)
 
-    # ----------------------------------------------------------------------
+     # ----------------------------------------------------------------------
     # Method     : edit_button_clicked
     # Description: Manage the edit button clicked event. It opens a dialog
     #              to edit the selected property.
@@ -676,7 +676,7 @@ class RawObjectEditor(ProteusDialog):
         # we compare them by memory address. Properties are inmutable so
         # any change will create a new object.
         original_properties_changed = any(
-            not(new_properties[key].compare(self.object.properties[key]))
+            new_properties[key] is self.object.properties[key]
             for key in self.object.properties.keys()
             if new_properties.get(key) is not None
         )

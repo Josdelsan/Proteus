@@ -28,7 +28,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
-from proteus.views.components.editor import XML_PROBLEMATIC_CHARS, create_error_label
+from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
