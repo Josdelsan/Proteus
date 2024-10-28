@@ -101,7 +101,6 @@ class RawObjectEditor(ProteusDialog):
 
         # Input widgets and its error labels
         self.id_input: QLineEdit
-        self.id_input_error_label: QLabel
 
         self.classes_input: QLineEdit
         self.classes_input_error_label: QLabel
@@ -298,7 +297,6 @@ class RawObjectEditor(ProteusDialog):
         self.id_input: QLineEdit = QLineEdit()
         self.id_input.setReadOnly(True)
         self.id_input.setText(str(self.object.id))
-        self.id_input_error_label: QLabel = create_error_label()
 
         self.classes_input: QLineEdit = QLineEdit()
         self.classes_input.setText(str(" ".join(self.object.classes)))
@@ -321,7 +319,6 @@ class RawObjectEditor(ProteusDialog):
 
         # Add attributes to the layout
         attributes_tab_layout.addRow("ProteusID", self.id_input)
-        attributes_tab_layout.addWidget(self.id_input_error_label)
 
         attributes_tab_layout.addRow("classes", self.classes_input)
         attributes_tab_layout.addWidget(self.classes_input_error_label)
@@ -419,7 +416,7 @@ class RawObjectEditor(ProteusDialog):
         # Enable the edit button
         self.edit_button.setEnabled(True)
 
-     # ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
     # Method     : edit_button_clicked
     # Description: Manage the edit button clicked event. It opens a dialog
     #              to edit the selected property.
@@ -600,37 +597,33 @@ class RawObjectEditor(ProteusDialog):
         new_selectedCategory = self.selectedCategory_input.text()
 
         # Attributes validation ---------------------------------------------
-        def attribute_input_has_errors(input: QLineEdit, error_lable: QLabel) -> bool:
+        def attribute_input_has_errors(input: QLineEdit, error_label: QLabel) -> bool:
             if not input.text() or any(
                 char in input.text() for char in XML_PROBLEMATIC_CHARS
             ):
-                error_lable.setText(_("meta_model_editor.error.required_input"))
-                error_lable.show()
+                error_label.setText(_("meta_model_editor.error.required_input"))
+                error_label.show()
                 return True
             else:
-                error_lable.hide()
+                error_label.hide()
                 return False
 
-        form_has_errors = (
-            attribute_input_has_errors(
-                self.classes_input, self.classes_input_error_label
-            )
-            or attribute_input_has_errors(
-                self.acceptedChildren_input, self.acceptedChildren_input_error_label
-            )
-            or attribute_input_has_errors(
-                self.acceptedParents_input, self.acceptedParents_input_error_label
-            )
+        form_has_errors = attribute_input_has_errors(
+            self.acceptedChildren_input, self.acceptedChildren_input_error_label
+        ) or attribute_input_has_errors(
+            self.acceptedParents_input, self.acceptedParents_input_error_label
         )
 
         # Selected category cannot include spaces but may be empty
-        if " " in new_selectedCategory or any(
-            char in new_selectedCategory for char in XML_PROBLEMATIC_CHARS
-        ):
+        if " " in new_selectedCategory:
             self.selectedCategory_input_error_label.setText(
                 _("meta_model_editor.error.invalid_selected_category")
             )
             self.selectedCategory_input_error_label.show()
+            form_has_errors = True
+        elif attribute_input_has_errors(
+            self.selectedCategory_input, self.selectedCategory_input_error_label
+        ):
             form_has_errors = True
         else:
             self.selectedCategory_input_error_label.hide()
@@ -641,6 +634,10 @@ class RawObjectEditor(ProteusDialog):
                 _("meta_model_editor.error.document_class_required")
             )
             self.classes_input_error_label.show()
+            form_has_errors = True
+        elif attribute_input_has_errors(
+            self.classes_input, self.classes_input_error_label
+        ):
             form_has_errors = True
         else:
             self.classes_input_error_label.hide()
@@ -654,11 +651,8 @@ class RawObjectEditor(ProteusDialog):
             )
             self.properties_list_error_label.show()
             form_has_errors = True
-        else:
-            self.properties_list_error_label.hide()
-
         # PROTEUS_ACROYNM is present in documents
-        if self.is_document and PROTEUS_ACRONYM not in new_properties:
+        elif self.is_document and PROTEUS_ACRONYM not in new_properties:
             self.properties_list_error_label.setText(
                 _("meta_model_editor.error.missing_acronym_property")
             )
@@ -672,11 +666,8 @@ class RawObjectEditor(ProteusDialog):
             return
 
         # Check every property value from the original object has changed
-        # NOTE: Since different properties may have different attributes,
-        # we compare them by memory address. Properties are inmutable so
-        # any change will create a new object.
         original_properties_changed = any(
-            new_properties[key] is self.object.properties[key]
+            not (new_properties[key].compare(self.object.properties[key]))
             for key in self.object.properties.keys()
             if new_properties.get(key) is not None
         )

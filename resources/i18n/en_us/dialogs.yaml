@@ -229,3 +229,12 @@ edit_property_dialog.title: "Edit property"
 edit_property_dialog.error.invalid_chars_present: "One or more attributes contain invalid characters: {}"
 edit_property_dialog.error.duplicated_or_empty_name: "The name is duplicated or empty"
 edit_property_dialog.error.invalid_max_targets_number_value: "The maximum number of targets must be a positive integer or -1 (unlimited)"
+
+
+create_object_archetype_dialog.title: "Create object archetype"
+create_object_archetype_dialog.include_children: "Include children"
+create_object_archetype_dialog.proteus_id: "ProteusID (file name):"
+create_object_archetype_dialog.group: "Group (directory):"
+create_object_archetype_dialog.proteus_id_missing: "ProteusID cannot be empty"
+create_object_archetype_dialog.proteus_id_invalid: "ProteusID cannot contain spaces or special characters"
+create_object_archetype_dialog.proteus_id_in_use: "An archetype with the same ProteusID already exists"

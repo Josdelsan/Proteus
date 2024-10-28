@@ -53,5 +53,8 @@
         <icon key="clipboard-copy" file="context_menu/copy.png"/>
         <icon key="clipboard-cut" file="context_menu/cut.png"/>
         <icon key="clipboard-paste" file="context_menu/paste.png"/>
+
+        <!-- Developer buttons -->
+        <icon key="create-object-archetype" file="main_menu/create-object-archetype.png"/>
     </type>
 </icons>

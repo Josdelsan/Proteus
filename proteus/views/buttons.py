@@ -431,6 +431,33 @@ def paste_button(parent: QWidget) -> QToolButton:
     return paste_button
 
 
+# Developer buttons
+def create_object_archetype_button(parent: QWidget) -> QToolButton:
+    """
+    Creates a create archetype button adapted to the PROTEUS application style.
+    """
+    # Create button with parent
+    create_button = QToolButton(parent)
+    create_button.setMinimumWidth(55)
+
+    # Set file icon
+    button_icon = Icons().icon(ProteusIconType.MainMenu, "create-object-archetype")
+    create_button.setIcon(button_icon)
+    create_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+
+    # Set tooltip
+    create_button.setToolTip(_("create_archetype_button.tooltip"))
+    create_button.setStatusTip(_("create_archetype_button.statustip"))
+
+    # Set text
+    create_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+    create_button.setText(_("create_archetype_button.text"))
+
+    # Set initial disabled value
+    create_button.setEnabled(False)
+
+    return create_button
+
 # --------------------------------------------------------------------------
 def button_group(buttons, section_name_code=None):
     # Create the main widget

@@ -21,6 +21,7 @@ main_menu.button_group.document: "Documento"
 main_menu.button_group.clipboard: "Portapapeles"
 main_menu.button_group.action: "Acción"
 main_menu.button_group.application: "Aplicación"
+main_menu.button_group.archetype: "Arquetipo"
 
 # Fixed buttons
 new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"
@@ -78,6 +79,10 @@ copy_button.text: "Copiar"
 paste_button.statustip: "Pegar objeto del portapapeles"
 paste_button.tooltip: "Pegar objeto del portapapeles"
 paste_button.text: "Pegar"
+
+create_archetype_button.tooltip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
+create_archetype_button.statustip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
+create_archetype_button.text: "Crear arquetipo"
 
 # ---------------------------------------------------------------------------
 # Main window

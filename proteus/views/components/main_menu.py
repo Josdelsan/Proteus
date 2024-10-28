@@ -127,6 +127,8 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.settings_button: QToolButton = None
         self.export_document_button: QToolButton = None
         self.information_button: QToolButton = None
+        # Developer buttons
+        self.create_object_archetype_button: QToolButton = None
 
         # Store archetype buttons by object class
         self.archetype_buttons: Dict[str, ArchetypeMenuButton] = {}
@@ -392,27 +394,25 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         tab_layout.addWidget(aplication_menu)
 
-
         # ---------
-        # developer
+        # developer (archetype modification)
         # ---------
         # Create add archetype from object action
-        add_archetype_button: QToolButton = buttons.info_button(self)
-        add_archetype_button.clicked.connect(
+        self.create_object_archetype_button: QToolButton = buttons.create_object_archetype_button(self)
+        self.create_object_archetype_button.clicked.connect(
             lambda: CreateObjectArchetypeDialog.create_dialog(self._controller)
         )
 
         # Add the buttons to the developer menu widget
         developer_menu: QWidget = buttons.button_group(
-            [add_archetype_button],
-            "main_menu.button_group.developer",
+            [self.create_object_archetype_button],
+            "main_menu.button_group.archetype",
         )
 
         if Config().app_settings.developer_features:
             tab_layout.addWidget(buttons.get_separator(vertical=True))
             tab_layout.addWidget(developer_menu)
-            
-        
+
         # ---------------------------------------------
 
         # Spacer to justify content left
@@ -618,11 +618,18 @@ class MainMenu(QDockWidget, ProteusComponent):
             for button in self.archetype_buttons.values():
                 button.setEnabled(False)
 
+            # Disable create_object_archetype_button
+            self.create_object_archetype_button.setEnabled(False)
+
         # If the selected object is not None, enable the archetype buttons
         # that are accepted children of the selected object
         else:
             # Get the selected object and its accepted children
             selected_object: Object = self._controller.get_element(selected_object_id)
+
+            # If selected object exists, enable create_object_archetype_button
+            self.create_object_archetype_button.setEnabled(selected_object is not None)
+               
 
             # Iterate over the archetype buttons
             for archetype_menu_button in self.archetype_buttons.values():

@@ -158,7 +158,10 @@ class CreateObjectArchetypeDialog(ProteusDialog):
             return
 
         # Check if the ProteusID contains problematic characters
-        if any(char in proteus_id for char in XML_PROBLEMATIC_CHARS):
+        if (
+            any(char in proteus_id for char in XML_PROBLEMATIC_CHARS)
+            or " " in proteus_id
+        ):
             self.error_label.setText(
                 _("create_object_archetype_dialog.proteus_id_invalid")
             )
