@@ -56,5 +56,6 @@
 
         <!-- Developer buttons -->
         <icon key="create-object-archetype" file="main_menu/create-object-archetype.png"/>
+        <icon key="create-document-archetype" file="main_menu/create-document-archetype.png"/>
     </type>
 </icons>

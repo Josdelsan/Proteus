@@ -81,9 +81,13 @@ paste_button.statustip: "Paste object from clipboard"
 paste_button.tooltip: "Paste object from clipboard"
 paste_button.text: "Paste"
 
-create_archetype_button.tooltip: "Create new object archetype from current selected object"
-create_archetype_button.statustip: "Create new object archetype from current selected object"
-create_archetype_button.text: "Create object"
+store_object_archetype_button.tooltip: "Create new object archetype from current selected object"
+store_object_archetype_button.statustip: "Create new object archetype from current selected object"
+store_object_archetype_button.text: "Create object"
+
+store_document_archetype_button.tooltip: "Create new document archetype from current document"
+store_document_archetype_button.statustip: "Create new document archetype from current document"
+store_document_archetype_button.text: "Create document"
 
 # ---------------------------------------------------------------------------
 # Main window

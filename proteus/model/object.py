@@ -25,7 +25,7 @@ from __future__ import annotations  # it has to be the first import
 import pathlib
 import os
 import logging
-from typing import List, NewType, Union, Dict
+from typing import List, NewType, Union, Dict, Set
 import copy
 import shutil
 import datetime
@@ -313,6 +313,26 @@ class Object(AbstractObject):
         except AttributeError:
             raise Exception(f"Parent document not found for object {self.id}")
         
+
+    # ----------------------------------------------------------------------
+    # Method     : get_descendants_recursively
+    # Description: It returns a list with all the descendants of an object
+    # including the object itself.
+    # Date       : 29/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_descendants_recursively(self) -> Set[Object]:
+        """
+        It returns a list with all the descendants of an object including the object itself.
+        :return: List with all the descendants of an object including the object itself.
+        """
+        descendants = set()
+        descendants.add(self)
+        for child in self.children:
+            descendants.update(child.get_descendants_recursively())
+        return descendants
+
     # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the children of an object.

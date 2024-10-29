@@ -80,9 +80,13 @@ paste_button.statustip: "Pegar objeto del portapapeles"
 paste_button.tooltip: "Pegar objeto del portapapeles"
 paste_button.text: "Pegar"
 
-create_archetype_button.tooltip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
-create_archetype_button.statustip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
-create_archetype_button.text: "Crear arquetipo"
+store_object_archetype_button.tooltip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
+store_object_archetype_button.statustip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
+store_object_archetype_button.text: "Crear objecto"
+
+store_document_archetype_button.tooltip: "Crear nuevo arquetipo de documento a partir del documento actual"
+store_document_archetype_button.statustip: "Crear nuevo arquetipo de documento a partir del documento actual"
+store_document_archetype_button.text: "Crear documento"
 
 # ---------------------------------------------------------------------------
 # Main window

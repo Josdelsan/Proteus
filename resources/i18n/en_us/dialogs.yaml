@@ -238,3 +238,13 @@ create_object_archetype_dialog.group: "Group (directory):"
 create_object_archetype_dialog.proteus_id_missing: "ProteusID cannot be empty"
 create_object_archetype_dialog.proteus_id_invalid: "ProteusID cannot contain spaces or special characters"
 create_object_archetype_dialog.proteus_id_in_use: "An archetype with the same ProteusID already exists"
+
+
+create_document_archetype_dialog.title: "Create document archetype"
+create_document_archetype_dialog.proteus_id: "ProteusID:"
+create_document_archetype_dialog.directory_name: "Directory name:"
+create_document_archetype_dialog.proteus_id_missing: "ProteusID cannot be empty"
+create_document_archetype_dialog.proteus_id_invalid: "ProteusID cannot contain spaces or special characters"
+create_document_archetype_dialog.proteus_id_in_use: "An archetype with the same ProteusID already exists"
+create_document_archetype_dialog.directory_name_missing: "Directory name cannot be empty"
+create_document_archetype_dialog.directory_name_in_use: "Already exists a document archetype with the same directory name"

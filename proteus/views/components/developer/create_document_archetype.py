@@ -1,7 +1,7 @@
 # ==========================================================================
-# File: create_object_archetype.py
-# Description: module for the PROTEUS create object archetype dialog
-# Date: 25/10/2024
+# File: create_document_archetype.py
+# Description: module for the PROTEUS create document archetype dialog
+# Date: 29/10/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # ==========================================================================
@@ -19,7 +19,6 @@ from PyQt6.QtWidgets import (
     QLabel,
     QFormLayout,
     QLineEdit,
-    QComboBox,
 )
 
 # --------------------------------------------------------------------------
@@ -30,19 +29,20 @@ from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_err
 from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.controller.command_stack import Controller
-from proteus.views.forms.boolean_edit import BooleanEdit
+from proteus.application.configuration.config import Config
+from proteus.model.archetype_repository import ArchetypesType
 
 
 # --------------------------------------------------------------------------
-# Class: CreateObjectArchetypeDialog
+# Class: CreateDocumentArchetypeDialog
 # Description: PyQT6 dialog component for the PROTEUS edit property dialog
-# Date: 25/10/2024
+# Date: 29/10/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
-class CreateObjectArchetypeDialog(ProteusDialog):
+class CreateDocumentArchetypeDialog(ProteusDialog):
     """
-    CreateObjectArchetypeDialog provides a dialog for creating a new object
+    CreateDocumentArchetypeDialog provides a dialog for creating a new object
     archetype from the selected object. It allows the user to set the ProteusID
     and the group/category where the new archetype will be stored. It also
 
@@ -52,7 +52,7 @@ class CreateObjectArchetypeDialog(ProteusDialog):
     # Method     : __init__
     # Description: Class constructor, invoke the parents class constructors
     #              and create the component.
-    # Date       : 25/10/2024
+    # Date       : 29/10/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -61,16 +61,15 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         Class constructor, invoke the parents class constructors and create
         the component.
         """
-        super(CreateObjectArchetypeDialog, self).__init__(*args, **kwargs)
+        super(CreateDocumentArchetypeDialog, self).__init__(*args, **kwargs)
 
         self.object = self._controller.get_element(
-            self._state_manager.get_current_object()
+            self._state_manager.get_current_document()
         )
 
         # Inputs
         self.input_id: QLineEdit
-        self.group_combo: QComboBox
-        self.include_children: BooleanEdit
+        self.directory_name: QLineEdit
 
         # Error labels
         self.error_label: QLabel = create_error_label()
@@ -90,7 +89,7 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         Create the component
         """
         # Set the dialog title
-        self.setWindowTitle(_("create_object_archetype_dialog.title"))
+        self.setWindowTitle(_("create_document_archetype_dialog.title"))
 
         # Create the main layout
         form_layout: QFormLayout = QFormLayout()
@@ -98,26 +97,15 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         # ProteusID input
         self.input_id = QLineEdit()
 
-        # Group combo
-        archetype_groups = (
-            self._controller._archetype_service.get_object_archetypes_groups()
-        )
+        # Directory name input
+        self.directory_name = QLineEdit()
 
-        self.group_combo = QComboBox()
-        for group in archetype_groups:
-            self.group_combo.addItem(_(f"archetype.category.{group}"), group)
-
-        # Include children
-        self.include_children = BooleanEdit(
-            _("create_object_archetype_dialog.include_children")
-        )
 
         # Add the inputs to the form layout
         form_layout.addRow(
-            _("create_object_archetype_dialog.proteus_id"), self.input_id
+            _("create_document_archetype_dialog.proteus_id"), self.input_id
         )
-        form_layout.addRow(_("create_object_archetype_dialog.group"), self.group_combo)
-        form_layout.addRow(self.include_children)
+        form_layout.addRow(_("create_document_archetype_dialog.directory_name"), self.directory_name)
 
         # Add the error label
         form_layout.addRow(self.error_label)
@@ -136,7 +124,7 @@ class CreateObjectArchetypeDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : accept_button_clicked
     # Description: Slot method to accept the dialog
-    # Date       : 25/10/2024
+    # Date       : 29/10/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
@@ -146,13 +134,23 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         """
         # Inputs
         proteus_id = self.input_id.text().strip()
-        group = self.group_combo.currentData()
-        include_children = self.include_children.checked()
+        directory_name = self.directory_name.text().strip()
 
         # Validate the ProteusID
         if not proteus_id or proteus_id == "":
             self.error_label.setText(
-                _("create_object_archetype_dialog.proteus_id_missing")
+                _("create_document_archetype_dialog.proteus_id_missing")
+            )
+            self.error_label.show()
+            return
+
+        # Check if the ProteusID contains problematic characters
+        if (
+            any(char in proteus_id for char in XML_PROBLEMATIC_CHARS)
+            or " " in proteus_id
+        ):
+            self.error_label.setText(
+                _("create_document_archetype_dialog.proteus_id_invalid")
             )
             self.error_label.show()
             return
@@ -162,31 +160,41 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         self._controller._archetype_service.get_document_archetypes()
         self._controller._archetype_service.get_object_archetypes()
 
-        # Check if the ProteusID contains problematic characters
-        if (
-            any(char in proteus_id for char in XML_PROBLEMATIC_CHARS)
-            or " " in proteus_id
-        ):
-            self.error_label.setText(
-                _("create_object_archetype_dialog.proteus_id_invalid")
-            )
-            self.error_label.show()
-            return
-
         # Check if the ProteusID is already in use
         try:
             self._controller.get_archetype_by_id(proteus_id)
             self.error_label.setText(
-                _("create_object_archetype_dialog.proteus_id_in_use")
+                _("create_document_archetype_dialog.proteus_id_in_use")
             )
             self.error_label.show()
             return
         except AssertionError:
             self.error_label.hide()
 
+        # Check if the directory name is empty
+        if not directory_name or directory_name == "":
+            self.error_label.setText(
+                _("create_document_archetype_dialog.directory_name_missing")
+            )
+            self.error_label.show()
+            return
+        else:
+            self.error_label.hide()
+
+        # Check directory does not exist
+        document_archetypes_dir = Config().profile_settings.archetypes_directory / ArchetypesType.DOCUMENTS
+        if (document_archetypes_dir / directory_name).exists():
+            self.error_label.setText(
+                _("create_document_archetype_dialog.directory_name_in_use")
+            )
+            self.error_label.show()
+            return
+        else:
+            self.error_label.hide()
+
         # Create the new archetype
-        self._controller._archetype_service.store_object_as_archetype(
-            self.object, proteus_id, group, include_children
+        self._controller._archetype_service.store_document_as_archetype(
+            self.object, proteus_id, directory_name
         )
 
         # Close the form window
@@ -200,16 +208,16 @@ class CreateObjectArchetypeDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     # Method     : create_dialog
     # Description: Create the dialog
-    # Date       : 25/10/2024
+    # Date       : 29/10/2024
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
         controller: Controller,
-    ) -> "CreateObjectArchetypeDialog":
+    ) -> "CreateDocumentArchetypeDialog":
 
-        dialog: CreateObjectArchetypeDialog = CreateObjectArchetypeDialog(
+        dialog: CreateDocumentArchetypeDialog = CreateDocumentArchetypeDialog(
             controller=controller
         )
         dialog.exec()

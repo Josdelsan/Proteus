@@ -53,6 +53,9 @@ from proteus.views.components.dialogs.delete_dialog import DeleteDialog
 from proteus.views.components.developer.create_object_archetype import (
     CreateObjectArchetypeDialog,
 )
+from proteus.views.components.developer.create_document_archetype import (
+    CreateDocumentArchetypeDialog,
+)
 from proteus.views.components.archetypes_menu_dropdown import (
     ArchetypesMenuDropdown,
 )
@@ -128,7 +131,8 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.export_document_button: QToolButton = None
         self.information_button: QToolButton = None
         # Developer buttons
-        self.create_object_archetype_button: QToolButton = None
+        self.store_object_archetype_button: QToolButton = None
+        self.store_document_archetype_button: QToolButton = None
 
         # Store archetype buttons by object class
         self.archetype_buttons: Dict[str, ArchetypeMenuButton] = {}
@@ -261,22 +265,52 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Project menu
         # ---------
         # New action
-        self.new_button: QToolButton = buttons.new_project_button(self)
+        self.new_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="new_project_button.text",
+            icon_key="new-project",
+            tooltip="new_project_button.tooltip",
+            statustip="new_project_button.statustip",
+            enabled=True,
+            shortcut="Ctrl+N",
+        )
         self.new_button.clicked.connect(
             lambda: NewProjectDialog.create_dialog(self._controller)
         )
 
         # Open action
-        self.open_button: QToolButton = buttons.open_project_button(self)
+        self.open_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="open_project_button.text",
+            icon_key="open-project",
+            tooltip="open_project_button.tooltip",
+            statustip="open_project_button.statustip",
+            enabled=True,
+            shortcut="Ctrl+O",
+        )
         self.open_button.clicked.connect(self.open_project)
 
         # Save action
-        self.save_button: QToolButton = buttons.save_project_button(self)
+        self.save_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="save_project_button.text",
+            icon_key="save",
+            tooltip="save_project_button.tooltip",
+            statustip="save_project_button.statustip",
+            enabled=False,
+            shortcut="Ctrl+S",
+        )
         self.save_button.clicked.connect(self.save_project)
 
         # Project properties action
-        self.project_properties_button: QToolButton = buttons.project_properties_button(
-            self
+        self.project_properties_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="project_properties_button.text",
+            icon_key="edit",
+            tooltip="project_properties_button.tooltip",
+            statustip="project_properties_button.statustip",
+            enabled=False,
+            shortcut="Ctrl+P",
         )
         self.project_properties_button.clicked.connect(
             lambda: PropertyDialog.create_dialog(
@@ -302,17 +336,39 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Document menu
         # ---------
         # Add document action
-        self.add_document_button: QToolButton = buttons.add_document_button(self)
+        self.add_document_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="add_document_button.text",
+            icon_key="new-file",
+            tooltip="add_document_button.tooltip",
+            statustip="add_document_button.statustip",
+            enabled=False,
+            shortcut="Ctrl+D",
+        )
         self.add_document_button.clicked.connect(
             lambda: NewDocumentDialog.create_dialog(self._controller)
         )
 
         # Delete document action
-        self.delete_document_button: QToolButton = buttons.delete_document_button(self)
+        self.delete_document_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="delete_document_button.text",
+            icon_key="delete-file",
+            tooltip="delete_document_button.tooltip",
+            statustip="delete_document_button.statustip",
+            enabled=False,
+        )
         self.delete_document_button.clicked.connect(self.delete_current_document)
 
         # Export document action
-        self.export_document_button: QToolButton = buttons.export_button(self)
+        self.export_document_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="export_button.text",
+            icon_key="export",
+            tooltip="export_button.tooltip",
+            statustip="export_button.statustip",
+            enabled=False,
+        )
         self.export_document_button.clicked.connect(
             lambda: ExportDialog.create_dialog(self._controller)
         )
@@ -333,15 +389,36 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Clipboard menu
         # ---------
         # Cut action
-        self.cut_button: QToolButton = buttons.cut_button(self)
+        self.cut_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="cut_button.text",
+            icon_key="clipboard-cut",
+            tooltip="cut_button.tooltip",
+            statustip="cut_button.statustip",
+            enabled=False,
+        )
         self.cut_button.clicked.connect(Clipboard().cut)
 
         # Copy action
-        self.copy_button: QToolButton = buttons.copy_button(self)
+        self.copy_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="copy_button.text",
+            icon_key="clipboard-copy",
+            tooltip="copy_button.tooltip",
+            statustip="copy_button.statustip",
+            enabled=False,
+        )
         self.copy_button.clicked.connect(Clipboard().copy)
 
         # Paste action
-        self.paste_button: QToolButton = buttons.paste_button(self)
+        self.paste_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="paste_button.text",
+            icon_key="clipboard-paste",
+            tooltip="paste_button.tooltip",
+            statustip="paste_button.statustip",
+            enabled=False,
+        )
         self.paste_button.clicked.connect(Clipboard().paste)
 
         # Add the buttons to the clipboard menu widget
@@ -356,11 +433,27 @@ class MainMenu(QDockWidget, ProteusComponent):
         # Action menu
         # ---------
         # Undo action
-        self.undo_button: QToolButton = buttons.undo_button(self)
+        self.undo_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="undo_button.text",
+            icon_key="undo",
+            tooltip="undo_button.tooltip",
+            statustip="undo_button.statustip",
+            enabled=False,
+            shortcut="Ctrl+Z",
+        )
         self.undo_button.clicked.connect(self._controller.undo)
 
         # Redo action
-        self.redo_button: QToolButton = buttons.redo_button(self)
+        self.redo_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="redo_button.text",
+            icon_key="redo",
+            tooltip="redo_button.tooltip",
+            statustip="redo_button.statustip",
+            enabled=False,
+            shortcut="Ctrl+Y",
+        )
         self.redo_button.clicked.connect(self._controller.redo)
 
         # Add the buttons to the action menu widget
@@ -375,13 +468,25 @@ class MainMenu(QDockWidget, ProteusComponent):
         # aplication
         # ---------
         # Settings action
-        self.settings_button: QToolButton = buttons.settings_button(self)
+        self.settings_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="settings_button.text",
+            icon_key="settings",
+            tooltip="settings_button.tooltip",
+            statustip="settings_button.statustip",
+        )
         self.settings_button.clicked.connect(
             lambda: SettingsDialog.create_dialog(self._controller)
         )
 
         # Information action
-        self.information_button: QToolButton = buttons.info_button(self)
+        self.information_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="information_button.text",
+            icon_key="info",
+            tooltip="information_button.tooltip",
+            statustip="information_button.statustip",
+        )
         self.information_button.clicked.connect(
             lambda: InformationDialog.create_dialog(controller=self._controller)
         )
@@ -398,14 +503,35 @@ class MainMenu(QDockWidget, ProteusComponent):
         # developer (archetype modification)
         # ---------
         # Create add archetype from object action
-        self.create_object_archetype_button: QToolButton = buttons.create_object_archetype_button(self)
-        self.create_object_archetype_button.clicked.connect(
+        self.store_object_archetype_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="store_object_archetype_button.text",
+            icon_key="create-object-archetype",
+            tooltip="store_object_archetype_button.tooltip",
+            statustip="store_object_archetype_button.statustip",
+            enabled=False,
+        )
+        self.store_object_archetype_button.clicked.connect(
             lambda: CreateObjectArchetypeDialog.create_dialog(self._controller)
+        )
+
+        # Create add archetype from document action
+        self.store_document_archetype_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="store_document_archetype_button.text",
+            icon_key="create-document-archetype",
+            tooltip="store_document_archetype_button.tooltip",
+            statustip="store_document_archetype_button.statustip",
+            enabled=False,
+        )
+
+        self.store_document_archetype_button.clicked.connect(
+            lambda: CreateDocumentArchetypeDialog.create_dialog(self._controller)
         )
 
         # Add the buttons to the developer menu widget
         developer_menu: QWidget = buttons.button_group(
-            [self.create_object_archetype_button],
+            [self.store_object_archetype_button, self.store_document_archetype_button],
             "main_menu.button_group.archetype",
         )
 
@@ -517,7 +643,6 @@ class MainMenu(QDockWidget, ProteusComponent):
             - OPEN PROJECT -> update_on_open_project
             - SELECT OBJECT -> update_on_select_object
             - STACK CHANGED -> update_on_stack_changed
-            - CURRENT DOCUMENT CHANGED -> update_on_select_object
             - REQUIRED SAVE ACTION -> update_on_required_save_action
             - CURRENT DOCUMENT CHANGED -> update_on_current_document_changed
 
@@ -618,8 +743,8 @@ class MainMenu(QDockWidget, ProteusComponent):
             for button in self.archetype_buttons.values():
                 button.setEnabled(False)
 
-            # Disable create_object_archetype_button
-            self.create_object_archetype_button.setEnabled(False)
+            # Disable store_object_archetype_button
+            self.store_object_archetype_button.setEnabled(False)
 
         # If the selected object is not None, enable the archetype buttons
         # that are accepted children of the selected object
@@ -627,9 +752,8 @@ class MainMenu(QDockWidget, ProteusComponent):
             # Get the selected object and its accepted children
             selected_object: Object = self._controller.get_element(selected_object_id)
 
-            # If selected object exists, enable create_object_archetype_button
-            self.create_object_archetype_button.setEnabled(selected_object is not None)
-               
+            # If selected object exists, enable store_object_archetype_button
+            self.store_object_archetype_button.setEnabled(selected_object is not None)
 
             # Iterate over the archetype buttons
             for archetype_menu_button in self.archetype_buttons.values():
@@ -727,6 +851,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
+        self.store_document_archetype_button.setEnabled(is_document_open)
 
         # Call update_on_select_object to update the archetype buttons
         if document_id == self._state_manager.get_current_document():

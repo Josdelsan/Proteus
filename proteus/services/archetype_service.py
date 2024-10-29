@@ -131,7 +131,7 @@ class ArchetypeService:
                 # Check for collisions
                 assert (
                     document.id not in self.archetype_index
-                ), f"Document archetype id {document.id} already exists in the archetype index"
+                ), f"Document archetype id '{document.id}' already exists in the archetype index"
 
                 # Add the document archetype to the archetype index
                 self.archetype_index[document.id] = document
@@ -393,6 +393,11 @@ class ArchetypeService:
     ) -> None:
         """
         Stores an object as an archetype.
+
+        :param object: Object to store as an archetype
+        :param proteus_id: ProteusID for the new archetype
+        :param group: Group where the archetype will be stored
+        :param include_children: Whether to include the children in the archetype
         """
         # Check ProteusID
         assert (
@@ -419,4 +424,46 @@ class ArchetypeService:
         # Add the archetype to the object archetypes
         ArchetypeRepository.store_object_archetype(
             Config().profile_settings.archetypes_directory, archetype, group
+        )
+
+    # ----------------------------------------------------------------------
+    # Method     : store_document_as_archetype
+    # Description: Stores a document as an archetype
+    # Date       : 29/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def store_document_as_archetype(
+        self,
+        document: Object,
+        proteus_id: ProteusID,
+        directory_name: str,
+    ) -> None:
+        """
+        Stores a document as an archetype.
+
+        :param document: Document to store as an archetype
+        :param proteus_id: ProteusID for the new archetype
+        :param directory_name: Name of the directory where the archetype will be stored
+        """
+        assert (
+            proteus_id and proteus_id != ""
+        ), f"Archetype must have a valid ProteusID: '{proteus_id}'"
+
+        assert (
+            proteus_id not in self.archetype_index
+        ), f"ProteusID '{proteus_id}' is already in use"
+
+        assert (
+            directory_name is not None and directory_name != ""
+        ), "Directory name must be valid"
+
+        # Copy the document to avoid modifying the original
+        # Normal copy is fine since we just modify id and reference list
+        archetype = copy.copy(document)
+        archetype.id = proteus_id
+
+        # Add the archetype to the document archetypes
+        ArchetypeRepository.store_document_archetype(
+            Config().profile_settings.archetypes_directory, archetype, directory_name
         )

@@ -103,9 +103,11 @@ class ArchetypeRepository:
     An utility class for managing PROTEUS archetypes. It must provide a way
     to get the project, document, and object archetypes on demand from an
     archetype repository.
-
-    TODO: in the future, it will also be responsible for adding new archetypes.
     """
+
+    # ======================================================================
+    # Archetypes loading methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method: load_object_archetypes (static)
@@ -381,6 +383,10 @@ class ArchetypeRepository:
 
         return project_archetype_list
 
+    # ======================================================================
+    # Archetypes storing methods
+    # ======================================================================
+
     # ----------------------------------------------------------------------
     # Method: store_object_archetype (static)
     # Description: It stores an object archetype in the archetype repository
@@ -395,6 +401,7 @@ class ArchetypeRepository:
         """
         Method that stores an object as an archetype in the archetype repository.
 
+        :param archetypes_folder: The path to the archetype repository.
         :param archetype: The object to store as an archetype.
         :param group: The group of the archetype.
         """
@@ -430,18 +437,12 @@ class ArchetypeRepository:
             encoding="utf-8",
         )
 
-        # Get all the objects that will be stored
-        def object_to_store(obj: Object):
-            if obj.state == ProteusState.DEAD:
-                return
+        # Get the objects to store and remove DEAD objects
+        objects_to_store = archetype.get_descendants_recursively()
+        objects_to_store = set(
+            obj for obj in objects_to_store if obj.state != ProteusState.DEAD
+        )
 
-            objects: List[Object] = [obj]
-            for child in obj.get_descendants():
-                objects.extend(object_to_store(child))
-
-            return objects
-
-        objects_to_store = object_to_store(archetype)
 
         # Store the objects
         for obj in objects_to_store:
@@ -450,6 +451,73 @@ class ArchetypeRepository:
             object_path: Path = (
                 archetype_group_dir / OBJECTS_REPOSITORY / f"{obj.id}.xml"
             )
+            object_xml_tree.write(
+                object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
+            )
+
+            # TODO: store the assets
+
+    # ----------------------------------------------------------------------
+    # Method: store_document_archetype (static)
+    # Description: It stores a document archetype in the archetype repository
+    # Date: 29/10/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def store_document_archetype(
+        archetypes_folder: Path, archetype: Object, directory_name: str
+    ) -> None:
+        """
+        Method that stores a document as an archetype in the archetype repository.
+
+        :param archetypes_folder: The path to the archetype repository.
+        :param archetype: The document to store as an archetype.
+        :param directory_name: The name of the directory where the archetype will be stored.
+        """
+        log.info(
+            f"ArchetypeRepository - store document archetype '{archetype.id}' in directory '{directory_name}'"
+        )
+
+        # Get the archetype repository path
+        documents_archetypes_dir: Path = archetypes_folder / ArchetypesType.DOCUMENTS
+
+        # Get the directory path
+        archetype_dir: Path = documents_archetypes_dir / directory_name
+
+        # Check it does not exist
+        assert not archetype_dir.exists(), f"Directory '{archetype_dir}' already exists"
+
+        # Create the directory
+        archetype_dir.mkdir()
+
+        # Create the document.xml file
+        document_pointer_file: Path = archetype_dir / DOCUMENT_FILE
+        document_pointer_xml: ET._Element = ET.Element("document")
+        document_pointer_xml.set(ID_ATTRIBUTE, archetype.id)
+        document_pointer_xml_tree = ET.ElementTree(document_pointer_xml)
+        document_pointer_xml_tree.write(
+            document_pointer_file,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="utf-8",
+        )
+
+        # Get the objects to store and remove DEAD objects
+        objects_to_store = archetype.get_descendants_recursively()
+        objects_to_store = set(
+            obj for obj in objects_to_store if obj.state != ProteusState.DEAD
+        )
+
+        # Create the objects directory
+        objects_path = archetype_dir / OBJECTS_REPOSITORY
+        objects_path.mkdir()
+
+        # Store the objects
+        for obj in objects_to_store:
+            object_xml: ET._Element = obj.generate_xml()
+            object_xml_tree = ET.ElementTree(object_xml)
+            object_path: Path = objects_path / f"{obj.id}.xml"
             object_xml_tree.write(
                 object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
