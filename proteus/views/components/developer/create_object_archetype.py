@@ -27,10 +27,11 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
-from proteus.application.resources.translator import translate as _
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
-from proteus.controller.command_stack import Controller
 from proteus.views.forms.boolean_edit import BooleanEdit
+from proteus.application.resources.translator import translate as _
+from proteus.application.events import ArchetypeRepositoryChangedEvent
+from proteus.controller.command_stack import Controller
 
 
 # --------------------------------------------------------------------------
@@ -188,6 +189,9 @@ class CreateObjectArchetypeDialog(ProteusDialog):
         self._controller._archetype_service.store_object_as_archetype(
             self.object, proteus_id, group, include_children
         )
+
+        # Notify the archetype repository changed
+        ArchetypeRepositoryChangedEvent().notify()
 
         # Close the form window
         self.close()

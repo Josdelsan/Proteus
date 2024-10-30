@@ -12,6 +12,7 @@
 
 import logging
 from typing import Union, List, Dict
+from pathlib import Path
 import copy
 
 # --------------------------------------------------------------------------
@@ -23,7 +24,13 @@ import copy
 # --------------------------------------------------------------------------
 
 from proteus.application.configuration.config import Config
-from proteus.model import ProteusID, PROTEUS_ANY, PROTEUS_DOCUMENT, ProteusClassTag
+from proteus.model import (
+    ProteusID,
+    PROTEUS_ANY,
+    PROTEUS_DOCUMENT,
+    ProteusClassTag,
+    ASSETS_REPOSITORY,
+)
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.archetype_repository import ArchetypeRepository
@@ -321,6 +328,35 @@ class ArchetypeService:
         return self.archetype_index[archetype_id]
 
     # ----------------------------------------------------------------------
+    # Method     : reload_archetypes
+    # Description: Reloads the archetypes from the repository
+    # Date       : 30/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def reload_archetypes(self) -> None:
+        """
+        Reloads the archetypes from the repository.
+        """
+        log.info("Reloading archetype repository")
+
+        # Reset archetype lists
+        self._project_archetypes = None
+        self._document_archetypes = None
+        self._object_archetypes = None
+        self._unordered_object_archetypes = None
+        self.archetype_index = {}
+
+        # Reload archetypes
+        self.get_project_archetypes()
+        self.get_document_archetypes()
+        self.get_object_archetypes()
+
+    # ======================================================================
+    # Methods for creating projects and objects from archetypes
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
     # Method     : create_project
     # Description: Creates a new project from an archetype given a path,
     #              a name and an archetype id.
@@ -377,6 +413,10 @@ class ArchetypeService:
         # Create the object from the archetype
         return object_archetype.clone_object(parent, project)
 
+    # ======================================================================
+    # Methods for storing objects as archetypes
+    # ======================================================================
+
     # ----------------------------------------------------------------------
     # Method     : store_object_as_archetype
     # Description: Stores an object as an archetype
@@ -392,7 +432,8 @@ class ArchetypeService:
         include_children: bool = True,
     ) -> None:
         """
-        Stores an object as an archetype.
+        Stores an object as an archetype. It uses the archetype repository
+        to store the object in disk and also forces the repository to reload
 
         :param object: Object to store as an archetype
         :param proteus_id: ProteusID for the new archetype
@@ -413,6 +454,9 @@ class ArchetypeService:
             group in self.get_object_archetypes().keys()
         ), f"Group '{group}' not found"
 
+        # Get the assets directory (projects assets directory)
+        assets_directory = Path(object.project.path).parent / ASSETS_REPOSITORY
+
         # Copy the object to avoid modifying the original
         # Normal copy is fine since we just modify id and reference list
         archetype = copy.copy(object)
@@ -421,10 +465,21 @@ class ArchetypeService:
         if not include_children:
             archetype._children = []
 
+        # Remove the project reference
+        archetype_objects = archetype.get_descendants_recursively()
+        for arch_object in archetype_objects:
+            arch_object.project = None
+
         # Add the archetype to the object archetypes
         ArchetypeRepository.store_object_archetype(
-            Config().profile_settings.archetypes_directory, archetype, group
+            Config().profile_settings.archetypes_directory,
+            assets_directory,
+            archetype,
+            group,
         )
+
+        # Reload archetypes
+        self.reload_archetypes()
 
     # ----------------------------------------------------------------------
     # Method     : store_document_as_archetype
@@ -440,7 +495,8 @@ class ArchetypeService:
         directory_name: str,
     ) -> None:
         """
-        Stores a document as an archetype.
+        Stores a document as an archetype. It uses the archetype repository
+        to store the document in disk and also forces the repository to reload
 
         :param document: Document to store as an archetype
         :param proteus_id: ProteusID for the new archetype
@@ -458,6 +514,9 @@ class ArchetypeService:
             directory_name is not None and directory_name != ""
         ), "Directory name must be valid"
 
+        # Get the assets directory (projects assets directory)
+        assets_directory = Path(document.project.path).parent / ASSETS_REPOSITORY
+
         # Copy the document to avoid modifying the original
         # Normal copy is fine since we just modify id and reference list
         archetype = copy.copy(document)
@@ -465,5 +524,12 @@ class ArchetypeService:
 
         # Add the archetype to the document archetypes
         ArchetypeRepository.store_document_archetype(
-            Config().profile_settings.archetypes_directory, archetype, directory_name
+            Config().profile_settings.archetypes_directory,
+            assets_directory,
+            archetype,
+            directory_name,
         )
+
+        # Reload archetypes
+        self.reload_archetypes()
+

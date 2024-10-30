@@ -597,7 +597,7 @@ class Object(AbstractObject):
                 return
 
             # Build the source assets path
-            # Check if the cloned object is an archetype based on the project property
+            # Check if the cloned object is an archetype based on the project attribute
             source_assets_path: pathlib.Path = None
             if is_archetype:
                 # NOTE: If object is an archetype, build the path to the assets

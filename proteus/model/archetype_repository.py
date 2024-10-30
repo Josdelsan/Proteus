@@ -27,6 +27,7 @@ from os import listdir
 from os.path import join, isdir, isfile
 from pathlib import Path
 from typing import Dict, List
+import shutil
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -48,6 +49,7 @@ from proteus.model import (
 from proteus.model.project import Project
 from proteus.model.object import Object
 from proteus.model.abstract_object import ProteusState
+from proteus.model.properties import FileProperty
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -396,12 +398,13 @@ class ArchetypeRepository:
     # ----------------------------------------------------------------------
     @staticmethod
     def store_object_archetype(
-        archetypes_folder: Path, archetype: Object, group: str
+        archetypes_folder: Path, assets_directoy: Path, archetype: Object, group: str
     ) -> None:
         """
         Method that stores an object as an archetype in the archetype repository.
 
         :param archetypes_folder: The path to the archetype repository.
+        :param assets_directoy: Directory where the assets are stored (if any).
         :param archetype: The object to store as an archetype.
         :param group: The group of the archetype.
         """
@@ -455,7 +458,18 @@ class ArchetypeRepository:
                 object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
 
-            # TODO: store the assets
+            # Iterate over the properties to store the assets
+            for prop in obj.properties.values():
+                if isinstance(prop, FileProperty):
+                    if prop.value is None or prop.value == "":
+                        continue
+                    
+                    asset_path: Path = assets_directoy / prop.value
+                    asset_destination: Path = (
+                        archetype_group_dir / ASSETS_REPOSITORY / prop.value
+                    )
+                    asset_destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(asset_path, asset_destination)
 
     # ----------------------------------------------------------------------
     # Method: store_document_archetype (static)
@@ -466,12 +480,13 @@ class ArchetypeRepository:
     # ----------------------------------------------------------------------
     @staticmethod
     def store_document_archetype(
-        archetypes_folder: Path, archetype: Object, directory_name: str
+        archetypes_folder: Path, assets_directoy: Path, archetype: Object, directory_name: str
     ) -> None:
         """
         Method that stores a document as an archetype in the archetype repository.
 
         :param archetypes_folder: The path to the archetype repository.
+        :param assets_directoy: Directory where the assets are stored (if any).
         :param archetype: The document to store as an archetype.
         :param directory_name: The name of the directory where the archetype will be stored.
         """
@@ -522,4 +537,15 @@ class ArchetypeRepository:
                 object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
 
-            # TODO: store the assets
+            # Iterate over the properties to store the assets
+            for prop in obj.properties.values():
+                if isinstance(prop, FileProperty):
+                    if prop.value is None or prop.value == "":
+                        continue
+
+                    asset_path: Path = assets_directoy / prop.value
+                    asset_destination: Path = (
+                        archetype_dir / ASSETS_REPOSITORY / prop.value
+                    )
+                    asset_destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(asset_path, asset_destination)

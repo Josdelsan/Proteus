@@ -74,6 +74,7 @@ from proteus.application.events import (
     RequiredSaveActionEvent,
     StackChangedEvent,
     ClipboardChangedEvent,
+    ArchetypeRepositoryChangedEvent,
 )
 
 # Module configuration
@@ -139,6 +140,9 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Tab widget to display app menus in different tabs
         self.tab_widget: QTabWidget = QTabWidget()
+
+        # Archetype related tabs
+        self.archetype_tabs: List[QWidget] = []
 
         # Create the component
         self.create_component()
@@ -625,6 +629,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_widget.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
+        self.archetype_tabs.append(tab_widget)
         self.tab_widget.addTab(tab_widget, _(tab_name_code, alternative_text=type_name))
 
     # ---------------------------------------------------------------------
@@ -649,6 +654,7 @@ class MainMenu(QDockWidget, ProteusComponent):
             - CLIPBOARD CHANGED -> update_on_clipboard_changed
             - SELECT OBJECT -> update_on_clipboard_changed
             - STACK CHANGED -> update_on_clipboard_changed
+            - ARCHETYPE REPOSITORY CHANGED -> update_on_archetype_repository_changed
         """
         SaveProjectEvent().connect(self.update_on_save_project)
         OpenProjectEvent().connect(self.update_on_open_project)
@@ -661,6 +667,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         ClipboardChangedEvent().connect(self.update_on_clipboard_changed)
         SelectObjectEvent().connect(self.update_on_clipboard_changed)
         StackChangedEvent().connect(self.update_on_clipboard_changed)
+        ArchetypeRepositoryChangedEvent().connect(
+            self.update_on_archetype_repository_changed
+        )
 
     # ======================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -857,6 +866,38 @@ class MainMenu(QDockWidget, ProteusComponent):
         if document_id == self._state_manager.get_current_document():
             current_object_id = self._state_manager.get_current_object()
             self.update_on_select_object(current_object_id)
+
+    # ---------------------------------------------------------------------
+    # Method     : update_on_archetype_repository_changed
+    # Description: Update the archetype tabs when the archetype repository
+    #              changes.
+    # Date       : 30/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def update_on_archetype_repository_changed(self) -> None:
+        """
+        Update the archetype tabs when the archetype repository changes.
+        """
+        # Remove all the archetype tabs
+        for tab in self.archetype_tabs:
+            self.tab_widget.removeTab(self.tab_widget.indexOf(tab))
+            tab.deleteLater()
+
+        # Clear archetype buttons dictionary
+        self.archetype_buttons.clear()
+
+        # Clear the archetype tabs list
+        self.archetype_tabs.clear()
+
+        # Get the object archetypes
+        object_archetypes_dict: Dict[str, Dict[str, List[Object]]] = (
+            self._controller.get_first_level_object_archetypes()
+        )
+
+        # Create a tab for each type of object archetypes
+        for type_name in object_archetypes_dict.keys():
+            self.add_archetype_tab(type_name, object_archetypes_dict[type_name])
 
     # ======================================================================
     # Component slots methods (connected to the component signals)
