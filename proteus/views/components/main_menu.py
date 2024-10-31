@@ -132,6 +132,9 @@ class MainMenu(QDockWidget, ProteusComponent):
         self.export_document_button: QToolButton = None
         self.information_button: QToolButton = None
         # Developer buttons
+        # NOTE: This buttons will not be created if developer features are disabled
+        # If QToolButton is not added to a widget, they are deleted by the garbage
+        # collector. Not instantiating them allows to check if they are created or not
         self.store_object_archetype_button: QToolButton = None
         self.store_document_archetype_button: QToolButton = None
 
@@ -506,40 +509,41 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ---------
         # developer (archetype modification)
         # ---------
-        # Create add archetype from object action
-        self.store_object_archetype_button: QToolButton = buttons.main_menu_button(
-            self,
-            text="store_object_archetype_button.text",
-            icon_key="create-object-archetype",
-            tooltip="store_object_archetype_button.tooltip",
-            statustip="store_object_archetype_button.statustip",
-            enabled=False,
-        )
-        self.store_object_archetype_button.clicked.connect(
-            lambda: CreateObjectArchetypeDialog.create_dialog(self._controller)
-        )
-
-        # Create add archetype from document action
-        self.store_document_archetype_button: QToolButton = buttons.main_menu_button(
-            self,
-            text="store_document_archetype_button.text",
-            icon_key="create-document-archetype",
-            tooltip="store_document_archetype_button.tooltip",
-            statustip="store_document_archetype_button.statustip",
-            enabled=False,
-        )
-
-        self.store_document_archetype_button.clicked.connect(
-            lambda: CreateDocumentArchetypeDialog.create_dialog(self._controller)
-        )
-
-        # Add the buttons to the developer menu widget
-        developer_menu: QWidget = buttons.button_group(
-            [self.store_object_archetype_button, self.store_document_archetype_button],
-            "main_menu.button_group.archetype",
-        )
-
         if Config().app_settings.developer_features:
+            # Create add archetype from object action
+            self.store_object_archetype_button: QToolButton = buttons.main_menu_button(
+                self,
+                text="store_object_archetype_button.text",
+                icon_key="create-object-archetype",
+                tooltip="store_object_archetype_button.tooltip",
+                statustip="store_object_archetype_button.statustip",
+                enabled=False,
+            )
+            self.store_object_archetype_button.clicked.connect(
+                lambda: CreateObjectArchetypeDialog.create_dialog(self._controller)
+            )
+
+            # Create add archetype from document action
+            self.store_document_archetype_button: QToolButton = buttons.main_menu_button(
+                self,
+                text="store_document_archetype_button.text",
+                icon_key="create-document-archetype",
+                tooltip="store_document_archetype_button.tooltip",
+                statustip="store_document_archetype_button.statustip",
+                enabled=False,
+            )
+
+            self.store_document_archetype_button.clicked.connect(
+                lambda: CreateDocumentArchetypeDialog.create_dialog(self._controller)
+            )
+
+            # Add the buttons to the developer menu widget
+            developer_menu: QWidget = buttons.button_group(
+                [self.store_object_archetype_button, self.store_document_archetype_button],
+                "main_menu.button_group.archetype",
+            )
+
+        
             tab_layout.addWidget(buttons.get_separator(vertical=True))
             tab_layout.addWidget(developer_menu)
 
@@ -753,7 +757,8 @@ class MainMenu(QDockWidget, ProteusComponent):
                 button.setEnabled(False)
 
             # Disable store_object_archetype_button
-            self.store_object_archetype_button.setEnabled(False)
+            if self.store_object_archetype_button:
+                self.store_object_archetype_button.setEnabled(False)
 
         # If the selected object is not None, enable the archetype buttons
         # that are accepted children of the selected object
@@ -762,7 +767,8 @@ class MainMenu(QDockWidget, ProteusComponent):
             selected_object: Object = self._controller.get_element(selected_object_id)
 
             # If selected object exists, enable store_object_archetype_button
-            self.store_object_archetype_button.setEnabled(selected_object is not None)
+            if self.store_object_archetype_button:
+                self.store_object_archetype_button.setEnabled(True)
 
             # Iterate over the archetype buttons
             for archetype_menu_button in self.archetype_buttons.values():
@@ -860,7 +866,9 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
-        self.store_document_archetype_button.setEnabled(is_document_open)
+
+        if self.store_document_archetype_button:
+            self.store_document_archetype_button.setEnabled(is_document_open)
 
         # Call update_on_select_object to update the archetype buttons
         if document_id == self._state_manager.get_current_document():
