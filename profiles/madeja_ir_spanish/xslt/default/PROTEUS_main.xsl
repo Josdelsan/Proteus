@@ -154,6 +154,7 @@
     <xsl:include href="archetypes/requirements/traceability_matrix.xsl" />
 
     <xsl:include href="archetypes/conceptual_modeling/entity_class.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/enumeration.xsl" />
     <xsl:include href="archetypes/conceptual_modeling/association.xsl" />
     <xsl:include href="archetypes/conceptual_modeling/mockup.xsl" />
 

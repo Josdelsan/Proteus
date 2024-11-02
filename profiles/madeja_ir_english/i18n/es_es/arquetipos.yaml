@@ -65,6 +65,8 @@ archetype.class.traceability-matrix: "Matriz de\ntrazabilidad"
 
 archetype.class.entity-class: "Clase entidad"
 archetype.class.attribute: "Atributo"
+archetype.class.enumeration: "Enumerado"
+archetype.class.enum-value: "Valor enumerado"
 archetype.class.association: "Asociación"
 archetype.class.role: "Rol"
 archetype.class.mockup: "Mockup"
