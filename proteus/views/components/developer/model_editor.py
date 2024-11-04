@@ -615,14 +615,17 @@ class RawObjectEditor(ProteusDialog):
         )
 
         # Selected category cannot include spaces but may be empty
-        if " " in new_selectedCategory:
+        if " " in new_selectedCategory and len(new_selectedCategory) > 0:
             self.selectedCategory_input_error_label.setText(
                 _("meta_model_editor.error.invalid_selected_category")
             )
             self.selectedCategory_input_error_label.show()
             form_has_errors = True
-        elif attribute_input_has_errors(
-            self.selectedCategory_input, self.selectedCategory_input_error_label
+        elif (
+            attribute_input_has_errors(
+                self.selectedCategory_input, self.selectedCategory_input_error_label
+            )
+            and len(new_selectedCategory) > 0
         ):
             form_has_errors = True
         else:

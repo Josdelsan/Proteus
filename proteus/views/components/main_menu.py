@@ -472,41 +472,6 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
-        # aplication
-        # ---------
-        # Settings action
-        self.settings_button: QToolButton = buttons.main_menu_button(
-            self,
-            text="settings_button.text",
-            icon_key="settings",
-            tooltip="settings_button.tooltip",
-            statustip="settings_button.statustip",
-        )
-        self.settings_button.clicked.connect(
-            lambda: SettingsDialog.create_dialog(self._controller)
-        )
-
-        # Information action
-        self.information_button: QToolButton = buttons.main_menu_button(
-            self,
-            text="information_button.text",
-            icon_key="info",
-            tooltip="information_button.tooltip",
-            statustip="information_button.statustip",
-        )
-        self.information_button.clicked.connect(
-            lambda: InformationDialog.create_dialog(controller=self._controller)
-        )
-
-        # Add the buttons to the aplication menu widget
-        aplication_menu: QWidget = buttons.button_group(
-            [self.settings_button, self.information_button],
-            "main_menu.button_group.application",
-        )
-
-        tab_layout.addWidget(aplication_menu)
-
-        # ---------
         # developer (archetype modification)
         # ---------
         if Config().app_settings.developer_features:
@@ -543,9 +508,44 @@ class MainMenu(QDockWidget, ProteusComponent):
                 "main_menu.button_group.archetype",
             )
 
-        
-            tab_layout.addWidget(buttons.get_separator(vertical=True))
             tab_layout.addWidget(developer_menu)
+            tab_layout.addWidget(buttons.get_separator(vertical=True))
+
+
+        # ---------
+        # aplication
+        # ---------
+        # Settings action
+        self.settings_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="settings_button.text",
+            icon_key="settings",
+            tooltip="settings_button.tooltip",
+            statustip="settings_button.statustip",
+        )
+        self.settings_button.clicked.connect(
+            lambda: SettingsDialog.create_dialog(self._controller)
+        )
+
+        # Information action
+        self.information_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="information_button.text",
+            icon_key="info",
+            tooltip="information_button.tooltip",
+            statustip="information_button.statustip",
+        )
+        self.information_button.clicked.connect(
+            lambda: InformationDialog.create_dialog(controller=self._controller)
+        )
+
+        # Add the buttons to the aplication menu widget
+        aplication_menu: QWidget = buttons.button_group(
+            [self.settings_button, self.information_button],
+            "main_menu.button_group.application",
+        )
+
+        tab_layout.addWidget(aplication_menu)
 
         # ---------------------------------------------
 
