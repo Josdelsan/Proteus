@@ -69,8 +69,9 @@ archetype.class.enumeration: "Enumerado"
 archetype.class.enum-value: "Valor enumerado"
 archetype.class.association: "Asociación"
 archetype.class.role: "Rol"
+archetype.class.system-operation: "Operación\nde sistema"
+archetype.class.parameter: "Parámetro"
 archetype.class.mockup: "Mockup"
-archetype.class.constraint: "Restricción"
 
 # -----------------------------------------------------------------------
 # Categorías de propiedades
