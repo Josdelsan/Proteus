@@ -133,6 +133,7 @@ archetype.tooltip.is-derived: "Esta asociación es una asociación derivada."
 archetype.tooltip.importance: "Importancia para el cliente."
 archetype.tooltip.priority: "Prioridad para la dirección del proyecto."
 archetype.tooltip.status: "Estado según el ciclo de vida del proyecto."
+archetype.tooltip.result-type: "Tipo del resultdo de la operación de sistema."
 
 # -----------------------------------------------------------------------
 # Nombre de propiedades
@@ -205,3 +206,4 @@ archetype.prop_name.plural-form: "Plural form"
 archetype.prop_name.synonyms: "Synonyms"
 archetype.prop_name.ordered: "Ordenado"
 archetype.prop_name.is-composition: "Composición"
+archetype.prop_name.result-type: "Tipo del resultado"

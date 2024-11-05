@@ -3,7 +3,7 @@
     id="attribute"
     classes="attribute"
     acceptedChildren=":Proteus-none"
-    acceptedParents="model-element"
+    acceptedParents="entity-class association"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general">atributo</stringProperty>
