@@ -179,7 +179,7 @@ class EditPropertyDialog(ProteusDialog):
         self.choices_input = QLineEdit()
         self.choices_input.setText(self._property.choices)
 
-        form_layout.addRow("label.choices", self.choices_input)
+        form_layout.addRow("choices", self.choices_input)
 
     def _create_trace_property_inputs(self, form_layout: QFormLayout) -> None:
         """
@@ -218,6 +218,12 @@ class EditPropertyDialog(ProteusDialog):
             self.value_input.inmutable_checkbox.setChecked(False)
             self.value_input.inmutable_checkbox.hide()
             self.value_input.input.setEnabled(True)
+
+        # NOTE: Special case for EnumProperty, propertyInput is replaces by a
+        # QLineEdit widget
+        if isinstance(self._property, EnumProperty):
+            self.value_input = QLineEdit()
+            self.value_input.setText(self._property.value)
 
         # Traces and MarkdownProperty are wrapped in a group box
         if isinstance(self._property, (TraceProperty, MarkdownProperty)):
@@ -275,11 +281,16 @@ class EditPropertyDialog(ProteusDialog):
             self.name_error_label.hide()
 
         # Validate the attribute inputs ---------------------------------------
+
+        property_input_has_errors: bool = False
+        if not isinstance(self._property, EnumProperty):
+            property_input_has_errors = self.value_input.has_errors()
+
         if (
             attribute_input_has_errors(self.name_input)
             or attribute_input_has_errors(self.category_input)
             or attribute_input_has_errors(self.tooltip_input)
-            or self.value_input.has_errors()
+            or property_input_has_errors
         ):
             return
 
@@ -314,13 +325,22 @@ class EditPropertyDialog(ProteusDialog):
                 self.general_error_label.hide()
 
         # Create the new property, check if any attribute has changed --------
+
+        # NOTE: Special case for EnumProperty, the value is a string
+        if isinstance(self._property, EnumProperty):
+            value_has_changed: bool = (
+                self._property.value != self.value_input.text().strip()
+            )
+        else:
+            value_has_changed: bool = self._property.value != self.value_input.get_value()
+
         attributes_have_changed: bool = (
             self._property.name != name
             or self._property.category != self.category_input.text().strip()
             or self._property.tooltip != self.tooltip_input.text().strip()
             or self._property.required != self.required_input.checked()
             or self._property.inmutable != self.inmutable_input.checked()
-            or self._property.value != self.value_input.get_value()
+            or value_has_changed
         )
 
         if isinstance(self._property, EnumProperty):
@@ -353,7 +373,7 @@ class EditPropertyDialog(ProteusDialog):
                     tooltip=self.tooltip_input.text().strip(),
                     required=self.required_input.checked(),
                     inmutable=self.inmutable_input.checked(),
-                    value=self.value_input.get_value(),
+                    value=self.value_input.text().strip(),
                     choices=self.choices_input.text().strip(),
                 )
             elif isinstance(self._property, TraceProperty):
