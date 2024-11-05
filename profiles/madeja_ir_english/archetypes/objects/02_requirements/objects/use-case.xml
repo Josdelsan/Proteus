@@ -27,4 +27,7 @@
     <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
   </properties>
 
+  <children numbered="true">
+  </children>
+
 </object>
