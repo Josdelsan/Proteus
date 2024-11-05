@@ -22,7 +22,6 @@ main_menu.button_group.document: "Document"
 main_menu.button_group.clipboard: "Clipboard"
 main_menu.button_group.action: "Action"
 main_menu.button_group.application: "Application"
-main_menu.button_group.archetype: "Archetype"
 
 # Fixed buttons
 new_project_button.statustip: "Create new project from a project template. Shortcut: Ctrl+N"
@@ -81,13 +80,6 @@ paste_button.statustip: "Paste object from clipboard"
 paste_button.tooltip: "Paste object from clipboard"
 paste_button.text: "Paste"
 
-store_object_archetype_button.tooltip: "Create new object archetype from current selected object"
-store_object_archetype_button.statustip: "Create new object archetype from current selected object"
-store_object_archetype_button.text: "Create object"
-
-store_document_archetype_button.tooltip: "Create new document archetype from current document"
-store_document_archetype_button.statustip: "Create new document archetype from current document"
-store_document_archetype_button.text: "Create document"
 
 # ---------------------------------------------------------------------------
 # Main window
@@ -118,6 +110,8 @@ document_tree.menu.action.move_up: "Move up"
 document_tree.menu.action.move_down: "Move down"
 document_tree.menu.action.add_archetype: "Add {}"
 document_tree.menu.action.edit_model: "Edit meta-model"
+document_tree.menu.action.store_object_as_archetype: "Store object as archetype"
+document_tree.menu.action.store_document_as_archetype: "Store document as archetype"
 
 document_tree.drop_action.message_box.error.title: "Error moving object"
 document_tree.drop_action.message_box.error.text: "The object cannot be moved to the selected position, check that the object is accepted by the target object."

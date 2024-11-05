@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.application.resources.translator import translate as _
@@ -57,16 +58,14 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, document_id: ProteusID, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
         """
         super(CreateDocumentArchetypeDialog, self).__init__(*args, **kwargs)
 
-        self.object = self._controller.get_element(
-            self._state_manager.get_current_document()
-        )
+        self.object = self._controller.get_element(document_id)
 
         # Inputs
         self.input_id: QLineEdit
@@ -101,12 +100,13 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
         # Directory name input
         self.directory_name = QLineEdit()
 
-
         # Add the inputs to the form layout
         form_layout.addRow(
             _("create_document_archetype_dialog.proteus_id"), self.input_id
         )
-        form_layout.addRow(_("create_document_archetype_dialog.directory_name"), self.directory_name)
+        form_layout.addRow(
+            _("create_document_archetype_dialog.directory_name"), self.directory_name
+        )
 
         # Add the error label
         form_layout.addRow(self.error_label)
@@ -155,7 +155,7 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
             )
             self.error_label.show()
             return
-        
+
         # Force archetypes loading so lazy loading does not interfere with the check
         self._controller._archetype_service.get_project_archetypes()
         self._controller._archetype_service.get_document_archetypes()
@@ -183,7 +183,9 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
             self.error_label.hide()
 
         # Check directory does not exist
-        document_archetypes_dir = Config().profile_settings.archetypes_directory / ArchetypesType.DOCUMENTS
+        document_archetypes_dir = (
+            Config().profile_settings.archetypes_directory / ArchetypesType.DOCUMENTS
+        )
         if (document_archetypes_dir / directory_name).exists():
             self.error_label.setText(
                 _("create_document_archetype_dialog.directory_name_in_use")
@@ -197,7 +199,7 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
         self._controller._archetype_service.store_document_as_archetype(
             self.object, proteus_id, directory_name
         )
-        
+
         ArchetypeRepositoryChangedEvent().notify()
 
         # Close the form window
@@ -217,11 +219,12 @@ class CreateDocumentArchetypeDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
+        document_id: ProteusID,
         controller: Controller,
     ) -> "CreateDocumentArchetypeDialog":
 
         dialog: CreateDocumentArchetypeDialog = CreateDocumentArchetypeDialog(
-            controller=controller
+            document_id=document_id, controller=controller
         )
         dialog.exec()
         return dialog

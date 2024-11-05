@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (
 # document specific imports
 # --------------------------------------------------------------------------
 
+from proteus.model import ProteusID
 from proteus.views.components.developer import XML_PROBLEMATIC_CHARS, create_error_label
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.views.forms.boolean_edit import BooleanEdit
@@ -57,16 +58,14 @@ class CreateObjectArchetypeDialog(ProteusDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, object_id: ProteusID, *args, **kwargs) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
         """
         super(CreateObjectArchetypeDialog, self).__init__(*args, **kwargs)
 
-        self.object = self._controller.get_element(
-            self._state_manager.get_current_object()
-        )
+        self.object = self._controller.get_element(object_id)
 
         # Inputs
         self.input_id: QLineEdit
@@ -157,7 +156,7 @@ class CreateObjectArchetypeDialog(ProteusDialog):
             )
             self.error_label.show()
             return
-        
+
         # Force archetypes loading so lazy loading does not interfere with the check
         self._controller._archetype_service.get_project_archetypes()
         self._controller._archetype_service.get_document_archetypes()
@@ -210,11 +209,12 @@ class CreateObjectArchetypeDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
+        object_id: ProteusID,
         controller: Controller,
     ) -> "CreateObjectArchetypeDialog":
 
         dialog: CreateObjectArchetypeDialog = CreateObjectArchetypeDialog(
-            controller=controller
+            object_id=object_id, controller=controller
         )
         dialog.exec()
         return dialog

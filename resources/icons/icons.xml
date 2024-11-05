@@ -33,8 +33,12 @@
         <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>
         <icon key="context-menu-alphabetical-sort" file="context_menu/alphabetical-sort.png"/>
         <icon key="context-menu-reverse-alphabetical-sort" file="context_menu/reverse-alphabetical-sort.png"/>
+        <!-- Developer buttons -->
+        <icon key="create-object-archetype" file="context_menu/store-archetype.png"/>
+        <icon key="create-document-archetype" file="context_menu/store-archetype.png"/>
         <icon key="context-menu-sort" file="context_menu/context-menu-sort.png"/>
 
+        <!-- Flags -->
         <icon key="en_US" file="flags/en_US.png"/>
         <icon key="es_ES" file="flags/es_ES.png"/>
     </type>
@@ -53,9 +57,5 @@
         <icon key="clipboard-copy" file="context_menu/copy.png"/>
         <icon key="clipboard-cut" file="context_menu/cut.png"/>
         <icon key="clipboard-paste" file="context_menu/paste.png"/>
-
-        <!-- Developer buttons -->
-        <icon key="create-object-archetype" file="main_menu/create-object-archetype.png"/>
-        <icon key="create-document-archetype" file="main_menu/create-document-archetype.png"/>
     </type>
 </icons>

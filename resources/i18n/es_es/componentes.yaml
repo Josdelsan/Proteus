@@ -21,7 +21,6 @@ main_menu.button_group.document: "Documento"
 main_menu.button_group.clipboard: "Portapapeles"
 main_menu.button_group.action: "Acción"
 main_menu.button_group.application: "Aplicación"
-main_menu.button_group.archetype: "Arquetipo"
 
 # Fixed buttons
 new_project_button.statustip: "Crear nuevo proyecto desde una plantilla de proyecto. Atajo: Ctrl+N"
@@ -80,13 +79,6 @@ paste_button.statustip: "Pegar objeto del portapapeles"
 paste_button.tooltip: "Pegar objeto del portapapeles"
 paste_button.text: "Pegar"
 
-store_object_archetype_button.tooltip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
-store_object_archetype_button.statustip: "Crear nuevo arquetipo de objeto a partir del objeto seleccionado actualmente"
-store_object_archetype_button.text: "Crear objecto"
-
-store_document_archetype_button.tooltip: "Crear nuevo arquetipo de documento a partir del documento actual"
-store_document_archetype_button.statustip: "Crear nuevo arquetipo de documento a partir del documento actual"
-store_document_archetype_button.text: "Crear documento"
 
 # ---------------------------------------------------------------------------
 # Main window
@@ -118,6 +110,8 @@ document_tree.menu.action.move_up: "Mover arriba"
 document_tree.menu.action.move_down: "Mover abajo"
 document_tree.menu.action.add_archetype: "Añadir {}"
 document_tree.menu.action.edit_model: "Editar meta-modelo"
+document_tree.menu.action.store_object_as_archetype: "Almacenar objeto como arquetipo"
+document_tree.menu.action.store_document_as_archetype: "Almacenar documento como arquetipo"
 
 document_tree.drop_action.message_box.error.title: "Error al mover el objeto"
 document_tree.drop_action.message_box.error.text: "No se pudo mover el objeto a la posición deseada, compruebe que el objeto es acceptado por el objeto destino."

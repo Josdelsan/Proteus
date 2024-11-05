@@ -90,7 +90,7 @@ If an XSLT error occurs, it will be displayed in the document view. It is recomm
 
 Developer mode enables some features that are useful for archetypes/profiles development.
 - Meta-model editor: It is available in the context menu when right-clicking on an object in the document tree. It allows to edit object's properties (add,remove,position,edit) and to edit object's XML attributes like acceptedChildren, classes, etc.
-- Add archetypes: Add document and object archetypes menu buttons are available in the main menu. They allow to add archetypes to the current profile.
+- Store object/document as archetype: Add document or object archetypes, available in the context menu when right-clicking on an object in the document tree. They allow to add archetypes to the current profile.
 
 These features make easier archetypes creation and edition. The whole archetype creation process is not covered yet, icons and translations must be added manually.
 
