@@ -11,7 +11,7 @@ In addition to archetypes, Proteus also offers the possibility of having differe
 
 XSLT templates, archetypes repositories and plugins are grouped in profiles. A profile completely change the behaviour of the application based on its content, preparing it for a domain specific task. Plugins enhance XSLT templates allowing complex operations using Python and accessing advanced functionalities. Progiles can be selected from the configuration menu and may be included in the application or loaded from a external directory.
 
-This application has been developed at the University of Seville (Andalusia, Spain) under the supervision of Professor Amador Durán and with the effort of several students (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado). This version is mainly the evolution of the results of the End-Of-Degree project of José María Delgado."
+This application has been developed at the University of Seville (Andalusia, Spain) under the supervision of Professor Amador Durán Toro and with the effort of several students (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado Sánchez). This version is mainly the evolution of the results of the End-Of-Degree project of José María Delgado Sánchez."
 
 <div align = center>
   <img src="https://github.com/user-attachments/assets/936f4820-0017-4da3-a8de-901bccdaf952" width="800" />
