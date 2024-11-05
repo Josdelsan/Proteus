@@ -161,7 +161,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         """
         # Set header
         self.header().setVisible(False)
-        self.setIconSize(QSize(22,22))
+        self.setIconSize(QSize(22, 22))
 
         # Set drag and drop properties
         self.setDragEnabled(True)
@@ -249,6 +249,8 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         :param parent_item: The parent item of the object
         :param object: The object to populate the tree
+        :param position: The position to insert the item in the parent item, if None
+                            the item is appended at the end.
         """
         # If object is DEAD do not add it to the tree
         if object.state == ProteusState.DEAD:
@@ -262,8 +264,11 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         else:
             new_item = QTreeWidgetItem(parent_item)
 
+        # Set the item data to store the object id
+        new_item.setData(1, Qt.ItemDataRole.UserRole, object.id)
+
         # Setup the new item with object information
-        self._tree_item_setup(new_item, object)
+        self._tree_item_setup(new_item)
 
         # Add the new item to the tree items dictionary
         self.tree_items[object.id] = new_item
@@ -279,7 +284,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def _tree_item_setup(self, tree_item: QTreeWidgetItem, object: Object) -> None:
+    def _tree_item_setup(self, tree_item: QTreeWidgetItem) -> None:
         """
         Given an object, update the tree item properties to match the object
         properties and state.
@@ -287,6 +292,10 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         :param tree_item: The tree item to update
         :param object: The object to match
         """
+        # Get the object from the item data
+        object_id: ProteusID = tree_item.data(1, Qt.ItemDataRole.UserRole)
+        object: Object = self._controller.get_element(object_id)
+
         # Set the background color based on the object ProteusState
         tree_item.setForeground(0, TREE_ITEM_COLOR[object.state])
 
@@ -295,10 +304,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         icon = Icons().icon(ProteusIconType.Archetype, object_class)
         tree_item.setIcon(0, icon)
 
-        # Set the item data to store the object id
-        tree_item.setData(1, Qt.ItemDataRole.UserRole, object.id)
-
-        # Create item string from object properties
+        # Create item string from object properties --------------------------------
         name_str = ""
         code_str = ""
 
@@ -324,8 +330,19 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         name_str = str(name_property.value)
 
+        # Numbered prefix ----------------------------------------------
+        numbered_str = ""
+
+        # Check if the object is numbered and has a parent (not a document)
+        if isinstance(object.parent, Object) and tree_item.parent() is not None:
+            if object.parent.numbered:
+                # Get the index of the item in the parent
+                index = tree_item.parent().indexOfChild(tree_item) + 1
+                # Numbered string
+                numbered_str = f"{index}. "
+
         # Build the name string
-        item_string = f"{code_str} {name_str}".strip()
+        item_string = f"{numbered_str}{code_str} {name_str}".strip()
         tree_item.setText(0, item_string)
 
         # Set the expanded state of the item if it is stored in the dead objects
@@ -406,7 +423,7 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         ), "Object is not instance of Object in MODIFY OBJECT event"
 
         # Update the tree item with the object information
-        self._tree_item_setup(tree_item, object)
+        self._tree_item_setup(tree_item)
 
         self.update_indexes()
 
@@ -486,7 +503,15 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         self._populate_tree(parent_item, new_object, position=position)
 
         # Scroll to the new item (parent remains selected)
-        self.scrollToItem(self.tree_items[new_object.id], QTreeWidget.ScrollHint.EnsureVisible)
+        self.scrollToItem(
+            self.tree_items[new_object.id], QTreeWidget.ScrollHint.EnsureVisible
+        )
+
+        # If parent numbered is True, update every sibling number
+        if new_object.parent.numbered:
+            for i in range(parent_item.childCount()):
+                child = parent_item.child(i)
+                self._tree_item_setup(child)
 
         self.update_indexes()
 
@@ -534,6 +559,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
         # Set current item to None
         self._state_manager.deselect_object(object_id)
+
+        # If parent numbered is True, update every sibling number
+        if parent_object.numbered:
+            for i in range(self.tree_items[parent_id].childCount()):
+                child = self.tree_items[parent_id].child(i)
+                self._tree_item_setup(child)
 
         self.update_indexes()
 
@@ -663,6 +694,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
         # Set the expanded state of the object and its children
         _set_expanded_state(parent_item, expanded_state_dict)
 
+        # If parent numbered is True, update every sibling number
+        if parent_object.numbered:
+            for i in range(parent_item.childCount()):
+                child = parent_item.child(i)
+                self._tree_item_setup(child)
+
         self.update_indexes()
 
     # ----------------------------------------------------------------------
@@ -705,6 +742,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
             self._delete_tree_item(self.tree_items[object_id])
             self._state_manager.deselect_object(object_id)
 
+            # If parent numbered is True, update every sibling number
+            if parent.numbered:
+                for i in range(parent_item.childCount()):
+                    child = parent_item.child(i)
+                    self._tree_item_setup(child)
+
         # Item insertion in tree ----------------
         if object.parent.id in self.tree_items.keys():
             parent_item: QTreeWidgetItem = self.tree_items[object.parent.id]
@@ -725,6 +768,12 @@ class DocumentTree(QTreeWidget, ProteusComponent):
 
             self._populate_tree(parent_item, object, position)
             self._state_manager.set_current_object(object_id, self.document_id)
+
+            # If parent numbered is True, update every sibling number
+            if parent.numbered:
+                for i in range(parent_item.childCount()):
+                    child = parent_item.child(i)
+                    self._tree_item_setup(child)
 
         self.update_indexes()
 
@@ -961,9 +1010,6 @@ class DocumentTree(QTreeWidget, ProteusComponent):
     def update_indexes(self) -> None:
         """
         Update the section indexes for all the sections in the document.
-
-        Uses _tree_item_setup to update the section indexes in the tree items
-        once the indexes are calculated.
         """
         # Get the top level object
         top_level_object: Object = self._controller.get_element(self.document_id)

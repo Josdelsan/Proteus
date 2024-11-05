@@ -47,6 +47,7 @@ from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog, MessageBox
 from proteus.views.components.developer.add_property_dialog import AddPropertyDialog
 from proteus.views.components.developer.edit_property_dialog import EditPropertyDialog
+from proteus.views.forms.boolean_edit import BooleanEdit
 from proteus.controller.command_stack import Controller
 from proteus.controller.commands.update_object_meta_model import (
     UpdateObjectMetaModelCommand,
@@ -110,6 +111,8 @@ class RawObjectEditor(ProteusDialog):
 
         self.acceptedParents_input: QLineEdit
         self.acceptedParents_input_error_label: QLabel
+
+        self.numbered_input: BooleanEdit
 
         # Properties list and buttons
         self.properties_list: QTreeWidget
@@ -317,6 +320,9 @@ class RawObjectEditor(ProteusDialog):
         self.selectedCategory_input.setText(selected_category)
         self.selectedCategory_input_error_label: QLabel = create_error_label()
 
+        self.numbered_input: BooleanEdit = BooleanEdit("numbered (children tag)")
+        self.numbered_input.setChecked(self.object.numbered)
+
         # Add attributes to the layout
         attributes_tab_layout.addRow("ProteusID", self.id_input)
 
@@ -340,6 +346,8 @@ class RawObjectEditor(ProteusDialog):
             self.selectedCategory_input,
         )
         attributes_tab_layout.addWidget(self.selectedCategory_input_error_label)
+
+        attributes_tab_layout.addWidget(self.numbered_input)
 
         # Direct links to objects relevant files -----------------------------
 
@@ -595,6 +603,7 @@ class RawObjectEditor(ProteusDialog):
         new_acceptedChildren = self.acceptedChildren_input.text().split()
         new_acceptedParents = self.acceptedParents_input.text().split()
         new_selectedCategory = self.selectedCategory_input.text()
+        new_numbered = self.numbered_input.checked()
 
         # Attributes validation ---------------------------------------------
         def attribute_input_has_errors(input: QLineEdit, error_label: QLabel) -> bool:
@@ -688,6 +697,7 @@ class RawObjectEditor(ProteusDialog):
             or new_acceptedChildren != self.object.acceptedChildren
             or new_acceptedParents != self.object.acceptedParents
             or new_selectedCategory != self.object.selectedCategory
+            or new_numbered != self.object.numbered
             or original_properties_changed
             or properties_changed_order_name_or_number
         ):
@@ -698,6 +708,7 @@ class RawObjectEditor(ProteusDialog):
                 new_acceptedChildren,
                 new_acceptedParents,
                 new_selectedCategory,
+                new_numbered,
                 new_properties,
             )
 

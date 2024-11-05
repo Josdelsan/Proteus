@@ -64,6 +64,7 @@ class UpdateObjectMetaModelCommand(QUndoCommand):
         new_acceptedChildren: List[ProteusClassTag],
         new_acceptedParents: List[ProteusClassTag],
         new_selectedCategory: str,
+        new_numbered: bool,
         new_properties: Dict[str, Property],
     ):
         super(UpdateObjectMetaModelCommand, self).__init__()
@@ -74,6 +75,7 @@ class UpdateObjectMetaModelCommand(QUndoCommand):
         self.new_acceptedChildren: List[ProteusClassTag] = new_acceptedChildren
         self.new_acceptedParents: List[ProteusClassTag] = new_acceptedParents
         self.new_selectedCategory: str = new_selectedCategory
+        self.new_numbered: bool = new_numbered
         self.new_properties: Dict[str, Property] = new_properties
 
         self.old_classes: List[ProteusClassTag] = object.classes.copy()
@@ -82,6 +84,7 @@ class UpdateObjectMetaModelCommand(QUndoCommand):
         )
         self.old_acceptedParents: List[ProteusClassTag] = object.acceptedParents.copy()
         self.old_selectedCategory: str = str(object.selectedCategory)
+        self.old_numbered: bool = object.numbered
         self.old_properties: Dict[str, Property] = (
             object.properties.copy()
         )  # Deep copy is not needed because properties are immutable
@@ -102,6 +105,7 @@ class UpdateObjectMetaModelCommand(QUndoCommand):
         self.object.acceptedChildren = self.new_acceptedChildren
         self.object.acceptedParents = self.new_acceptedParents
         self.object.selectedCategory = self.new_selectedCategory
+        self.object.numbered = self.new_numbered
         self.object.properties = self.new_properties
         self.object.state = ProteusState.DIRTY
 
@@ -122,6 +126,7 @@ class UpdateObjectMetaModelCommand(QUndoCommand):
         self.object.acceptedChildren = self.old_acceptedChildren
         self.object.acceptedParents = self.old_acceptedParents
         self.object.selectedCategory = self.old_selectedCategory
+        self.object.numbered = self.old_numbered
         self.object.properties = self.old_properties
         self.object.state = self.old_state
 
