@@ -27,6 +27,7 @@ from os import listdir
 from os.path import join, isdir, isfile
 from pathlib import Path
 from typing import Dict, List
+import shutil
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -47,6 +48,8 @@ from proteus.model import (
 )
 from proteus.model.project import Project
 from proteus.model.object import Object
+from proteus.model.abstract_object import ProteusState
+from proteus.model.properties import FileProperty
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -56,7 +59,12 @@ OBJECTS_FILE = "objects.xml"
 PROJECT_FILE = "project.xml"
 GITIGNORE_FILE = ".gitignore"
 
-PROJECT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, PROJECT_FILE, GITIGNORE_FILE]
+PROJECT_REPOSITORY_STRUCTURE = [
+    OBJECTS_REPOSITORY,
+    ASSETS_REPOSITORY,
+    PROJECT_FILE,
+    GITIGNORE_FILE,
+]
 DOCUMENT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, DOCUMENT_FILE]
 OBJECT_REPOSITORY_STRUCTURE = [OBJECTS_REPOSITORY, ASSETS_REPOSITORY, OBJECTS_FILE]
 
@@ -97,9 +105,11 @@ class ArchetypeRepository:
     An utility class for managing PROTEUS archetypes. It must provide a way
     to get the project, document, and object archetypes on demand from an
     archetype repository.
-
-    TODO: in the future, it will also be responsible for adding new archetypes.
     """
+
+    # ======================================================================
+    # Archetypes loading methods
+    # ======================================================================
 
     # ----------------------------------------------------------------------
     # Method: load_object_archetypes (static)
@@ -111,7 +121,9 @@ class ArchetypeRepository:
     # ----------------------------------------------------------------------
 
     @staticmethod
-    def load_object_archetypes(archetypes_folder: Path) -> Dict[str, Dict[str, List[Object]]]:
+    def load_object_archetypes(
+        archetypes_folder: Path,
+    ) -> Dict[str, Dict[str, List[Object]]]:
         """
         Method that loads the object archetypes from an archetype repository.
         If no archetype repository is provided, it will use the default one.
@@ -121,7 +133,9 @@ class ArchetypeRepository:
         :return: A dict with key archetype group/category type and value
         dict of object lists by class (its main  class).
         """
-        log.info(f"ArchetypeRepository - load object archetypes from {archetypes_folder}")
+        log.info(
+            f"ArchetypeRepository - load object archetypes from {archetypes_folder}"
+        )
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.OBJECTS)
 
@@ -140,7 +154,7 @@ class ArchetypeRepository:
 
         # We create a dictionary to store the result
         object_arquetype_dict: Dict[str, Dict] = {}
-        
+
         # Order the subdirectories by the number in the name
         subdirs.sort(key=lambda x: int(x[:2]))
 
@@ -229,7 +243,9 @@ class ArchetypeRepository:
 
         :return: A list of documents (Objects) objects.
         """
-        log.info(f"ArchetypeRepository - load document archetypes from {archetypes_folder}")
+        log.info(
+            f"ArchetypeRepository - load document archetypes from {archetypes_folder}"
+        )
         # Build archetypes directory name from archetype type
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.DOCUMENTS)
 
@@ -316,7 +332,9 @@ class ArchetypeRepository:
 
         :return: A list of Project objects.
         """
-        log.info(f"ArchetypeRepository - load project archetypes from {archetypes_folder}")
+        log.info(
+            f"ArchetypeRepository - load project archetypes from {archetypes_folder}"
+        )
         # Build archetypes directory name from archetype type (project)
         archetypes_dir: str = join(archetypes_folder, ArchetypesType.PROJECTS)
 
@@ -366,3 +384,168 @@ class ArchetypeRepository:
             project_archetype_list.append(project_archetype)
 
         return project_archetype_list
+
+    # ======================================================================
+    # Archetypes storing methods
+    # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method: store_object_archetype (static)
+    # Description: It stores an object archetype in the archetype repository
+    # Date: 25/10/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def store_object_archetype(
+        archetypes_folder: Path, assets_directoy: Path, archetype: Object, group: str
+    ) -> None:
+        """
+        Method that stores an object as an archetype in the archetype repository.
+
+        :param archetypes_folder: The path to the archetype repository.
+        :param assets_directoy: Directory where the assets are stored (if any).
+        :param archetype: The object to store as an archetype.
+        :param group: The group of the archetype.
+        """
+        log.info(
+            f"ArchetypeRepository - store object archetype '{archetype.id}' in group '{group}'"
+        )
+
+        # Get the archetype repository path
+        archetypes_dir: Path = archetypes_folder / ArchetypesType.OBJECTS
+
+        # Get the group directory path
+        archetype_group_dir: Path = None
+        for subdir in archetypes_dir.iterdir():
+            subdir_name = subdir.name.lower()
+            if group.lower() in subdir_name and subdir.is_dir():
+                archetype_group_dir = subdir
+
+        # Check the group directory exists
+        assert (
+            archetype_group_dir is not None
+        ), f"Group directory '{group}' not found in '{archetypes_dir}'"
+
+        # Write in the objects.xml file
+        objects_pointer_file: Path = archetype_group_dir / OBJECTS_FILE
+        objects_pointer_xml: ET._ElementTree = ET.parse(objects_pointer_file)
+        objects_pointer_root: ET.Element = objects_pointer_xml.getroot()
+        ET.SubElement(objects_pointer_root, "object", {ID_ATTRIBUTE: archetype.id})
+        objects_xml_tree = ET.ElementTree(objects_pointer_root)
+        objects_xml_tree.write(
+            objects_pointer_file,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="utf-8",
+        )
+
+        # Get the objects to store and remove DEAD objects
+        objects_to_store = archetype.get_descendants_recursively()
+        objects_to_store = set(
+            obj for obj in objects_to_store if obj.state != ProteusState.DEAD
+        )
+
+
+        # Store the objects
+        for obj in objects_to_store:
+            object_xml: ET._Element = obj.generate_xml()
+            object_xml_tree = ET.ElementTree(object_xml)
+            object_path: Path = (
+                archetype_group_dir / OBJECTS_REPOSITORY / f"{obj.id}.xml"
+            )
+            object_xml_tree.write(
+                object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
+            )
+
+            # Iterate over the properties to store the assets
+            for prop in obj.properties.values():
+                if isinstance(prop, FileProperty):
+                    if prop.value is None or prop.value == "":
+                        continue
+                    
+                    asset_path: Path = assets_directoy / prop.value
+                    asset_destination: Path = (
+                        archetype_group_dir / ASSETS_REPOSITORY / prop.value
+                    )
+                    asset_destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(asset_path, asset_destination)
+
+    # ----------------------------------------------------------------------
+    # Method: store_document_archetype (static)
+    # Description: It stores a document archetype in the archetype repository
+    # Date: 29/10/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    @staticmethod
+    def store_document_archetype(
+        archetypes_folder: Path, assets_directoy: Path, archetype: Object, directory_name: str
+    ) -> None:
+        """
+        Method that stores a document as an archetype in the archetype repository.
+
+        :param archetypes_folder: The path to the archetype repository.
+        :param assets_directoy: Directory where the assets are stored (if any).
+        :param archetype: The document to store as an archetype.
+        :param directory_name: The name of the directory where the archetype will be stored.
+        """
+        log.info(
+            f"ArchetypeRepository - store document archetype '{archetype.id}' in directory '{directory_name}'"
+        )
+
+        # Get the archetype repository path
+        documents_archetypes_dir: Path = archetypes_folder / ArchetypesType.DOCUMENTS
+
+        # Get the directory path
+        archetype_dir: Path = documents_archetypes_dir / directory_name
+
+        # Check it does not exist
+        assert not archetype_dir.exists(), f"Directory '{archetype_dir}' already exists"
+
+        # Create the directory
+        archetype_dir.mkdir()
+
+        # Create the document.xml file
+        document_pointer_file: Path = archetype_dir / DOCUMENT_FILE
+        document_pointer_xml: ET._Element = ET.Element("document")
+        document_pointer_xml.set(ID_ATTRIBUTE, archetype.id)
+        document_pointer_xml_tree = ET.ElementTree(document_pointer_xml)
+        document_pointer_xml_tree.write(
+            document_pointer_file,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="utf-8",
+        )
+
+        # Get the objects to store and remove DEAD objects
+        objects_to_store = archetype.get_descendants_recursively()
+        objects_to_store = set(
+            obj for obj in objects_to_store if obj.state != ProteusState.DEAD
+        )
+
+        # Create the objects directory
+        objects_path = archetype_dir / OBJECTS_REPOSITORY
+        objects_path.mkdir()
+
+        # Store the objects
+        for obj in objects_to_store:
+            object_xml: ET._Element = obj.generate_xml()
+            object_xml_tree = ET.ElementTree(object_xml)
+            object_path: Path = objects_path / f"{obj.id}.xml"
+            object_xml_tree.write(
+                object_path, pretty_print=True, xml_declaration=True, encoding="utf-8"
+            )
+
+            # Iterate over the properties to store the assets
+            for prop in obj.properties.values():
+                if isinstance(prop, FileProperty):
+                    if prop.value is None or prop.value == "":
+                        continue
+
+                    asset_path: Path = assets_directoy / prop.value
+                    asset_destination: Path = (
+                        archetype_dir / ASSETS_REPOSITORY / prop.value
+                    )
+                    asset_destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(asset_path, asset_destination)

@@ -22,7 +22,6 @@ from PyQt6.QtWidgets import (
     QMenu,
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
 )
 
 
@@ -34,12 +33,20 @@ from proteus.model import ProteusID, PROTEUS_NAME, PROTEUS_DOCUMENT
 from proteus.model.object import Object
 from proteus.model.project import Project
 from proteus.controller.command_stack import Controller
+from proteus.application.configuration.config import Config
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.clipboard import Clipboard
 from proteus.views.components.abstract_component import ProteusComponent
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
+from proteus.views.components.developer.model_editor import RawObjectEditor
+from proteus.views.components.developer.create_object_archetype import (
+    CreateObjectArchetypeDialog,
+)
+from proteus.views.components.developer.create_document_archetype import (
+    CreateDocumentArchetypeDialog,
+)
 
 
 # --------------------------------------------------------------------------
@@ -97,6 +104,11 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_children_sort: QAction = None
         self.action_children_sort_reverse: QAction = None
 
+        # Developer actions
+        self.action_edit_model: QAction = None
+        self.action_store_object_as_archetype: QAction = None
+        self.action_store_document_as_archetype: QAction = None
+
         # Create the component
         self.create_component()
 
@@ -124,7 +136,6 @@ class ContextMenu(QMenu, ProteusComponent):
         # NOTE: Elements stored in the tree items dictionary are always
         #       Objects.
         self.element: Object = self._controller.get_element(selected_item_id)
-        is_document: bool = isinstance(self.element.parent, Project)
 
         # Actions
         self.action_edit_object = self._create_edit_action()
@@ -136,18 +147,27 @@ class ContextMenu(QMenu, ProteusComponent):
         self.action_move_up_object, self.action_move_down_object = (
             self._create_move_up_down_actions()
         )
+        self.action_edit_model = self._create_edit_model_action()
+        self.action_store_object_as_archetype = self._create_store_object_as_archetype_action()
+        self.action_store_document_as_archetype = self._create_store_document_as_archetype_action()
 
         # Sort submenu
         self.submenu_children_sort = self._create_sort_submenu()
 
         # Add the actions to the context menu ------------------------------
-        # Hide some actions if the element is a document
         self.addAction(self.action_edit_object)
         self.addAction(self.action_delete_object)
-        if not is_document:
-            self.addAction(self.action_clone_object)
+        self.addAction(self.action_clone_object)
 
         self.addSeparator()
+
+        # Developer actions
+        if Config().app_settings.developer_features:
+            self.addAction(self.action_edit_model)
+            self.addAction(self.action_store_object_as_archetype)
+            self.addAction(self.action_store_document_as_archetype)
+
+            self.addSeparator()
 
         # Insert the copy and paste actions
         self.addAction(self.action_cut_object)
@@ -174,9 +194,8 @@ class ContextMenu(QMenu, ProteusComponent):
         self.addSeparator()
 
         self.addMenu(self.submenu_children_sort)
-        if not is_document:
-            self.addAction(self.action_move_up_object)
-            self.addAction(self.action_move_down_object)
+        self.addAction(self.action_move_up_object)
+        self.addAction(self.action_move_down_object)
 
     # ---------------------------------------------------------------------
     # Method     : _create_edit_action
@@ -247,6 +266,7 @@ class ContextMenu(QMenu, ProteusComponent):
         # Disable the clone action if the element is a document
         if PROTEUS_DOCUMENT in self.element.classes:
             action.setEnabled(False)
+            action.setVisible(False)
 
         return action
 
@@ -369,6 +389,9 @@ class ContextMenu(QMenu, ProteusComponent):
             action_move_up.setEnabled(False)
             action_move_down.setEnabled(False)
 
+            action_move_down.setVisible(False)
+            action_move_up.setVisible(False)
+
         return action_move_up, action_move_down
 
     # ---------------------------------------------------------------------
@@ -421,6 +444,96 @@ class ContextMenu(QMenu, ProteusComponent):
             submenu.setEnabled(False)
 
         return submenu
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_edit_model_action
+    # Description: Create the edit action.
+    # Date       : 17/06/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_edit_model_action(self) -> QAction:
+        """
+        Create the edit model action.
+        """
+        action: QAction = QAction(_("document_tree.menu.action.edit_model"), self)
+        action.triggered.connect(
+            lambda: RawObjectEditor.create_dialog(
+                object_id=self.element.id, controller=self._controller
+            )
+        )
+        edit_icon = Icons().icon(ProteusIconType.App, "model_editor")
+        action.setIcon(edit_icon)
+
+        if not Config().app_settings.developer_features:
+            action.setEnabled(False)
+            action.setVisible(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_store_object_as_archetype_action
+    # Description: Create the store object as archetype action.
+    # Date       : 05/11/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_store_object_as_archetype_action(self) -> QAction:
+        """
+        Create the store object as archetype action.
+        """
+        action: QAction = QAction(
+            _("document_tree.menu.action.store_object_as_archetype"), self
+        )
+        action.triggered.connect(
+            lambda: CreateObjectArchetypeDialog.create_dialog(
+                object_id=self.element.id, controller=self._controller
+            )
+        )
+        store_icon = Icons().icon(ProteusIconType.App, "create-object-archetype")
+        action.setIcon(store_icon)
+
+        # Disable the action if the element is a document or not in developer mode
+        if (
+            not Config().app_settings.developer_features
+            or PROTEUS_DOCUMENT in self.element.classes
+        ):
+            action.setEnabled(False)
+            action.setVisible(False)
+
+        return action
+
+    # ---------------------------------------------------------------------
+    # Method     : _create_store_document_as_archetype_action
+    # Description: Create the store document as archetype action.
+    # Date       : 05/11/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ---------------------------------------------------------------------
+    def _create_store_document_as_archetype_action(self) -> QAction:
+        """
+        Create the store document as archetype action.
+        """
+        action: QAction = QAction(
+            _("document_tree.menu.action.store_document_as_archetype"), self
+        )
+        action.triggered.connect(
+            lambda: CreateDocumentArchetypeDialog.create_dialog(
+                document_id=self.element.id, controller=self._controller
+            )
+        )
+        store_icon = Icons().icon(ProteusIconType.App, "create-document-archetype")
+        action.setIcon(store_icon)
+
+        # Disable the action if the element is not a document or not in developer mode
+        if (
+            not Config().app_settings.developer_features
+            or PROTEUS_DOCUMENT not in self.element.classes
+        ):
+            action.setEnabled(False)
+            action.setVisible(False)
+
+        return action
 
     # ======================================================================
     # Dialog slots methods (connected to the component signals and helpers)

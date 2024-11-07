@@ -104,10 +104,4 @@ class FileProperty(Property):
         )
         sanitized_value = "".join(pattern.findall(self.value))
 
-        # Check the value is not empty when required
-        if self.required:
-            assert not (
-                sanitized_value == None or sanitized_value == ""
-            ), f"fileProperty '{self.name}' is required but has no value"
-
         return ET.CDATA(sanitized_value)

@@ -19,7 +19,6 @@ from abc import ABC, abstractmethod
 # Third-party library imports
 # --------------------------------------------------------------------------
 
-from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QTreeWidget
 
@@ -862,6 +861,38 @@ class UpdateMetricsEvent(ProteusEvent):
     def connect(self, method: Callable[[], None]) -> None:
         """
         Connect a method to the update metrics event. The method should
+        take no arguments.
+
+        :param method: The method to connect to the event.
+        """
+        self.signal.connect(method)
+
+
+# --------------------------------------------------------------------------
+# Class: ArchetypeRepositoryChangedEvent
+# Description: Class for the archetype repository changed event in the PROTEUS
+# Date: 30/10/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
+class ArchetypeRepositoryChangedEvent(ProteusEvent):
+    """
+    Event to handle the change of the archetype repository in the PROTEUS application.
+    """
+
+    signal = pyqtSignal()
+
+    def notify(self) -> None:
+        """
+        Notify the event that the archetype repository has changed.
+        """
+        log.debug("Emitting ARCHETYPE REPOSITORY CHANGED EVENT signal...")
+
+        self.signal.emit()
+
+    def connect(self, method: Callable[[], None]) -> None:
+        """
+        Connect a method to the archetype repository changed event. The method should
         take no arguments.
 
         :param method: The method to connect to the event.

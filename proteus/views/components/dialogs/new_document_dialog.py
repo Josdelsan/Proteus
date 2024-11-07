@@ -108,7 +108,6 @@ class NewDocumentDialog(ProteusDialog):
         self.description_content_label.setWordWrap(True)
 
         self.accept_button.clicked.connect(self.save_button_clicked)
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
         self.archetype_combo.currentIndexChanged.connect(self.update_description)
         self.update_description() # First call
 
@@ -182,22 +181,6 @@ class NewDocumentDialog(ProteusDialog):
         self._controller.create_document(archetype_id)
 
         # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Cancel button clicked event handler
-    # Date       : 29/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without creating any document.
-        """
-        # Close the form window without saving any changes
         self.close()
         self.deleteLater()
 

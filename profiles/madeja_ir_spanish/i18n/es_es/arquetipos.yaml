@@ -10,6 +10,9 @@
 # Update: 04/09/2024 (Amador Durán)
 # Check before release for RE course
 # --------------------------------------------------------------------------
+# Update: 07/11/2024 (Amador Durán)
+# New conceptual modeling classes added
+# --------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 # Categorías de arquetipos (pestañas de la barra de herramientas)
@@ -65,10 +68,14 @@ archetype.class.traceability-matrix: "Matriz de\ntrazabilidad"
 
 archetype.class.entity-class: "Clase entidad"
 archetype.class.attribute: "Atributo"
+archetype.class.enumeration: "Enumerado"
+archetype.class.enum-value: "Valor enumerado"
 archetype.class.association: "Asociación"
 archetype.class.role: "Rol"
-archetype.class.mockup: "Mockup"
 archetype.class.constraint: "Restricción"
+archetype.class.system-operation: "Operación\nde sistema"
+archetype.class.parameter: "Parámetro"
+archetype.class.mockup: "Mockup"
 
 # -----------------------------------------------------------------------
 # Categorías de propiedades
@@ -130,6 +137,8 @@ archetype.tooltip.is-derived: "Esta asociación es una asociación derivada."
 archetype.tooltip.importance: "Importancia para el cliente."
 archetype.tooltip.priority: "Prioridad para la dirección del proyecto."
 archetype.tooltip.status: "Estado según el ciclo de vida del proyecto."
+archetype.tooltip.result-type: "Tipo del resultdo de la operación de sistema."
+archetype.tooltip.constrained-elements: "Elementos del modelo afectados por la restricción."
 
 # -----------------------------------------------------------------------
 # Nombre de propiedades
@@ -149,6 +158,7 @@ archetype.prop_name.text: "Texto"
 archetype.prop_name.url: "URL"
 archetype.prop_name.file: "Archivo"
 archetype.prop_name.authors: "Autores"
+archetype.prop_name.created-by: "Authors"
 archetype.prop_name.dependencies: "Dependencias"
 archetype.prop_name.is-appendix: "Apéndice"
 archetype.prop_name.is-glossary: "Obj glosario"
@@ -201,3 +211,5 @@ archetype.prop_name.plural-form: "Plural form"
 archetype.prop_name.synonyms: "Synonyms"
 archetype.prop_name.ordered: "Ordenado"
 archetype.prop_name.is-composition: "Composición"
+archetype.prop_name.result-type: "Tipo del resultado"
+archetype.prop_name.constrained-elements: "Elementos afectados"

@@ -21,6 +21,7 @@
         <icon key="inmutable-property-edit-disabled" file="lock-close.png"/>
         <icon key="clipboard_icon" file="clipboard.png"/>
         <icon key="view_icon" file="view.png"/>
+        <icon key="model_editor" file="tools.png"/>
 
         <icon key="context-menu-edit" file="context_menu/edit-properties-button.png"/>
         <icon key="context-menu-delete" file="context_menu/delete-object-button.png"/>
@@ -32,8 +33,12 @@
         <icon key="context-menu-down" file="context_menu/move-down-arrow.png"/>
         <icon key="context-menu-alphabetical-sort" file="context_menu/alphabetical-sort.png"/>
         <icon key="context-menu-reverse-alphabetical-sort" file="context_menu/reverse-alphabetical-sort.png"/>
+        <!-- Developer buttons -->
+        <icon key="create-object-archetype" file="context_menu/store-archetype.png"/>
+        <icon key="create-document-archetype" file="context_menu/store-archetype.png"/>
         <icon key="context-menu-sort" file="context_menu/context-menu-sort.png"/>
 
+        <!-- Flags -->
         <icon key="en_US" file="flags/en_US.png"/>
         <icon key="es_ES" file="flags/es_ES.png"/>
     </type>

@@ -82,7 +82,11 @@ QCalendarWidget #qt_calendar_nextmonth {
 
 
 /* QTreeView/QListWidget items --------------------------------------------- */
-QTreeView::item, QListWidget::item {
+QTreeView::item {
+    padding: 0em;
+}
+
+QListWidget::item {
     padding: 0.1em;
 }
 
@@ -409,6 +413,13 @@ QCheckBox:pressed {
 #dialog_content_widget { background-color: #f9f9f9; }
 
 #PropertyDialog #dialog_content_widget { background-color: transparent; }
+
+
+/* This overrides the 0 padding for the QTreeWidget, then it is easier
+to identify items on a list */
+#PropertyDialog QTreeView::item {
+    padding: 0.1em;
+}
 
 
 /* QWizard (New project dialog) */

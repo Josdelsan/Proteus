@@ -103,7 +103,7 @@
         <xsl:text>{</xsl:text>
 
         <!-- Attributes -->
-        <xsl:if test="children/object[@classes='attribute']">
+        <xsl:if test="children/object[contains(@classes,'attribute')]">
             <!--
             <br></br>
             <div class="code_comment code_header"><xsl:value-of select="$proteus:lang_code_attributes"/></div>
@@ -114,7 +114,7 @@
         </xsl:if>
 
         <!-- Close bracket -->
-        <xsl:if test="not(children/object[@classes='attribute'])">
+        <xsl:if test="not(children/object[contains(@classes,'attribute')])">
             <br></br>
         </xsl:if>
         <xsl:text>}</xsl:text>
@@ -164,20 +164,16 @@
                 <xsl:if test="$multiline-comment">
                     <br></br>
                 </xsl:if>
-                <span class="code_comment code_description">
-                    <xsl:call-template name="generate_markdown">
-                        <xsl:with-param name="content" select="$content"/>
-                    </xsl:call-template>
-                </span>
-                <xsl:if test="$multiline-comment">
-                    <br></br>
-                </xsl:if>
+                <ul class="properties">
+                    <span class="code_comment code_description">
+                        <xsl:call-template name="generate_markdown">
+                            <xsl:with-param name="content" select="$content"/>
+                        </xsl:call-template>
+                    </span>
+                </ul>
                 <span class="code_comment">*/</span>
             </div>
             </xsl:when>
-            <xsl:otherwise>
-                <br></br>
-            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 

@@ -25,7 +25,7 @@ from PyQt6.QtGui import QUndoCommand
 from proteus.model import ProteusID
 from proteus.model.object import Object
 from proteus.model.project import Project
-from proteus.model.properties import Property, TraceProperty
+from proteus.model.properties import Property
 from proteus.model.abstract_object import ProteusState
 from proteus.services.project_service import ProjectService
 from proteus.application.events import (

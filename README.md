@@ -11,7 +11,7 @@ In addition to archetypes, Proteus also offers the possibility of having differe
 
 XSLT templates, archetypes repositories and plugins are grouped in profiles. A profile completely change the behaviour of the application based on its content, preparing it for a domain specific task. Plugins enhance XSLT templates allowing complex operations using Python and accessing advanced functionalities. Progiles can be selected from the configuration menu and may be included in the application or loaded from a external directory.
 
-This application has been developed at the University of Seville (Andalusia, Spain) under the supervision of Professor Amador Durán and with the effort of several students (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado). This version is mainly the evolution of the results of the End-Of-Degree project of José María Delgado."
+This application has been developed at the University of Seville (Andalusia, Spain) under the supervision of Professor Amador Durán Toro and with the effort of several students (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado Sánchez). This version is mainly the evolution of the results of the End-Of-Degree project of José María Delgado Sánchez."
 
 <div align = center>
   <img src="https://github.com/user-attachments/assets/936f4820-0017-4da3-a8de-901bccdaf952" width="800" />
@@ -74,3 +74,27 @@ Linux and MacOS:
 - Some users may need to restart ibus via `ibus restart` the first time they run the application.
 
 **WARNING**, directory names changes may affect the virtual environment. If you encounter any problem, delete the virtual environment and create/run the scripts again.
+
+## Developer features
+
+### XSLT debugging
+
+XSLT debugging features enable XSL files reloading each time the application performs a rendering operation. This feature may impact performance, but prevents the need to restart the application when changes are made to the XSL files. It can be enabled by setting the following variable to `True` in the `proteus.ini` file:
+```
+xslt_debug_mode = True
+```
+
+If an XSLT error occurs, it will be displayed in the document view. It is recommended to check the log files in order to see all the error messages, usually the last error is not relevant enough. There are error that may cause the application to crash, these are usually related to XSL files missing or Python plugins.
+
+### Developer mode
+
+Developer mode enables some features that are useful for archetypes/profiles development.
+- Meta-model editor: It is available in the context menu when right-clicking on an object in the document tree. It allows to edit object's properties (add,remove,position,edit) and to edit object's XML attributes like acceptedChildren, classes, etc.
+- Store object/document as archetype: Add document or object archetypes, available in the context menu when right-clicking on an object in the document tree. They allow to add archetypes to the current profile.
+
+These features make easier archetypes creation and edition. The whole archetype creation process is not covered yet, icons and translations must be added manually.
+
+Developer mode can be enabled by setting the following variable to `True` in the `proteus.ini` file:
+```
+developer_features = True
+```

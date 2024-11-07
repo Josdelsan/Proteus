@@ -18,7 +18,7 @@
 
 import logging
 from enum import Enum
-from typing import Type, List, MutableSet
+from typing import Type, List, Set
 from abc import ABC, abstractmethod
 
 # --------------------------------------------------------------------------
@@ -260,15 +260,15 @@ class AbstractObject(ABC):
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
 
-    def get_ids(self) -> MutableSet[ProteusID]:
+    def get_ids(self) -> Set[ProteusID]:
         """
-        Method that returns a set with all the ids of the descendant.
+        Method that returns a set with all the ids of the descendants recursively.
 
-        :return: A set with all the ids of the object including its children.
+        :return: A set with all the ids of the object including its children recursively.
         """
 
         # Initialize an empty set of ids
-        ids: MutableSet[ProteusID] = set()
+        ids: Set[ProteusID] = set()
 
         # For each object in the project or object, we get the ids of the objects
         # and their children recursively

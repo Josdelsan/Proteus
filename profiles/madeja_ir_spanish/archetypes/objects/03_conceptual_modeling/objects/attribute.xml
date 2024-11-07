@@ -3,12 +3,12 @@
     id="attribute"
     classes="attribute"
     acceptedChildren=":Proteus-none"
-    acceptedParents="model-element"
+    acceptedParents="entity-class association"
 >
     <properties>
       <stringProperty name=":Proteus-name" category="general">atributo</stringProperty>
       <stringProperty name="type" category="general">string</stringProperty>
-      <markdownProperty name="description" category="detail"><![CDATA[description]]></markdownProperty>
+      <markdownProperty name="description" category="detail"><![CDATA[descripción]]></markdownProperty>
       <markdownProperty name="comments" category="comments"><![CDATA[]]></markdownProperty>
     </properties>
 

@@ -25,7 +25,7 @@ from __future__ import annotations  # it has to be the first import
 import pathlib
 import os
 import logging
-from typing import List, NewType, Union, Dict
+from typing import List, NewType, Union, Dict, Set
 import copy
 import shutil
 import datetime
@@ -52,6 +52,7 @@ from proteus.model import (
     ACCEPTED_CHILDREN_ATTRIBUTE,
     ACCEPTED_PARENTS_ATTRIBUTE,
     SELECTED_CATEGORY_ATTRIBUTE,
+    NUMBERED_ATTRIBUTE,
     CHILDREN_TAG,
     OBJECT_TAG,
     OBJECTS_REPOSITORY,
@@ -61,7 +62,13 @@ from proteus.model import (
     COPY_OF,
 )
 from proteus.model.abstract_object import AbstractObject, ProteusState
-from proteus.model.properties import Property, PropertyFactory, FileProperty, DateProperty, CodeProperty, TraceProperty, TRACE_PROPERTY_TAG
+from proteus.model.properties import (
+    Property,
+    FileProperty,
+    DateProperty,
+    CodeProperty,
+    TraceProperty,
+)
 from proteus.model.properties.code_property import ProteusCode
 from proteus.application.resources.translator import translate as _
 
@@ -199,7 +206,15 @@ class Object(AbstractObject):
 
         # Selected category provides information about which property category
         # is more relevant among the others to the user. It can be None
-        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, None)
+        self.selectedCategory: str = root.attrib.get(SELECTED_CATEGORY_ATTRIBUTE, "")
+
+        # Numbered attribute (in children tag)
+        # Tells if the children must be numbered when displayed
+        children_element = root.find(CHILDREN_TAG)
+        numbered_str = "false"
+        if children_element is not None:
+            numbered_str = children_element.attrib.get(NUMBERED_ATTRIBUTE, "false")
+        self.numbered = True if numbered_str.lower() == "true" else False
 
         # Load object's properties using superclass method
         super().load_properties(root)
@@ -312,7 +327,26 @@ class Object(AbstractObject):
                 return self.parent.get_document()
         except AttributeError:
             raise Exception(f"Parent document not found for object {self.id}")
-        
+
+    # ----------------------------------------------------------------------
+    # Method     : get_descendants_recursively
+    # Description: It returns a list with all the descendants of an object
+    # including the object itself.
+    # Date       : 29/10/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_descendants_recursively(self) -> Set[Object]:
+        """
+        It returns a list with all the descendants of an object including the object itself.
+        :return: List with all the descendants of an object including the object itself.
+        """
+        descendants = set()
+        descendants.add(self)
+        for child in self.children:
+            descendants.update(child.get_descendants_recursively())
+        return descendants
+
     # ----------------------------------------------------------------------
     # Method     : get_descendants
     # Description: It returns a list with all the children of an object.
@@ -395,7 +429,7 @@ class Object(AbstractObject):
         # Check child is not the same object
         if child.id is self.id:
             return False
-        
+
         # Check the object branch does not contain the child already
         # as parent
         def get_parents(obj: Object) -> List[ProteusID]:
@@ -404,7 +438,7 @@ class Object(AbstractObject):
                 parents.append(obj.parent.id)
                 parents.extend(get_parents(obj.parent))
             return parents
-        
+
         if child.id in get_parents(self):
             return False
 
@@ -456,7 +490,7 @@ class Object(AbstractObject):
         object_element.set(ACCEPTED_CHILDREN_ATTRIBUTE, " ".join(self.acceptedChildren))
         object_element.set(ACCEPTED_PARENTS_ATTRIBUTE, " ".join(self.acceptedParents))
 
-        if self.selectedCategory is not None:
+        if self.selectedCategory is not None and self.selectedCategory != "":
             object_element.set(SELECTED_CATEGORY_ATTRIBUTE, self.selectedCategory)
 
         # Create <properties> element
@@ -465,13 +499,16 @@ class Object(AbstractObject):
         # Create <children> element
         children_element = ET.SubElement(object_element, CHILDREN_TAG)
 
+        if self.numbered:
+            children_element.set(NUMBERED_ATTRIBUTE, "true")
+
         # Create <child> subelements
         for child in self.children:
             child_element = ET.SubElement(children_element, CHILD_TAG)
             child_element.set(ID_ATTRIBUTE, child.id)
 
         return object_element
-    
+
     # ----------------------------------------------------------------------
     # Method     : get_traces
     # Description: It returns a list with all the traces properties of an object.
@@ -485,7 +522,11 @@ class Object(AbstractObject):
         :return: list with all the traces properties of an object.
         """
         # Return the list with all the traces properties of an object
-        return [property for property in self.properties.values() if isinstance(property, TraceProperty)]
+        return [
+            property
+            for property in self.properties.values()
+            if isinstance(property, TraceProperty)
+        ]
 
     # ----------------------------------------------------------------------
     # Method     : clone_object
@@ -577,7 +618,7 @@ class Object(AbstractObject):
                 return
 
             # Build the source assets path
-            # Check if the cloned object is an archetype based on the project property
+            # Check if the cloned object is an archetype based on the project attribute
             source_assets_path: pathlib.Path = None
             if is_archetype:
                 # NOTE: If object is an archetype, build the path to the assets
@@ -652,12 +693,12 @@ class Object(AbstractObject):
         # due to Project dummy class at the beginning of the file.
         assert (
             project.__class__.__name__ == "Project"
-        ), f"Parent project must be instance of Project."
+        ), "Parent project must be instance of Project."
 
         # Check if parent is not None
         assert parent.__class__.__name__ == "Project" or isinstance(
             parent, Object
-        ), f"Parent must be instance of Object or Project"
+        ), "Parent must be instance of Object or Project"
 
         # Check if object is an archetype based on the project property
         is_archetype: bool = self.project is None

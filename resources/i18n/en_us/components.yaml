@@ -80,6 +80,7 @@ paste_button.statustip: "Paste object from clipboard"
 paste_button.tooltip: "Paste object from clipboard"
 paste_button.text: "Paste"
 
+
 # ---------------------------------------------------------------------------
 # Main window
 # ---------------------------------------------------------------------------
@@ -108,6 +109,9 @@ document_tree.menu.action.paste: "Paste"
 document_tree.menu.action.move_up: "Move up"
 document_tree.menu.action.move_down: "Move down"
 document_tree.menu.action.add_archetype: "Add {}"
+document_tree.menu.action.edit_model: "Edit meta-model"
+document_tree.menu.action.store_object_as_archetype: "Store object as archetype"
+document_tree.menu.action.store_document_as_archetype: "Store document as archetype"
 
 document_tree.drop_action.message_box.error.title: "Error moving object"
 document_tree.drop_action.message_box.error.text: "The object cannot be moved to the selected position, check that the object is accepted by the target object."

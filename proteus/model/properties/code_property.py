@@ -126,6 +126,8 @@ class ProteusCode:
             and self.number == other.number
             and self.suffix == other.suffix
         )
+    
+    # TODO: Implement __hash__ method?
 
 
 # --------------------------------------------------------------------------
@@ -188,15 +190,5 @@ class CodeProperty(Property):
 
         suffix_element = ET.SubElement(property_element, SUFFIX_TAG)
         suffix_element.text = ET.CDATA(self.value.suffix)
-
-        # If required check that the prefix and number are not empty
-        if self.required:
-            assert not (
-                self.value.prefix == None or self.value.prefix == ""
-            ), f"Code property '{self.name}' is required but has no prefix"
-            assert not (
-                self.value.number == None or self.value.number == ""
-            ), f"Code property '{self.name}' is required but has no number"
-
 
         return str()

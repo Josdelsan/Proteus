@@ -43,392 +43,44 @@ from proteus.application.resources.translator import translate as _
 # Functions
 # --------------------------------------------------------------------------
 
-
-def new_project_button(parent: QWidget) -> QToolButton:
+# Main menu buttons
+def main_menu_button(
+    parent: QWidget, text: str = "", icon_key: str = "", tooltip: str = "", statustip: str = "", enabled: bool = True, shortcut: str = ""
+) -> QToolButton:
     """
-    Creates a new project button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    new_button = QToolButton(parent)
-    new_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "new-project")
-    new_button.setIcon(button_icon)
-    new_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    new_button.setToolTip(_("new_project_button.tooltip"))
-    new_button.setStatusTip(_("new_project_button.statustip"))
-
-    # Set text
-    new_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    new_button.setText(_("new_project_button.text"))
-
-    # Set shortcut
-    new_button.setShortcut("Ctrl+N")
-
-    return new_button
-
-
-def open_project_button(parent: QWidget) -> QToolButton:
-    """
-    Creates an open project button adapted to the PROTEUS application style.
+    Creates a create archetype button adapted to the PROTEUS application style.
     """
     # Create button with parent
-    open_button = QToolButton(parent)
-    open_button.setMinimumWidth(55)
+    create_button = QToolButton(parent)
+    create_button.setMinimumWidth(55)
 
     # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "open-project")
-    open_button.setIcon(button_icon)
-    open_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
+    button_icon = Icons().icon(ProteusIconType.MainMenu, icon_key)
+    create_button.setIcon(button_icon)
+    create_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
 
-    # Set tooltip
-    open_button.setToolTip(_("open_project_button.tooltip"))
-    open_button.setStatusTip(_("open_project_button.statustip"))
+    # Set tooltip and status tip
+    if tooltip:
+        create_button.setToolTip(_(tooltip))
 
-    # Set text
-    open_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    open_button.setText(_("open_project_button.text"))
-
-    # Set shortcut
-    open_button.setShortcut("Ctrl+O")
-
-    return open_button
-
-
-def save_project_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a save project button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    save_button = QToolButton(parent)
-    save_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "save")
-    save_button.setIcon(button_icon)
-    save_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    save_button.setToolTip(_("save_project_button.tooltip"))
-    save_button.setStatusTip(_("save_project_button.statustip"))
+    if statustip:
+        create_button.setStatusTip(_(statustip))
 
     # Set text
-    save_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    save_button.setText(_("save_project_button.text"))
-
-    # Set shortcut
-    save_button.setShortcut("Ctrl+S")
-
-    # Set enabled initial value
-    save_button.setEnabled(False)
-
-    return save_button
-
-
-def undo_button(parent: QWidget) -> QToolButton:
-    """
-    Creates an undo button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    undo_button = QToolButton(parent)
-    undo_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "undo")
-    undo_button.setIcon(button_icon)
-    undo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    undo_button.setToolTip(_("undo_button.tooltip"))
-    undo_button.setStatusTip(_("undo_button.statustip"))
-
-    # Set text
-    undo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    undo_button.setText(_("undo_button.text"))
-
-    # Set shortcut
-    undo_button.setShortcut("Ctrl+Z")
-
-    # Set enabled initial value
-    undo_button.setEnabled(False)
-
-    return undo_button
-
-
-def redo_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a redo button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    redo_button = QToolButton(parent)
-    redo_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "redo")
-    redo_button.setIcon(button_icon)
-    redo_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    redo_button.setToolTip(_("redo_button.tooltip"))
-    redo_button.setStatusTip(_("redo_button.statustip"))
-
-    # Set text
-    redo_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    redo_button.setText(_("redo_button.text"))
-
-    # Set shortcut
-    redo_button.setShortcut("Ctrl+Y")
-
-    # Set enabled initial value
-    redo_button.setEnabled(False)
-
-    return redo_button
-
-
-def project_properties_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a project properties button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    properties_button = QToolButton(parent)
-    properties_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "edit")
-    properties_button.setIcon(button_icon)
-    properties_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    properties_button.setToolTip(_("project_properties_button.tooltip"))
-    properties_button.setStatusTip(_("project_properties_button.statustip"))
-
-    # Set text
-    properties_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    properties_button.setText(_("project_properties_button.text"))
-
-    # Set shorcut
-    properties_button.setShortcut("Ctrl+P")
-
-    # Set enabled initial value
-    properties_button.setEnabled(False)
-
-    return properties_button
-
-
-def add_document_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a add document button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    add_button = QToolButton(parent)
-    add_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "new-file")
-    add_button.setIcon(button_icon)
-    add_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    add_button.setToolTip(_("add_document_button.tooltip"))
-    add_button.setStatusTip(_("add_document_button.statustip"))
-
-    # Set text
-    add_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    add_button.setText(_("add_document_button.text"))
-
-    # Set shorcut
-    add_button.setShortcut("Ctrl+D")
-
-    # Set enabled initial value
-    add_button.setEnabled(False)
-
-    return add_button
-
-
-def delete_document_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a delete document button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    delete_button = QToolButton(parent)
-    delete_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "delete-file")
-    delete_button.setIcon(button_icon)
-    delete_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    delete_button.setToolTip(_("delete_document_button.tooltip"))
-    delete_button.setStatusTip(_("delete_document_button.statustip"))
-
-    # Set text
-    delete_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    delete_button.setText(_("delete_document_button.text"))
-
-    # Set enabled initial value
-    delete_button.setEnabled(False)
-
-    return delete_button
-
-
-def settings_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a settings button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    settings_button = QToolButton(parent)
-    settings_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "settings")
-    settings_button.setIcon(button_icon)
-    settings_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    settings_button.setToolTip(_("settings_button.tooltip"))
-    settings_button.setStatusTip(_("settings_button.statustip"))
-
-    # Set text
-    settings_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    settings_button.setText(_("settings_button.text"))
-
-    return settings_button
-
-
-def export_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a export button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    export_button = QToolButton(parent)
-    export_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "export")
-    export_button.setIcon(button_icon)
-    export_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    export_button.setToolTip(_("export_button.tooltip"))
-    export_button.setStatusTip(_("export_button.statustip"))
-
-    # Set text
-    export_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    export_button.setText(_("export_button.text"))
+    if text:
+        create_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        create_button.setText(_(text))
+    else:
+        create_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
     # Set initial disabled value
-    export_button.setEnabled(False)
+    create_button.setEnabled(enabled)
 
-    return export_button
+    # Set shortcut
+    if shortcut:
+        create_button.setShortcut(shortcut)
 
-
-def info_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a info button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    info_button = QToolButton(parent)
-    info_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "info")
-    info_button.setIcon(QIcon(button_icon))
-    info_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    info_button.setToolTip(_("information_button.tooltip"))
-    info_button.setStatusTip(_("information_button.statustip"))
-
-    # Set text
-    info_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    info_button.setText(_("information_button.text"))
-
-    return info_button
-
-
-def cut_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a cut button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    cut_button = QToolButton(parent)
-    cut_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-cut")
-    cut_button.setIcon(button_icon)
-    cut_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    cut_button.setToolTip(_("cut_button.tooltip"))
-    cut_button.setStatusTip(_("cut_button.statustip"))
-
-    # Set text
-    cut_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    cut_button.setText(_("cut_button.text"))
-
-    # Set initial disabled value
-    cut_button.setEnabled(False)
-
-    return cut_button
-
-
-def copy_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a copy button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    copy_button = QToolButton(parent)
-    copy_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-copy")
-    copy_button.setIcon(button_icon)
-    copy_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    copy_button.setToolTip(_("copy_button.tooltip"))
-    copy_button.setStatusTip(_("copy_button.statustip"))
-
-    # Set text
-    copy_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    copy_button.setText(_("copy_button.text"))
-
-    # Set initial disabled value
-    copy_button.setEnabled(False)
-
-    return copy_button
-
-
-def paste_button(parent: QWidget) -> QToolButton:
-    """
-    Creates a paste button adapted to the PROTEUS application style.
-    """
-    # Create button with parent
-    paste_button = QToolButton(parent)
-    paste_button.setMinimumWidth(55)
-
-    # Set file icon
-    button_icon = Icons().icon(ProteusIconType.MainMenu, "clipboard-paste")
-    paste_button.setIcon(button_icon)
-    paste_button.setIconSize(button_icon.actualSize(QSize(32, 32)))
-
-    # Set tooltip
-    paste_button.setToolTip(_("paste_button.tooltip"))
-    paste_button.setStatusTip(_("paste_button.statustip"))
-
-    # Set text
-    paste_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-    paste_button.setText(_("paste_button.text"))
-
-    # Set initial disabled value
-    paste_button.setEnabled(False)
-
-    return paste_button
+    return create_button
 
 
 # --------------------------------------------------------------------------

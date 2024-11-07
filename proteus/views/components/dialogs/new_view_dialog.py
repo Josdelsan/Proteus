@@ -108,7 +108,6 @@ class NewViewDialog(ProteusDialog):
         self.accept_button.clicked.connect(
             lambda: self.accept_button_clicked(self.view_combo.currentData())
         )
-        self.reject_button.clicked.connect(self.cancel_button_clicked)
         self.view_combo.currentIndexChanged.connect(self.update_description)
         self.update_description()  # First call
 
@@ -183,22 +182,6 @@ class NewViewDialog(ProteusDialog):
         AddViewEvent().notify(combo_text)
 
         # Close the form window
-        self.close()
-        self.deleteLater()
-
-    # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
-    # Description: Cancel button clicked event handler
-    # Date       : 29/05/2023
-    # Version    : 0.1
-    # Author     : José María Delgado Sánchez
-    # ----------------------------------------------------------------------
-    def cancel_button_clicked(self) -> None:
-        """
-        Manage the cancel button clicked event. It closes the form window
-        without creating any document.
-        """
-        # Close the form window without saving any changes
         self.close()
         self.deleteLater()
 

@@ -95,12 +95,6 @@ class UrlProperty(Property):
 
         _value = self.value
 
-        # Check the value is not empty when required
-        if self.required:
-            assert not (
-                _value == None or _value == ""
-            ), f"urlProperty '{self.name}' is required but has no value"
-
         return ET.CDATA(_value)
 
 

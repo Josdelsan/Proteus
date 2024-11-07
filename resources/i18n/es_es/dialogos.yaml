@@ -10,6 +10,7 @@
 # Común
 # ---------------------------------------------------------------------------
 dialog.accept_button: "Aceptar"
+dialog.create_button: "Crear"
 dialog.save_button: "Guardar"
 dialog.export_button: "Exportar"
 dialog.reject_button: "Cancelar"
@@ -159,8 +160,8 @@ information_dialog.title: "Información sobre Proteus"
 information_dialog.description.text: "Proteus es un editor basado en arquetipos para documentos estructurados.
 Un arquetipo es un objeto, documento o proyecto listo para ser clonado cuando sea necesario crear otros nuevos.
 Los arquetipos se organizan en perfiles, que pueden desarrollarse para diferentes dominios.
-Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán y con el esfuerzo de varios estudiantes (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado).
-Esta versión es principalmente la evolución de los resultados del Proyecto Fin de Carrera de José María Delgado."
+Esta aplicación ha sido desarrollada en la Universidad de Sevilla (Andalucía, España) bajo la supervisión del profesor Amador Durán Toro y con el esfuerzo de varios estudiantes (José Renato Ramos González, José Gamaza Díaz, Pablo Rivera Jiménez and José María Delgado Sánchez).
+Esta versión es principalmente la evolución de los resultados del Trabajo Fin de Grado de José María Delgado Sánchez."
 information_dialog.license.text: "Esta aplicacion se distribuyen bajo la licencia BSD 3-Clause 'New' or 'Revised'."
 information_dialog.terms_of_use.text: "Esta aplicación no recopila ninguna información personal.
 El software se proporciona 'tal cual', sin garantía de ningún tipo, utilícelo bajo su propio riesgo.
@@ -189,3 +190,59 @@ delete_dialog.tree.header: Haz clic en cada ítem para ver los elementos que se 
 asset_edit.file_dialog.title: "Seleccionar imagen"
 asset_edit.file_dialog.filter: "Imágenes"
 
+# ---------------------------------------------------------------------------
+# Developer features
+# ---------------------------------------------------------------------------
+
+meta_model_editor.title: "Editor de meta-modelo"
+meta_model_editor.object.properties_tab: "Propiedades"
+meta_model_editor.object.attributes_tab: "Atributos"
+
+meta_model_editor.object.open_xml_file: "Abrir archivo XML"
+meta_model_editor.profile_translations_directory: "Directorio de traducciones del perfil"
+meta_model_editor.profile_icons_directory: "Directorio de iconos del perfil"
+
+meta_model_editor.delete_property_dialog.title: "Eliminar propiedad"
+meta_model_editor.delete_property_dialog.message: "¿Estás seguro de que quieres eliminar la propiedad '{}'?"
+
+meta_model_editor.error.cannot_delete_property: "No se puede eliminar la propiedad"
+meta_model_editor.error.cannot_delete_name_property_message: "Cada objeto debe tener una propiedad :Proteus-name. No puedes eliminarla."
+meta_model_editor.error.cannot_delete_acronym_property_message: "Los documentos deben tener una propiedad :Proteus-acronym. No puedes eliminarla."
+
+meta_model_editor.error.required_input: "El campo está vacío o contiene caracteres no válidos"
+meta_model_editor.error.invalid_selected_category: "El campo no puede contener espacios ni caracteres especiales"
+meta_model_editor.error.document_class_required: "No se puede eliminar la clase :Proteus-document de un documento"
+meta_model_editor.error.missing_acronym_property: "Los documentos deben tener una propiedad :Proteus-acronym"
+meta_model_editor.error.missing_name_property: "Los objetos deben tener una propiedad :Proteus-name"
+
+add_property_dialog.title: "Añadir propiedad"
+add_property_dialog.label.required: "El valor de la propiedad no puede estar vacío"
+add_property_dialog.label.inmutable: "El valor de la propiedad no se debería modificar"
+add_property_dialog.label.property_class: "Clase de la propiedad:"
+add_property_dialog.message.property_specific_attributes: "Los atributos específicos de la propiedad y su valor pueden editarse en el editor de propiedades"
+add_property_dialog.error.invalid_name: "El campo no puede estar vacío o contener caracteres no válidos"
+add_property_dialog.error.duplicated_name: "Ya existe una propiedad llamada '{}'"
+add_property_dialog.error.invalid_characters: "El campo contiene caracteres no válidos"
+add_property_dialog.message_box.critical.create_property: "Error al crear la propiedad"
+
+edit_property_dialog.title: "Editar propiedad"
+edit_property_dialog.error.invalid_chars_present: "Uno o más atributos contienen caracteres no válidos: {}"
+edit_property_dialog.error.duplicated_or_empty_name: "Ya existe una propiedad con ese nombre o el campo está vacío"
+edit_property_dialog.error.invalid_max_targets_number_value: "El número máximo de objetivos debe ser un número entero positivo o -1 para infinito"
+
+create_object_archetype_dialog.title: "Crear arquetipo de objeto"
+create_object_archetype_dialog.include_children: "Incluir hijos"
+create_object_archetype_dialog.proteus_id: "ProteusID (Nombre archivo):"
+create_object_archetype_dialog.group: "Grupo (directorio):"
+create_object_archetype_dialog.proteus_id_missing: "ProteusID no puede estar vacío"
+create_object_archetype_dialog.proteus_id_invalid: "ProteusID no puede contener espacios ni caracteres especiales"
+create_object_archetype_dialog.proteus_id_in_use: "Un arquetipo con el mismo ProteusID ya existe"
+
+create_document_archetype_dialog.title: "Crear arquetipo de documento"
+create_document_archetype_dialog.proteus_id: "ProteusID:"
+create_document_archetype_dialog.directory_name: "Nombre del directorio:"
+create_document_archetype_dialog.proteus_id_missing: "ProteusID no puede estar vacío"
+create_document_archetype_dialog.proteus_id_invalid: "ProteusID no puede contener espacios ni caracteres especiales"
+create_document_archetype_dialog.proteus_id_in_use: "Un arquetipo con el mismo ProteusID ya existe"
+create_document_archetype_dialog.directory_name_missing: "El nombre del directorio no puede estar vacío"
+create_document_archetype_dialog.directory_name_in_use: "Un arquetipo de documento con el mismo nombre de directorio ya existe"

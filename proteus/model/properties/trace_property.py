@@ -212,3 +212,18 @@ class TraceProperty(Property):
         # Returning None avoid the XML to be printed in a single line
         # https://lxml.de/FAQ.html#why-doesn-t-the-pretty-print-option-reformat-my-xml-output
         return None
+
+    def compare(self, other: "TraceProperty") -> bool:
+        """
+        It compares the values of two TraceProperty objects.
+        :param other: TraceProperty object to compare.
+        :return: True if the attributes values are equal, False otherwise.
+        """
+        base_attributes = super().compare(other)
+        return (
+            base_attributes
+            and self.acceptedTargets == other.acceptedTargets
+            and self.excludedTargets == other.excludedTargets
+            and self.type == other.type
+            and self.max_targets_number == other.max_targets_number
+        )

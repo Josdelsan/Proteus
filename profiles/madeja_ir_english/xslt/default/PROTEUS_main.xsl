@@ -53,9 +53,10 @@
         <label key=":Proteus-date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="address"><xsl:value-of select="$proteus:lang_address"/></label>
         <label key="attenders"><xsl:value-of select="$proteus:lang_attenders"/></label>
+        <label key="authors"><xsl:value-of select="$proteus:lang_authors"/></label>
         <label key="category"><xsl:value-of select="$proteus:lang_category"/></label>
         <label key="comments"><xsl:value-of select="$proteus:lang_comments"/></label>
-        <label key="authors"><xsl:value-of select="$proteus:lang_authors"/></label>
+        <label key="created-by"><xsl:value-of select="$proteus:lang_authors"/></label>
         <label key="date"><xsl:value-of select="$proteus:lang_date"/></label>
         <label key="description"><xsl:value-of select="$proteus:lang_description"/></label>
         <label key="diagram"><xsl:value-of select="$proteus:lang_diagram"/></label>
@@ -154,7 +155,10 @@
     <xsl:include href="archetypes/requirements/traceability_matrix.xsl" />
 
     <xsl:include href="archetypes/conceptual_modeling/entity_class.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/enumeration.xsl" />
     <xsl:include href="archetypes/conceptual_modeling/association.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/constraint.xsl" />
+    <xsl:include href="archetypes/conceptual_modeling/system_operation.xsl" />
     <xsl:include href="archetypes/conceptual_modeling/mockup.xsl" />
 
     <xsl:include href="archetypes/PROTEUS_default.xsl" />
