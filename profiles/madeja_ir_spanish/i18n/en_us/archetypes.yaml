@@ -10,6 +10,9 @@
 # Update: 04/09/2024 (Amador Durán)
 # Check before release for RE course
 # --------------------------------------------------------------------------
+# Update: 07/11/2024 (Amador Durán)
+# New conceptual modeling classes added
+# --------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 # Archetype categories (toolbar tabs)
@@ -69,6 +72,7 @@ archetype.class.enumeration: "Enumeration"
 archetype.class.enum-value: "Enumeration value"
 archetype.class.association: "Association"
 archetype.class.role: "Role"
+archetype.class.constraint: "Constraint"
 archetype.class.system-operation: "System\noperation"
 archetype.class.parameter: "Parameter"
 archetype.class.mockup: "Mockup"
@@ -134,6 +138,7 @@ archetype.tooltip.importance: "Importance for the client."
 archetype.tooltip.priority: "Priority for the project manager."
 archetype.tooltip.status: "Status according to the project's lifecycle."
 archetype.tooltip.result-type: "Return type of the system operation."
+archetype.tooltip.constrained-elements: "Model elements affected by the constraint."
 
 # -----------------------------------------------------------------------
 # Archetype property names
@@ -207,3 +212,4 @@ archetype.prop_name.synonyms: "Synonyms"
 archetype.prop_name.ordered: "Ordered"
 archetype.prop_name.is-composition: "Composition"
 archetype.prop_name.result-type: "Result type"
+archetype.prop_name.constrained-elements: "Constrained elements"

@@ -6,6 +6,7 @@
     <object id="enum-value"/>
     <object id="association"/>
     <object id="role"/>
+    <object id="constraint"/>
     <object id="system-operation"/>
     <object id="parameter"/>
     <object id="mockup"/>

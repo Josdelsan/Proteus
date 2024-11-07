@@ -433,6 +433,7 @@ table.traceability_matrix td.trace {
 table.entity_class>thead>tr,
 table.association>thead>tr,
 table.enumeration>thead>tr,
+table.constraint>thead>tr,
 table.mockup>thead>tr,
 table.value_type>thead>tr,
 table.system_operation>thead>tr {

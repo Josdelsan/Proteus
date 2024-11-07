@@ -34,7 +34,7 @@
                     <xsl:with-param name="class"   select="'enumeration'"/>
                 </xsl:call-template>
 
-                <!-- Entity information -->
+                <!-- enumeration information -->
                 <tr>
                     <td colspan="2">
                         <div class="code">
@@ -65,7 +65,7 @@
             </xsl:call-template>
         </xsl:if>
 
-        <!-- Class declaration -->
+        <!-- Enumeration declaration -->
         <span class="keyword">
             <xsl:text>enumeration </xsl:text>
         </span>
