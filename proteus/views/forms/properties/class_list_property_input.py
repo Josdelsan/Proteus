@@ -24,10 +24,7 @@ from typing import List
 from proteus.model.properties import ClassListProperty
 from proteus.controller.command_stack import Controller
 from proteus.views.forms.properties.property_input import PropertyInput
-from proteus.views.forms.check_combo_box import CheckComboBox
-from proteus.application.resources.translator import translate as _
-from proteus.application.resources.icons import Icons, ProteusIconType
-
+from proteus.views.forms.items.class_edit import ClassEdit
 
 
 # --------------------------------------------------------------------------
@@ -54,8 +51,8 @@ class ClassListPropertyInput(PropertyInput):
         Returns the value of the input widget. The value is converted to a
         list.
         """
-        self.input: CheckComboBox
-        return self.input.checkedItemsData()
+        self.input: ClassEdit
+        return self.input.items()
 
     # ----------------------------------------------------------------------
     # Method     : validate
@@ -81,38 +78,15 @@ class ClassListPropertyInput(PropertyInput):
     @staticmethod
     def create_input(
         property: ClassListProperty, controller: Controller, *args, **kwargs
-    ) -> CheckComboBox:
+    ) -> ClassEdit:
         """
         Creates the input widget based on PROTEUS TraceEdit.
         """
-        input: CheckComboBox = CheckComboBox()
-
         # Get project and property classes
         project_classes = controller.get_project_available_classes()
         property_classes = property.value
 
-        # Include items in the checkcombobox setting the checked state
-        # If there was a class selected in the property that is not in the project
-        # it will be excluded from the list
-        for project_available_class in project_classes:
-
-            # Check if it has to be checked
-            is_checked = project_available_class in property_classes
-
-            # Class icon
-            class_icon = Icons().icon(
-                ProteusIconType.Archetype, project_available_class
-            )
-
-            # Class name translation
-            class_name_translated = _(
-                f"archetype.class.{project_available_class}",
-                alternative_text=project_available_class,
-            )
-
-            # Add item
-            input.addItem(
-                class_name_translated, project_available_class, is_checked, class_icon
-            )
+        input: ClassEdit = ClassEdit(candidates=project_classes)
+        input.setItems(property_classes)
 
         return input

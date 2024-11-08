@@ -112,11 +112,6 @@ class TraceEdit(QWidget):
         """
         super().__init__(*args, **kwargs)
 
-        # Validate element_id
-        assert (
-            element_id is not None
-        ), "TraceEdit requires an element_id to be initialized."
-
         # Validate controller
         assert isinstance(
             controller, Controller
