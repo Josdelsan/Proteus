@@ -79,6 +79,9 @@ paste_button.statustip: "Pegar objeto del portapapeles"
 paste_button.tooltip: "Pegar objeto del portapapeles"
 paste_button.text: "Pegar"
 
+impact_analysis.text: "Análisis"
+impact_analysis.statustip: "Analizar el impacto de los cambios"
+impact_analysis.tooltip: "Analizar el impacto de los cambios"
 
 # ---------------------------------------------------------------------------
 # Main window

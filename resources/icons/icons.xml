@@ -57,5 +57,6 @@
         <icon key="clipboard-copy" file="context_menu/copy.png"/>
         <icon key="clipboard-cut" file="context_menu/cut.png"/>
         <icon key="clipboard-paste" file="context_menu/paste.png"/>
+        <icon key="impact-analysis" file="main_menu/impact-analysis.png"/>
     </type>
 </icons>

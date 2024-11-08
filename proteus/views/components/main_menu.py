@@ -50,6 +50,7 @@ from proteus.views.components.dialogs.settings_dialog import SettingsDialog
 from proteus.views.components.dialogs.export_dialog import ExportDialog
 from proteus.views.components.dialogs.information_dialog import InformationDialog
 from proteus.views.components.dialogs.delete_dialog import DeleteDialog
+from proteus.views.components.dialogs.impact_analysis import ImpactAnalysisWindow
 from proteus.views.components.archetypes_menu_dropdown import (
     ArchetypesMenuDropdown,
 )
@@ -468,6 +469,18 @@ class MainMenu(QDockWidget, ProteusComponent):
         # ---------
         # aplication
         # ---------
+        self.impact_analysis_button: QToolButton = buttons.main_menu_button(
+            self,
+            text="impact_analysis.text",
+            icon_key="impact-analysis",
+            tooltip="impact_analysis.tooltip",
+            statustip="impact_analysis.statustip",
+            enabled=False,
+        )
+        self.impact_analysis_button.clicked.connect(
+            lambda: ImpactAnalysisWindow.show_dialog(self, self._controller)
+        )
+
         # Settings action
         self.settings_button: QToolButton = buttons.main_menu_button(
             self,
@@ -494,7 +507,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the aplication menu widget
         aplication_menu: QWidget = buttons.button_group(
-            [self.settings_button, self.information_button],
+            [self.impact_analysis_button, self.settings_button, self.information_button],
             "main_menu.button_group.application",
         )
 
@@ -796,6 +809,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         """
         self.project_properties_button.setEnabled(True)
         self.add_document_button.setEnabled(True)
+        self.impact_analysis_button.setEnabled(True)
 
     # ----------------------------------------------------------------------
     # Method     : update_on_current_document_changed
@@ -819,6 +833,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         self.delete_document_button.setEnabled(is_document_open)
         self.export_document_button.setEnabled(is_document_open)
+        self.impact_analysis_button.setEnabled(is_document_open)
 
         if self.store_document_archetype_button:
             self.store_document_archetype_button.setEnabled(is_document_open)
