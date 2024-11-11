@@ -380,7 +380,7 @@ class ItemListEditDialog(QDialog):
         # -----------------------
 
         # Set dialog title
-        title: str = _("trace_edit_dialog.title")
+        title: str = _("items_edit_dialog.title")
         self.setWindowTitle(title)
 
         # Set window icon
@@ -417,7 +417,7 @@ class ItemListEditDialog(QDialog):
 
         self.name_filter_widget = QLineEdit()
         self.name_filter_widget.setPlaceholderText(
-            _("trace_edit_dialog.name_filter_widget.placeholder_text")
+            _("items_edit_dialog.name_filter_widget.placeholder_text")
         )
 
         # Connect textChanged signal
@@ -470,7 +470,7 @@ class ItemListEditDialog(QDialog):
             self.item_list.setDisabled(True)
 
             self.error_label.setHidden(False)
-            self.error_label.setText(_("trace_edit_dialog.no_items_found"))
+            self.error_label.setText(_("items_edit_dialog.no_items_found"))
 
     # ======================================================================
     # Methods called by the signals

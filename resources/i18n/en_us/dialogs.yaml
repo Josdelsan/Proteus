@@ -168,12 +168,13 @@ without warranty of any kind, use it at your own risk. The authors are not respo
 Seville, September 2024."
 
 # ---------------------------------------------------------------------------
-# Trace edit dialog
+# Items dialog
 # ---------------------------------------------------------------------------
-trace_edit_dialog.title: "Select an element"
-trace_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
-trace_edit_dialog.error_label.no_objects: "No elements found, create new elements of one of the following classes: {}"
-trace_edit_dialog.any_document: "Any document"
+items_edit_dialog.title: "Select an element"
+items_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
+items_edit_dialog.error_label.no_objects: "No elements found, create new elements of one of the following classes: {}"
+items_edit_dialog.any_document: "Any document"
+items_edit_dialog.no_items_found: "No elements found"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

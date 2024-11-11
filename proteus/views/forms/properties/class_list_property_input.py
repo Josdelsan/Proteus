@@ -80,7 +80,7 @@ class ClassListPropertyInput(PropertyInput):
         property: ClassListProperty, controller: Controller, *args, **kwargs
     ) -> ClassEdit:
         """
-        Creates the input widget based on PROTEUS TraceEdit.
+        Creates the input widget based on PROTEUS ObjectListEdit.
         """
         # Get project and property classes
         project_classes = controller.get_project_available_classes()

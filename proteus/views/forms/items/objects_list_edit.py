@@ -277,7 +277,7 @@ class ObjectsListEditDialog(ItemListEditDialog):
         self.document_selector_combo: CheckComboBox = CheckComboBox()
 
         self.document_selector_combo.addItem(
-            _("trace_edit_dialog.any_document"),
+            _("items_edit_dialog.any_document"),
             ANY_DOCUMENT,
             True,
             Icons().icon(ProteusIconType.Document, ANY_DOCUMENT),

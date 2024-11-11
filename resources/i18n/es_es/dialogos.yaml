@@ -169,12 +169,13 @@ Los autores no son responsables de ningún daño causado por el uso de este soft
 Sevilla, Septiembre de 2024."
 
 # ---------------------------------------------------------------------------
-# Trace edit dialog
+# Items edit dialog
 # ---------------------------------------------------------------------------
-trace_edit_dialog.title: "Selecciona un elemento a trazar"
-trace_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
-trace_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
-trace_edit_dialog.any_document: "Cualquier documento"
+items_edit_dialog.title: "Selecciona un elemento a trazar"
+items_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre para filtrar"
+items_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
+items_edit_dialog.any_document: "Cualquier documento"
+items_edit_dialog.no_items_found: "No se encontraron elementos"
 
 # ---------------------------------------------------------------------------
 # Delete dialog
