@@ -276,6 +276,18 @@ class ItemListEdit(QWidget):
             self.add_button.setEnabled(True)
 
     # ----------------------------------------------------------------------
+    # Method: create_dialog
+    # Date: 13/11/2024
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_dialog(self, candidates: List[Any]) -> "ItemListEditDialog":
+        """
+        Creates the object picker dialog.
+        """
+        return ItemListEditDialog.create_dialog(candidates, self.list_item_setup)
+
+    # ----------------------------------------------------------------------
     # Method: add_item
     # Description: Adds an item to the list widget.
     # Date: 06/11/2024
@@ -291,9 +303,7 @@ class ItemListEdit(QWidget):
         candidates = [item for item in self.candidates if item not in current_items]
 
         # Get the selected item
-        dialog: ItemListEditDialog = ItemListEditDialog.create_dialog(
-            candidates, self.list_item_setup
-        )
+        dialog: ItemListEditDialog = self.create_dialog(candidates)
 
         select_item_data = dialog.selected_item_data
 
@@ -441,7 +451,7 @@ class ItemListEditDialog(QDialog):
         )
 
         # Filter layout
-        self.filters_layout = QHBoxLayout()
+        self.filters_layout = QVBoxLayout()
         self.filters_layout.addWidget(self.name_filter_widget)
 
         # Create a layout for the QListWidget

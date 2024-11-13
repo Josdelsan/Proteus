@@ -229,11 +229,12 @@ class ProjectService:
                     assert (
                         target_object.state != ProteusState.DEAD
                     ), f"Target object '{target}' is DEAD."
-                except:
+                except Exception as e:
                     log.error(
                         f"Found a Trace in object '{object.id}' targeting a DEAD object '{target}'. "
                         f"Target '{target}' will be ignored in load_traces_index method so it can be deleted. "
                         "Check for project inconsistencies, this might affect the project integrity. "
+                        f"Error: {e}"
                     )
                     if target in self.traces_index:
                         self.traces_index.pop(target)

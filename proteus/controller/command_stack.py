@@ -738,7 +738,8 @@ class Controller:
 
     # ----------------------------------------------------------------------
     # Method     : get_traces_dependencies
-    # Description: Checks if the given object has traces pointing to it.
+    # Description: Checks if the given object and its children have traces
+    #              pointing to them.
     # Date       : 27/10/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
@@ -751,6 +752,38 @@ class Controller:
         :return: Dictionary with sets of sources ids pointing to each object.
         """
         return self._project_service.get_traces_dependencies_outside(object_id)
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_traces_pointing_to 
+    # Description: Checks if the given object has traces pointing to it.
+    # Date       : 11/11/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_objects_pointing_to(self, object_id: ProteusID) -> Set[ProteusID]:
+        """
+        Checks if the given object has object pointing to it.
+
+        :param object_id: Id of the object to check.
+        :return: Set of sources ids pointing to the object.
+        """
+        traces = self._project_service.traces_index.get(object_id, set())
+        return traces.copy()
+
+
+    # ----------------------------------------------------------------------
+    # Method     : get_traced_objects_ids
+    # Description: Get the ids of the objects that have traces pointing to
+    #              them.
+    # Date       : 13/11/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_traced_objects_ids(self) -> Set[ProteusID]:
+        """
+        Get the ids of the objects that have traces pointing to them.
+        """
+        return self._project_service.traces_index.keys()
 
     # ======================================================================
     # Document views methods

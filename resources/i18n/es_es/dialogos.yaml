@@ -176,6 +176,7 @@ items_edit_dialog.name_filter_widget.placeholder_text: "Introduzca un nombre par
 items_edit_dialog.error_label.no_objects: "No se encontraron elementos, cree nuevos elementos de una de las siguientes clases: {}"
 items_edit_dialog.any_document: "Cualquier documento"
 items_edit_dialog.no_items_found: "No se encontraron elementos"
+items_edit_dialog.show_only_traced: "Mostrar solo elementos trazados"
 
 # ---------------------------------------------------------------------------
 # Delete dialog

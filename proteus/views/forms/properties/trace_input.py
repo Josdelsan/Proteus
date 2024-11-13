@@ -93,14 +93,14 @@ class TraceInput(PropertyInput):
         """
 
         # Candidates
-        candidates: List[Object] = controller.get_objects(
+        candidates_objects: List[Object] = controller.get_objects(
             classes=property.acceptedTargets
         )
 
         # Filter candidates by excluded targets (classes), element_id
         candidates = [
-            obj
-            for obj in candidates
+            obj.id
+            for obj in candidates_objects
             if not any(
                 excluded_class in obj.classes
                 for excluded_class in property.excludedTargets

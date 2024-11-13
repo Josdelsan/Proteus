@@ -175,6 +175,7 @@ items_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
 items_edit_dialog.error_label.no_objects: "No elements found, create new elements of one of the following classes: {}"
 items_edit_dialog.any_document: "Any document"
 items_edit_dialog.no_items_found: "No elements found"
+items_edit_dialog.show_only_traced: "Show only traced elements"
 
 # ---------------------------------------------------------------------------
 # Delete dialog
