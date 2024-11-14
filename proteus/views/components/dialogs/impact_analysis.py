@@ -176,11 +176,10 @@ class ImpactAnalysisWindow(ProteusDialog):
         self.analyzed_objects.item_list.itemDoubleClicked.connect(self.select_object_on_double_click)
         self.affected_objects.itemDoubleClicked.connect(self.select_object_on_double_click)
 
+        # Buttons
         self.navigate_button.clicked.connect(self.navigate_to_current_affected_object)
-        self.affected_objects.itemSelectionChanged.connect(self.update_affected_objects_buttons)
-
-        # Edit button
         self.edit_button.clicked.connect(self.edit_button_clicked)
+        self.affected_objects.currentItemChanged.connect(self.update_affected_objects_buttons)
 
     # --------------------------------------------------------------------------
     # Method: subscribe
@@ -325,6 +324,15 @@ class ImpactAnalysisWindow(ProteusDialog):
         if current_item:
             self.select_object_on_double_click(current_item)
 
+    def edit_button_clicked(self) -> None:
+        """
+        Open the property dialog for the selected object
+        """
+        current_item = self.affected_objects.currentItem()
+        if current_item:
+            object_id = current_item.data(Qt.ItemDataRole.UserRole)
+            PropertyDialog.create_dialog(self._controller, object_id)
+
     def update_affected_objects_buttons(self) -> None:
         """
         Update the navigation button based on the current selection.
@@ -334,14 +342,6 @@ class ImpactAnalysisWindow(ProteusDialog):
 
         self.navigate_button.setEnabled(enabled)
         self.edit_button.setEnabled(enabled)
-
-    def edit_button_clicked(self) -> None:
-        current_item = self.affected_objects.currentItem()
-        object_id = current_item.data(Qt.ItemDataRole.UserRole)
-        if current_item:
-            PropertyDialog.create_dialog(self._controller, object_id)
-        
-        #TODO: Show error message? this should never happen anyway
 
     # ==========================================================================
     # Component update methods (triggered by PROTEUS application events)
@@ -372,10 +372,6 @@ class ImpactAnalysisWindow(ProteusDialog):
         Update the affected objects, the candidates list and the analyzed objects
         list when a document or object is deleted.
         """
-        # Update the candidates list and the affected objects
-        self.analyzed_objects.candidates = self._calculate_candidates()
-        self.update_affected_objects()
-
         # Remove DEAD objects from the analyzed objects list
         elements: List[Object] = []
         for element_id in self.analyzed_objects.items():
@@ -386,6 +382,10 @@ class ImpactAnalysisWindow(ProteusDialog):
             elements.append(element)
 
         self.analyzed_objects.setItems(elements)
+
+        # Update the candidates list and the affected objects
+        self.analyzed_objects.candidates = self._calculate_candidates()
+        self.update_affected_objects()
 
     # --------------------------------------------------------------------------
     # Method: update_on_modify_object
@@ -398,14 +398,16 @@ class ImpactAnalysisWindow(ProteusDialog):
         Update the affected objects when an object is modified and update the
         analyzed objects representation.
         """
-        # Update the affected objects
-        self.update_affected_objects()
-
         # Update the analyzed objects representation
         for i in range(self.analyzed_objects.item_list.count()):
             item: QListWidgetItem = self.analyzed_objects.item_list.item(i)
             object_id = item.data(Qt.ItemDataRole.UserRole)
             self.analyzed_objects.list_item_setup(item, object_id)
+
+        self.affected_objects.setCurrentItem(None)
+
+        # Update the affected objects
+        self.update_affected_objects()
 
     # ==========================================================================
     # Static methods
