@@ -15,7 +15,7 @@
 # --------------------------------------------------------------------------
 
 import logging
-from typing import List, Callable, Set
+from typing import List, Callable, Set, Iterable
 
 # --------------------------------------------------------------------------
 # Third-party library imports
@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QSizePolicy,
     QHBoxLayout,
+    QDialogButtonBox,
 )
 
 # --------------------------------------------------------------------------
@@ -40,7 +41,6 @@ from proteus.model import (
     PROTEUS_NAME,
     PROTEUS_ANY,
     PROTEUS_ACRONYM,
-    PROTEUS_DEPENDENCY,
 )
 from proteus.model.properties import Property
 from proteus.model.properties.code_property import ProteusCode
@@ -452,12 +452,24 @@ class ImpactAnalysisObjectsListEdit(ObjectsListEdit):
     that provides a filter for traced objects.
     """
 
+    def __init__(
+        self,
+        controler,
+        candidates,
+        trace_types: Iterable[str],
+        item_limit=-1,
+        *args,
+        **kargs,
+    ):
+        super().__init__(controler, candidates, item_limit, *args, **kargs)
+        self.trace_types: Iterable[str] = trace_types
+
     def create_dialog(
         self, candidates: List[ProteusID]
     ) -> "ImpactAnalysisObjectsListEditDialog":
         # Make the intersection between the candidates and the current items
         return ImpactAnalysisObjectsListEditDialog.create_dialog(
-            self.controller, candidates, self.list_item_setup
+            self.controller, candidates, self.list_item_setup, self.trace_types
         )
 
 
@@ -472,12 +484,26 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
     Inherit from ObjectsListEditDialog. Provides a filter for traced objects.
     """
 
-    def __init__(self, controller, candidates, setup_method, *args, **kargs):
+    def __init__(
+        self,
+        controller,
+        candidates,
+        setup_method,
+        trace_types: Iterable[str],
+        *args,
+        **kargs,
+    ):
         super().__init__(controller, candidates, setup_method, *args, **kargs)
+
+        self.button_box.button(QDialogButtonBox.StandardButton.Save).setText(
+            _("dialog.accept_button")
+        )
+
+        self.trace_types: Iterable[str] = trace_types
 
         # Show only traced filter
         self.show_only_traced_filter = BooleanEdit(
-            _("items_edit_dialog.show_only_traced")
+            _("impact_analysis_dialog.items_edit_dialog.show_only_traced")
         )
 
         self.show_only_traced_filter.setChecked(True)
@@ -491,7 +517,7 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
         # Update the list widget
         self.update_item_list()
 
-    def _get_traced_objects_ids_by_proteus_dependency(self) -> Set[ProteusID]:
+    def _get_traced_objects_ids_by_trace_types(self) -> Set[ProteusID]:
         """
         Get the traced objects by a PROTEUS_DEPENDENCY property.
 
@@ -503,15 +529,12 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
         traced_objects_ids = self.controller.get_traced_objects_ids()
 
         for object_id in traced_objects_ids:
-            pointer_objects_ids: Set[ProteusID] = self.controller.get_objects_pointing_to(object_id)
-            for pointer_object_id in pointer_objects_ids:
-                pointer_object: Object = self.controller.get_element(pointer_object_id)
-                for trace in pointer_object.get_traces():
-                    if trace.type == PROTEUS_DEPENDENCY and object_id in trace.value:
-                        traced_objects_ids_by_proteus_dependency.add(object_id)
+            object_pointing_to = self.controller.get_objects_pointing_to(object_id)
+            for aux, trace_type in object_pointing_to:
+                if trace_type in self.trace_types:
+                    traced_objects_ids_by_proteus_dependency.add(object_id)
 
         return traced_objects_ids_by_proteus_dependency
-
 
     def update_item_list(self):
         """
@@ -524,7 +547,7 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
         name_filter_text = self.name_filter_widget.text().lower()
         show_only_traced = self.show_only_traced_filter.checked()
 
-        traced_objects_ids = self._get_traced_objects_ids_by_proteus_dependency()
+        traced_objects_ids = self._get_traced_objects_ids_by_trace_types()
 
         # Iterate over the QListWidget items and hide the ones
         # that do not match the class filter
@@ -577,7 +600,10 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
 
     @staticmethod
     def create_dialog(
-        controller: Controller, candidates: List[ProteusID], setup_method: Callable
+        controller: Controller,
+        candidates: List[ProteusID],
+        setup_method: Callable,
+        trace_types: Iterable[str],
     ) -> "ImpactAnalysisObjectsListEditDialog":
         """
         Create a dialog instance with the given parameters.
@@ -588,7 +614,7 @@ class ImpactAnalysisObjectsListEditDialog(ObjectsListEditDialog):
         :return: ImpactAnalysisObjectsListEditDialog instance.
         """
         dialog = ImpactAnalysisObjectsListEditDialog(
-            controller, candidates, setup_method
+            controller, candidates, setup_method, trace_types
         )
         dialog.exec()
 

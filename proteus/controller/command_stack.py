@@ -10,7 +10,7 @@
 # Standard library imports
 # --------------------------------------------------------------------------
 
-from typing import List, Set, Dict
+from typing import List, Set, Dict, Tuple
 from pathlib import Path
 import logging
 
@@ -619,6 +619,21 @@ class Controller:
         """
         log.info("Getting available classes of current project")
         return self._project_service.get_project_available_classes(include_subclasses)
+    
+    # ----------------------------------------------------------------------
+    # Method     : get_project_available_trace_types
+    # Description: Get the available trace types in the current project.
+    # Date       : 18/11/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def get_project_available_trace_types(self) -> Set[str]:
+        """
+        Get the available trace types in the current project.
+        :return: Set of available trace types.
+        """
+        log.info("Getting available trace types of current project")
+        return self._project_service.get_project_available_trace_types()
 
     # ----------------------------------------------------------------------
     # Method     : get_objects
@@ -760,7 +775,7 @@ class Controller:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_objects_pointing_to(self, object_id: ProteusID) -> Set[ProteusID]:
+    def get_objects_pointing_to(self, object_id: ProteusID) -> Set[Tuple[ProteusID, str]]:
         """
         Checks if the given object has object pointing to it.
 

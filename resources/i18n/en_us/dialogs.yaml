@@ -175,7 +175,6 @@ items_edit_dialog.name_filter_widget.placeholder_text: "Enter name to filter"
 items_edit_dialog.error_label.no_objects: "No elements found, create new elements of one of the following classes: {}"
 items_edit_dialog.any_document: "Any document"
 items_edit_dialog.no_items_found: "No elements found"
-items_edit_dialog.show_only_traced: "Show only traced elements"
 
 # ---------------------------------------------------------------------------
 # Delete dialog
@@ -190,6 +189,16 @@ delete_dialog.tree.header: Click in each item to see the elements that will be u
 # ---------------------------------------------------------------------------
 asset_edit.file_dialog.title: "Select image"
 asset_edit.file_dialog.filter: "Images"
+
+
+# ---------------------------------------------------------------------------
+# Impact analysis dialog
+# ---------------------------------------------------------------------------
+impact_analysis_dialog.title: "Impact analysis"
+impact_analysis_dialog.label.analyzed_objects: "Directly affected objects:"
+impact_analysis_dialog.label.trace_types: "Trace types:"
+impact_analysis_dialog.label.affected_objects: "Indirectly affected objects:"
+impact_analysis_dialog.items_edit_dialog.show_only_traced: "Show only traced elements"
 
 
 # ---------------------------------------------------------------------------

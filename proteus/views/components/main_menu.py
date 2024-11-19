@@ -467,7 +467,7 @@ class MainMenu(QDockWidget, ProteusComponent):
         tab_layout.addWidget(buttons.get_separator(vertical=True))
 
         # ---------
-        # aplication
+        # Analysis
         # ---------
         self.impact_analysis_button: QToolButton = buttons.main_menu_button(
             self,
@@ -481,6 +481,16 @@ class MainMenu(QDockWidget, ProteusComponent):
             lambda: ImpactAnalysisWindow.show_dialog(self, self._controller)
         )
 
+        analysis_menu: QWidget = buttons.button_group(
+            [self.impact_analysis_button],
+            "main_menu.button_group.analysis",
+        )
+        tab_layout.addWidget(analysis_menu)
+        tab_layout.addWidget(buttons.get_separator(vertical=True))
+
+        # ---------
+        # aplication
+        # ---------
         # Settings action
         self.settings_button: QToolButton = buttons.main_menu_button(
             self,
@@ -507,7 +517,7 @@ class MainMenu(QDockWidget, ProteusComponent):
 
         # Add the buttons to the aplication menu widget
         aplication_menu: QWidget = buttons.button_group(
-            [self.impact_analysis_button, self.settings_button, self.information_button],
+            [self.settings_button, self.information_button],
             "main_menu.button_group.application",
         )
 
