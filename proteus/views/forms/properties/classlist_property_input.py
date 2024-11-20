@@ -1,5 +1,5 @@
 # ==========================================================================
-# File: class_list_property_input.py
+# File: classlist_property_input.py
 # Description: Class list input widget for properties forms.
 # Date: 06/02/2024
 # Version: 0.1

@@ -42,6 +42,7 @@ from proteus.model.properties import (
     MarkdownProperty,
     TraceProperty,
     ClassListProperty,
+    TraceTypeListProperty,
 )
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import translate as _
@@ -273,7 +274,10 @@ class PropertyDialog(ProteusDialog):
         category_layout: QFormLayout = category_widget.layout()
 
         # Some properties are displayed in a group box
-        if isinstance(prop, (TraceProperty, MarkdownProperty, ClassListProperty)):
+        if isinstance(
+            prop,
+            (TraceProperty, MarkdownProperty, ClassListProperty, TraceTypeListProperty),
+        ):
             group_box: QGroupBox = QGroupBox()
             group_box.setTitle(input_label.text())
             group_box_layout: QVBoxLayout = QVBoxLayout()

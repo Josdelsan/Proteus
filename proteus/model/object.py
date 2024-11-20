@@ -706,7 +706,7 @@ class Object(AbstractObject):
 
         # Create file path
         project_objects_path = pathlib.Path(project.path).parent / OBJECTS_REPOSITORY
-        new_object.path = project_objects_path / f"{new_object.id}.xml"
+        new_object.path = (project_objects_path / f"{new_object.id}.xml").as_posix()
 
         # -------------------------------------------------------
         # Handle special properties (Date, Code, FileProperties)

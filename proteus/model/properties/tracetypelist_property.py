@@ -1,11 +1,9 @@
 # ==========================================================================
-# File: classlist_property.py
-# Description: PROTEUS class list property
-# Date: 27/02/2023
-# Version: 0.3
-# Author: Amador Durán Toro
-#         Pablo Rivera Jiménez
-#         José María Delgado Sánchez
+# File: tracetypelist_property.py
+# Description: PROTEUS TracetypeList property
+# Date: 20/11/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
 # ==========================================================================
 
 # --------------------------------------------------------------------------
@@ -28,31 +26,28 @@ import lxml.etree as ET
 
 from proteus.model import ProteusClassTag
 from proteus.model.properties.property import Property
-from proteus.model.properties import CLASSLIST_PROPERTY_TAG, CLASS_TAG
+from proteus.model.properties import TRACE_TYPE_LIST_PROPERTY_TAG, TYPE_TAG
 
 
 # logging configuration
 log = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------
-# Class: ClassListProperty
-# Description: Class for PROTEUS ClassList properties
-# Date: 22/10/2022
-# Version: 0.2
-# Author: Pablo Rivera Jiménez
-#         Amador Durán Toro
-#         José María Delgado Sánchez
-# --------------------------------------------------------------------------
 
-
+# --------------------------------------------------------------------------
+# Class: TraceTypeListProperty
+# Description: Class for PROTEUS TracetypeList properties
+# Date: 20/11/2024
+# Version: 0.1
+# Author: José María Delgado Sánchez
+# --------------------------------------------------------------------------
 @dataclass(frozen=True)
-class ClassListProperty(Property):
+class TraceTypeListProperty(Property):
     """
-    Class for PROTEUS class-tag-list properties.
+    Class for PROTEUS trace-type-list properties.
     """
 
     # XML element tag name for this class of property (class attribute)
-    element_tagname: ClassVar[str] = CLASSLIST_PROPERTY_TAG
+    element_tagname: ClassVar[str] = TRACE_TYPE_LIST_PROPERTY_TAG
     value: List[ProteusClassTag]
 
     def __post_init__(self) -> None:
@@ -63,8 +58,7 @@ class ClassListProperty(Property):
         # Superclass validation
         super().__post_init__()
 
-        # TODO: how can we check whether class names are valid at this moment?
-
+        # TODO: how can we check whether trace type names are valid at this moment?
 
         # Check if the value is a string
         if isinstance(self.value, str):
@@ -73,7 +67,7 @@ class ClassListProperty(Property):
         # Check if the value is a list
         if not isinstance(self.value, list):
             log.warning(
-                f"ClassListProperty: {self.name} value is not a list but '{type(self.value)}', setting it to an empty list"
+                f"TraceTypeListProperty: {self.name} value is not a list but '{type(self.value)}', setting it to an empty list"
             )
             object.__setattr__(self, "value", list())
 
@@ -81,7 +75,7 @@ class ClassListProperty(Property):
         value_set = set(self.value)
         if len(value_set) != len(self.value):
             log.warning(
-                f"ClassListProperty: {self.name} contains repeated values, setting it to a list with unique values. \
+                f"TraceTypeListProperty: {self.name} contains repeated values, setting it to a list with unique values. \
                 This may affect the original order of the list. Original value: {self.value}, new value: {value_set}"
             )
             object.__setattr__(self, "value", list(value_set))
@@ -89,18 +83,23 @@ class ClassListProperty(Property):
         # Check for None values
         if None in self.value:
             log.warning(
-                f"ClassListProperty: {self.name} contains None values, setting it to a list without None values"
+                f"TraceTypeListProperty: {self.name} contains None values, setting it to a list without None values. \
+                Original value: {self.value}"
             )
-            object.__setattr__(self, "value", [value for value in self.value if value is not None])
+            object.__setattr__(
+                self, "value", [value for value in self.value if value is not None]
+            )
 
-    def generate_xml_value(self, property_element: ET._Element) -> str | ET.CDATA | None:
+    def generate_xml_value(
+        self, property_element: ET._Element
+    ) -> str | ET.CDATA | None:
         """
         It generates the value of the property for its XML element.
         In this case, it adds one <class> child for each class tag.
         """
-        for class_name in self.value:
-            class_element = ET.SubElement(property_element, CLASS_TAG)
-            class_element.text = class_name
+        for trace_type_name in self.value:
+            trace_type_element = ET.SubElement(property_element, TYPE_TAG)
+            trace_type_element.text = trace_type_name
 
         # Returning None avoid the XML to be printed in a single line
         # https://lxml.de/FAQ.html#why-doesn-t-the-pretty-print-option-reformat-my-xml-output
