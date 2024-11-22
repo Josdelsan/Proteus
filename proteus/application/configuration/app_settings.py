@@ -33,12 +33,12 @@ from proteus.application.spellcheck import SpellCheckerWrapper
 CONFIG_FILE: str = "proteus.ini"
 DEFAULT_CONFIG_FILE: str = "proteus.default.ini"
 
-# Directories
-DIRECTORIES: str = "directories"
-RESOURCES_DIRECTORY: str = "resources_directory"
-ICONS_DIRECTORY: str = "icons_directory"
-I18N_DIRECTORY: str = "i18n_directory"
-PROFILES_DIRECTORY: str = "profiles_directory"
+# Directories (convention)
+RESOURCES_DIRECTORY: str = "resources"
+ICONS_DIRECTORY: str = "icons"
+I18N_DIRECTORY: str = "i18n"
+PLUGINS_DIRECTORY: str = "plugins"
+PROFILES_DIRECTORY: str = "profiles"
 
 # User editable settings
 SETTINGS: str = "settings"
@@ -78,6 +78,7 @@ class AppSettings:
     icons_directory: Path = None
     i18n_directory: Path = None
     profiles_directory: Path = None
+    plugins_directory: Path = None
 
     # Application settings (User editable settings)
     language: str = None
@@ -111,14 +112,14 @@ class AppSettings:
 
         assert (
             config_file_path.exists()
-        ), f"PROTEUS default configuration file {CONFIG_FILE} does not exist in {app_path}!"
+        ), f"PROTEUS default configuration file '{CONFIG_FILE}' does not exist in '{app_path}'!"
 
         # Check for proteus.ini file where the application is executed
         # NOTE: This allows to change config in single executable app version
         config_file_exec_path: Path = Path.cwd() / CONFIG_FILE
         if not config_file_exec_path.exists():
             log.warning(
-                f"PROTEUS configuration file {CONFIG_FILE} does not exist in the execution path. Copying configuration file to execution path..."
+                f"PROTEUS configuration file '{CONFIG_FILE}' does not exist in the execution path. Copying configuration file to execution path..."
             )
 
             # Copy proteus.ini file to execution path
@@ -129,7 +130,7 @@ class AppSettings:
             config_parser.read(config_file_exec_path, encoding="utf-8")
         except Exception as e:
             log.error(
-                f"Error loading configuration file {config_file_exec_path}: {e}"
+                f"Error loading configuration file '{config_file_exec_path}': {e}"
                 "Configuration file will be deleted and copied again from the default configuration file."
             )
 
@@ -138,7 +139,7 @@ class AppSettings:
 
             # Copy proteus.ini file to execution path
             shutil.copy(config_file_path, config_file_exec_path)
-            
+
             # Load the configuration file again
             config_parser: ConfigParser = ConfigParser()
             config_parser.read(config_file_exec_path, encoding="utf-8")
@@ -147,7 +148,7 @@ class AppSettings:
         # This is required to avoid loosing track if cwd changes
         settings_file_path: Path = config_file_exec_path
 
-        log.info(f"Loading settings from {settings_file_path}...")
+        log.info(f"Loading settings from '{settings_file_path}'...")
 
         app_settings = AppSettings(
             app_path=app_path,
@@ -169,34 +170,38 @@ class AppSettings:
     # --------------------------------------------------------------------------
     def _load_directories(self) -> None:
         """
-        Load directory settings from the configuration file.
+        Load directory settings from the configuration file. Directories are
+        defined by convention and are not editable by the user.
         """
         # Directories section
-        directories = self.config_parser[DIRECTORIES]
-
-        self.resources_directory = self.app_path / directories[RESOURCES_DIRECTORY]
-        self.icons_directory = self.resources_directory / directories[ICONS_DIRECTORY]
-        self.i18n_directory = self.resources_directory / directories[I18N_DIRECTORY]
-        self.profiles_directory = self.app_path / directories[PROFILES_DIRECTORY]
-
+        self.resources_directory = self.app_path / RESOURCES_DIRECTORY
+        self.profiles_directory = self.app_path / PROFILES_DIRECTORY
+        self.icons_directory = self.resources_directory / ICONS_DIRECTORY
+        self.i18n_directory = self.resources_directory / I18N_DIRECTORY
+        self.plugins_directory = self.resources_directory / PLUGINS_DIRECTORY
+        
         assert (
             self.resources_directory.exists()
-        ), f"PROTEUS resources directory {self.resources_directory} does not exist!"
+        ), f"PROTEUS resources directory '{self.resources_directory}' does not exist!"
         assert (
             self.icons_directory.exists()
-        ), f"PROTEUS icons directory {self.icons_directory} does not exist!"
+        ), f"PROTEUS icons directory '{self.icons_directory}' does not exist!"
         assert (
             self.i18n_directory.exists()
-        ), f"PROTEUS i18n directory {self.i18n_directory} does not exist!"
+        ), f"PROTEUS i18n directory '{self.i18n_directory}' does not exist!"
         assert (
             self.profiles_directory.exists()
-        ), f"PROTEUS profiles directory {self.profiles_directory} does not exist!"
+        ), f"PROTEUS profiles directory '{self.profiles_directory}' does not exist!"
+        assert (
+            self.plugins_directory.exists()
+        ), f"PROTEUS plugins directory '{self.plugins_directory}' does not exist!"
 
-        log.info(f"Directories loaded from {self.settings_file_path}.")
+        log.info(f"Directories loaded from '{self.settings_file_path}'.")
+        log.info(f"{self.profiles_directory = }")
         log.info(f"{self.resources_directory = }")
         log.info(f"{self.icons_directory = }")
         log.info(f"{self.i18n_directory = }")
-        log.info(f"{self.profiles_directory = }")
+        log.info(f"{self.plugins_directory = }")
 
     # --------------------------------------------------------------------------
     # Method: _load_user_settings
@@ -215,7 +220,9 @@ class AppSettings:
         # Language -----------------------
         self.language = settings[SETTING_LANGUAGE]
 
-        log.info(f"Config file {self.settings_file_path} | Language: {self.language}")
+        log.info(
+            f"Config file '{self.settings_file_path}' | Language: '{self.language}'"
+        )
 
         # Spellchecker language -----------------------
         spellchecker_language = settings[SETTING_SPELLCHECKER_LANGUAGE]
@@ -230,14 +237,14 @@ class AppSettings:
         self.spellchecker_language = spellchecker_language
 
         log.info(
-            f"Config file {self.settings_file_path} | Spellchecker language: {self.spellchecker_language}"
+            f"Config file '{self.settings_file_path}' | Spellchecker language: '{self.spellchecker_language}'"
         )
 
         # Default view -------------------
         self.default_view = settings[SETTING_DEFAULT_VIEW]
 
         log.info(
-            f"Config file {self.settings_file_path} | Default view: {self.default_view}"
+            f"Config file '{self.settings_file_path}' | Default view: '{self.default_view}'"
         )
 
         # Profile ------------------------
@@ -264,7 +271,7 @@ class AppSettings:
         # Raw model editor ------------------------
         self.developer_features = settings.getboolean(SETTING_DEVELOPER_FEATURES, False)
 
-        log.info(f"Loaded app user settings from {self.settings_file_path}.")
+        log.info(f"Loaded app user settings from '{self.settings_file_path}'.")
         log.info(f"{self.language = }")
         log.info(f"{self.default_view = }")
         log.info(f"{self.selected_profile = }")
@@ -290,12 +297,12 @@ class AppSettings:
         if not self.using_default_profile:
             if self.custom_profile_path is None:
                 log.error(
-                    f"Custom profile path not specified in {self.settings_file_path}. Using default profile..."
+                    f"Custom profile path not specified in '{self.settings_file_path}'. Using default profile..."
                 )
                 self.using_default_profile = True
             elif not self.custom_profile_path.exists():
                 log.error(
-                    f"Custom profile path {self.custom_profile_path} does not exist. Using default profile..."
+                    f"Custom profile path '{self.custom_profile_path}' does not exist. Using default profile..."
                 )
                 self.using_default_profile = True
 
@@ -385,7 +392,7 @@ class AppSettings:
         with open(self.settings_file_path, "w", encoding="utf-8") as config_file:
             self.config_parser.write(config_file)
 
-        log.info(f"Settings saved to {self.settings_file_path}.")
+        log.info(f"Settings saved to '{self.settings_file_path}'.")
         log.info(f"{self.language = }")
         log.info(f"{self.spellchecker_language = }")
         log.info(f"{self.default_view = }")
@@ -413,7 +420,7 @@ class AppSettings:
             return self.config_parser[SESSION][SESSION_LAST_PROJECT_OPENED]
         except KeyError:
             log.error(
-                f"Session data '{SESSION_LAST_PROJECT_OPENED}' not found in {self.settings_file_path}."
+                f"Session data '{SESSION_LAST_PROJECT_OPENED}' not found in '{self.settings_file_path}'."
             )
             return ""
 
@@ -438,6 +445,6 @@ class AppSettings:
             self.config_parser.write(config_file)
 
         log.info(
-            f"Session data '{SESSION_LAST_PROJECT_OPENED}' saved to {self.settings_file_path}."
+            f"Session data '{SESSION_LAST_PROJECT_OPENED}' saved to '{self.settings_file_path}'."
         )
         log.info(f"{last_project_opened = }")

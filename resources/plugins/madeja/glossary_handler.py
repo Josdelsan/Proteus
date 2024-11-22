@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: glossary_handler.py
-# Description: PyQT6 glossary handler for the REMUS plugin
+# Description: PyQT6 glossary handler for the MADEJA plugin
 # Date: 09/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -82,14 +82,14 @@ markdown.Markdown.output_formats["plain"] = unmark_element
 
 # --------------------------------------------------------------------------
 # Class: GlossaryHandler
-# Description: Glossary handler class for the REMUS plugin
+# Description: Glossary handler class
 # Date: 09/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class GlossaryHandler(ProteusComponent):
     """
-    Glossary handler class for the REMUS plugin. Implements the neccesary
+    Glossary handler class for the MADEJA plugin. Implements the neccesary
     logic to handle glossary items highlighting in the document html view.
 
     Glossary items are not case sensitive. If a glossary item contains multiple

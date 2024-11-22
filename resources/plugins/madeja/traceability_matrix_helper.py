@@ -156,7 +156,7 @@ class TraceabilityMatrixHelper(ProteusComponent):
         # Get the source and target objects
         try:
             source_obj: Object = self._controller.get_element(source_id)
-            target_obj: Object = self._controller.get_element(
+            self._controller.get_element(
                 target_id
             )  # Check existence
 

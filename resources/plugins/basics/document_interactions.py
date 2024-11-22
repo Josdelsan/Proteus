@@ -1,6 +1,6 @@
 # ==========================================================================
 # File: document_interactions.py
-# Description: PyQT6 document interactions class for the REMUS plugin
+# Description: PyQT6 document interactions class
 # Date: 03/01/2024
 # Version: 0.2
 # Author: José María Delgado Sánchez
@@ -41,14 +41,14 @@ log = logging.getLogger(__name__)  # Logger
 
 # --------------------------------------------------------------------------
 # Class: DocumentInteractions
-# Description: Document interactions class for the REMUS plugin
+# Description: Document interactions class
 # Date: 11/12/2023
 # Version: 0.1
 # Author: José María Delgado Sánchez
 # --------------------------------------------------------------------------
 class DocumentInteractions(ProteusComponent):
     """
-    Document interactions class for the REMUS plugin. Implements slots that
+    Document interactions class. Implements slots that
     are used by the document html view to handle user interactions.
     """
 

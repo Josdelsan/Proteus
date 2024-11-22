@@ -1,7 +1,6 @@
 # ==========================================================================
-# Plugin: REMUS
-# Description: PROTEUS 'remus' plugin for user interaction with documents
-#              and specific use cases management.
+# Plugin: MADEJA
+# Description: PROTEUS 'madeja' plugin for specific profile functionalities.
 # Date: 03/01/2024
 # Version: 0.1
 # Author: José María Delgado Sánchez
@@ -16,14 +15,10 @@
 # Possible solutions:
 # - Force view reload after opening the project.
 
-from remus.document_interactions import DocumentInteractions
-from remus.glossary_handler import GlossaryHandler
-from remus.traceability_matrix_helper import TraceabilityMatrixHelper
+from madeja.glossary_handler import GlossaryHandler
+from madeja.traceability_matrix_helper import TraceabilityMatrixHelper
 
 def register(register_xslt_function, register_qwebchannel_class, register_proteus_component):
-
-    # Document Interactions
-    register_qwebchannel_class("documentInteractions", DocumentInteractions)
 
     # Glossary
     register_xslt_function("glossary_highlight", GlossaryHandler.highlight_glossary_items)

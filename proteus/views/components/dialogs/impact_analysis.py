@@ -265,7 +265,6 @@ class ImpactAnalysisWindow(ProteusDialog):
             if object.state == ProteusState.DEAD:
                 continue
 
-            # Check if it is pointing from a PROTEUS_DEPENDENCY trace
             if trace_type in self.trace_type_picker.items():
                 affected_objects.add(object)
                 new_affected_objects = self._calculate_affected_objects(
