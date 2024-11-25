@@ -66,13 +66,13 @@
         <xsl:for-each select="trace">
             <xsl:variable name="target_id" select="@target" />
             <xsl:variable name="target_object" select="//object[@id=$target_id]" />
-                <xsl:variable name="target_code" select="$target_object/properties/*[@name=':Proteus-code']" />
-                <xsl:variable name="target_name">
-                    <xsl:if test="$target_code">
-                        [<xsl:value-of select="$target_code"/>]
-                    </xsl:if>
-                    <xsl:value-of select="$target_object/properties/*[@name=':Proteus-name']" />
-                </xsl:variable>
+            <xsl:variable name="target_code" select="$target_object/properties/*[@name=':Proteus-code']" />
+            <xsl:variable name="target_name">
+                <xsl:if test="$target_code">
+                    [<xsl:value-of select="$target_code"/>]
+                </xsl:if>
+                <xsl:value-of select="$target_object/properties/*[@name=':Proteus-name']" />
+            </xsl:variable>
 
             <xsl:if test="$target_object">
                 <p>
@@ -153,6 +153,24 @@
                 </xsl:otherwise>
             </xsl:choose>
         </div>
+    </xsl:template>
+
+    <!-- ============================================= -->
+    <!-- traceTypeListProperty                         -->
+    <!-- ============================================= -->
+
+    <xsl:template match="traceTypeListProperty">
+        <ul class="traces">
+            <xsl:for-each select="type">
+                <xsl:if test=".">
+                    <li>
+                        <a>
+                            <xsl:value-of select="."/>
+                        </a>
+                    </li>
+                </xsl:if>
+            </xsl:for-each>
+        </ul>
     </xsl:template>
 
 </xsl:stylesheet>

@@ -200,6 +200,8 @@ impact_analysis_dialog.label.trace_types: "Trace types:"
 impact_analysis_dialog.label.affected_objects: "Indirectly affected objects:"
 impact_analysis_dialog.items_edit_dialog.show_only_traced: "Show only traced elements"
 
+impact_analysis_dialog.message.error.impact_analyzer.title: "Error initializing plugin"
+impact_analysis_dialog.message.error.impact_analyzer.text: "There was an error initializing the impact analyzer plugin. Check the log file for more information."
 
 # ---------------------------------------------------------------------------
 # Developer features

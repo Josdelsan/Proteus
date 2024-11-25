@@ -200,6 +200,9 @@ impact_analysis_dialog.label.trace_types: "Tipos de traza:"
 impact_analysis_dialog.label.affected_objects: "Objetos indirectamente afectados:"
 impact_analysis_dialog.items_edit_dialog.show_only_traced: "Mostrar solo elementos trazados"
 
+impact_analysis_dialog.message.error.impact_analyzer.title: "Error al inicializar plugin"
+impact_analysis_dialog.message.error.impact_analyzer.text: "No se pudo inicializar el plugin de análisis de impacto. Más información en el archivo de registro de la aplicación"
+
 # ---------------------------------------------------------------------------
 # Developer features
 # ---------------------------------------------------------------------------

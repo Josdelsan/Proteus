@@ -44,9 +44,11 @@ from proteus.views.forms.items.objects_list_edit import ImpactAnalysisObjectsLis
 from proteus.views.forms.items.item_list_edit import ItemListEdit
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
 from proteus.views.components.dialogs.property_dialog import PropertyDialog
+from proteus.views.components.dialogs.base_dialogs import MessageBox
 from proteus.controller.command_stack import Controller
 from proteus.application.resources.translator import translate as _
 from proteus.application.resources.icons import Icons, ProteusIconType
+from proteus.application.resources.plugins import Plugins
 from proteus.application.events import (
     AddDocumentEvent,
     DeleteDocumentEvent,
@@ -54,7 +56,6 @@ from proteus.application.events import (
     DeleteObjectEvent,
     ModifyObjectEvent,
 )
-
 
 # Module configuration
 log = logging.getLogger(__name__)  # Logger
@@ -85,6 +86,17 @@ class ImpactAnalysisWindow(ProteusDialog):
         self.affected_objects: QListWidget
         self.navigate_button: QPushButton
 
+        impact_analyzer_class = Plugins().get_proteus_components().get("impactAnalyzer")
+        try:
+            self.impact_analyzer = impact_analyzer_class(parent=self)
+        except Exception as e:
+            log.error(f"Error creating the ImpactAnalyzer class: {e}")
+            MessageBox.critical(
+                _("impact_analysis_dialog.message.error.impact_analyzer.title"),
+                _("impact_analysis_dialog.message.error.impact_analyzer.text"),
+            )
+            self.impact_analyzer = None
+
         self.create_component()
         self.subscribe()
 
@@ -101,7 +113,9 @@ class ImpactAnalysisWindow(ProteusDialog):
 
         # Create the object picker ----------------------------------------------------------
         self.analyzed_objects = ImpactAnalysisObjectsListEdit(
-            self._controller, candidates=self._calculate_candidates(), trace_types=[PROTEUS_DEPENDENCY]
+            self._controller,
+            candidates=self._calculate_candidates(),
+            trace_types=[PROTEUS_DEPENDENCY],
         )
 
         # Trace type picker ------------------------------------------------------------------
@@ -139,9 +153,15 @@ class ImpactAnalysisWindow(ProteusDialog):
         affected_objects_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Create the splitter ----------------------------------------------------------------
-        analyzed_objects_label: QLabel = QLabel(_("impact_analysis_dialog.label.analyzed_objects"))
-        affected_objects_label: QLabel = QLabel(_("impact_analysis_dialog.label.affected_objects"))
-        trace_types_label: QLabel = QLabel(_("impact_analysis_dialog.label.trace_types"))
+        analyzed_objects_label: QLabel = QLabel(
+            _("impact_analysis_dialog.label.analyzed_objects")
+        )
+        affected_objects_label: QLabel = QLabel(
+            _("impact_analysis_dialog.label.affected_objects")
+        )
+        trace_types_label: QLabel = QLabel(
+            _("impact_analysis_dialog.label.trace_types")
+        )
 
         analyzed_objects_widget: QWidget = QWidget()
         analyzed_objects_widget_layout: QVBoxLayout = QVBoxLayout()
@@ -182,16 +202,24 @@ class ImpactAnalysisWindow(ProteusDialog):
         # Connect signals --------------------------------------------------------------------
         self.analyzed_objects.itemsChanged.connect(self.update_affected_objects)
         self.trace_type_picker.itemsChanged.connect(self.update_affected_objects)
-        self.trace_type_picker.itemsChanged.connect(self.update_selected_trace_types_on_analyzed_objects_selector)
+        self.trace_type_picker.itemsChanged.connect(
+            self.update_selected_trace_types_on_analyzed_objects_selector
+        )
 
         # Double-click navigation and button navigation
-        self.analyzed_objects.item_list.itemDoubleClicked.connect(self.select_object_on_double_click)
-        self.affected_objects.itemDoubleClicked.connect(self.select_object_on_double_click)
+        self.analyzed_objects.item_list.itemDoubleClicked.connect(
+            self.select_object_on_double_click
+        )
+        self.affected_objects.itemDoubleClicked.connect(
+            self.select_object_on_double_click
+        )
 
         # Buttons
         self.navigate_button.clicked.connect(self.navigate_to_current_affected_object)
         self.edit_button.clicked.connect(self.edit_button_clicked)
-        self.affected_objects.currentItemChanged.connect(self.update_affected_objects_buttons)
+        self.affected_objects.currentItemChanged.connect(
+            self.update_affected_objects_buttons
+        )
 
     # --------------------------------------------------------------------------
     # Method: subscribe
@@ -235,46 +263,6 @@ class ImpactAnalysisWindow(ProteusDialog):
         all_objects.remove(project)
         all_objects_ids = [obj.id for obj in all_objects]
         return all_objects_ids
-    
-    # --------------------------------------------------------------------------
-    # Method: _calculate_affected_objects
-    # Date: 11/11/2024
-    # Version: 0.1
-    # Author: José María Delgado Sánchez
-    # --------------------------------------------------------------------------
-    def _calculate_affected_objects(
-        self, analyzed_object: ProteusID, affected_objects: Set[Object] = set()
-    ) -> Set[Object]:
-        """
-        Calculate the affected objects in case of a change in the analyzed object.
-        It only considers the PROTEUS_DEPENDENCY traces.
-
-        :param ProteusID analyzed_object: ID of the object to analyze
-        :param Set[Object] affected_objects: set of already affected objects, defaults to set()
-        :return Set[Object]: set of affected objects
-        """
-
-        object_pointers = self._controller.get_objects_pointing_to(analyzed_object)
-        for object_id, trace_type in object_pointers:
-
-            if object_id in [obj.id for obj in affected_objects]:
-                continue
-
-            object = self._controller.get_element(object_id)
-
-            if object.state == ProteusState.DEAD:
-                continue
-
-            if trace_type in self.trace_type_picker.items():
-                affected_objects.add(object)
-                new_affected_objects = self._calculate_affected_objects(
-                    object.id, affected_objects
-                )
-
-                affected_objects.update(new_affected_objects)
-                break
-
-        return affected_objects
 
     # ==========================================================================
     # Connected to signals
@@ -284,22 +272,24 @@ class ImpactAnalysisWindow(ProteusDialog):
         """
         Update the affected objects list when the analyzed objects list changes.
         """
+        if self.impact_analyzer is None:
+            return
+
         self.affected_objects.clear()
         analyzed_objects_ids = self.analyzed_objects.items()
-        affected_objects: Set[Object] = set()
 
-        for analyzed_object_id in analyzed_objects_ids:
-            analyzed_object: Object = self._controller.get_element(analyzed_object_id)
-            _affected_objects = self._calculate_affected_objects(
-                analyzed_object_id, set([analyzed_object])
-            )
-            affected_objects.update(_affected_objects)
+        trace_types = self.trace_type_picker.items()
 
-        for affected_object in affected_objects:
+        affected_object_ids: List[ProteusID] = self.impact_analyzer.calculate_impact(
+            analyzed_objects_ids, trace_types
+        )
+
+        for affected_object in affected_object_ids:
             # Skip the analyzed objects
-            if affected_object.id in analyzed_objects_ids:
+            if affected_object in analyzed_objects_ids:
                 continue
 
+            affected_object: Object = self._controller.get_element(affected_object)
             item = QListWidgetItem()
 
             # Re-use the tree_item_setup function from the objects list edit
@@ -369,7 +359,9 @@ class ImpactAnalysisWindow(ProteusDialog):
         and the affected objects list when a document or object is added.
         """
         self.analyzed_objects.candidates = self._calculate_candidates()
-        self.trace_type_picker.candidates = self._controller.get_project_available_trace_types()
+        self.trace_type_picker.candidates = (
+            self._controller.get_project_available_trace_types()
+        )
         self.update_affected_objects()
 
     # --------------------------------------------------------------------------

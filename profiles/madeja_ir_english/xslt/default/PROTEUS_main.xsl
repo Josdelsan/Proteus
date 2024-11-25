@@ -80,6 +80,8 @@
         <label key="place"><xsl:value-of select="$proteus:lang_place"/></label>
         <label key="priority"><xsl:value-of select="$proteus:lang_priority"/></label>
         <label key="results"><xsl:value-of select="$proteus:lang_results"/></label>
+        <label key="directly-affected-objects"><xsl:value-of select="$proteus:lang_directly_affected_objects"/></label>
+        <label key="analysis"><xsl:value-of select="$proteus:lang_analysis"/></label>
     </xsl:variable>
 
     <!-- This is needed because of limitations of XSLT 1.0 -->
@@ -143,6 +145,7 @@
     <xsl:include href="archetypes/business_analysis/business_process.xsl" />
     <xsl:include href="archetypes/business_analysis/business_objective.xsl" />
     <xsl:include href="archetypes/business_analysis/user_story.xsl" />
+    <xsl:include href="archetypes/business_analysis/change_request.xsl" />
 
     <xsl:include href="archetypes/requirements/subsystem.xsl" />
     <xsl:include href="archetypes/requirements/general_requirement.xsl" />
