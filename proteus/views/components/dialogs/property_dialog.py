@@ -219,7 +219,6 @@ class PropertyDialog(ProteusDialog):
         # Add the tab widget to the main form layout
         tabbed_layout.addWidget(tab_widget)
 
-        self.accept_button.setText(_("dialog.save_button"))
         self.accept_button.clicked.connect(self.save_button_clicked)
 
         self.set_content_layout(tabbed_layout)
