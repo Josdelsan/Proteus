@@ -22,6 +22,7 @@ archetype.category.general: "General"
 archetype.category.business_analysis: "Análisis de negocio"
 archetype.category.requirements: "Requisitos de sistema/software"
 archetype.category.conceptual_modeling: "Modelado conceptual"
+archetype.category.req_management: "Gestión de requisitos"
 
 # -----------------------------------------------------------------------
 # Clases de arquetipos
@@ -64,7 +65,6 @@ archetype.class.use-case: "Caso\nde uso"
 archetype.class.use-case-step: "Paso de caso de uso"
 archetype.class.functional-requirement: "Requisito\nfuncional"
 archetype.class.nonfunctional-requirement: "Requisito\nno funcional"
-archetype.class.traceability-matrix: "Matriz de\ntrazabilidad"
 
 # Conceptual Modeling category
 
@@ -80,6 +80,11 @@ archetype.class.system-operation: "Operación\nde sistema"
 archetype.class.parameter: "Parámetro"
 archetype.class.mockup: "Mockup"
 
+# Requirements Management category
+
+archetype.class.traceability-matrix: "Matriz de\ntrazabilidad"
+archetype.class.change-request: "Solicitud de\ncambio"
+
 # -----------------------------------------------------------------------
 # Categorías de propiedades
 # -----------------------------------------------------------------------
@@ -93,6 +98,9 @@ archetype.prop_category.pre-post: "Pre/Post"
 archetype.prop_category.priority: "Prioridad"
 archetype.prop_category.description: "Descripción"
 archetype.prop_category.dependencies: "Dependencias"
+archetype.prop_category.impact: "Impacto"
+archetype.prop_category.analysis: "Análisis"
+archetype.prop_category.solution: "Solution"
 
 # -----------------------------------------------------------------------
 # Opciones de enumerados
@@ -126,6 +134,26 @@ archetype.enum_choices.awaiting-qa: "Esperando verificación de calidad"
 archetype.enum_choices.awaiting-validation: "Esperando validación"
 archetype.enum_choices.validated: "Validado"
 
+# Defect types
+archetype.enum_choices.ambiguity: "Ambigüedad"
+archetype.enum_choices.no-necessity: "No necesidad"
+archetype.enum_choices.no-understanding: "No comprensión"
+archetype.enum_choices.no-verificability: "No verificabilidad"
+archetype.enum_choices.no-consistency: "No consistencia"
+archetype.enum_choices.no-achievability: "No alcanzabilidad"
+archetype.enum_choices.verbosity: "Verborragia"
+archetype.enum_choices.design-dependence: "Dependencia del diseño"
+archetype.enum_choices.redundancy: "Redundancia"
+archetype.enum_choices.imprecision: "Imprecisión"
+archetype.enum_choices.no-completeness: "No completitud"
+archetype.enum_choices.no-priority: "No prioridad"
+archetype.enum_choices.no-stability: "No estabilidad"
+archetype.enum_choices.wrong-lod: "Nivel de detalle incorrecto"
+archetype.enum_choices.no-traceability: "No trazabilidad"
+archetype.enum_choices.wrong-org: "Organización incorrecta"
+archetype.enum_choices.other: "Otro"
+
+
 # -----------------------------------------------------------------------
 # Mensajes de ayuda
 # -----------------------------------------------------------------------
@@ -139,6 +167,7 @@ archetype.tooltip.is-composition: "Esta asociación es una composición."
 archetype.tooltip.is-derived: "Esta asociación es una asociación derivada."
 archetype.tooltip.importance: "Importancia para el cliente."
 archetype.tooltip.priority: "Prioridad para la dirección del proyecto."
+archetype.tooltip.urgency: "Urgencia para la dirección del proyecto."
 archetype.tooltip.status: "Estado según el ciclo de vida del proyecto."
 archetype.tooltip.result-type: "Tipo del resultdo de la operación de sistema."
 archetype.tooltip.constrained-elements: "Elementos del modelo afectados por la restricción."
@@ -216,3 +245,8 @@ archetype.prop_name.ordered: "Ordenado"
 archetype.prop_name.is-composition: "Composición"
 archetype.prop_name.result-type: "Tipo del resultado"
 archetype.prop_name.constrained-elements: "Elementos afectados"
+archetype.prop_name.analysis: "Análisis"
+archetype.prop_name.trace-type: "Tipo de traza"
+archetype.prop_name.directly-affected-objects: "Objetos afectados directamente"
+archetype.prop_name.solution: "Solution"
+archetype.prop_name.defect-type: "Tipo de defecto"

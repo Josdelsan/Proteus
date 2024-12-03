@@ -9,6 +9,15 @@
 
 
 # ---------------------------------------------------------------------------
+# Trace types
+# ---------------------------------------------------------------------------
+:proteus-dependency: "Dependency"
+:proteus-author: "Author"
+:proteus-information-source: "Information source"
+:proteus-works-for: "Works for"
+:proteus-affected: "Affected item"
+
+# ---------------------------------------------------------------------------
 # Property input
 # ---------------------------------------------------------------------------
 

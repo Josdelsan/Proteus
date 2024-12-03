@@ -162,10 +162,10 @@
     <xsl:template match="traceTypeListProperty">
         <ul class="traces">
             <xsl:for-each select="type">
-                <xsl:if test=".">
+                <xsl:if test="current()/text()">
                     <li>
                         <a>
-                            <xsl:value-of select="."/>
+                            <xsl:value-of select="$trace_types/label[@key=current()/text()]"/>
                         </a>
                     </li>
                 </xsl:if>

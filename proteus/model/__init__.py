@@ -75,6 +75,7 @@ PROTEUS_DEPENDENCY          = str(':Proteus-dependency')
 PROTEUS_AUTHOR              = str(':Proteus-author')
 PROTEUS_INFORMATION_SOURCE  = str(':Proteus-information-source')
 PROTEUS_WORKS_FOR           = str(':Proteus-works-for')
+PROTEUS_AFFECTED            = str(':Proteus-affected')
 
 
 # Name prefix for cloned objects

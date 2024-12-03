@@ -22,6 +22,7 @@ archetype.category.general: "General"
 archetype.category.business_analysis: "Business Analysis"
 archetype.category.requirements: "System/Software Requirements"
 archetype.category.conceptual_modeling: "Conceptual Modeling"
+archetype.category.req_management: "Requirements Management"
 
 # -----------------------------------------------------------------------
 # Archetype classes
@@ -64,7 +65,6 @@ archetype.class.use-case: "Use\ncase"
 archetype.class.use-case-step: "Use case step"
 archetype.class.functional-requirement: "Functional\nrequirement"
 archetype.class.nonfunctional-requirement: "Nonfunctional\nrequirement"
-archetype.class.traceability-matrix: "Traceability\nmatrix"
 
 # Conceptual Modeling category
 
@@ -80,6 +80,11 @@ archetype.class.system-operation: "System\noperation"
 archetype.class.parameter: "Parameter"
 archetype.class.mockup: "Mockup"
 
+# Requirements Management category
+
+archetype.class.traceability-matrix: "Traceability\nmatrix"
+archetype.class.change-request: "Change\nrequest"
+
 # -----------------------------------------------------------------------
 # Archetype property categories
 # -----------------------------------------------------------------------
@@ -93,6 +98,9 @@ archetype.prop_category.pre-post: "Pre/Post"
 archetype.prop_category.priority: "Priority"
 archetype.prop_category.description: "Description"
 archetype.prop_category.dependencies: "Dependencies"
+archetype.prop_category.impact: "Impact"
+archetype.prop_category.analysis: "Analysis"
+archetype.prop_category.solution: "Solution"
 
 # -----------------------------------------------------------------------
 # Archetype enum choices
@@ -126,6 +134,25 @@ archetype.enum_choices.awaiting-qa: "Awaiting quality verification"
 archetype.enum_choices.awaiting-validation: "Awaiting validation"
 archetype.enum_choices.validated: "Validated"
 
+# Defect types
+archetype.enum_choices.ambiguity: "Ambiguity"
+archetype.enum_choices.no-necessity: "No necessity"
+archetype.enum_choices.no-understanding: "No understanding"
+archetype.enum_choices.no-verificability: "No verificability"
+archetype.enum_choices.no-consistency: "No consistency"
+archetype.enum_choices.no-achievability: "No achievability"
+archetype.enum_choices.verbosity: "Verbosity"
+archetype.enum_choices.design-dependence: "Design dependence"
+archetype.enum_choices.redundancy: "Redundancy"
+archetype.enum_choices.imprecision: "Imprecision"
+archetype.enum_choices.no-completeness: "No completeness"
+archetype.enum_choices.no-priority: "No priority"
+archetype.enum_choices.no-stability: "No stability"
+archetype.enum_choices.wrong-lod: "Wrong level of detail"
+archetype.enum_choices.no-traceability: "No traceability"
+archetype.enum_choices.wrong-org: "Wrong organization"
+archetype.enum_choices.other: "Other"
+
 # -----------------------------------------------------------------------
 # Archetype tooltips
 # -----------------------------------------------------------------------
@@ -139,6 +166,7 @@ archetype.tooltip.is-composition: "This association is a composition."
 archetype.tooltip.is-derived: "This association is a derived association."
 archetype.tooltip.importance: "Importance for the client."
 archetype.tooltip.priority: "Priority for the project manager."
+archetype.tooltip.urgency: "Urgency for the project manager."
 archetype.tooltip.status: "Status according to the project's lifecycle."
 archetype.tooltip.result-type: "Return type of the system operation."
 archetype.tooltip.constrained-elements: "Model elements affected by the constraint."
@@ -216,3 +244,8 @@ archetype.prop_name.ordered: "Ordered"
 archetype.prop_name.is-composition: "Composition"
 archetype.prop_name.result-type: "Result type"
 archetype.prop_name.constrained-elements: "Constrained elements"
+archetype.prop_name.analysis: "Analysis"
+archetype.prop_name.trace-type: "Trace type"
+archetype.prop_name.directly-affected-objects: "Directly affected objects"
+archetype.prop_name.solution: "Solution"
+archetype.prop_name.defect-type: "Defect type"

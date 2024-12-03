@@ -212,7 +212,7 @@ class ItemListEdit(QWidget):
         :param item: Any
         """
         list_item.setData(Qt.ItemDataRole.UserRole, item)
-        list_item.setText(str(item))
+        list_item.setText(_(str(item)))
 
     # ======================================================================
     # Methods called by the signals
