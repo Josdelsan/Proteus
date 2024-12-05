@@ -79,7 +79,6 @@ TYPE_TAG                = str('type')
 PREFIX_TAG              = str('prefix')
 NUMBER_TAG              = str('number')
 SUFFIX_TAG              = str('suffix')
-CHOICES_ATTRIBUTE       = str('choices')
 TRACE_TAG               = str('trace')
 
 DEFAULT_NAME            = str('unnamed')

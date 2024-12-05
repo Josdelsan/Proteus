@@ -153,6 +153,25 @@ archetype.enum_choices.no-traceability: "No trazabilidad"
 archetype.enum_choices.wrong-org: "Organización incorrecta"
 archetype.enum_choices.other: "Otro"
 
+# Enum tooltips for specific properties
+archetype.enum_choices.tooltip.defect-type.ambiguity: "El requisito o requisitos, aunque comprensibles, tienen más de una interpretación posible."
+archetype.enum_choices.tooltip.defect-type.no-necessity: "El requisito o requisitos no son necesarios porque no satisfacen ninguna necesidad de los clientes o usuarios."
+archetype.enum_choices.tooltip.defect-type.no-understanding: "El requisito o requisitos no pueden ser comprendidos por algún lector."
+archetype.enum_choices.tooltip.defect-type.no-verificability: "No se puede verificar que el requisito o requisitos sean satisfechos por el sistema."
+archetype.enum_choices.tooltip.defect-type.no-consistency: "El requisito o requisitos no son consistentes, es decir, están en conflicto."
+archetype.enum_choices.tooltip.defect-type.no-achievability: "El requisito o requisitos no pueden ser implementados con la tecnología actual o bajo un costo razonable."
+archetype.enum_choices.tooltip.defect-type.verbosity: "El requisito o requisitos pueden expresarse de manera más concisa sin alterar su significado."
+archetype.enum_choices.tooltip.defect-type.design-dependence: "El requisito o requisitos contienen elementos dependientes del diseño."
+archetype.enum_choices.tooltip.defect-type.redundancy: "El requisito o requisitos son redundantes o contienen elementos redundantes."
+archetype.enum_choices.tooltip.defect-type.imprecision: "El requisito o requisitos no están expresados de manera precisa, es decir, utilizando cantidades numéricas siempre que sea posible con el nivel de precisión adecuado."
+archetype.enum_choices.tooltip.defect-type.no-completeness: "El requisito o requisitos no describen todo lo que se supone que debe hacer el sistema, no describen las respuestas del sistema a todas las situaciones realizables o incluyen elementos por determinar (TBD)."
+archetype.enum_choices.tooltip.defect-type.no-priority: "La prioridad, es decir, la importancia y urgencia del requisito o requisitos, no ha sido determinada."
+archetype.enum_choices.tooltip.defect-type.no-stability: "La estabilidad del requisito o requisitos no ha sido estimada."
+archetype.enum_choices.tooltip.defect-type.wrong-lod: "El requisito o requisitos no están expresados con el nivel correcto de detalle, es decir, son demasiado abstractos o demasiado detallados."
+archetype.enum_choices.tooltip.defect-type.no-traceability: "El requisito o requisitos no están trazados a sus orígenes, ya sean requisitos de mayor nivel (es decir, objetivos) o partes interesadas."
+archetype.enum_choices.tooltip.defect-type.wrong-org: "El requisito o requisitos no están correctamente organizados según los estándares aplicados o el documento no contiene secciones obligatorias."
+archetype.enum_choices.tooltip.defect-type.other: "El requisito o requisitos tienen otro tipo de defecto."
+
 
 # -----------------------------------------------------------------------
 # Mensajes de ayuda

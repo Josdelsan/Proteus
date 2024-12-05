@@ -54,11 +54,12 @@ from proteus.model import (
     ACCEPTED_TARGETS_ATTRIBUTE,
     EXCLUDED_TARGETS_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
+    CHOICES_ATTRIBUTE,
+    VALUE_TOOLTIPS_ATTRIBUTE,
 )
 
 from proteus.model.properties import (
     CLASS_TAG,
-    CHOICES_ATTRIBUTE,
     PREFIX_TAG,
     NUMBER_TAG,
     SUFFIX_TAG,
@@ -187,8 +188,22 @@ class PropertyFactory:
         if property_class is EnumProperty:
             # We need to collect its choices
             choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
+
+            # We need to collect valueTooltips attribute
+            value_tooltips_str = element.attrib.get(VALUE_TOOLTIPS_ATTRIBUTE, "false")
+            value_tooltips: bool = (
+                True if value_tooltips_str.lower() == "true" else False
+            )
+
             return EnumProperty(
-                name, category, value, tooltip, required, inmutable, choices
+                name,
+                category,
+                value,
+                tooltip,
+                required,
+                inmutable,
+                value_tooltips,
+                choices,
             )
 
         # Special case: traceProperty

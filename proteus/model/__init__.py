@@ -36,6 +36,7 @@ CHILDREN_TAG       = str('children')
 
 
 # XML attributes
+VALUE_ATTRIBUTE                = str('value')
 ID_ATTRIBUTE                   = str('id')
 ACCEPTED_CHILDREN_ATTRIBUTE    = str('acceptedChildren')
 ACCEPTED_PARENTS_ATTRIBUTE     = str('acceptedParents')
@@ -52,6 +53,8 @@ TOOLTIP_ATTRIBUTE              = str('tooltip')
 TARGET_ATTRIBUTE               = str('target')
 TRACE_TYPE_ATTRIBUTE           = str('traceType')
 MAX_TARGETS_NUMBER_ATTRIBUTE   = str('maxTargetsNumber')
+VALUE_TOOLTIPS_ATTRIBUTE       = str('valueTooltips')
+CHOICES_ATTRIBUTE              = str('choices')
 
 # Type for Class tags in Proteus
 ProteusClassTag = NewType('ProteusClassTag', str)

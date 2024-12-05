@@ -37,13 +37,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import (
-    Property,
-    MarkdownProperty,
-    TraceProperty,
-    ClassListProperty,
-    TraceTypeListProperty,
-)
+from proteus.model.properties import Property
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import translate as _
 from proteus.views.forms.properties.property_input import PropertyInput
@@ -274,10 +268,7 @@ class PropertyDialog(ProteusDialog):
         category_layout: QFormLayout = category_widget.layout()
 
         # Some properties are displayed in a group box
-        if isinstance(
-            prop,
-            (TraceProperty, MarkdownProperty, ClassListProperty, TraceTypeListProperty),
-        ):
+        if input_field_widget.wrap_in_group_box:
             group_box: QGroupBox = QGroupBox()
             group_box.setTitle(input_label.text())
             group_box_layout: QVBoxLayout = QVBoxLayout()

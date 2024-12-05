@@ -203,6 +203,9 @@ impact_analysis_dialog.items_edit_dialog.show_only_traced: "Show only traced ele
 impact_analysis_dialog.message.error.impact_analyzer.title: "Error initializing plugin"
 impact_analysis_dialog.message.error.impact_analyzer.text: "There was an error initializing the impact analyzer plugin. Check the log file for more information."
 
+impact_analysis_dialog.button.navigate.tooltip: "Navigate to the selected element"
+impact_analysis_dialog.button.edit.tooltip: "Edit the selected element"
+
 # ---------------------------------------------------------------------------
 # Developer features
 # ---------------------------------------------------------------------------

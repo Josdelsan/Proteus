@@ -203,6 +203,9 @@ impact_analysis_dialog.items_edit_dialog.show_only_traced: "Mostrar solo element
 impact_analysis_dialog.message.error.impact_analyzer.title: "Error al inicializar plugin"
 impact_analysis_dialog.message.error.impact_analyzer.text: "No se pudo inicializar el plugin de análisis de impacto. Más información en el archivo de registro de la aplicación"
 
+impact_analysis_dialog.button.navigate.tooltip: "Navegar al elemento seleccionado"
+impact_analysis_dialog.button.edit.tooltip: "Editar el elemento seleccionado"
+
 # ---------------------------------------------------------------------------
 # Developer features
 # ---------------------------------------------------------------------------

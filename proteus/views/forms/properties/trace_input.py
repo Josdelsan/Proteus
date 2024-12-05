@@ -44,6 +44,11 @@ class TraceInput(PropertyInput):
     Trace input widget for properties forms.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.wrap_in_group_box = True
+
     # ----------------------------------------------------------------------
     # Method     : get_value
     # Description: Returns the value of the input widget.

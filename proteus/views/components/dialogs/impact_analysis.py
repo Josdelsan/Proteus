@@ -96,6 +96,8 @@ class ImpactAnalysisWindow(ProteusDialog):
                 _("impact_analysis_dialog.message.error.impact_analyzer.text"),
             )
             self.impact_analyzer = None
+            self.close()
+            self.deleteLater()
 
         self.create_component()
         self.subscribe()
@@ -132,11 +134,13 @@ class ImpactAnalysisWindow(ProteusDialog):
         self.navigate_button: QPushButton = QPushButton()
         navigate_button_icon = Icons().icon(ProteusIconType.App, "navigate-to-object")
         self.navigate_button.setIcon(navigate_button_icon)
+        self.navigate_button.setToolTip(_("impact_analysis_dialog.button.navigate.tooltip"))
         self.navigate_button.setEnabled(False)
 
         self.edit_button: QPushButton = QPushButton()
         edit_button_icon = Icons().icon(ProteusIconType.App, "context-menu-edit")
         self.edit_button.setIcon(edit_button_icon)
+        self.edit_button.setToolTip(_("impact_analysis_dialog.button.edit.tooltip"))
         self.edit_button.setEnabled(False)
 
         # Create a layout for the buttons (vertically stacked)
