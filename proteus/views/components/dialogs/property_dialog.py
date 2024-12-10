@@ -37,7 +37,7 @@ from PyQt6.QtWidgets import (
 from proteus.model import ProteusID, PROTEUS_NAME
 from proteus.model.project import Project
 from proteus.model.object import Object
-from proteus.model.properties import Property, MarkdownProperty, TraceProperty
+from proteus.model.properties import Property
 from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import translate as _
 from proteus.views.forms.properties.property_input import PropertyInput
@@ -199,7 +199,7 @@ class PropertyDialog(ProteusDialog):
         try:
             selected_category: str = self.object.selectedCategory
         except AttributeError:
-            selected_category = ''
+            selected_category = ""
 
         # Add the category widgets as tabs in the tab widget
         for category, category_widget in category_widgets.items():
@@ -266,8 +266,8 @@ class PropertyDialog(ProteusDialog):
         # Get the category layout
         category_layout: QFormLayout = category_widget.layout()
 
-        # Traces and MarkdownProperty are wrapped in a group box
-        if isinstance(prop, (TraceProperty, MarkdownProperty)):
+        # Some properties are displayed in a group box
+        if input_field_widget.wrap_in_group_box:
             group_box: QGroupBox = QGroupBox()
             group_box.setTitle(input_label.text())
             group_box_layout: QVBoxLayout = QVBoxLayout()

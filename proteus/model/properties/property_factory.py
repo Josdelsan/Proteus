@@ -41,6 +41,7 @@ from proteus.model.properties.url_property import UrlProperty
 from proteus.model.properties.classlist_property import ClassListProperty
 from proteus.model.properties.trace_property import TraceProperty
 from proteus.model.properties.code_property import CodeProperty, ProteusCode
+from proteus.model.properties.tracetypelist_property import TraceTypeListProperty
 
 from proteus.model import (
     NAME_ATTRIBUTE,
@@ -53,15 +54,17 @@ from proteus.model import (
     ACCEPTED_TARGETS_ATTRIBUTE,
     EXCLUDED_TARGETS_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
+    CHOICES_ATTRIBUTE,
+    VALUE_TOOLTIPS_ATTRIBUTE,
 )
 
 from proteus.model.properties import (
     CLASS_TAG,
-    CHOICES_ATTRIBUTE,
     PREFIX_TAG,
     NUMBER_TAG,
     SUFFIX_TAG,
     TRACE_TAG,
+    TYPE_TAG,
     NO_TARGETS_LIMIT,
     DEFAULT_TRACE_TYPE,
 )
@@ -100,6 +103,7 @@ class PropertyFactory:
         ClassListProperty.element_tagname: ClassListProperty,
         CodeProperty.element_tagname: CodeProperty,
         TraceProperty.element_tagname: TraceProperty,
+        TraceTypeListProperty.element_tagname: TraceTypeListProperty,
     }
 
     @classmethod
@@ -109,7 +113,7 @@ class PropertyFactory:
         :param element: XML element with the property.
         :return: Property object or None if the property type is not valid.
         """
-        # Check it is one of the valid property types
+        # Check it is one of the valid property types -------------------------
         try:
             property_class = cls.propertyFactory[element.tag]
         except KeyError:
@@ -117,6 +121,8 @@ class PropertyFactory:
                 f"<{element.tag}> is not a valid PROTEUS property type -> ignoring invalid property"
             )
             return None
+
+        # General attributes --------------------------------------------------
 
         # Get name (checked in property constructors)
         name = element.attrib.get(NAME_ATTRIBUTE)
@@ -135,12 +141,20 @@ class PropertyFactory:
         # Get tooltip (checked in property constructors)
         tooltip = element.attrib.get(TOOLTIP_ATTRIBUTE, str())
 
+        # Specific attributes handling ----------------------------------------
+
         # Get value (checked in property constructors)
         if property_class is ClassListProperty:
             # We need to collect the list of class names,
             # put them toghether in a list of ProteusClassTag objects
             if element.findall(CLASS_TAG):
                 value = [ProteusClassTag(e.text) for e in element.findall(CLASS_TAG)]
+            else:
+                value = list()
+        elif property_class is TraceTypeListProperty:
+            # We need to collect the list of trace type names
+            if element.findall(TYPE_TAG):
+                value = [e.text for e in element.findall(TYPE_TAG)]
             else:
                 value = list()
         elif property_class is CodeProperty:
@@ -168,14 +182,28 @@ class PropertyFactory:
             # Value could be empty
             value = str(element.text)
 
-        # Create and return the property object
+        # Create and return the property object -------------------------------
 
         # Special case: EnumProperty
         if property_class is EnumProperty:
             # We need to collect its choices
             choices = element.attrib.get(CHOICES_ATTRIBUTE, str())
+
+            # We need to collect valueTooltips attribute
+            value_tooltips_str = element.attrib.get(VALUE_TOOLTIPS_ATTRIBUTE, "false")
+            value_tooltips: bool = (
+                True if value_tooltips_str.lower() == "true" else False
+            )
+
             return EnumProperty(
-                name, category, value, tooltip, required, inmutable, choices
+                name,
+                category,
+                value,
+                tooltip,
+                required,
+                inmutable,
+                value_tooltips,
+                choices,
             )
 
         # Special case: traceProperty

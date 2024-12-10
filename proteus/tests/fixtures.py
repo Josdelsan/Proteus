@@ -31,12 +31,11 @@ import yaml
 # --------------------------------------------------------------------------
 
 from proteus.tests import PROTEUS_PROJECT_DATA_FILE
-from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, ProteusID
+from proteus.model import NAME_ATTRIBUTE, CATEGORY_ATTRIBUTE, CHOICES_ATTRIBUTE, ProteusID
 from proteus.model.properties import \
     Property,                      \
     DEFAULT_NAME,                  \
     DEFAULT_CATEGORY,              \
-    CHOICES_ATTRIBUTE,             \
     CLASS_TAG,                     \
     PropertyFactory
 
