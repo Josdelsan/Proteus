@@ -444,7 +444,7 @@ class ItemListEditDialog(QDialog):
         )
 
         self.button_box.button(QDialogButtonBox.StandardButton.Save).setText(
-            _("dialog.save_button")
+            _("dialog.accept_button")
         )
         self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setText(
             _("dialog.reject_button")

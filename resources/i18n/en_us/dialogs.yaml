@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------------
 # Common
 # ---------------------------------------------------------------------------
-dialog.accept_button: "Accept"
+dialog.accept_button: "Ok"
 dialog.create_button: "Create"
 dialog.save_button: "Save"
 dialog.export_button: "Export"

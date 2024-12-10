@@ -85,7 +85,7 @@
                     </th>
                     <td>
                         <xsl:if test="not($indirectly-affected-objects)">
-                            <span class="tbd"><xsl:value-of select="$proteus:lang_TBD_expanded"/></span>
+                            <span class="tbd"><xsl:value-of select="$proteus:lang_none"/></span>
                         </xsl:if>
                         <ul class="traces">
                         <xsl:for-each select="$indirectly-affected-objects">

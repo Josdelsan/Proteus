@@ -154,6 +154,7 @@ archetype.enum_choices.wrong-org: "Wrong organization"
 archetype.enum_choices.other: "Other"
 
 # Enum tooltips for specific properties
+archetype.enum_choices.tooltip.defect-type.tbd: "To be determined."
 archetype.enum_choices.tooltip.defect-type.ambiguity: "The requirement or requirements, although understandable, have more than one possible interpretation."
 archetype.enum_choices.tooltip.defect-type.no-necessity: "The requirement or requirements are not necessary because they do not satisfy any customers' or users' need."
 archetype.enum_choices.tooltip.defect-type.no-understanding: "The requirement or requirements cannot be understood by some reader."

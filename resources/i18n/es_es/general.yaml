@@ -16,6 +16,8 @@
 :proteus-information-source: "Fuente de información"
 :proteus-works-for: "Trabaja para"
 :proteus-affected: "Elemento afectado"
+:proteus-link: "Enlace"
+:proteus-constraint: "Restricción"
 
 # ---------------------------------------------------------------------------
 # Property input
