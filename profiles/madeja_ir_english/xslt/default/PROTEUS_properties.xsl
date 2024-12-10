@@ -165,7 +165,15 @@
                 <xsl:if test="current()/text()">
                     <li>
                         <a>
-                            <xsl:value-of select="$trace_types/label[@key=current()/text()]"/>
+                        <xsl:variable name="trace_type_label" select="$trace_types/label[@key=current()/text()]" />
+                        <xsl:choose>
+                            <xsl:when test="normalize-space($trace_type_label)">
+                                <xsl:value-of select="$trace_type_label"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="current()/text()"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
                         </a>
                     </li>
                 </xsl:if>

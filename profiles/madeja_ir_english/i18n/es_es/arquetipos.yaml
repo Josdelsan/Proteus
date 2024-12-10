@@ -100,7 +100,7 @@ archetype.prop_category.description: "Descripción"
 archetype.prop_category.dependencies: "Dependencias"
 archetype.prop_category.impact: "Impacto"
 archetype.prop_category.analysis: "Análisis"
-archetype.prop_category.solution: "Solution"
+archetype.prop_category.solution: "Solución"
 
 # -----------------------------------------------------------------------
 # Opciones de enumerados
@@ -268,5 +268,5 @@ archetype.prop_name.constrained-elements: "Elementos afectados"
 archetype.prop_name.analysis: "Análisis"
 archetype.prop_name.trace-type: "Tipo de traza"
 archetype.prop_name.directly-affected-objects: "Objetos afectados directamente"
-archetype.prop_name.solution: "Solution"
+archetype.prop_name.solution: "Solución"
 archetype.prop_name.defect-type: "Tipo de defecto"
