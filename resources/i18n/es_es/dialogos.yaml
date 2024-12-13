@@ -115,8 +115,11 @@ settings_dialog.profile_settings.group: "Configuración del perfil"
 settings_dialog.default_view.label: "Vista por defecto:"
 settings_dialog.default_repository.label: "Repositorio de arquetipos:"
 
-settings_dialog.startup.group: "Arranque"
+settings_dialog.app.group: "App"
 settings_dialog.open_project_on_startup.checkbox: "Abrir último proyecto al iniciar la aplicación"
+settings_dialog.open_project_on_startup.tooltip: "Preguntar si desea abrir el último proyecto al iniciar la aplicación"
+settings_dialog.edit_on_clone.checkbox: "Editar al clonar arquetipos de objeto"
+settings_dialog.edit_on_clone.tooltip: "Al crear un nuevo objeto a partir de un arquetipo, abre el nuevo objeto para editarlo. Si se cancela el diálogo de edición, la operación de clonación se deshará."
 
 settings_dialog.info.label: "Los cambios se aplicarán al reiniciar la aplicación"
 

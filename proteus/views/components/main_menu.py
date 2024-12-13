@@ -572,8 +572,8 @@ class MainMenu(QDockWidget, ProteusComponent):
                 archetype_button.clicked.connect(
                     lambda action, archetype_id=archetype_list[
                         0
-                    ].id: self._controller.create_object(
-                        archetype_id, parent_id=self._state_manager.get_current_object()
+                    ].id: self.create_object_from_archetype(
+                        archetype_id, self._state_manager.get_current_object()
                     )
                 )
                 archetype_button.single_archetype_mode(archetype_list[0])
@@ -888,6 +888,30 @@ class MainMenu(QDockWidget, ProteusComponent):
     # ======================================================================
     # Component slots methods (connected to the component signals)
     # ======================================================================
+
+    # ----------------------------------------------------------------------
+    # Method     : create_object_from_archetype
+    # Description: Create a new object from the provided archetype and parent.
+    # Date       : 11/12/2024
+    # Version    : 0.1
+    # Author     : José María Delgado Sánchez
+    # ----------------------------------------------------------------------
+    def create_object_from_archetype(self, archetype_id: ProteusID, parent_id: ProteusID) -> None:
+        """
+        Create a new object from the provided archetype and parent.
+
+        :param archetype_id: The archetype id to create the object from.
+        :param parent_id: The parent id to create the object from.
+        """
+        self._controller.create_object(archetype_id, parent_id)
+
+        if Config().app_settings.edit_on_clone:
+            if self._state_manager.last_cloned_archetype is not None:
+                PropertyDialog.create_dialog(
+                    self._controller,
+                    self._state_manager.last_cloned_archetype,
+                    True,
+                )
 
     # ----------------------------------------------------------------------
     # Method     : open_project

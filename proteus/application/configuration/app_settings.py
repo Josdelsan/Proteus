@@ -49,6 +49,7 @@ SETTING_SELECTED_PROFILE: str = "selected_profile"
 SETTING_USING_DEFAULT_PROFILE: str = "using_default_profile"
 SETTING_CUSTOM_PROFILE_PATH: str = "custom_profile_path"
 SETTING_OPEN_PROJECT_ON_STARTUP: str = "open_project_on_startup"
+SETTING_EDIT_ON_CLONE: str = "edit_on_clone"
 # Special advanced settings
 SETTING_XSLT_DEBUG_MODE: str = "xslt_debug_mode"
 SETTING_DEVELOPER_FEATURES: str = "developer_features"
@@ -88,6 +89,7 @@ class AppSettings:
     using_default_profile: bool = None
     custom_profile_path: Path = None
     open_project_on_startup: bool = None
+    edit_on_clone: bool = False
     # Special advanced settings (not editable by the user)
     # These settings must be set manually in the configuration file
     xslt_debug_mode: bool = False
@@ -265,6 +267,9 @@ class AppSettings:
             SETTING_OPEN_PROJECT_ON_STARTUP, False
         )
 
+        # Edit on clone ------------------------
+        self.edit_on_clone = settings.getboolean(SETTING_EDIT_ON_CLONE, False)
+
         # XSLT debug mode ------------------------
         self.xslt_debug_mode = settings.getboolean(SETTING_XSLT_DEBUG_MODE, False)
 
@@ -278,6 +283,7 @@ class AppSettings:
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
         log.info(f"{self.open_project_on_startup = }")
+        log.info(f"{self.edit_on_clone = }")
         log.info(f"{self.xslt_debug_mode = }")
         log.info(f"{self.developer_features = }")
 
@@ -322,6 +328,7 @@ class AppSettings:
         using_default_profile: bool = None,
         custom_profile_path: Path = None,
         open_project_on_startup: bool = None,
+        edit_on_clone: bool = None,
     ) -> "AppSettings":
         """
         Clone the current object with the new user settings (if any).
@@ -347,6 +354,9 @@ class AppSettings:
         if open_project_on_startup is None:
             open_project_on_startup = self.open_project_on_startup
 
+        if edit_on_clone is None:
+            edit_on_clone = self.edit_on_clone
+
         new_settings = replace(
             self,
             language=language,
@@ -356,6 +366,7 @@ class AppSettings:
             using_default_profile=using_default_profile,
             custom_profile_path=custom_profile_path,
             open_project_on_startup=open_project_on_startup,
+            edit_on_clone=edit_on_clone,
         )
 
         new_settings._validate_profile_path()
@@ -389,6 +400,8 @@ class AppSettings:
             self.open_project_on_startup
         )
 
+        self.config_parser[SETTINGS][SETTING_EDIT_ON_CLONE] = str(self.edit_on_clone)
+
         with open(self.settings_file_path, "w", encoding="utf-8") as config_file:
             self.config_parser.write(config_file)
 
@@ -400,6 +413,7 @@ class AppSettings:
         log.info(f"{self.using_default_profile = }")
         log.info(f"{self.custom_profile_path = }")
         log.info(f"{self.open_project_on_startup = }")
+        log.info(f"{self.edit_on_clone = }")
 
     # ==========================================================================
     # Session data

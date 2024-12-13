@@ -51,6 +51,7 @@ from proteus.views.forms.properties.property_input_factory import (
     EnumPropertyInput,
 )
 from proteus.views.components.dialogs.base_dialogs import ProteusDialog
+from proteus.controller.commands.clone_archetype_object import CloneArchetypeObjectCommand
 from proteus.controller.command_stack import Controller
 
 # Module configuration
@@ -80,7 +81,9 @@ class PropertyDialog(ProteusDialog):
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def __init__(self, element_id=None, *args, **kwargs) -> None:
+    def __init__(
+        self, element_id=None, delete_object_on_cancel: bool = False, *args, **kwargs
+    ) -> None:
         """
         Class constructor, invoke the parents class constructors and create
         the component.
@@ -89,12 +92,14 @@ class PropertyDialog(ProteusDialog):
         be displayed, and the PropertyInput widgets in a dictionary.
 
         :param element_id: The id of the element to edit.
+        :param delete_object_on_cancel: Boolean to delete the object on cancel.
         """
         super(PropertyDialog, self).__init__(*args, **kwargs)
 
         # Set the element id, reference to the element whose properties
         # will be displayed
         self.element_id: ProteusID = element_id
+        self.delete_object_on_cancel: bool = delete_object_on_cancel
         self.project_dialog: bool = False
 
         # Create a dictionary to hold the input widgets for each property
@@ -363,21 +368,39 @@ class PropertyDialog(ProteusDialog):
         self.deleteLater()
 
     # ----------------------------------------------------------------------
-    # Method     : cancel_button_clicked
+    # Method     : reject_button_clicked
     # Description: Manage the cancel button clicked event. It closes the
     #              form window without saving any changes.
     # Date       : 27/05/2023
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def cancel_button_clicked(self):
+    def reject_button_clicked(self):
         """
         Manage the cancel button clicked event. It closes the form window
         without saving any changes.
         """
-        # Close the form window without saving any changes
-        self.close()
-        self.deleteLater()
+
+        # NOTE: This is a workaround for https://github.com/Josdelsan/Proteus/issues/47
+        # When delete_object_on_cancel is True, the last command is supposed to be a
+        # clone object archetype command, so we undo it to delete the object
+        if self.delete_object_on_cancel:
+            log.debug("Deleting cloned object on properties dialog cancel.")
+            current_index = self._controller.stack.count()
+
+            if current_index == 0:
+                log.error("No commands found in stack. Object archetype clone command not found.")
+                super().reject_button_clicked()
+
+            current_command = self._controller.stack.command(current_index-1)
+
+            if not isinstance(current_command, CloneArchetypeObjectCommand):
+                log.error("Last command is not a clone object archetype command.")
+                super().reject_button_clicked()
+
+            self._controller.undo()
+
+        super().reject_button_clicked()
 
     # ---------------------------------------------------------------------
     # Method     : change_focus_on_tab_changed
@@ -441,14 +464,21 @@ class PropertyDialog(ProteusDialog):
     # ----------------------------------------------------------------------
     @staticmethod
     def create_dialog(
-        controller: Controller, element_id: ProteusID
+        controller: Controller,
+        element_id: ProteusID,
+        delete_object_on_cancel: bool = False,
     ) -> "PropertyDialog":
         """
         Handle the creation and display of the form window.
 
         :param controller: A Controller instance.
         :param element_id: The id of the element to edit.
+        :param delete_object_on_cancel: (Use only after archetype object clone) Boolean to delete the object on cancel.
         """
-        dialog = PropertyDialog(element_id=element_id, controller=controller)
+        dialog = PropertyDialog(
+            element_id=element_id,
+            delete_object_on_cancel=delete_object_on_cancel,
+            controller=controller,
+        )
         dialog.exec()
         return dialog
