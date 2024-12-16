@@ -188,6 +188,7 @@ archetype.tooltip.importance: "Importance for the client."
 archetype.tooltip.priority: "Priority for the project manager."
 archetype.tooltip.urgency: "Urgency for the project manager."
 archetype.tooltip.status: "Status according to the project's lifecycle."
+archetype.tooltip.stability: "Stability of the requirement."
 archetype.tooltip.result-type: "Return type of the system operation."
 archetype.tooltip.constrained-elements: "Model elements affected by the constraint."
 

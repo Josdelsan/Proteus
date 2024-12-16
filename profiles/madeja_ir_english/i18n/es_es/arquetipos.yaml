@@ -189,6 +189,7 @@ archetype.tooltip.importance: "Importancia para el cliente."
 archetype.tooltip.priority: "Prioridad para la dirección del proyecto."
 archetype.tooltip.urgency: "Urgencia para la dirección del proyecto."
 archetype.tooltip.status: "Estado según el ciclo de vida del proyecto."
+archetype.tooltip.stability: "Estabilidad del requisito."
 archetype.tooltip.result-type: "Tipo del resultdo de la operación de sistema."
 archetype.tooltip.constrained-elements: "Elementos del modelo afectados por la restricción."
 
