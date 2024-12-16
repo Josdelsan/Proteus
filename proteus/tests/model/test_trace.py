@@ -28,9 +28,9 @@ from proteus.model.properties import (
     PropertyFactory,
     TRACE_TAG,
     TRACE_PROPERTY_TAG,
-    DEFAULT_TRACE_NAME,
-    DEFAULT_TRACE_CATEGORY,
     DEFAULT_TRACE_TYPE,
+    DEFAULT_CATEGORY,
+    DEFAULT_NAME,
 )
 from proteus.model import (
     TARGET_ATTRIBUTE,
@@ -39,7 +39,6 @@ from proteus.model import (
     ACCEPTED_TARGETS_ATTRIBUTE,
     EXCLUDED_TARGETS_ATTRIBUTE,
     TRACE_TYPE_ATTRIBUTE,
-    TARGET_ATTRIBUTE,
     PROTEUS_ANY,
     TOOLTIP_ATTRIBUTE,
     MAX_TARGETS_NUMBER_ATTRIBUTE,
@@ -57,8 +56,8 @@ DUMMY_TARGET_LIST_3 = ["target1", "target2", "target3"]
 
 def create_trace_element(
     dummy_targets: List[str],
-    name: str = DEFAULT_TRACE_NAME,
-    category: str = DEFAULT_TRACE_CATEGORY,
+    name: str = DEFAULT_NAME,
+    category: str = DEFAULT_CATEGORY,
     accepted_targets: str = PROTEUS_ANY,
     excluded_targets: str = None,
     trace_type: str = DEFAULT_TRACE_TYPE,
@@ -101,13 +100,13 @@ def create_trace_element(
 # --------------------------------------------------------------------------
 @pytest.mark.parametrize(
     "name, expected_name",
-    [("test name", "test name"), (str(), DEFAULT_TRACE_NAME)],
+    [("test name", "test name"), (str(), DEFAULT_NAME)],
 )
 @pytest.mark.parametrize(
     "category, expected_category",
     [
         ("test category", "test category"),
-        (str(), DEFAULT_TRACE_CATEGORY),
+        (str(), DEFAULT_CATEGORY),
     ],
 )
 @pytest.mark.parametrize(
@@ -198,8 +197,8 @@ def test_trace_creation(
         trace.acceptedTargets == expected_accepted_targets
     ), f"Trace accepted targets '{trace.acceptedTargets}' do not match expected accepted targets '{expected_accepted_targets}'"
     assert (
-        trace.type == expected_trace_type
-    ), f"Trace type '{trace.type}' does not match expected type '{expected_trace_type}'"
+        trace.traceType == expected_trace_type
+    ), f"Trace type '{trace.traceType}' does not match expected traceType '{expected_trace_type}'"
     assert (
         trace.value == expected_targets
     ), f"Trace targets '{trace.value}' do not match expected targets '{expected_targets}'"
@@ -210,8 +209,8 @@ def test_trace_creation(
         trace.tooltip == expected_tooltip
     ), f"Trace tooltip '{trace.tooltip}' does not match expected tooltip '{expected_tooltip}'"
     assert (
-        trace.max_targets_number == expected_max_targets_number
-    ), f"Trace max targets number '{trace.max_targets_number}' does not match expected max targets number '{expected_max_targets_number}'"
+        trace.maxTargetsNumber == expected_max_targets_number
+    ), f"Trace max targets number '{trace.maxTargetsNumber}' does not match expected max targets number '{expected_max_targets_number}'"
 
 
 @pytest.mark.parametrize(
@@ -253,8 +252,8 @@ def test_trace_clone(old_targets: List, new_targets: List):
         cloned_trace.excludedTargets == trace.excludedTargets
     ), f"Cloned trace excluded targets '{cloned_trace.excludedTargets}' do not match original excluded targets '{trace.excludedTargets}'"
     assert (
-        cloned_trace.type == trace.type
-    ), f"Cloned trace type '{cloned_trace.type}' does not match original type '{trace.type}'"
+        cloned_trace.traceType == trace.traceType
+    ), f"Cloned trace type '{cloned_trace.traceType}' does not match original traceType '{trace.traceType}'"
     assert (
         cloned_trace.value == new_targets
     ), f"Cloned trace targets '{cloned_trace.value}' do not match new targets '{new_targets}'"
@@ -309,8 +308,8 @@ def test_generate_xml(targets):
         trace.acceptedTargets
     ), f"Generated trace accepted targets '{generated_trace_element.attrib[ACCEPTED_TARGETS_ATTRIBUTE]}' do not match expected accepted targets '{trace.acceptedTargets}'"
     assert (
-        generated_trace_element.attrib[TRACE_TYPE_ATTRIBUTE] == trace.type
-    ), f"Generated trace type '{generated_trace_element.attrib[TRACE_TYPE_ATTRIBUTE]}' does not match expected type '{trace.type}'"
+        generated_trace_element.attrib[TRACE_TYPE_ATTRIBUTE] == trace.traceType
+    ), f"Generated trace type '{generated_trace_element.attrib[TRACE_TYPE_ATTRIBUTE]}' does not match expected traceType '{trace.traceType}'"
 
     # Check trace targets
     generated_targets = [

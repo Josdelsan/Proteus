@@ -24,7 +24,7 @@ import lxml.etree as ET
 # Project specific imports
 # --------------------------------------------------------------------------
 
-from proteus.model import ProteusClassTag
+from proteus.model import ProteusClassTag, VALUE_ATTRIBUTE
 from proteus.model.properties.property import Property
 from proteus.model.properties import TRACE_TYPE_LIST_PROPERTY_TAG, TYPE_TAG
 
@@ -62,14 +62,14 @@ class TraceTypeListProperty(Property):
 
         # Check if the value is a string
         if isinstance(self.value, str):
-            object.__setattr__(self, "value", self.value.split())
+            object.__setattr__(self, VALUE_ATTRIBUTE, self.value.split())
 
         # Check if the value is a list
         if not isinstance(self.value, list):
             log.warning(
                 f"TraceTypeListProperty: {self.name} value is not a list but '{type(self.value)}', setting it to an empty list"
             )
-            object.__setattr__(self, "value", list())
+            object.__setattr__(self, VALUE_ATTRIBUTE, list())
 
         # Check values are not repeated
         value_set = set(self.value)
@@ -78,7 +78,7 @@ class TraceTypeListProperty(Property):
                 f"TraceTypeListProperty: {self.name} contains repeated values, setting it to a list with unique values. \
                 This may affect the original order of the list. Original value: {self.value}, new value: {value_set}"
             )
-            object.__setattr__(self, "value", list(value_set))
+            object.__setattr__(self, VALUE_ATTRIBUTE, list(value_set))
 
         # Check for None values
         if None in self.value:
@@ -87,7 +87,7 @@ class TraceTypeListProperty(Property):
                 Original value: {self.value}"
             )
             object.__setattr__(
-                self, "value", [value for value in self.value if value is not None]
+                self, VALUE_ATTRIBUTE, [value for value in self.value if value is not None]
             )
 
     def generate_xml_value(

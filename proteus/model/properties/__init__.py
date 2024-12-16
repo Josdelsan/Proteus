@@ -83,14 +83,10 @@ TRACE_TAG               = str('trace')
 
 DEFAULT_NAME            = str('unnamed')
 DEFAULT_CATEGORY        = str('general')
+DEFAULT_TRACE_TYPE      = PROTEUS_DEPENDENCY
 
 DATE_FORMAT             = str('%Y-%m-%d')
 TIME_FORMAT             = str('%H:%M:%S')
-
-# Default values
-DEFAULT_TRACE_NAME     = str('trace')
-DEFAULT_TRACE_CATEGORY = str('dependencies')
-DEFAULT_TRACE_TYPE     = PROTEUS_DEPENDENCY
 
 NO_TARGETS_LIMIT = -1
 

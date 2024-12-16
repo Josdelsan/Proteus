@@ -169,7 +169,7 @@ class TraceabilityMatrixHelper(ProteusComponent):
         source_traces = source_obj.get_traces()
         for trace in source_traces:
             # Check if the trace is a dependency type
-            if trace.type == PROTEUS_DEPENDENCY:
+            if trace.traceType == PROTEUS_DEPENDENCY:
                 # Check if the target object is the target of the dependency
                 if target_id in trace.value:
                     return str(True)

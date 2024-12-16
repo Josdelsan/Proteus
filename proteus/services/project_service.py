@@ -241,7 +241,7 @@ class ProjectService:
                     # Add object to the target's source set
                     if target not in self.traces_index:
                         self.traces_index[target] = set()
-                    self.traces_index[target].add(tuple([object.id, trace.type]))
+                    self.traces_index[target].add(tuple([object.id, trace.traceType]))
 
     # ----------------------------------------------------------------------
     # Method     : get_traces_dependencies
@@ -250,7 +250,9 @@ class ProjectService:
     # Version    : 0.1
     # Author     : José María Delgado Sánchez
     # ----------------------------------------------------------------------
-    def get_traces_dependencies(self, object_id: ProteusID) -> Dict[ProteusID, Set[ProteusID]]:
+    def get_traces_dependencies(
+        self, object_id: ProteusID
+    ) -> Dict[ProteusID, Set[ProteusID]]:
         """
         Checks if the given object and its children have traces pointing to them.
         Do not check for traces pointing to DEAD objects.
@@ -303,8 +305,8 @@ class ProjectService:
         children_ids: Set[ProteusID] = object.get_ids()
 
         # Dictionary to store the sources by object id
-        traces_dependencies: Dict[ProteusID, Set[ProteusID]] = self.get_traces_dependencies(
-            object_id
+        traces_dependencies: Dict[ProteusID, Set[ProteusID]] = (
+            self.get_traces_dependencies(object_id)
         )
 
         # Check if sources are inside the object, if so, remove them
@@ -577,7 +579,6 @@ class ProjectService:
         classes.discard(PROTEUS_DOCUMENT)
 
         return sorted(classes)
-
 
     # ----------------------------------------------------------------------
     # Method     : get_project_available_trace_types

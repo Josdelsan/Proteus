@@ -116,7 +116,7 @@ class TraceInput(PropertyInput):
         input = ObjectsListEdit(
             controler=controller,
             candidates=candidates,
-            item_limit=property.max_targets_number,
+            item_limit=property.maxTargetsNumber,
         )
         
         # Set traced objects

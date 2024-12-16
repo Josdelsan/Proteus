@@ -174,9 +174,9 @@ class PropertyInputFactory:
         # Check if the property is required
 
         if isinstance(property, TraceProperty):
-            if property.max_targets_number != NO_TARGETS_LIMIT:
+            if property.maxTargetsNumber != NO_TARGETS_LIMIT:
                 max_label = _("property_input.max_targets_label")
-                name = f"{name} ( {max_label} {property.max_targets_number} )"
+                name = f"{name} ( {max_label} {property.maxTargetsNumber} )"
         else:
             if property.required:
                 label.setToolTip(_("property_input.required_tooltip"))

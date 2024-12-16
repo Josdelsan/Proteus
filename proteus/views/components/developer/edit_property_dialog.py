@@ -199,14 +199,14 @@ class EditPropertyDialog(ProteusDialog):
             " ".join([tag for tag in self._property.excludedTargets])
         )
         self.type_input = QLineEdit()
-        self.type_input.setText(self._property.type)
+        self.type_input.setText(self._property.traceType)
         self.max_targets_number_input = QLineEdit()
-        self.max_targets_number_input.setText(str(self._property.max_targets_number))
+        self.max_targets_number_input.setText(str(self._property.maxTargetsNumber))
 
-        form_layout.addRow("accepted_targets", self.acceptedTargets_input)
-        form_layout.addRow("excluded_targets", self.excludedTargets_input)
+        form_layout.addRow("acceptedTargets", self.acceptedTargets_input)
+        form_layout.addRow("excludedTargets", self.excludedTargets_input)
         form_layout.addRow("type", self.type_input)
-        form_layout.addRow("max_targets_number", self.max_targets_number_input)
+        form_layout.addRow("maxTargetsNumber", self.max_targets_number_input)
 
     def _create_value_input(self, form_layout: QFormLayout) -> None:
         """
@@ -364,8 +364,8 @@ class EditPropertyDialog(ProteusDialog):
                 != self.acceptedTargets_input.text().split()
                 or self._property.excludedTargets
                 != self.excludedTargets_input.text().split()
-                or self._property.type != self.type_input.text().strip()
-                or self._property.max_targets_number
+                or self._property.traceType != self.type_input.text().strip()
+                or self._property.maxTargetsNumber
                 != int(self.max_targets_number_input.text())
             )
 
@@ -395,8 +395,8 @@ class EditPropertyDialog(ProteusDialog):
                     value=self.value_input.get_value(),
                     acceptedTargets=self.acceptedTargets_input.text().split(),
                     excludedTargets=self.excludedTargets_input.text().split(),
-                    type=self.type_input.text().strip(),
-                    max_targets_number=int(self.max_targets_number_input.text()),
+                    traceType=self.type_input.text().strip(),
+                    maxTargetsNumber=int(self.max_targets_number_input.text()),
                 )
             else:
                 self.new_property = property_class(
