@@ -171,6 +171,12 @@ class ProteusApplication:
         profile.settings().setAttribute(
             QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
         )
+        profile.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.PluginsEnabled, True
+        )
+        profile.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.PdfViewerEnabled, True
+        )
 
     # --------------------------------------------------------------------------
     # Method: load_plugin_components
@@ -255,7 +261,11 @@ class ProteusApplication:
             open_project_on_startup = self.config.app_settings.open_project_on_startup
 
             last_project = self.config.app_settings.get_last_project_opened()
-            if last_project != "" and last_project is not None and open_project_on_startup:
+            if (
+                last_project != ""
+                and last_project is not None
+                and open_project_on_startup
+            ):
                 confirmation_dialog = MessageBox.question(
                     _("app.open_last_project.title"),
                     _("app.open_last_project.text"),
