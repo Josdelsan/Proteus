@@ -13,6 +13,7 @@ from basics.document_interactions import DocumentInteractions
 from basics.impact_analyzer import ImpactAnalyzer
 from basics.export.export_html import ExportHTML
 from basics.export.export_pdf import ExportPDF
+from basics.export.export_latex import ExportLaTeX
 
 
 def register(register_xslt_function, register_qwebchannel_class, register_proteus_component, register_export_strategy):
@@ -33,3 +34,4 @@ def register(register_xslt_function, register_qwebchannel_class, register_proteu
     # Export strategies
     register_export_strategy("pdf", ExportPDF)
     register_export_strategy("html", ExportHTML)
+    register_export_strategy("latex", ExportLaTeX)
