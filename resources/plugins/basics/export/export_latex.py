@@ -22,12 +22,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QDialog,
     QTextEdit,
-    QLineEdit,
-    QPushButton,
     QHBoxLayout,
     QVBoxLayout,
     QLabel,
-    QFileDialog,
 )
 
 
@@ -36,7 +33,6 @@ from PyQt6.QtWidgets import (
 # --------------------------------------------------------------------------
 
 from proteus import PROTEUS_TEMP_DIR
-from proteus.application.resources.icons import Icons, ProteusIconType
 from proteus.application.resources.translator import translate as _
 from proteus.application.state.manager import StateManager
 from proteus.controller.command_stack import Controller

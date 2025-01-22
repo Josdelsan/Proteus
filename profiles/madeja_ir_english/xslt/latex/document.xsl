@@ -10,9 +10,38 @@
     <html>
         <head>
             <title><xsl:value-of select="properties/*[@name=':Proteus-name']"/></title>
+            <style>
+                /* Estilos para la cabecera fija */
+                .fixed-header {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    background-color: #333;
+                    color: white;
+                    text-align: center;
+                    padding: 10px 0;
+                    z-index: 1000;
+                    font-family: Arial, sans-serif;
+                }
 
+                /* Agregar margen superior al contenido para evitar que se solape con la cabecera */
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, sans-serif;
+                }
+
+                .content {
+                    margin-top: 50px; /* Altura de la cabecera fija */
+                    padding: 20px;
+                }
+            </style>
         </head>
         <body>
+            <div class="fixed-header">
+                Para exportar a LaTeX, instala un servidor de LaTeX local (comando pdflatex) y selecciona la opción de exportar desde LaTeX.
+            </div>
             <pre><code class="language-latex"><latex>
 
             \documentclass[conference,a4paper]{IEEEtran}
