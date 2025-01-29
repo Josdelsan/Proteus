@@ -19,17 +19,23 @@ from typing import List
 
 from PyQt6.QtGui import (
     QMouseEvent,
+    QKeyEvent,
     QContextMenuEvent,
     QTextCursor,
+    QTextCharFormat,
+    QColor,
 )
 from PyQt6.QtCore import (
     QEvent,
     Qt,
+    QStringListModel,
+    QTimer,
 )
 from PyQt6.QtWidgets import (
     QTextEdit,
     QWidget,
     QMenu,
+    QCompleter,
 )
 
 # --------------------------------------------------------------------------
@@ -38,8 +44,8 @@ from PyQt6.QtWidgets import (
 
 from proteus.application.spellcheck import SpellCheckHighlighter, SpellCheckerWrapper
 from proteus.application.resources.translator import translate as _
-
-
+from proteus.application.resources.plugins import Plugins
+from proteus.application.utils.autocompleter import AutocompleterInterface
 
 # --------------------------------------------------------------------------
 # Class: TextEdit
@@ -72,6 +78,14 @@ class TextEdit(QTextEdit):
         super().__init__(parent)
         self._highlighter = SpellCheckHighlighter(self.document())
         self._spellchecker = SpellCheckerWrapper()
+
+        # Autocompletion handling ----------------------------        
+        self.completer = QCompleter(self)
+        self.completer.setWidget(self)
+        self.completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer.activated.connect(self._insert_completion)
+
 
     # --------------------------------------------------------------------------
     # Method: mousePressEvent
@@ -156,3 +170,84 @@ class TextEdit(QTextEdit):
                             )
 
         self.contextMenu.exec(event.globalPos())
+
+
+    def _insert_completion(self, completion):
+        if self.completer.widget() is not self:
+            return
+        
+        tc = self.textCursor()
+        extra = len(completion) - len(self.completer.completionPrefix())
+        tc.movePosition(QTextCursor.MoveOperation.Left)
+        tc.movePosition(QTextCursor.MoveOperation.EndOfWord)
+        tc.insertText(completion[-extra:])
+        self.setTextCursor(tc)
+
+    def _text_under_cursor(self):
+        tc = self.textCursor()
+        tc.select(QTextCursor.SelectionType.WordUnderCursor)
+        return tc.selectedText()
+    
+    def focusInEvent(self, event):
+        if self.completer:
+            self.completer.setWidget(self)
+        super().focusInEvent(event)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if self.completer and self.completer.popup().isVisible():
+            # Don't handle keypresses while popup is visible
+            if event.key() in (
+                Qt.Key.Key_Enter,
+                Qt.Key.Key_Return,
+                Qt.Key.Key_Escape,
+                Qt.Key.Key_Tab,
+                Qt.Key.Key_Backtab
+            ):
+                event.ignore()
+                return
+
+        # Handle standard Tab key press
+        isShortcut = (event.modifiers() == Qt.KeyboardModifier.ControlModifier and
+                     event.key() == Qt.Key.Key_Space)
+        
+        if not self.completer or not isShortcut:
+            super().keyPressEvent(event)
+        
+        ctrlOrShift = event.modifiers() in (Qt.KeyboardModifier.ControlModifier,
+                                          Qt.KeyboardModifier.ShiftModifier)
+        if ctrlOrShift and event.text() == '':
+            return
+        
+        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="
+        hasModifier = (event.modifiers() != Qt.KeyboardModifier.NoModifier) and not ctrlOrShift
+        completionPrefix = self._text_under_cursor()
+
+        copilot: AutocompleterInterface = Plugins().get_autocompleters().get('copilot')
+        string = copilot.autocomplete(completionPrefix)
+        model = QStringListModel()
+        model.setStringList(string)
+        self.completer.setModel(model)
+        
+        if not isShortcut and (hasModifier or event.text() == '' or
+                              len(completionPrefix) < 1 or
+                              event.text()[-1] in eow):
+            self.completer.popup().hide()
+            return
+        
+        if completionPrefix != self.completer.completionPrefix():
+            self.completer.setCompletionPrefix(completionPrefix)
+            self.completer.popup().setCurrentIndex(
+                self.completer.completionModel().index(0, 0))
+        
+        # Only complete if it is at the end of the text (not including spaces)
+        cursor = self.textCursor()
+        if cursor.position() - cursor.block().position() != cursor.block().length() - 1:
+            return
+        
+        cursor_rect = self.cursorRect()
+        cursor_rect.setWidth(self.completer.popup().sizeHintForColumn(0) +
+                           self.completer.popup().verticalScrollBar().sizeHint().width())
+        self.completer.complete(cursor_rect)
+
+
+        

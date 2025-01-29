@@ -29,6 +29,7 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 
 from proteus.application.utils.abstract_meta import SingletonMeta
+from proteus.application.utils.autocompleter import AutocompleterInterface
 
 # logging configuration
 log = logging.getLogger(__name__)
@@ -96,6 +97,9 @@ class Plugins(metaclass=SingletonMeta):
 
         # Export strategies (k: strategy name, v: strategy)
         self._export_strategies: Dict[str, Callable] = {}
+
+        # Autocompleter (k: name, v: autocompleter)
+        self._autocompleters: Dict[str, AutocompleterInterface] = {}
 
     # --------------------------------------------------------------------------
     # Method: _import_plugin
@@ -183,6 +187,7 @@ class Plugins(metaclass=SingletonMeta):
                     self.register_qwebchannel_class,
                     self.register_proteus_component,
                     self.register_export_strategy,
+                    self.register_autocompleter,
                 )
 
                 # Save the plugin
@@ -241,6 +246,18 @@ class Plugins(metaclass=SingletonMeta):
         Get the export strategies registered in the plugin manager.
         """
         return self._export_strategies
+    
+    # --------------------------------------------------------------------------
+    # Method: get_autocompleters
+    # Date: 28/01/2025
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def get_autocompleters(self) -> Dict[str, Callable]:
+        """
+        Get the autocompletes registered in the plugin manager.
+        """
+        return self._autocompleters
 
     # --------------------------------------------------------------------------
     # Method: get_plugins
@@ -382,8 +399,8 @@ class Plugins(metaclass=SingletonMeta):
     # --------------------------------------------------------------------------
     def register_export_strategy(self, name: str, strategy: Callable) -> None:
         """
-        Register an export strategy in the plugin manager. If there is already a
-        strategy registered with the same name, it will be ignored.
+        Register an export strategy in the plugin manager. If there is already
+        an strategy registered with the same name, it will be ignored.
 
         It validates if the strategy is callable.
 
@@ -402,3 +419,40 @@ class Plugins(metaclass=SingletonMeta):
 
         log.info(f"Registering export strategy '{name}'")
         self._export_strategies[name] = strategy
+
+
+    # --------------------------------------------------------------------------
+    # Method: register_autocompleter
+    # Date: 28/01/2025
+    # Version: 0.1
+    # Author: José María Delgado Sánchez
+    # --------------------------------------------------------------------------
+    def register_autocompleter(self, name: str, autocompleter: AutocompleterInterface) -> None:
+        """
+        Register an autocompleter in the plugin manager. If there is already an
+        autocompleter registered with the same name, it will be ignored.
+
+        It validates if the autocompleter is callable.
+
+        :param name: Name of the autocompleter.
+        :param autocompleter: Autocompleter to register.
+        """
+        # Validate the autocompleter
+        if not callable(autocompleter):
+            log.error(f"Autocompleter '{name}' is not callable, ignoring it")
+            return
+
+        # Register the autocompleter
+        if name in self._autocompleters:
+            log.error(f"Autocompleter '{name}' already registered, ignoring it")
+            return
+        
+        autocompleter_instance: AutocompleterInterface
+        try:
+            autocompleter_instance = autocompleter()
+        except Exception as e:
+            log.error(f"Autocompleter '{name}' could not be instantiated. Error: '{e}'")
+            return
+        
+        log.info(f"Registering autocompleter '{name}'")
+        self._autocompleters[name] = autocompleter_instance

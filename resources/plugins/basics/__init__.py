@@ -13,9 +13,10 @@ from basics.document_interactions import DocumentInteractions
 from basics.impact_analyzer import ImpactAnalyzer
 from basics.export.export_html import ExportHTML
 from basics.export.export_pdf import ExportPDF
+from basics.copilot import CopilotExample
 
 
-def register(register_xslt_function, register_qwebchannel_class, register_proteus_component, register_export_strategy):
+def register(register_xslt_function, register_qwebchannel_class, register_proteus_component, register_export_strategy, register_autocompleter):
 
     # Document Interactions
     register_qwebchannel_class("documentInteractions", DocumentInteractions)
@@ -33,3 +34,5 @@ def register(register_xslt_function, register_qwebchannel_class, register_proteu
     # Export strategies
     register_export_strategy("pdf", ExportPDF)
     register_export_strategy("html", ExportHTML)
+
+    register_autocompleter("copilot", CopilotExample)
