@@ -861,10 +861,10 @@ class Controller:
         xslt_dir = Config().profile_settings.xslt_directory.as_posix()
 
         html_string = html_string.replace(
-            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"file:///{assets_dir}/"
+            f"{ASSETS_DUMMY_SEARCH_PATH}:///", f"{assets_dir}/"
         )
         html_string = html_string.replace(
-            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"file:///{xslt_dir}/"
+            f"{TEMPLATE_DUMMY_SEARCH_PATH}:///", f"{xslt_dir}/"
         )
 
         # Save the html file

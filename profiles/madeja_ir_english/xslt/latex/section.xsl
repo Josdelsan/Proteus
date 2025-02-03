@@ -11,7 +11,6 @@
     <xsl:template match="object[@classes='section']">
         <!-- Nesting level -->
         <xsl:param name="nesting_level" select="1"/>
-        <xsl:param name="previous_index" select="''"/>
 
         <xsl:if test="$nesting_level = 1">
             <xsl:text>\section{</xsl:text>
@@ -28,6 +27,12 @@
         <xsl:value-of select="properties/*[@name=':Proteus-name']"/>
 
         <xsl:text>}</xsl:text>
+
+        <!-- Apply templates to all section children -->
+        <xsl:apply-templates select="children/object">
+            <!-- Provide nesting level context to children -->
+            <xsl:with-param name="nesting_level" select="$nesting_level + 1"/>
+        </xsl:apply-templates>
 
     </xsl:template>
 </xsl:stylesheet>

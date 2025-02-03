@@ -16,6 +16,7 @@
     <xsl:include href="document.xsl"/>
     <xsl:include href="section.xsl"/>
     <xsl:include href="paragraph.xsl"/>
+    <xsl:include href="figure.xsl"/>
 
 
     <xsl:template match="project">

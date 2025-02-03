@@ -45,6 +45,7 @@
             <pre><code class="language-latex"><latex>
 
             \documentclass[conference,a4paper]{IEEEtran}
+            \usepackage{graphicx}
 
             \begin{document}
 
