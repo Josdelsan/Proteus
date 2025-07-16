@@ -1,3 +1,23 @@
+# 🚧 Repository Archived
+
+**Status (as of June 2025):** This repository has been archived and is now read‑only.
+
+All active development has moved to a new organization:
+
+- **Core Application**  
+  The main application (formerly here) is now maintained at:  
+  https://github.com/proteus-University-of-Seville/proteus-core
+
+- **Profile**  
+  Individual PROTEUS “profiles” components present in this repository have been split into their own repositories:  
+  - https://github.com/proteus-University-of-Seville/profile-madeja-english  
+  - https://github.com/proteus-University-of-Seville/profile-madeja-spanish
+
+For bug reports, feature requests, or general discussion, please head over to the new organization’s issue trackers.  
+
+#
+#
+
 <div align = center>
 
 <img src="https://github.com/Josdelsan/proteus-tfg/assets/74303153/22db167f-c696-4f66-81ab-20250187eb99" width="100" />
